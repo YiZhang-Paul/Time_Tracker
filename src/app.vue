@@ -1,10 +1,17 @@
 <template>
-    <div class="container"></div>
+    <time-display class="time-display"></time-display>
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
+import { Options, Vue } from 'vue-class-component';
 
+import TimeDisplay from './features/time-display/time-display.vue';
+
+@Options({
+    components: {
+        TimeDisplay
+    }
+})
 export default class App extends Vue { }
 </script>
 
@@ -13,6 +20,7 @@ export default class App extends Vue { }
 
 html, body, #app {
     box-sizing: border-box;
+    position: relative;
     margin: 0;
     padding: 0;
     width: 100vw;
@@ -24,8 +32,9 @@ html, body, #app {
     background-color: var(--primary-colors-10-00);
 }
 
-.container {
-    width: 100%;
-    height: 100%;
+.time-display {
+    position: absolute;
+    top: 1.5vh;
+    right: 1.5vh;
 }
 </style>
