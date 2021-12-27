@@ -14,14 +14,14 @@ import { Vue } from 'vue-class-component';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 
 export default class TimeDisplay extends Vue {
-    private _current = new Date();
+    private current = new Date();
 
     get time(): string {
-        return TimeUtility.getTimeString(this._current);
+        return TimeUtility.getTimeString(this.current);
     }
 
     get date(): string {
-        return TimeUtility.getDateString(this._current);
+        return TimeUtility.getDateString(this.current);
     }
 
     public created(): void {
@@ -29,7 +29,7 @@ export default class TimeDisplay extends Vue {
     }
 
     private updateDateTime(): void {
-        this._current = new Date();
+        this.current = new Date();
         setTimeout(() => this.updateDateTime(), 1000);
     }
 }

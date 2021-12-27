@@ -5,6 +5,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
+import store from './store';
 import TimeDisplay from './features/time-display/time-display.vue';
 
 @Options({
@@ -12,7 +13,11 @@ import TimeDisplay from './features/time-display/time-display.vue';
         TimeDisplay
     }
 })
-export default class App extends Vue { }
+export default class App extends Vue {
+    public created(): void {
+        store.task.dispatch(store.task.action.LoadTaskItems);
+    }
+}
 </script>
 
 <style lang="scss">
