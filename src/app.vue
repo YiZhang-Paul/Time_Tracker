@@ -1,5 +1,6 @@
 <template>
     <time-display class="time-display"></time-display>
+    <task-item-list class="task-item-list"></task-item-list>
 </template>
 
 <script lang="ts">
@@ -7,10 +8,12 @@ import { Options, Vue } from 'vue-class-component';
 
 import store from './store';
 import TimeDisplay from './features/time-display/time-display.vue';
+import TaskItemList from './features/task/task-item-list/task-item-list.vue';
 
 @Options({
     components: {
-        TimeDisplay
+        TimeDisplay,
+        TaskItemList
     }
 })
 export default class App extends Vue {
@@ -41,5 +44,12 @@ html, body, #app {
     position: absolute;
     top: 1.5vh;
     right: 1.5vh;
+}
+
+.task-item-list {
+    position: absolute;
+    top: 25vh;
+    right: 1.5vh;
+    width: 15vw;
 }
 </style>
