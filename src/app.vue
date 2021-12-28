@@ -1,6 +1,7 @@
 <template>
     <time-display class="time-display"></time-display>
     <task-item-list class="task-item-list"></task-item-list>
+    <creation-button class="creation-button"></creation-button>
 </template>
 
 <script lang="ts">
@@ -9,11 +10,13 @@ import { Options, Vue } from 'vue-class-component';
 import store from './store';
 import TimeDisplay from './features/time-display/time-display.vue';
 import TaskItemList from './features/task/task-item-list/task-item-list.vue';
+import CreationButton from './shared/buttons/creation-button.vue';
 
 @Options({
     components: {
         TimeDisplay,
-        TaskItemList
+        TaskItemList,
+        CreationButton
     }
 })
 export default class App extends Vue {
@@ -26,6 +29,8 @@ export default class App extends Vue {
 <style lang="scss">
 @import './styles/presets.scss';
 @import './styles/animations.scss';
+
+$border-gap: 1.5vh;
 
 html, body, #app {
     box-sizing: border-box;
@@ -43,14 +48,24 @@ html, body, #app {
 
 .time-display {
     position: absolute;
-    top: 1.5vh;
-    right: 1.5vh;
+    top: $border-gap;
+    right: $border-gap;
 }
 
 .task-item-list {
     position: absolute;
     top: 25vh;
-    right: 1.5vh;
+    right: $border-gap;
     width: 15vw;
+}
+
+.creation-button {
+    $dimension: 5.5vh;
+
+    position: absolute;
+    left: calc(50vw - #{$dimension} / 2);
+    bottom: 3.5vh;
+    width: $dimension;
+    height: $dimension;
 }
 </style>
