@@ -25,6 +25,7 @@ export default class App extends Vue {
 
 <style lang="scss">
 @import './styles/presets.scss';
+@import './styles/animations.scss';
 
 html, body, #app {
     box-sizing: border-box;

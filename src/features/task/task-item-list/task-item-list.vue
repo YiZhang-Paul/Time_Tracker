@@ -1,10 +1,11 @@
 <template>
     <div class="task-item-list-container">
-        <task-item-card class="task-item-card"
-            v-for="item of items"
-            :key="item.id"
-            :item="item">
-        </task-item-card>
+        <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+            <task-item-card class="task-item-card"
+                :style="{ 'animation-delay': `${0.08 + index * 0.025}s` }"
+                :item="item">
+            </task-item-card>
+        </div>
     </div>
 </template>
 
@@ -33,8 +34,16 @@ export default class TaskItemList extends Vue {
     display: flex;
     flex-direction: column;
 
-    .task-item-card {
+    .card-wrapper {
         margin-bottom: 2vh;
+        padding: 0.5vh 0 0.5vh 1vh;
+        overflow-x: hidden;
+        animation: fade-in 0.3s ease forwards;
+    }
+
+    .task-item-card {
+        margin-left: 100%;
+        animation: move-to-left-by-margin 0.3s ease forwards;
     }
 }
 </style>
