@@ -1,5 +1,7 @@
 import { Module, Store } from 'vuex';
 
+import { types } from '../../core/ioc/types';
+import { container } from '../../core/ioc/container';
 import { TaskItemHttpService } from '../../core/services/http/task-item-http/task-item-http.service';
 import { DataStoreUtility } from '../../core/utilities/data-store-utility/data-store-utility';
 
@@ -17,7 +19,7 @@ export const createModule = (): Module<IState, any> => ({
 });
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const createHandlers = (namespace: string, getStore: () => Store<any>) => {
-    setActionServices(new TaskItemHttpService());
+    setActionServices(container.get<TaskItemHttpService>(types.TaskItemHttpService));
 
     return DataStoreUtility.getHandlers<
         IState,

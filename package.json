@@ -11,6 +11,8 @@
     "dependencies": {
         "axios": "^0.24.0",
         "core-js": "^3.6.5",
+        "inversify": "^5.1.1",
+        "reflect-metadata": "^0.1.13",
         "vue": "^3.0.0",
         "vue-class-component": "^8.0.0-0",
         "vuex": "^4.0.0-0"
