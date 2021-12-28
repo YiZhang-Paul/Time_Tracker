@@ -2,7 +2,7 @@
     <div class="time-display-container">
         <span>{{ time }}</span>
 
-        <div class="date">
+        <div class="date" :style="{ 'background-color': environmentColor }">
             <span>{{ date }}</span>
         </div>
     </div>
@@ -22,6 +22,10 @@ export default class TimeDisplay extends Vue {
 
     get date(): string {
         return TimeUtility.getDateString(this.current);
+    }
+
+    get environmentColor(): string {
+        return process.env.VUE_APP_ENV_COLOR;
     }
 
     public created(): void {
