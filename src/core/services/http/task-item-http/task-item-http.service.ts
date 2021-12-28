@@ -9,7 +9,7 @@ export class TaskItemHttpService {
 
     public async getTaskItems(): Promise<TaskItem[]> {
         try {
-            return (await axios.get(this._api)).data;
+            return (await axios.get(`${this._api}/summaries`)).data;
         }
         catch {
             return [];
