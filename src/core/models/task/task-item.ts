@@ -4,4 +4,8 @@ export class TaskItem {
     public description = '';
     public creationTime = '';
     public modifiedTime = '';
+
+    constructor(id: number) {
+        this.id = id;
+    }
 }

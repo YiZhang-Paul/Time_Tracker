@@ -24,7 +24,7 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
 })
 export default class TaskItemList extends Vue {
     get items(): TaskItem[] {
-        return store.task.getters(store.task.getter.TaskItems);
+        return store.task.getters(store.task.getter.Items);
     }
 }
 </script>
