@@ -31,6 +31,8 @@ export default class TaskItemList extends Vue {
 
 <style lang="scss" scoped>
 .task-item-list-container {
+    @import '../../../styles/animations.scss';
+
     display: flex;
     flex-direction: column;
 
@@ -38,12 +40,11 @@ export default class TaskItemList extends Vue {
         margin-bottom: 2vh;
         padding: 0.5vh 0 0.5vh 1vh;
         overflow-x: hidden;
-        animation: fade-in 0.3s ease forwards;
+        @include animate-opacity(0, 1, 0.3s);
     }
 
     .task-item-card {
-        margin-left: 100%;
-        animation: move-to-left-by-margin 0.3s ease forwards;
+        @include animate-margin(left, 100%, 0, 0.3s);
     }
 }
 </style>
