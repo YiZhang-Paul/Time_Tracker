@@ -4,6 +4,7 @@
     <task-item-editor v-if="editingTaskItem"
         class="task-item-editor"
         :item="editingTaskItem"
+        @create="onTaskCreate($event)"
         @delete="onTaskDelete($event)">
     </task-item-editor>
 
@@ -49,6 +50,12 @@ export default class App extends Vue {
     public onTaskCreationStart(): void {
         if (this.canCreateTask) {
             store.task.dispatch(store.task.action.StartTaskItemEdit);
+        }
+    }
+
+    public async onTaskCreate(item: TaskItem): Promise<void> {
+        if (await store.task.dispatch(store.task.action.CreateTaskItem, item)) {
+            store.task.dispatch(store.task.action.LoadTaskItems);
         }
     }
 

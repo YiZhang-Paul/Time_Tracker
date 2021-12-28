@@ -15,4 +15,13 @@ export class TaskItemHttpService {
             return [];
         }
     }
+
+    public async createTaskItem(item: TaskItem): Promise<TaskItem | null> {
+        try {
+            return (await axios.post(this._api, item)).data;
+        }
+        catch {
+            return null;
+        }
+    }
 }

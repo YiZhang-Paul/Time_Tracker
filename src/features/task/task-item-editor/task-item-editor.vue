@@ -4,6 +4,7 @@
             <input type="text"
                 class="name"
                 v-model="item.name"
+                maxlength="140"
                 placeholder="enter title here..." />
         </div>
 
@@ -14,7 +15,7 @@
 
         <div class="footer">
             <span v-if="item.creationTime">Created {{ item.creationTime }}</span>
-            <content-save class="save-button" />
+            <content-save class="save-button" @click="onSave()" />
             <delete class="delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
@@ -36,10 +37,21 @@ class TaskItemEditorProp {
         Delete
     },
     emits: [
+        'create',
         'delete'
     ]
 })
-export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) { }
+export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+    public onSave(): void {
+        if (!this.item.name?.trim()) {
+            return;
+        }
+
+        if (this.item.id === -1) {
+            this.$emit('create', this.item);
+        }
+    }
+}
 </script>
 
 <style lang="scss" scoped>

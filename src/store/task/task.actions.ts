@@ -14,6 +14,7 @@ export const setActionServices = (taskItemHttp: TaskItemHttpService): void => {
 
 export enum ActionKey {
     LoadTaskItems = 'load_task_items',
+    CreateTaskItem = 'create_task_item',
     StartTaskItemEdit = 'start_task_item_edit',
     EndTaskItemEdit = 'end_task_item_edit'
 }
@@ -24,6 +25,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 
 export type Actions = {
     [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void>;
+    [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
     [ActionKey.StartTaskItemEdit](context: ActionAugments): void;
     [ActionKey.EndTaskItemEdit](context: ActionAugments): void;
 }
@@ -31,6 +33,15 @@ export type Actions = {
 export const actions: ActionTree<IState, IState> & Actions = {
     async [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void> {
         context.commit(MutationKey.SetTaskItems, await taskItemHttpService.getTaskItems());
+    },
+    async [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean> {
+        const item = await taskItemHttpService.createTaskItem(payload);
+
+        if (item) {
+            context.commit(MutationKey.SetEditingItem, item);
+        }
+
+        return Boolean(item);
     },
     [ActionKey.StartTaskItemEdit](context: ActionAugments): void {
         context.commit(MutationKey.SetEditingItem, new TaskItem(-1));
