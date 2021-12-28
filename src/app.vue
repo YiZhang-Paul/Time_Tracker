@@ -8,7 +8,11 @@
     </task-item-editor>
 
     <task-item-list class="task-item-list"></task-item-list>
-    <creation-button class="creation-button" @click="onTaskCreationStart()"></creation-button>
+
+    <creation-button class="creation-button"
+        @click="onTaskCreationStart()"
+        :isDisabled="!canCreateTask">
+    </creation-button>
 </template>
 
 <script lang="ts">
@@ -30,6 +34,10 @@ import CreationButton from './shared/buttons/creation-button.vue';
     }
 })
 export default class App extends Vue {
+    get canCreateTask(): boolean {
+        return this.editingTaskItem?.id !== -1;
+    }
+
     get editingTaskItem(): TaskItem | null {
         return store.task.getters(store.task.getter.EditingItem);
     }
@@ -39,7 +47,9 @@ export default class App extends Vue {
     }
 
     public onTaskCreationStart(): void {
-        store.task.dispatch(store.task.action.StartTaskItemEdit);
+        if (this.canCreateTask) {
+            store.task.dispatch(store.task.action.StartTaskItemEdit);
+        }
     }
 
     public onTaskDelete(item: TaskItem): void {

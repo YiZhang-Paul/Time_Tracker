@@ -14,6 +14,7 @@
 
         <div class="footer">
             <span v-if="item.creationTime">Created {{ item.creationTime }}</span>
+            <content-save class="save-button" />
             <delete class="delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
@@ -21,7 +22,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { Delete } from 'mdue';
+import { ContentSave, Delete } from 'mdue';
 
 import { TaskItem } from '../../../core/models/task/task-item';
 
@@ -31,6 +32,7 @@ class TaskItemEditorProp {
 
 @Options({
     components: {
+        ContentSave,
         Delete
     },
     emits: [
@@ -115,13 +117,24 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) { }
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
 
-        .delete-button {
+        .save-button, .delete-button {
             margin-left: 1vh;
             cursor: pointer;
-            color: var(--context-colors-warning-1-00);
             font-size: var(--font-sizes-500);
             transition: color 0.3s;
             @include animate-opacity(0, 1, 0.3s, 0.6s);
+        }
+
+        .save-button {
+            color: var(--context-colors-info-1-00);
+
+            &:hover {
+                color: var(--context-colors-info-0-00);
+            }
+        }
+
+        .delete-button {
+            color: var(--context-colors-warning-1-00);
 
             &:hover {
                 color: var(--context-colors-warning-0-00);
