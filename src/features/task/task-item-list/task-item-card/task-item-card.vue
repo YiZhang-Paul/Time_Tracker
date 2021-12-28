@@ -22,11 +22,12 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
 
 <style lang="scss" scoped>
 .task-item-card-container {
+    @import '../../../../styles/presets.scss';
+
     $height: 7.5vh;
 
+    @include flex-row(center);
     box-sizing: border-box;
-    display: flex;
-    align-items: center;
     width: 100%;
     height: $height;
     border-radius: 45px 0 0 45px;
@@ -37,9 +38,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
     .progress-indicator {
         $margin: 0.75vh;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-row(center, center);
         margin-left: $margin;
         width: calc(#{$height} - #{$margin} * 2);
         height: calc(#{$height} - #{$margin} * 2);

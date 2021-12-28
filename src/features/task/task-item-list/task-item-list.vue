@@ -31,10 +31,10 @@ export default class TaskItemList extends Vue {
 
 <style lang="scss" scoped>
 .task-item-list-container {
+    @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    display: flex;
-    flex-direction: column;
+    @include flex-column();
 
     .card-wrapper {
         margin-bottom: 2vh;

@@ -29,3 +29,16 @@
     --context-colors-warning-0-00: rgb(253, 49, 49);
     --context-colors-warning-1-00: rgb(212, 32, 32);
 }
+
+@mixin flex-row($align: initial, $justify: initial) {
+    display: flex;
+    align-items: $align;
+    justify-content: $justify;
+}
+
+@mixin flex-column($align: initial, $justify: initial) {
+    display: flex;
+    flex-direction: column;
+    align-items: $align;
+    justify-content: $justify;
+}

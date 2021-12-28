@@ -86,7 +86,6 @@ html, body, #app {
     left: calc((100vw - #{$width}) / 2);
     width: $width;
     height: 57.5vh;
-    border: 1px solid red;
 }
 
 .task-item-list {

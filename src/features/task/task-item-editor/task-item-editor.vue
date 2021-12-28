@@ -1,10 +1,16 @@
 <template>
     <div class="task-item-editor-container">
         <div class="header">
-            <input type="text" class="name" v-model="item.name" placeholder="enter title here..." />
+            <input type="text"
+                class="name"
+                v-model="item.name"
+                placeholder="enter title here..." />
         </div>
 
-        <textarea class="description" v-model="item.description"></textarea>
+        <textarea class="description"
+            v-model="item.description"
+            placeholder="no descriptions...">
+        </textarea>
 
         <div class="footer">
             <span v-if="item.creationTime">Created {{ item.creationTime }}</span>
@@ -36,25 +42,21 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) { }
 
 <style lang="scss" scoped>
 .task-item-editor-container {
+    @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
     $content-width: 95%;
 
+    @include flex-column(center, center);
     position: relative;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
     .header {
         $starting-height: 87.5%;
 
+        @include flex-row(center, center);
         position: absolute;
         top: 5%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         width: calc(#{$content-width} + 2.5vh);
         height: $starting-height;
         border-radius: 5px;
@@ -107,9 +109,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) { }
     }
 
     .footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
+        @include flex-row(center, flex-end);
         width: $content-width;
         height: 10%;
         color: var(--font-colors-2-00);

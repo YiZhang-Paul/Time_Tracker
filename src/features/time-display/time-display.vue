@@ -41,18 +41,16 @@ export default class TimeDisplay extends Vue {
 
 <style lang="scss" scoped>
 .time-display-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @import '../../styles/presets.scss';
+
+    @include flex-row(center, center);
     color: var(--font-colors-0-00);
 
     .date {
+        @include flex-row(center, center);
         box-sizing: border-box;
         margin-left: 8px;
         padding: 5px 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         border-radius: 15px;
         background-color: var(--primary-colors-8-00);
         box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);

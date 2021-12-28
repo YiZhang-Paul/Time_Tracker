@@ -16,9 +16,9 @@ export default class CreationButton extends Vue { }
 
 <style lang="scss" scoped>
 .creation-button-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @import '../../styles/presets.scss';
+
+    @include flex-row(center, center);
     cursor: pointer;
     border-radius: 50%;
     box-shadow: 0 0 6px 1px var(--creation-button-color-shadow);
