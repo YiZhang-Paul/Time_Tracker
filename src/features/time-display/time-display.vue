@@ -50,7 +50,7 @@ export default class TimeDisplay extends Vue {
         align-items: center;
         justify-content: center;
         border-radius: 15px;
-        background-color: var(--primary-colors-9-00);
+        background-color: var(--primary-colors-8-00);
         box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
         font-size: var(--font-sizes-200);
     }
