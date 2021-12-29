@@ -45,8 +45,13 @@ export default class App extends Vue {
         return store.task.getters(store.task.getter.EditingItem);
     }
 
-    public created(): void {
-        store.task.dispatch(store.task.action.LoadTaskItems);
+    public async created(): Promise<void> {
+        await store.task.dispatch(store.task.action.LoadTaskItems);
+        const items = store.task.getters(store.task.getter.Items);
+
+        if (items.length) {
+            store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
+        }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
