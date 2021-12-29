@@ -4,6 +4,7 @@ import { TaskItem } from '../../core/models/task/task-item';
 import { TaskItemHttpService } from '../../core/services/http/task-item-http/task-item-http.service';
 
 import { IState } from './task.state';
+import { GetterKey } from './task.getters';
 import { Mutations, MutationKey } from './task.mutations';
 
 let taskItemHttpService: TaskItemHttpService;
@@ -15,6 +16,7 @@ export const setActionServices = (taskItemHttp: TaskItemHttpService): void => {
 export enum ActionKey {
     LoadTaskItems = 'load_task_items',
     CreateTaskItem = 'create_task_item',
+    DeleteTaskItem = 'delete_task_item',
     StartTaskItemCreation = 'start_task_item_creation',
     StartTaskItemEdit = 'start_task_item_edit',
     EndTaskItemEdit = 'end_task_item_edit'
@@ -27,6 +29,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 export type Actions = {
     [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void>;
     [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
+    [ActionKey.DeleteTaskItem](context: ActionAugments, payload: number): Promise<boolean>;
     [ActionKey.StartTaskItemCreation](context: ActionAugments): void;
     [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean>;
     [ActionKey.EndTaskItemEdit](context: ActionAugments): void;
@@ -45,6 +48,21 @@ export const actions: ActionTree<IState, IState> & Actions = {
         }
 
         return Boolean(item);
+    },
+    async [ActionKey.DeleteTaskItem](context: ActionAugments, payload: number): Promise<boolean> {
+        const isDeleted = await taskItemHttpService.deleteTaskItem(payload);
+
+        if (!isDeleted) {
+            return false;
+        }
+
+        if (context.getters[GetterKey.EditingItem]?.id === payload) {
+            context.dispatch(ActionKey.EndTaskItemEdit);
+        }
+
+        context.commit(MutationKey.DeleteTaskItem, payload);
+
+        return true;
     },
     [ActionKey.StartTaskItemCreation](context: ActionAugments): void {
         context.commit(MutationKey.SetEditingItem, new TaskItem(-1));

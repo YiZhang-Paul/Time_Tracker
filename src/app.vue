@@ -70,6 +70,9 @@ export default class App extends Vue {
         if (item.id === -1) {
             store.task.dispatch(store.task.action.EndTaskItemEdit);
         }
+        else {
+            store.task.dispatch(store.task.action.DeleteTaskItem, item.id);
+        }
     }
 }
 </script>
