@@ -46,8 +46,8 @@ export default class App extends Vue {
     }
 
     public async created(): Promise<void> {
-        await store.task.dispatch(store.task.action.LoadTaskItems);
-        const items = store.task.getters(store.task.getter.Items);
+        await store.task.dispatch(store.task.action.LoadTaskSummaries);
+        const items = store.task.getters(store.task.getter.Summaries);
 
         if (items.length) {
             store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
@@ -68,13 +68,13 @@ export default class App extends Vue {
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
         if (await store.task.dispatch(store.task.action.CreateTaskItem, item)) {
-            store.task.dispatch(store.task.action.LoadTaskItems);
+            store.task.dispatch(store.task.action.LoadTaskSummaries);
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
         if (await store.task.dispatch(store.task.action.UpdateTaskItem, item)) {
-            store.task.dispatch(store.task.action.LoadTaskItems);
+            store.task.dispatch(store.task.action.LoadTaskSummaries);
         }
     }
 

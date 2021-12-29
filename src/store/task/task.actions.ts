@@ -14,7 +14,7 @@ export const setActionServices = (taskItemHttp: TaskItemHttpService): void => {
 };
 
 export enum ActionKey {
-    LoadTaskItems = 'load_task_items',
+    LoadTaskSummaries = 'load_task_summaries',
     CreateTaskItem = 'create_task_item',
     UpdateTaskItem = 'update_task_item',
     DeleteTaskItem = 'delete_task_item',
@@ -28,7 +28,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
-    [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void>;
+    [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void>;
     [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
     [ActionKey.UpdateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
     [ActionKey.DeleteTaskItem](context: ActionAugments, payload: number): Promise<boolean>;
@@ -38,8 +38,8 @@ export type Actions = {
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
-    async [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void> {
-        context.commit(MutationKey.SetTaskItems, await taskItemHttpService.getTaskItems());
+    async [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void> {
+        context.commit(MutationKey.SetSummaries, await taskItemHttpService.getTaskSummaries());
     },
     async [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean> {
         const item = await taskItemHttpService.createTaskItem(payload);
@@ -70,7 +70,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
             context.dispatch(ActionKey.EndTaskItemEdit);
         }
 
-        context.commit(MutationKey.DeleteTaskItem, payload);
+        context.commit(MutationKey.DeleteSummary, payload);
 
         return true;
     },

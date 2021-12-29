@@ -37,7 +37,7 @@ export default class TaskItemList extends Vue {
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
-        return store.task.getters(store.task.getter.Items);
+        return store.task.getters(store.task.getter.Summaries);
     }
 
     get activeId(): number {
