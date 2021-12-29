@@ -1,7 +1,7 @@
 <template>
     <div class="task-item-card-container" :class="{ active: isActive }">
         <div class="progress-indicator">
-            <span>{{ item.id }}</span>
+            <span>{{ item.effort }}</span>
         </div>
 
         <span class="name">{{ item.name }}</span>
