@@ -26,21 +26,30 @@ export class TaskItemHttpService {
         }
     }
 
-    public async deleteTaskItem(id: number): Promise<boolean> {
-        try {
-            return (await axios.delete(`${this._api}/${id}`)).data;
-        }
-        catch {
-            return false;
-        }
-    }
-
     public async createTaskItem(item: TaskItem): Promise<TaskItem | null> {
         try {
             return (await axios.post(this._api, item)).data;
         }
         catch {
             return null;
+        }
+    }
+
+    public async updateTaskItem(item: TaskItem): Promise<TaskItem | null> {
+        try {
+            return (await axios.put(this._api, item)).data;
+        }
+        catch {
+            return null;
+        }
+    }
+
+    public async deleteTaskItem(id: number): Promise<boolean> {
+        try {
+            return (await axios.delete(`${this._api}/${id}`)).data;
+        }
+        catch {
+            return false;
         }
     }
 }

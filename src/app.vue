@@ -5,6 +5,7 @@
         class="task-item-editor"
         :item="editingTaskItem"
         @create="onTaskCreate($event)"
+        @update="onTaskUpdate($event)"
         @delete="onTaskDelete($event)">
     </task-item-editor>
 
@@ -62,6 +63,12 @@ export default class App extends Vue {
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
         if (await store.task.dispatch(store.task.action.CreateTaskItem, item)) {
+            store.task.dispatch(store.task.action.LoadTaskItems);
+        }
+    }
+
+    public async onTaskUpdate(item: TaskItem): Promise<void> {
+        if (await store.task.dispatch(store.task.action.UpdateTaskItem, item)) {
             store.task.dispatch(store.task.action.LoadTaskItems);
         }
     }
