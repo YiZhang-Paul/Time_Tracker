@@ -97,7 +97,7 @@ export default class App extends Vue {
 @import './styles/animations.scss';
 
 $border-gap: 1.5vh;
-$content-top: 25vh;
+$content-top: 27.5vh;
 $item-list-width: 20vw;
 
 html, body, #app {
@@ -125,7 +125,7 @@ html, body, #app {
     $height: 7.5vh;
 
     position: absolute;
-    top: calc(#{$content-top} - #{$height} - 2.5vh);
+    top: calc(#{$content-top} - #{$height} - 5vh);
     left: calc(50vw - #{$width} / 2);
     width: $width;
     height: $height;
@@ -143,7 +143,7 @@ html, body, #app {
 
 .task-item-list {
     position: absolute;
-    top: $content-top;
+    top: calc(#{$content-top} - 2.5vh);
     right: $border-gap;
     width: $item-list-width;
 }

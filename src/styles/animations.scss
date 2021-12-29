@@ -7,3 +7,20 @@
         to { opacity: $end; }
     }
 }
+
+@mixin emerge($startBackground, $endBackground, $startShadow, $endShadow, $duration, $delay: 0s) {
+    background-color: $startBackground;
+    box-shadow: $startShadow;
+    animation: emerge $duration ease $delay forwards;
+
+    @keyframes emerge {
+        from {
+            background-color: $startBackground;
+            box-shadow: $startShadow;
+        }
+        to {
+            background-color: $endBackground;
+            box-shadow: $endShadow;
+        }
+    }
+}

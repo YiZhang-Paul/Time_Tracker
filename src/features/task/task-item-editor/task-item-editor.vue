@@ -144,6 +144,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         height: 10%;
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
+        @include animate-opacity(0, 1, 0.3s, 0.6s);
 
         .effort-selector {
             @include flex-row(center, center);
@@ -168,7 +169,6 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             cursor: pointer;
             font-size: var(--font-sizes-500);
             transition: color 0.3s;
-            @include animate-opacity(0, 1, 0.3s, 0.6s);
         }
 
         .save-button {

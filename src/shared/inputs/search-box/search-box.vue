@@ -48,15 +48,23 @@ export default class SearchBox extends Vue {
 <style lang="scss" scoped>
 .search-box-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     $border-radius: 5px;
 
     @include flex-row(center, center);
     border-radius: $border-radius;
-    background-color: var(--primary-colors-9-00);
     color: var(--font-colors-4-00);
-    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
     font-size: var(--font-sizes-700);
+
+    @include emerge(
+        var(--primary-colors-10-00),
+        var(--primary-colors-9-00),
+        0 0 0 0 rgba(0, 0, 0, 0.35),
+        0 0 6px 1px rgba(0, 0, 0, 0.35),
+        0.2s,
+        0.6s
+    );
 
     .box-border {
         $padding: 1.5vh;
@@ -68,6 +76,7 @@ export default class SearchBox extends Vue {
         height: calc(100% - #{$padding});
         border-radius: $border-radius;
         border: 1px solid var(--primary-colors-5-00);
+        @include animate-opacity(0, 1, 0.3s, 0.85s);
 
         .icon {
             margin-right: 4px;
