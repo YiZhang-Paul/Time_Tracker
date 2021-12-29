@@ -4,6 +4,7 @@
             <task-item-card class="task-item-card"
                 :style="{ 'animation-delay': `${0.08 + index * 0.025}s` }"
                 :item="item"
+                :isActive="activeId === item.id"
                 @click="$emit('select', item)">
             </task-item-card>
         </div>
@@ -29,6 +30,10 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
 export default class TaskItemList extends Vue {
     get items(): TaskItemSummaryDto[] {
         return store.task.getters(store.task.getter.Items);
+    }
+
+    get activeId(): number {
+        return store.task.getters(store.task.getter.EditingItem)?.id ?? -1;
     }
 }
 </script>

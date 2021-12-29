@@ -43,8 +43,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const item = await taskItemHttpService.createTaskItem(payload);
 
         if (item) {
-            context.dispatch(ActionKey.EndTaskItemEdit);
-            setTimeout(() => context.commit(MutationKey.SetEditingItem, item));
+            context.commit(MutationKey.SetEditingItem, item);
         }
 
         return Boolean(item);
@@ -65,7 +64,8 @@ export const actions: ActionTree<IState, IState> & Actions = {
         return true;
     },
     [ActionKey.StartTaskItemCreation](context: ActionAugments): void {
-        context.commit(MutationKey.SetEditingItem, new TaskItem(-1));
+        context.dispatch(ActionKey.EndTaskItemEdit);
+        setTimeout(() => context.commit(MutationKey.SetEditingItem, new TaskItem(-1)));
     },
     async [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean> {
         const item = await taskItemHttpService.getTaskItem(payload);
