@@ -3,7 +3,8 @@
         <div class="card-wrapper" v-for="(item, index) of items" :key="index">
             <task-item-card class="task-item-card"
                 :style="{ 'animation-delay': `${0.08 + index * 0.025}s` }"
-                :item="item">
+                :item="item"
+                @click="$emit('select', item)">
             </task-item-card>
         </div>
     </div>
@@ -20,7 +21,10 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
 @Options({
     components: {
         TaskItemCard
-    }
+    },
+    emits: [
+        'select'
+    ]
 })
 export default class TaskItemList extends Vue {
     get items(): TaskItemSummaryDto[] {

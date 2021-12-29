@@ -35,6 +35,15 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
     box-shadow: -4px 0 6px 1px rgba(0, 0, 0, 0.3);
     color: var(--font-colors-0-00);
 
+    &:hover {
+        cursor: pointer;
+        background: linear-gradient(90deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
+
+        .progress-indicator {
+            background-color: var(--secondary-colors-2-02);
+        }
+    }
+
     .progress-indicator {
         $margin: 0.75vh;
 
@@ -44,7 +53,9 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         height: calc(#{$height} - #{$margin} * 2);
         border: 2px dashed #17878D;
         border-radius: 50%;
+        background-clip: padding-box;
         font-size: var(--font-sizes-500);
+        transition: background-color 0.4s;
     }
 
     .name {

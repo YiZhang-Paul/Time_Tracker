@@ -15,6 +15,7 @@ export const setActionServices = (taskItemHttp: TaskItemHttpService): void => {
 export enum ActionKey {
     LoadTaskItems = 'load_task_items',
     CreateTaskItem = 'create_task_item',
+    StartTaskItemCreation = 'start_task_item_creation',
     StartTaskItemEdit = 'start_task_item_edit',
     EndTaskItemEdit = 'end_task_item_edit'
 }
@@ -26,7 +27,8 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 export type Actions = {
     [ActionKey.LoadTaskItems](context: ActionAugments): Promise<void>;
     [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
-    [ActionKey.StartTaskItemEdit](context: ActionAugments): void;
+    [ActionKey.StartTaskItemCreation](context: ActionAugments): void;
+    [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean>;
     [ActionKey.EndTaskItemEdit](context: ActionAugments): void;
 }
 
@@ -38,13 +40,24 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const item = await taskItemHttpService.createTaskItem(payload);
 
         if (item) {
-            context.commit(MutationKey.SetEditingItem, item);
+            context.dispatch(ActionKey.EndTaskItemEdit);
+            setTimeout(() => context.commit(MutationKey.SetEditingItem, item));
         }
 
         return Boolean(item);
     },
-    [ActionKey.StartTaskItemEdit](context: ActionAugments): void {
+    [ActionKey.StartTaskItemCreation](context: ActionAugments): void {
         context.commit(MutationKey.SetEditingItem, new TaskItem(-1));
+    },
+    async [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean> {
+        const item = await taskItemHttpService.getTaskItem(payload);
+
+        if (item) {
+            context.dispatch(ActionKey.EndTaskItemEdit);
+            setTimeout(() => context.commit(MutationKey.SetEditingItem, item));
+        }
+
+        return Boolean(item);
     },
     [ActionKey.EndTaskItemEdit](context: ActionAugments): void {
         context.commit(MutationKey.SetEditingItem, null);

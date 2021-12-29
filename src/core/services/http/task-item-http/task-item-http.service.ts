@@ -8,6 +8,15 @@ import { TaskItem } from '../../../models/task/task-item';
 export class TaskItemHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/task-items`;
 
+    public async getTaskItem(id: number): Promise<TaskItem | null> {
+        try {
+            return (await axios.get(`${this._api}/${id}`)).data;
+        }
+        catch {
+            return null;
+        }
+    }
+
     public async getTaskItems(): Promise<TaskItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;

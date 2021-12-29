@@ -8,7 +8,7 @@
         @delete="onTaskDelete($event)">
     </task-item-editor>
 
-    <task-item-list class="task-item-list"></task-item-list>
+    <task-item-list class="task-item-list" @select="onTaskSelect($event)"></task-item-list>
 
     <creation-button class="creation-button"
         @click="onTaskCreationStart()"
@@ -20,6 +20,7 @@
 import { Options, Vue } from 'vue-class-component';
 
 import store from './store';
+import { TaskItemSummaryDto } from './core/dtos/task-item-summary-dto';
 import { TaskItem } from './core/models/task/task-item';
 import TimeDisplay from './features/time-display/time-display.vue';
 import TaskItemEditor from './features/task/task-item-editor/task-item-editor.vue';
@@ -47,9 +48,15 @@ export default class App extends Vue {
         store.task.dispatch(store.task.action.LoadTaskItems);
     }
 
+    public onTaskSelect(item: TaskItemSummaryDto): void {
+        if (this.editingTaskItem?.id !== item.id) {
+            store.task.dispatch(store.task.action.StartTaskItemEdit, item.id);
+        }
+    }
+
     public onTaskCreationStart(): void {
         if (this.canCreateTask) {
-            store.task.dispatch(store.task.action.StartTaskItemEdit);
+            store.task.dispatch(store.task.action.StartTaskItemCreation);
         }
     }
 
