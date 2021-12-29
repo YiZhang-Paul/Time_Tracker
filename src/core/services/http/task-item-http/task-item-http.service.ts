@@ -1,13 +1,14 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
+import { TaskItemSummaryDto } from '../../../dtos/task-item-summary-dto';
 import { TaskItem } from '../../../models/task/task-item';
 
 @injectable()
 export class TaskItemHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/task-items`;
 
-    public async getTaskItems(): Promise<TaskItem[]> {
+    public async getTaskItems(): Promise<TaskItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;
         }

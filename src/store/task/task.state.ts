@@ -1,7 +1,8 @@
+import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
 
 export interface IState {
-    items: TaskItem[];
+    items: TaskItemSummaryDto[];
     editingItem: TaskItem | null;
 }
 

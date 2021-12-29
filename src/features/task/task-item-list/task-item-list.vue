@@ -13,7 +13,7 @@
 import { Options, Vue } from 'vue-class-component';
 
 import store from '../../../store';
-import { TaskItem } from '../../../core/models/task/task-item';
+import { TaskItemSummaryDto } from '../../../core/dtos/task-item-summary-dto';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -23,7 +23,7 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
     }
 })
 export default class TaskItemList extends Vue {
-    get items(): TaskItem[] {
+    get items(): TaskItemSummaryDto[] {
         return store.task.getters(store.task.getter.Items);
     }
 }

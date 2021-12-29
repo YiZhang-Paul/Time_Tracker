@@ -11,10 +11,10 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { TaskItem } from '../../../../core/models/task/task-item';
+import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 
 class TaskItemCardProp {
-    public item = prop<TaskItem>({ default: null });
+    public item = prop<TaskItemSummaryDto>({ default: null });
 }
 
 export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
