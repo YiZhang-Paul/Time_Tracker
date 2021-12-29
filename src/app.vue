@@ -83,7 +83,7 @@ export default class App extends Vue {
 
 $border-gap: 1.5vh;
 $content-top: 25vh;
-$item-list-width: 15vw;
+$item-list-width: 20vw;
 
 html, body, #app {
     box-sizing: border-box;
