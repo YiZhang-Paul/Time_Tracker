@@ -14,6 +14,12 @@
         </textarea>
 
         <div class="footer">
+            <div class="effort-selector" @click="onEffortSelect()">
+                <weight class="icon" />
+                <span>{{ item.effort }}</span>
+            </div>
+
+            <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <content-save class="save-button" @click="onSave()" />
             <delete class="delete-button" @click="$emit('delete', item)" />
@@ -23,7 +29,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete } from 'mdue';
+import { ContentSave, Delete, Weight } from 'mdue';
 
 import { TaskItem } from '../../../core/models/task/task-item';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
@@ -35,7 +41,8 @@ class TaskItemEditorProp {
 @Options({
     components: {
         ContentSave,
-        Delete
+        Delete,
+        Weight
     },
     emits: [
         'create',
@@ -46,6 +53,12 @@ class TaskItemEditorProp {
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    }
+
+    public onEffortSelect(): void {
+        const options = [0, 1, 2, 3, 5, 8, 13];
+        const index = options.indexOf(this.item.effort) + 1;
+        this.item.effort = options[index % options.length];
     }
 
     public onSave(): void {
@@ -131,6 +144,24 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         height: 10%;
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
+
+        .effort-selector {
+            @include flex-row(center, center);
+            transition: color 0.3s;
+
+            &:hover {
+                cursor: pointer;
+                color: var(--font-colors-0-00);
+            }
+
+            .icon {
+                margin-right: 4px;
+            }
+        }
+
+        .filler {
+            flex-grow: 1;
+        }
 
         .save-button, .delete-button {
             margin-left: 1vh;
