@@ -7,15 +7,3 @@
         to { opacity: $end; }
     }
 }
-
-@mixin animate-margin($direction, $start, $end, $duration, $delay: 0s) {
-    $name: margin-#{$direction};
-
-    #{$name}: $start;
-    animation: animate-margin $duration ease $delay forwards;
-
-    @keyframes animate-margin {
-        from { #{$name}: $start; }
-        to { #{$name}: $end; }
-    }
-}

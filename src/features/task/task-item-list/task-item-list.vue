@@ -2,8 +2,9 @@
     <div class="task-item-list-container">
         <div class="card-wrapper" v-for="(item, index) of items" :key="index">
             <task-item-card class="task-item-card"
-                :style="{ 'animation-delay': `${0.08 + index * 0.025}s` }"
+                :class="getItemCardClasses(item)"
                 :item="item"
+                :isActive="activeId === item.id"
                 @click="$emit('select', item)">
             </task-item-card>
         </div>
@@ -15,6 +16,7 @@ import { Options, Vue } from 'vue-class-component';
 
 import store from '../../../store';
 import { TaskItemSummaryDto } from '../../../core/dtos/task-item-summary-dto';
+import { ClassConfigs } from '../../../core/models/generic/class-configs';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -22,13 +24,47 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
     components: {
         TaskItemCard
     },
+    watch: {
+        items(): void {
+            setTimeout(() => this.animateItemCards());
+        }
+    },
     emits: [
         'select'
     ]
 })
 export default class TaskItemList extends Vue {
+    private animated = new Set<number>();
+
     get items(): TaskItemSummaryDto[] {
         return store.task.getters(store.task.getter.Items);
+    }
+
+    get activeId(): number {
+        return store.task.getters(store.task.getter.EditingItem)?.id ?? -1;
+    }
+
+    public mounted(): void {
+        this.animateItemCards();
+    }
+
+    public getItemCardClasses(item: TaskItemSummaryDto): ClassConfigs {
+        return {
+            animated: this.animated.has(item.id),
+            active: this.activeId === item.id
+        };
+    }
+
+    private animateItemCards(): void {
+        const elements = document.querySelectorAll('.task-item-card');
+
+        for (let i = 0, j = 0; i < elements.length; ++i) {
+            const { id } = this.items[i];
+
+            if (!this.animated.has(id)) {
+                setTimeout(() => this.animated.add(id), 200 + j++ * 25);
+            }
+        }
     }
 }
 </script>
@@ -48,7 +84,16 @@ export default class TaskItemList extends Vue {
     }
 
     .task-item-card {
-        @include animate-margin(left, 100%, 0, 0.3s);
+        margin-left: 110%;
+        transition: margin-left 0.3s;
+
+        &.animated {
+            margin-left: 20%;
+        }
+
+        &.animated.active {
+            margin-left: 0;
+        }
     }
 }
 </style>

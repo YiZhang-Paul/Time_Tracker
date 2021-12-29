@@ -1,5 +1,5 @@
 <template>
-    <div class="task-item-card-container">
+    <div class="task-item-card-container" :class="{ active: isActive }">
         <div class="progress-indicator">
             <span>{{ item.id }}</span>
         </div>
@@ -15,6 +15,7 @@ import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto'
 
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
+    public isActive = prop<boolean>({ default: false });
 }
 
 export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
@@ -35,7 +36,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
     box-shadow: -4px 0 6px 1px rgba(0, 0, 0, 0.3);
     color: var(--font-colors-0-00);
 
-    &:hover {
+    &:hover, &.active {
         cursor: pointer;
         background: linear-gradient(90deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 
