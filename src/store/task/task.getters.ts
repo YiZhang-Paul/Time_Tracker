@@ -1,17 +1,21 @@
 import { GetterTree } from 'vuex';
 
+import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
 
 import { IState } from './task.state';
 
 export enum GetterKey {
-    TaskItems = 'task_items'
+    Items = 'task_items',
+    EditingItem = 'editing_item'
 }
 
 export type Getters = {
-    [GetterKey.TaskItems](state: IState): TaskItem[];
+    [GetterKey.Items](state: IState): TaskItemSummaryDto[];
+    [GetterKey.EditingItem](state: IState): TaskItem | null;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
-    [GetterKey.TaskItems]: (state: IState): TaskItem[] => state.items.slice().sort((a, b) => a.id - b.id)
+    [GetterKey.Items]: (state: IState): TaskItemSummaryDto[] => state.items.slice().sort((a, b) => a.id - b.id),
+    [GetterKey.EditingItem]: (state: IState): TaskItem | null => state.editingItem
 };
