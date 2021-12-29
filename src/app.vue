@@ -1,5 +1,6 @@
 <template>
     <time-display class="time-display"></time-display>
+    <search-box class="search-box"></search-box>
 
     <task-item-editor v-if="editingTaskItem"
         class="task-item-editor"
@@ -26,13 +27,15 @@ import { TaskItem } from './core/models/task/task-item';
 import TimeDisplay from './features/time-display/time-display.vue';
 import TaskItemEditor from './features/task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './features/task/task-item-list/task-item-list.vue';
-import CreationButton from './shared/buttons/creation-button.vue';
+import SearchBox from './shared/inputs/search-box/search-box.vue';
+import CreationButton from './shared/buttons/creation-button/creation-button.vue';
 
 @Options({
     components: {
         TimeDisplay,
         TaskItemEditor,
         TaskItemList,
+        SearchBox,
         CreationButton
     }
 })
@@ -117,12 +120,23 @@ html, body, #app {
     right: $border-gap;
 }
 
+.search-box {
+    $width: 35vw;
+    $height: 7.5vh;
+
+    position: absolute;
+    top: calc(#{$content-top} - #{$height} - 2.5vh);
+    left: calc(50vw - #{$width} / 2);
+    width: $width;
+    height: $height;
+}
+
 .task-item-editor {
     $width: 45vw;
 
     position: absolute;
     top: $content-top;
-    left: calc((100vw - #{$width}) / 2);
+    left: calc(50vw - #{$width} / 2);
     width: $width;
     height: 57.5vh;
 }
