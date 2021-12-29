@@ -14,7 +14,7 @@
         </textarea>
 
         <div class="footer">
-            <span v-if="item.creationTime">Created {{ item.creationTime }}</span>
+            <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <content-save class="save-button" @click="onSave()" />
             <delete class="delete-button" @click="$emit('delete', item)" />
         </div>
@@ -26,6 +26,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete } from 'mdue';
 
 import { TaskItem } from '../../../core/models/task/task-item';
+import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
@@ -42,6 +43,10 @@ class TaskItemEditorProp {
     ]
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+    get creationTime(): string {
+        return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    }
+
     public onSave(): void {
         if (!this.item.name?.trim()) {
             return;

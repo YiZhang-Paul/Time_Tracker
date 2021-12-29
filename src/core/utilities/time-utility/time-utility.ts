@@ -6,11 +6,15 @@ const months = [
 ];
 
 export class TimeUtility {
+    public static getDateTimeString(date: Date, locale = 'en-US'): string {
+        return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
+    }
+
     public static getTimeString(date: Date): string {
         const hours = date.getHours();
         const minutes = this.addLeadingZero(date.getMinutes());
 
-        return `${this.addLeadingZero(hours)}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
+        return `${hours > 12 ? hours % 12 : hours}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getDateString(date: Date): string {
