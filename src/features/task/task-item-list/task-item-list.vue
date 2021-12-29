@@ -12,13 +12,17 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
 
 import store from '../../../store';
 import { TaskItemSummaryDto } from '../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../core/models/generic/class-configs';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
+
+class TaskItemListProp {
+    public searchText = prop<string>({ default: '' });
+}
 
 @Options({
     components: {
@@ -33,11 +37,13 @@ import TaskItemCard from './task-item-card/task-item-card.vue';
         'select'
     ]
 })
-export default class TaskItemList extends Vue {
+export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
-        return store.task.getters(store.task.getter.Summaries);
+        const text = this.searchText?.toLowerCase()?.trim() ?? '';
+
+        return store.task.getters(store.task.getter.Summaries)(text);
     }
 
     get activeId(): number {

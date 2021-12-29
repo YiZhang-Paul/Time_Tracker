@@ -71,7 +71,7 @@ export default class SearchBox extends Vue {
 
         @include flex-row(center, center);
         box-sizing: border-box;
-        padding: 0.75vh;
+        padding: 0.75vh 1.25vh;
         width: calc(100% - #{$padding});
         height: calc(100% - #{$padding});
         border-radius: $border-radius;

@@ -11,11 +11,15 @@ export enum GetterKey {
 }
 
 export type Getters = {
-    [GetterKey.Summaries](state: IState): TaskItemSummaryDto[];
+    [GetterKey.Summaries](state: IState): (searchText: string) => TaskItemSummaryDto[];
     [GetterKey.EditingItem](state: IState): TaskItem | null;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
-    [GetterKey.Summaries]: (state: IState): TaskItemSummaryDto[] => state.summaries.slice().sort((a, b) => a.id - b.id),
+    [GetterKey.Summaries]: (state: IState) => (searchText: string) => {
+        const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(searchText));
+
+        return summaries.sort((a, b) => a.id - b.id);
+    },
     [GetterKey.EditingItem]: (state: IState): TaskItem | null => state.editingItem
 };

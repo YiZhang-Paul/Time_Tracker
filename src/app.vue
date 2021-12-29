@@ -1,6 +1,6 @@
 <template>
     <time-display class="time-display"></time-display>
-    <search-box class="search-box"></search-box>
+    <search-box class="search-box" @search="searchText = $event"></search-box>
 
     <task-item-editor v-if="editingTaskItem"
         class="task-item-editor"
@@ -10,7 +10,10 @@
         @delete="onTaskDelete($event)">
     </task-item-editor>
 
-    <task-item-list class="task-item-list" @select="onTaskSelect($event)"></task-item-list>
+    <task-item-list class="task-item-list"
+        :searchText="searchText"
+        @select="onTaskSelect($event)">
+    </task-item-list>
 
     <creation-button class="creation-button"
         @click="onTaskCreationStart()"
@@ -40,6 +43,8 @@ import CreationButton from './shared/buttons/creation-button/creation-button.vue
     }
 })
 export default class App extends Vue {
+    public searchText = '';
+
     get canCreateTask(): boolean {
         return this.editingTaskItem?.id !== -1;
     }
@@ -50,7 +55,7 @@ export default class App extends Vue {
 
     public async created(): Promise<void> {
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
-        const items = store.task.getters(store.task.getter.Summaries);
+        const items = store.task.getters(store.task.getter.Summaries)('');
 
         if (items.length) {
             store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
