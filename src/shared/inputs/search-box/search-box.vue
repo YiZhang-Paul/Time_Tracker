@@ -89,6 +89,7 @@ export default class SearchBox extends Vue {
             background-color: inherit;
             color: inherit;
             font-size: var(--font-sizes-500);
+            font-family: inherit;
         }
     }
 }

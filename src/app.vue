@@ -122,6 +122,11 @@ export default class App extends Vue {
 @import './styles/presets.scss';
 @import './styles/animations.scss';
 
+@font-face {
+    font-family: 'Jost';
+    src: url('./assets/fonts/Jost-Regular.ttf');
+}
+
 $border-gap: 1.5vh;
 $content-top: 27.5vh;
 $item-list-width: 20vw;
@@ -133,6 +138,7 @@ html, body, #app {
     padding: 0;
     width: 100vw;
     height: 100vh;
+    font-family: 'Jost';
     user-select: none;
 }
 

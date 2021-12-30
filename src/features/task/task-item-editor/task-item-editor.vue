@@ -116,8 +116,9 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             outline: none;
             background-color: var(--primary-colors-8-00);
             color: var(--font-colors-0-00);
-            font-size: var(--font-sizes-600);
             text-align: center;
+            font-size: var(--font-sizes-600);
+            font-family: inherit;
             @include animate-opacity(0, 1, 0.3s, 0.6s);
         }
     }
