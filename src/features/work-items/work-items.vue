@@ -24,10 +24,7 @@
             @select="onTaskSelect($event)">
         </task-item-list>
 
-        <creation-button class="creation-button"
-            @click="onTaskCreationStart()"
-            :isDisabled="!canCreateTask">
-        </creation-button>
+        <work-item-creator class="work-item-creator"></work-item-creator>
     </div>
 </template>
 
@@ -38,31 +35,27 @@ import { Options, Vue } from 'vue-class-component';
 import store from '../../store';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
-import CreationButton from '../../shared/buttons/creation-button/creation-button.vue';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import TaskDeleteDialog from '../../shared/dialogs/task-delete-dialog/task-delete-dialog.vue';
 
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
+import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 
 @Options({
     components: {
+        SearchBox,
+        DialogPanel,
         TaskItemEditor,
         TaskItemList,
-        CreationButton,
-        SearchBox,
-        DialogPanel
+        WorkItemCreator
     }
 })
 export default class WorkItems extends Vue {
     public readonly taskDeleteDialog = markRaw(TaskDeleteDialog);
     public taskDeleteDialogOption: TaskItem | null = null;
     public searchText = '';
-
-    get canCreateTask(): boolean {
-        return this.editingTaskItem?.id !== -1;
-    }
 
     get editingTaskItem(): TaskItem | null {
         return store.task.getters(store.task.getter.EditingItem);
@@ -80,12 +73,6 @@ export default class WorkItems extends Vue {
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.editingTaskItem?.id !== item.id) {
             store.task.dispatch(store.task.action.StartTaskItemEdit, item.id);
-        }
-    }
-
-    public onTaskCreationStart(): void {
-        if (this.canCreateTask) {
-            store.task.dispatch(store.task.action.StartTaskItemCreation);
         }
     }
 
@@ -123,7 +110,7 @@ export default class WorkItems extends Vue {
 
     $border-gap: 1.5vh;
     $item-list-width: 20%;
-    $creation-button-dimension: 5.5vh;
+    $item-creator-dimension: 5.5vh;
 
     box-sizing: border-box;
     position: relative;
@@ -143,7 +130,7 @@ export default class WorkItems extends Vue {
 
         position: absolute;
         left: calc(50% - #{$editor-width} / 2);
-        bottom: calc(#{$creation-button-dimension} + 7.5%);
+        bottom: calc(#{$item-creator-dimension} + 7.5%);
         width: $editor-width;
         height: 67.5%;
     }
@@ -155,12 +142,12 @@ export default class WorkItems extends Vue {
         width: $item-list-width;
     }
 
-    .creation-button {
+    .work-item-creator {
         position: absolute;
-        left: calc(50% - #{$creation-button-dimension} / 2);
+        width: $item-creator-dimension;
+        height: $item-creator-dimension;
+        left: calc(50% - #{$item-creator-dimension} / 2);
         bottom: 3.5vh;
-        width: $creation-button-dimension;
-        height: $creation-button-dimension;
         @include animate-opacity(0, 1, 0.3s, 0.3s);
     }
 }
