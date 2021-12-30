@@ -1,4 +1,13 @@
 <template>
+    <dialog-panel v-if="taskDeleteDialogOption"
+        :dialog="taskDeleteDialog"
+        :data="taskDeleteDialogOption"
+        :width="'30vw'"
+        :height="'15vh'"
+        @cancel="taskDeleteDialogOption = null"
+        @confirm="onTaskDelete($event)">
+    </dialog-panel>
+
     <time-display class="time-display"></time-display>
     <search-box class="search-box" @search="searchText = $event"></search-box>
 
@@ -7,7 +16,7 @@
         :item="editingTaskItem"
         @create="onTaskCreate($event)"
         @update="onTaskUpdate($event)"
-        @delete="onTaskDelete($event)">
+        @delete="onTaskDeleteStart($event)">
     </task-item-editor>
 
     <task-item-list class="task-item-list"
@@ -22,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
 import store from './store';
@@ -30,8 +40,10 @@ import { TaskItem } from './core/models/task/task-item';
 import TimeDisplay from './features/time-display/time-display.vue';
 import TaskItemEditor from './features/task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './features/task/task-item-list/task-item-list.vue';
-import SearchBox from './shared/inputs/search-box/search-box.vue';
 import CreationButton from './shared/buttons/creation-button/creation-button.vue';
+import SearchBox from './shared/inputs/search-box/search-box.vue';
+import DialogPanel from './shared/panels/dialog-panel/dialog-panel.vue';
+import TaskDeleteDialog from './shared/dialogs/task-delete-dialog/task-delete-dialog.vue';
 
 @Options({
     components: {
@@ -39,10 +51,14 @@ import CreationButton from './shared/buttons/creation-button/creation-button.vue
         TaskItemEditor,
         TaskItemList,
         SearchBox,
-        CreationButton
+        CreationButton,
+        DialogPanel,
+        TaskDeleteDialog
     }
 })
 export default class App extends Vue {
+    public readonly taskDeleteDialog = markRaw(TaskDeleteDialog);
+    public taskDeleteDialogOption: TaskItem | null = null;
     public searchText = '';
 
     get canCreateTask(): boolean {
@@ -86,13 +102,18 @@ export default class App extends Vue {
         }
     }
 
-    public onTaskDelete(item: TaskItem): void {
+    public onTaskDeleteStart(item: TaskItem): void {
         if (item.id === -1) {
             store.task.dispatch(store.task.action.EndTaskItemEdit);
         }
         else {
-            store.task.dispatch(store.task.action.DeleteTaskItem, item.id);
+            this.taskDeleteDialogOption = item;
         }
+    }
+
+    public onTaskDelete(item: TaskItem): void {
+        store.task.dispatch(store.task.action.DeleteTaskItem, item.id);
+        this.taskDeleteDialogOption = null;
     }
 }
 </script>
@@ -161,5 +182,6 @@ html, body, #app {
     bottom: 3.5vh;
     width: $dimension;
     height: $dimension;
+    @include animate-opacity(0, 1, 0.3s, 0.3s);
 }
 </style>
