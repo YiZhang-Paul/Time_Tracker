@@ -31,8 +31,8 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, Weight } from 'mdue';
 
-import { TaskItem } from '../../../core/models/task/task-item';
-import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import { TaskItem } from '../../../../core/models/task/task-item';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
@@ -72,8 +72,8 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
 <style lang="scss" scoped>
 .task-item-editor-container {
-    @import '../../../styles/presets.scss';
-    @import '../../../styles/animations.scss';
+    @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     $content-width: 95%;
 

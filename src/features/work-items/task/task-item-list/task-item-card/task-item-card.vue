@@ -11,7 +11,7 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
+import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
 
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
@@ -23,7 +23,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
 
 <style lang="scss" scoped>
 .task-item-card-container {
-    @import '../../../../styles/presets.scss';
+    @import '../../../../../styles/presets.scss';
 
     $height: 7.5vh;
 

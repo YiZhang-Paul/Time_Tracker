@@ -14,9 +14,9 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import store from '../../../store';
-import { TaskItemSummaryDto } from '../../../core/dtos/task-item-summary-dto';
-import { ClassConfigs } from '../../../core/models/generic/class-configs';
+import store from '../../../../store';
+import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
+import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -77,8 +77,8 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
 <style lang="scss" scoped>
 .task-item-list-container {
-    @import '../../../styles/presets.scss';
-    @import '../../../styles/animations.scss';
+    @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     @include flex-column();
 
