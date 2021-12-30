@@ -6,7 +6,7 @@
         </div>
 
         <div class="actions">
-            <button class="cancel-button" @click="$emit('cancel')">Cancel</button>
+            <flat-button class="cancel-button" @click="$emit('cancel')">Cancel</flat-button>
             <raised-button class="delete-button" @click="$emit('confirm', data)">Delete</raised-button>
         </div>
     </div>
@@ -17,6 +17,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Alert } from 'mdue';
 
 import { TaskItem } from '../../../core/models/task/task-item';
+import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 import RaisedButton from '../../../shared/buttons/raised-button/raised-button.vue';
 
 class TaskDeleteDialogProp {
@@ -26,6 +27,7 @@ class TaskDeleteDialogProp {
 @Options({
     components: {
         Alert,
+        FlatButton,
         RaisedButton
     },
     emits: [
@@ -39,6 +41,7 @@ export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
 <style lang="scss" scoped>
 .task-delete-dialog-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-column(center, center);
     color: var(--font-colors-0-00);
@@ -46,6 +49,7 @@ export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
 
     .title {
         @include flex-row(center, center);
+        @include animate-opacity(0, 1, 0.3s, 0.2s);
 
         .icon {
             margin-right: 8px;
@@ -58,6 +62,14 @@ export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
         margin-top: 5vh;
         width: 90%;
         font-size: var(--font-sizes-500);
+
+        .cancel-button {
+            color: var(--font-colors-3-00);
+
+            &:hover ::v-deep(.content-wrapper) {
+                color: var(--font-colors-0-00);
+            }
+        }
 
         .delete-button {
             margin-left: 12px;

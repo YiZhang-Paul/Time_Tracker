@@ -1,5 +1,5 @@
 <template>
-    <button class="raised-button-container">
+    <button class="flat-button-container">
         <div class="content-wrapper">
             <slot></slot>
         </div>
@@ -9,15 +9,14 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 
-export default class RaisedButton extends Vue { }
+export default class FlatButton extends Vue { }
 </script>
 
 <style lang="scss" scoped>
-.raised-button-container {
+.flat-button-container {
     @import '../../../styles/animations.scss';
 
     $border-radius: 5px;
-    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
 
     padding: 0;
     border: none;
@@ -25,16 +24,7 @@ export default class RaisedButton extends Vue { }
     color: inherit;
     font-size: inherit;
     border-radius: $border-radius;
-
-    @include raise(
-        var(--primary-colors-10-00),
-        var(--primary-colors-9-00),
-        0 0 0 0 rgba(0, 0, 0, 0.35),
-        $box-shadow,
-        0.3s,
-        0.5s,
-        none
-    );
+    background-color: transparent;
 
     &:hover {
         cursor: pointer;
@@ -46,9 +36,7 @@ export default class RaisedButton extends Vue { }
         width: 100%;
         height: 100%;
         border-radius: $border-radius;
-        box-shadow: $box-shadow;
-        background-color: var(--primary-colors-9-00);
-        transition: background-color 0.3s;
+        transition: color 0.3s;
         @include animate-opacity(0, 1, 0.3s, 0.6s);
     }
 }
