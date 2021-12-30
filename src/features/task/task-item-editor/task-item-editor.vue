@@ -92,9 +92,9 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         border-radius: 5px;
         background-color: var(--primary-colors-10-00);
         box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
-        animation: emerge-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
+        animation: raise-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
 
-        @keyframes emerge-header {
+        @keyframes raise-header {
             from {
                 background-color: var(--primary-colors-10-00);
                 box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);

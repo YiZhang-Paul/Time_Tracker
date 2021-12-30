@@ -57,7 +57,7 @@ export default class SearchBox extends Vue {
     color: var(--font-colors-4-00);
     font-size: var(--font-sizes-700);
 
-    @include emerge(
+    @include raise(
         var(--primary-colors-10-00),
         var(--primary-colors-9-00),
         0 0 0 0 rgba(0, 0, 0, 0.35),

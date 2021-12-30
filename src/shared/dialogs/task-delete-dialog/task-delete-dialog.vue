@@ -7,7 +7,7 @@
 
         <div class="actions">
             <button class="cancel-button" @click="$emit('cancel')">Cancel</button>
-            <button class="delete-button" @click="$emit('confirm', data)">Delete</button>
+            <raised-button class="delete-button" @click="$emit('confirm', data)">Delete</raised-button>
         </div>
     </div>
 </template>
@@ -17,6 +17,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Alert } from 'mdue';
 
 import { TaskItem } from '../../../core/models/task/task-item';
+import RaisedButton from '../../../shared/buttons/raised-button/raised-button.vue';
 
 class TaskDeleteDialogProp {
     public data = prop<TaskItem>({ default: null });
@@ -24,16 +25,15 @@ class TaskDeleteDialogProp {
 
 @Options({
     components: {
-        Alert
+        Alert,
+        RaisedButton
     },
     emits: [
         'cancel',
         'confirm'
     ]
 })
-export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) {
-
-}
+export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
 </script>
 
 <style lang="scss" scoped>
@@ -57,9 +57,18 @@ export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) {
         @include flex-row(center, flex-end);
         margin-top: 5vh;
         width: 90%;
+        font-size: var(--font-sizes-500);
 
         .delete-button {
             margin-left: 12px;
+
+            &:hover ::v-deep(.content-wrapper) {
+                background-color: var(--context-colors-warning-0-00);
+            }
+
+            ::v-deep(.content-wrapper) {
+                background-color: var(--context-colors-warning-1-00);
+            }
         }
     }
 }

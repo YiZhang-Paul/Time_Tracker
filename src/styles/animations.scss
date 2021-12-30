@@ -8,12 +8,12 @@
     }
 }
 
-@mixin emerge($startBackground, $endBackground, $startShadow, $endShadow, $duration, $delay: 0s) {
+@mixin raise($startBackground, $endBackground, $startShadow, $endShadow, $duration, $delay: 0s, $fillMode: forwards) {
     background-color: $startBackground;
     box-shadow: $startShadow;
-    animation: emerge $duration ease $delay forwards;
+    animation: raise $duration ease $delay $fillMode;
 
-    @keyframes emerge {
+    @keyframes raise {
         from {
             background-color: $startBackground;
             box-shadow: $startShadow;
