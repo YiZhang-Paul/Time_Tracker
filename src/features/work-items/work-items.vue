@@ -13,7 +13,8 @@
 
         <interruption-item-editor v-if="editingInterruptionItem"
             class="interruption-item-editor"
-            :item="editingInterruptionItem">
+            :item="editingInterruptionItem"
+            @create="onInterruptionCreate($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="editingTaskItem"
@@ -81,6 +82,10 @@ export default class WorkItems extends Vue {
             store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
             store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
         }
+    }
+
+    public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
+        await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item);
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
