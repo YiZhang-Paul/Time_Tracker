@@ -1,5 +1,5 @@
 <template>
-    <div class="task-item-editor-container">
+    <div class="interruption-item-editor-container">
         <div class="header">
             <input type="text"
                 class="name"
@@ -14,11 +14,6 @@
         </textarea>
 
         <div class="footer">
-            <div class="effort-selector" @click="onEffortSelect()">
-                <weight class="icon" />
-                <span>{{ item.effort }}</span>
-            </div>
-
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <content-save class="save-button" @click="onSave()" />
@@ -29,20 +24,19 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete, Weight } from 'mdue';
+import { ContentSave, Delete } from 'mdue';
 
-import { TaskItem } from '../../../../core/models/task/task-item';
+import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
-class TaskItemEditorProp {
-    public item = prop<TaskItem>({ default: new TaskItem(-1) });
+class InterruptionItemEditorProp {
+    public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });
 }
 
 @Options({
     components: {
         ContentSave,
-        Delete,
-        Weight
+        Delete
     },
     emits: [
         'create',
@@ -50,15 +44,9 @@ class TaskItemEditorProp {
         'delete'
     ]
 })
-export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
-    }
-
-    public onEffortSelect(): void {
-        const options = [0, 1, 2, 3, 5, 8, 13];
-        const index = options.indexOf(this.item.effort) + 1;
-        this.item.effort = options[index % options.length];
     }
 
     public onSave(): void {
@@ -71,7 +59,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 </script>
 
 <style lang="scss" scoped>
-.task-item-editor-container {
+.interruption-item-editor-container {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
@@ -146,20 +134,6 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
         @include animate-opacity(0, 1, 0.3s, 0.6s);
-
-        .effort-selector {
-            @include flex-row(center, center);
-            transition: color 0.3s;
-
-            &:hover {
-                cursor: pointer;
-                color: var(--font-colors-0-00);
-            }
-
-            .icon {
-                margin-right: 4px;
-            }
-        }
 
         .filler {
             flex-grow: 1;

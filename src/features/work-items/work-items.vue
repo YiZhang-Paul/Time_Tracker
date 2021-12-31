@@ -11,6 +11,11 @@
 
         <search-box class="search-box" @search="searchText = $event"></search-box>
 
+        <interruption-item-editor v-if="editingInterruptionItem"
+            class="interruption-item-editor"
+            :item="editingInterruptionItem">
+        </interruption-item-editor>
+
         <task-item-editor v-if="editingTaskItem"
             class="task-item-editor"
             :item="editingTaskItem"
@@ -34,11 +39,13 @@ import { Options, Vue } from 'vue-class-component';
 
 import store from '../../store';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
+import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import TaskDeleteDialog from '../../shared/dialogs/task-delete-dialog/task-delete-dialog.vue';
 
+import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
@@ -47,6 +54,7 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
     components: {
         SearchBox,
         DialogPanel,
+        InterruptionItemEditor,
         TaskItemEditor,
         TaskItemList,
         WorkItemCreator
@@ -56,6 +64,10 @@ export default class WorkItems extends Vue {
     public readonly taskDeleteDialog = markRaw(TaskDeleteDialog);
     public taskDeleteDialogOption: TaskItem | null = null;
     public searchText = '';
+
+    get editingInterruptionItem(): InterruptionItem | null {
+        return store.interruption.getters(store.interruption.getter.EditingItem);
+    }
 
     get editingTaskItem(): TaskItem | null {
         return store.task.getters(store.task.getter.EditingItem);
@@ -127,7 +139,7 @@ export default class WorkItems extends Vue {
         height: 9%;
     }
 
-    .task-item-editor {
+    .interruption-item-editor, .task-item-editor {
         $editor-width: 45%;
 
         position: absolute;
