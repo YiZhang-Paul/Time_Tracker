@@ -43,9 +43,11 @@ export default class WorkItemCreator extends Vue {
 
     public onTypeSelect(isInterruption: boolean): void {
         if (isInterruption) {
+            store.task.dispatch(store.task.action.EndTaskItemEdit);
             store.interruption.dispatch(store.interruption.action.StartInterruptionItemCreation);
         }
         else {
+            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
             store.task.dispatch(store.task.action.StartTaskItemCreation);
         }
 

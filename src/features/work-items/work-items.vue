@@ -66,12 +66,14 @@ export default class WorkItems extends Vue {
         const items = store.task.getters(store.task.getter.Summaries)('');
 
         if (items.length) {
+            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
             store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
         }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.editingTaskItem?.id !== item.id) {
+            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
             store.task.dispatch(store.task.action.StartTaskItemEdit, item.id);
         }
     }
