@@ -84,7 +84,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     .card-wrapper {
         margin-bottom: 2vh;
-        padding: 0.5vh 0 0.5vh 1vh;
+        padding: 0.5vh 1vh 0.5vh 0;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
     }
