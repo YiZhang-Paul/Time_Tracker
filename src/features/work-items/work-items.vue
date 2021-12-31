@@ -25,6 +25,10 @@
             @delete="onTaskDeleteStart($event)">
         </task-item-editor>
 
+        <interruption-item-list class="interruption-item-list"
+            :searchText="searchText">
+        </interruption-item-list>
+
         <task-item-list class="task-item-list"
             :searchText="searchText"
             @select="onTaskSelect($event)">
@@ -47,6 +51,7 @@ import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import TaskDeleteDialog from '../../shared/dialogs/task-delete-dialog/task-delete-dialog.vue';
 
 import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
+import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
@@ -56,6 +61,7 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         SearchBox,
         DialogPanel,
         InterruptionItemEditor,
+        InterruptionItemList,
         TaskItemEditor,
         TaskItemList,
         WorkItemCreator
@@ -157,11 +163,18 @@ export default class WorkItems extends Vue {
         height: 67.5%;
     }
 
-    .task-item-list {
+    .interruption-item-list, .task-item-list {
         position: absolute;
         top: 15%;
-        right: $border-gap;
         width: $item-list-width;
+    }
+
+    .interruption-item-list {
+        left: $border-gap;
+    }
+
+    .task-item-list {
+        right: $border-gap;
     }
 
     .work-item-creator {
