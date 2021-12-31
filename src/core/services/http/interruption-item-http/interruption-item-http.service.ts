@@ -34,4 +34,13 @@ export class InterruptionItemHttpService {
             return null;
         }
     }
+
+    public async updateInterruptionItem(item: InterruptionItem): Promise<InterruptionItem | null> {
+        try {
+            return (await axios.put(this._api, item)).data;
+        }
+        catch {
+            return null;
+        }
+    }
 }

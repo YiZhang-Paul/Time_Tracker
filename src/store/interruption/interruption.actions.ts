@@ -4,6 +4,7 @@ import { InterruptionItem } from '../../core/models/interruption/interruption-it
 import { InterruptionItemHttpService } from '../../core/services/http/interruption-item-http/interruption-item-http.service';
 
 import { IState } from './interruption.state';
+import { GetterKey } from './interruption.getters';
 import { Mutations, MutationKey } from './interruption.mutations';
 
 let interruptionItemHttpService: InterruptionItemHttpService;
@@ -15,6 +16,7 @@ export const setActionServices = (interruptionItemHttp: InterruptionItemHttpServ
 export enum ActionKey {
     LoadInterruptionSummaries = 'load_interruption_summaries',
     CreateInterruptionItem = 'create_interruption_item',
+    UpdateInterruptionItem = 'update_interruption_item',
     StartInterruptionItemCreation = 'start_interruption_item_creation',
     StartInterruptionItemEdit = 'start_interruption_item_edit',
     EndInterruptionItemEdit = 'end_interruption_item_edit'
@@ -27,6 +29,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 export type Actions = {
     [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void>;
     [ActionKey.CreateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean>;
+    [ActionKey.UpdateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean>;
     [ActionKey.StartInterruptionItemCreation](context: ActionAugments): void;
     [ActionKey.StartInterruptionItemEdit](context: ActionAugments, payload: number): Promise<boolean>;
     [ActionKey.EndInterruptionItemEdit](context: ActionAugments): void;
@@ -40,6 +43,15 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const item = await interruptionItemHttpService.createInterruptionItem(payload);
 
         if (item) {
+            context.commit(MutationKey.SetEditingItem, item);
+        }
+
+        return Boolean(item);
+    },
+    async [ActionKey.UpdateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean> {
+        const item = await interruptionItemHttpService.updateInterruptionItem(payload);
+
+        if (item && context.getters[GetterKey.EditingItem]?.id === item.id) {
             context.commit(MutationKey.SetEditingItem, item);
         }
 
