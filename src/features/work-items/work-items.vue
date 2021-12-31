@@ -26,7 +26,8 @@
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
-            :searchText="searchText">
+            :searchText="searchText"
+            @select="onInterruptionSelect($event)">
         </interruption-item-list>
 
         <task-item-list class="task-item-list"
@@ -43,6 +44,7 @@ import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
 import store from '../../store';
+import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
@@ -88,6 +90,13 @@ export default class WorkItems extends Vue {
         if (items.length) {
             store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
             store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
+        }
+    }
+
+    public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
+        if (this.editingInterruptionItem?.id !== item.id) {
+            store.task.dispatch(store.task.action.EndTaskItemEdit);
+            store.interruption.dispatch(store.interruption.action.StartInterruptionItemEdit, item.id);
         }
     }
 

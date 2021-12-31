@@ -8,6 +8,15 @@ import { InterruptionItem } from '../../../models/interruption/interruption-item
 export class InterruptionItemHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/interruption-items`;
 
+    public async getInterruptionItem(id: number): Promise<InterruptionItem | null> {
+        try {
+            return (await axios.get(`${this._api}/${id}`)).data;
+        }
+        catch {
+            return null;
+        }
+    }
+
     public async getInterruptionSummaries(): Promise<InterruptionItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;
