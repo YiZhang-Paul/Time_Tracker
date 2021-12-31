@@ -75,6 +75,7 @@ export default class WorkItems extends Vue {
     }
 
     public async created(): Promise<void> {
+        await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
         const items = store.task.getters(store.task.getter.Summaries)('');
 
@@ -85,7 +86,9 @@ export default class WorkItems extends Vue {
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
-        await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item);
+        if (await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item)) {
+            store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
+        }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {

@@ -13,6 +13,7 @@ export const setActionServices = (interruptionItemHttp: InterruptionItemHttpServ
 };
 
 export enum ActionKey {
+    LoadInterruptionSummaries = 'load_interruption_summaries',
     CreateInterruptionItem = 'create_interruption_item',
     StartInterruptionItemCreation = 'start_interruption_item_creation',
     EndInterruptionItemEdit = 'end_interruption_item_edit'
@@ -23,12 +24,16 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
+    [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void>;
     [ActionKey.CreateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean>;
     [ActionKey.StartInterruptionItemCreation](context: ActionAugments): void;
     [ActionKey.EndInterruptionItemEdit](context: ActionAugments): void;
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
+    async [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void> {
+        context.commit(MutationKey.SetSummaries, await interruptionItemHttpService.getInterruptionSummaries());
+    },
     async [ActionKey.CreateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean> {
         const item = await interruptionItemHttpService.createInterruptionItem(payload);
 
