@@ -19,7 +19,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
     [GetterKey.Summaries]: (state: IState) => (searchText: string) => {
         const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(searchText));
 
-        return summaries.sort((a, b) => b.priority - a.priority);
+        return summaries.sort((a, b) => a.priority === b.priority ? a.id - b.id : b.priority - a.priority);
     },
     [GetterKey.EditingItem]: (state: IState): InterruptionItem | null => state.editingItem
 };
