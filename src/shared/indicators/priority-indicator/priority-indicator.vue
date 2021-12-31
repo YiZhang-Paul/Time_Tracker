@@ -1,6 +1,6 @@
 <template>
-    <div class="priority-indicator-container">
-        <bullet class="icon" v-for="i in icons" :key="i" :style="{ color }" />
+    <div class="priority-indicator-container" :style="{ color }">
+        <bullet class="icon" v-for="i in icons" :key="i" />
     </div>
 </template>
 
@@ -20,14 +20,6 @@ class PriorityIndicatorProp {
     }
 })
 export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
-    get icons(): number {
-        if (this.priority === Priority.Low) {
-            return 1;
-        }
-
-        return this.priority === Priority.Medium ? 2 : 3;
-    }
-
     get color(): string {
         let priority = 'low';
 
@@ -36,6 +28,14 @@ export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
         }
 
         return `var(--priority-colors-${priority}-0-00)`;
+    }
+
+    get icons(): number {
+        if (this.priority === Priority.Low) {
+            return 1;
+        }
+
+        return this.priority === Priority.Medium ? 2 : 3;
     }
 }
 </script>
@@ -47,7 +47,7 @@ export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
     @include flex-row(center, center);
 
     .icon {
-        margin: 0 -0.75vh;
+        margin: 0 -0.25em;
     }
 }
 </style>

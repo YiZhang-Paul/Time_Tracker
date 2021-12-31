@@ -14,6 +14,11 @@
         </textarea>
 
         <div class="footer">
+            <priority-indicator class="priority-selector"
+                :priority="item.priority"
+                @click="onPrioritySelect()">
+            </priority-indicator>
+
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <content-save class="save-button" @click="onSave()" />
@@ -27,7 +32,9 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete } from 'mdue';
 
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
+import { Priority } from '../../../../core/enums/priority.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 
 class InterruptionItemEditorProp {
     public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });
@@ -36,7 +43,8 @@ class InterruptionItemEditorProp {
 @Options({
     components: {
         ContentSave,
-        Delete
+        Delete,
+        PriorityIndicator
     },
     emits: [
         'create',
@@ -47,6 +55,12 @@ class InterruptionItemEditorProp {
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    }
+
+    public onPrioritySelect(): void {
+        const options = [Priority.Low, Priority.Medium, Priority.High];
+        const index = options.indexOf(this.item.priority) + 1;
+        this.item.priority = options[index % options.length];
     }
 
     public onSave(): void {
@@ -134,6 +148,17 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
         @include animate-opacity(0, 1, 0.3s, 0.6s);
+
+        .priority-selector {
+            min-width: 2.5vh;
+            font-size: var(--font-sizes-400);
+            transition: filter 0.3s;
+
+            &:hover {
+                cursor: pointer;
+                filter: brightness(1.25);
+            }
+        }
 
         .filler {
             flex-grow: 1;
