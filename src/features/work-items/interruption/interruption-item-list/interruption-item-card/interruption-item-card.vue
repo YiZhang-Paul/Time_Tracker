@@ -39,7 +39,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
     height: $height;
     border-radius: 0 45px 45px 0;
     background: linear-gradient(270deg, var(--primary-colors-9-00) 0%, var(--primary-colors-10-00) 85%);
-    box-shadow: -4px 0 6px 1px rgba(0, 0, 0, 0.3);
+    box-shadow: 4px 0 6px 1px rgba(0, 0, 0, 0.3);
     color: var(--font-colors-0-00);
 
     &:hover, &.active {
