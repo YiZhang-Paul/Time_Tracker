@@ -87,11 +87,13 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         padding: 0.5vh 1vh 0.5vh 0;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
+        direction: rtl;
     }
 
     .interruption-item-card {
         margin-right: 110%;
         transition: margin-right 0.3s;
+        direction: ltr;
 
         &.animated {
             margin-right: 20%;
