@@ -48,7 +48,7 @@ export default class RaisedButton extends Vue { }
         border-radius: $border-radius;
         box-shadow: $box-shadow;
         background-color: var(--primary-colors-9-00);
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, color 0.3s;
         @include animate-opacity(0, 1, 0.3s, 0.6s);
     }
 }

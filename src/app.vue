@@ -46,6 +46,7 @@ html, body, #app {
 }
 
 .work-items {
+    z-index: 1;
     position: absolute;
     top: $content-top;
     left: 0;
