@@ -3,21 +3,27 @@
         <span class="name">{{ item.name }}</span>
 
         <div class="progress-indicator">
-            <span>{{ item.priority }}</span>
+            <priority-indicator :priority="item.priority"></priority-indicator>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
 
 import { InterruptionItemSummaryDto } from '../../../../../core/dtos/interruption-item-summary-dto';
+import PriorityIndicator from '../../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 
 class InterruptionItemCardProp {
     public item = prop<InterruptionItemSummaryDto>({ default: null });
     public isActive = prop<boolean>({ default: false });
 }
 
+@Options({
+    components: {
+        PriorityIndicator
+    }
+})
 export default class InterruptionItemCard extends Vue.with(InterruptionItemCardProp) { }
 </script>
 
@@ -59,7 +65,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         border: 2px dashed var(--item-type-colors-interruption-0-00);
         border-radius: 50%;
         background-clip: padding-box;
-        font-size: var(--font-sizes-500);
+        font-size: var(--font-sizes-600);
         transition: background-color 0.4s;
     }
 }
