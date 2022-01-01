@@ -86,11 +86,14 @@ export default class WorkItems extends Vue {
     public async created(): Promise<void> {
         await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
-        const items = store.task.getters(store.task.getter.Summaries)('');
+        const interruptions = store.interruption.getters(store.interruption.getter.Summaries)('');
+        const tasks = store.task.getters(store.task.getter.Summaries)('');
 
-        if (items.length) {
-            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
-            store.task.dispatch(store.task.action.StartTaskItemEdit, items[0].id);
+        if (interruptions.length) {
+            this.onInterruptionSelect(interruptions[0]);
+        }
+        else if (tasks.length) {
+            this.onTaskSelect(tasks[0]);
         }
     }
 
