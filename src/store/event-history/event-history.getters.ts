@@ -13,5 +13,5 @@ export type Getters = {
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
-    [GetterKey.LastHistory]: (state: IState): EventHistory | null => state.lastHistory;
+    [GetterKey.LastHistory]: (state: IState): EventHistory | null => state.lastHistory
 };

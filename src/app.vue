@@ -1,5 +1,6 @@
 <template>
     <work-items class="work-items"></work-items>
+    <event-tracker class="event-tracker"></event-tracker>
     <time-display class="time-display"></time-display>
 </template>
 
@@ -7,11 +8,13 @@
 import { Options, Vue } from 'vue-class-component';
 
 import WorkItems from './features/work-items/work-items.vue';
+import EventTracker from './features/event-tracking/event-tracker.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 
 @Options({
     components: {
         WorkItems,
+        EventTracker,
         TimeDisplay
     }
 })
@@ -52,6 +55,14 @@ html, body, #app {
     left: 0;
     width: 100vw;
     height: calc(100vh - #{$content-top});
+}
+
+.event-tracker {
+    position: absolute;
+    top: $content-top;
+    right: $border-gap;
+    width: 20vw;
+    height: 10vh;
 }
 
 .time-display {
