@@ -1,7 +1,16 @@
 <template>
     <div class="work-items-container">
+        <dialog-panel v-if="interruptionDeleteDialogOption"
+            :dialog="confirmationDialog"
+            :data="interruptionDeleteDialogOption"
+            :width="'30vw'"
+            :height="'15vh'"
+            @cancel="interruptionDeleteDialogOption = null"
+            @confirm="onInterruptionDelete($event)">
+        </dialog-panel>
+
         <dialog-panel v-if="taskDeleteDialogOption"
-            :dialog="taskDeleteDialog"
+            :dialog="confirmationDialog"
             :data="taskDeleteDialogOption"
             :width="'30vw'"
             :height="'15vh'"
@@ -15,7 +24,8 @@
             class="interruption-item-editor"
             :item="editingInterruptionItem"
             @create="onInterruptionCreate($event)"
-            @update="onInterruptionUpdate($event)">
+            @update="onInterruptionUpdate($event)"
+            @delete="onInterruptionDeleteStart($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="editingTaskItem"
@@ -49,9 +59,10 @@ import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-su
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
+import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
-import TaskDeleteDialog from '../../shared/dialogs/task-delete-dialog/task-delete-dialog.vue';
+import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
 import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
@@ -71,8 +82,9 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
     }
 })
 export default class WorkItems extends Vue {
-    public readonly taskDeleteDialog = markRaw(TaskDeleteDialog);
-    public taskDeleteDialogOption: TaskItem | null = null;
+    public readonly confirmationDialog = markRaw(ConfirmationDialog);
+    public interruptionDeleteDialogOption: ConfirmationDialogOption<InterruptionItem> | null = null;
+    public taskDeleteDialogOption: ConfirmationDialogOption<TaskItem> | null = null;
     public searchText = '';
 
     get editingInterruptionItem(): InterruptionItem | null {
@@ -116,6 +128,21 @@ export default class WorkItems extends Vue {
         }
     }
 
+    public onInterruptionDeleteStart(item: InterruptionItem): void {
+        if (item.id === -1) {
+            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
+        }
+        else {
+            const title = 'The item will be permanently deleted. Proceed?';
+            this.interruptionDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', true, item);
+        }
+    }
+
+    public onInterruptionDelete(item: InterruptionItem): void {
+        store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id);
+        this.interruptionDeleteDialogOption = null;
+    }
+
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.editingTaskItem?.id !== item.id) {
             store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
@@ -140,7 +167,8 @@ export default class WorkItems extends Vue {
             store.task.dispatch(store.task.action.EndTaskItemEdit);
         }
         else {
-            this.taskDeleteDialogOption = item;
+            const title = 'The task will be permanently deleted. Proceed?';
+            this.taskDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', true, item);
         }
     }
 
@@ -202,7 +230,7 @@ export default class WorkItems extends Vue {
         height: $item-creator-dimension;
         left: calc(50% - #{$item-creator-dimension} / 2);
         bottom: 3.5vh;
-        @include animate-opacity(0, 1, 0.3s, 0.3s);
+        @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 }
 </style>

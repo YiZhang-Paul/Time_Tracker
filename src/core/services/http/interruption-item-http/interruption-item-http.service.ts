@@ -43,4 +43,13 @@ export class InterruptionItemHttpService {
             return null;
         }
     }
+
+    public async deleteInterruptionItem(id: number): Promise<boolean> {
+        try {
+            return (await axios.delete(`${this._api}/${id}`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
 }
