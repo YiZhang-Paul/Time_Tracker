@@ -47,7 +47,7 @@ export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
     @include flex-row(center, center);
 
     .icon {
-        margin: 0 -0.25em;
+        margin: 0 -0.27em;
     }
 }
 </style>
