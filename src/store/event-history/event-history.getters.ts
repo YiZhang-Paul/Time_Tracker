@@ -1,17 +1,19 @@
 import { GetterTree } from 'vuex';
 
-import { EventHistory } from '../../core/models/event-history/event-history';
+import { EventType } from '../../core/enums/event-type.enum';
 
 import { IState } from './event-history.state';
 
 export enum GetterKey {
-    LastHistory = 'last_history'
+    IsIdling = 'is_idling'
 }
 
 export type Getters = {
-    [GetterKey.LastHistory](state: IState): EventHistory | null;
+    [GetterKey.IsIdling](state: IState): boolean;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
-    [GetterKey.LastHistory]: (state: IState): EventHistory | null => state.lastHistory
+    [GetterKey.IsIdling]: (state: IState): boolean => {
+        return !state.lastHistory || state.lastHistory.eventType === EventType.Idling;
+    }
 };

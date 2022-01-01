@@ -1,11 +1,11 @@
 <template>
     <div class="event-tracker-container">
-        <div class="working-duration">
+        <div class="working-duration" :class="{ active: !isIdling }">
             <briefcase class="icon" />
             <span>00:00:00</span>
         </div>
 
-        <div class="idling-duration">
+        <div class="idling-duration" :class="{ active: isIdling }">
             <palm-tree class="icon" />
             <span>00:00:00</span>
         </div>
@@ -25,6 +25,10 @@ import store from '../../store';
     }
 })
 export default class EventTracker extends Vue {
+    get isIdling(): boolean {
+        return store.eventHistory.getters(store.eventHistory.getter.IsIdling);
+    }
+
     public created(): void {
         store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
     }
@@ -41,10 +45,14 @@ export default class EventTracker extends Vue {
 
     .working-duration, .idling-duration {
         @include flex-row(center, center);
+        transition: color 0.5s;
+
+        &.active {
+            color: var(--font-colors-1-00);
+        }
 
         .icon {
             margin-right: 0.75vh;
-            color: var(--event-type-colors-idling-0-00);
             font-size: var(--font-sizes-700);
         }
     }
@@ -55,6 +63,10 @@ export default class EventTracker extends Vue {
         .icon {
             color: var(--event-type-colors-working-0-00);
         }
+    }
+
+    .idling-duration .icon {
+        color: var(--event-type-colors-idling-0-00);
     }
 }
 </style>
