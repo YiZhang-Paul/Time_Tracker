@@ -1,13 +1,21 @@
 <template>
-    <div v-if="data" class="task-delete-dialog-container">
+    <div v-if="data" class="confirmation-dialog-container">
         <div class="title">
             <alert class="icon" />
-            <span>The task will be permanently deleted. Proceed?</span>
+            <span>{{ data.title }}</span>
         </div>
 
         <div class="actions">
-            <flat-button class="cancel-button" @click="$emit('cancel')">Cancel</flat-button>
-            <raised-button class="delete-button" @click="$emit('confirm', data)">Delete</raised-button>
+            <flat-button class="cancel-button" @click="$emit('cancel')">
+                {{ data.cancelText }}
+            </flat-button>
+
+            <raised-button class="confirm-button"
+                :class="{ warning: data.isWarning }"
+                @click="$emit('confirm', data.data)">
+
+                {{ data.confirmText }}
+            </raised-button>
         </div>
     </div>
 </template>
@@ -16,12 +24,12 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { Alert } from 'mdue';
 
-import { TaskItem } from '../../../core/models/task/task-item';
-import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
-import RaisedButton from '../../../shared/buttons/raised-button/raised-button.vue';
+import { ConfirmationDialogOption } from '../../../core/models/options/confirmation-dialog-option';
+import FlatButton from '../../buttons/flat-button/flat-button.vue';
+import RaisedButton from '../../buttons/raised-button/raised-button.vue';
 
-class TaskDeleteDialogProp {
-    public data = prop<TaskItem>({ default: null });
+class ConfirmationDialogProp {
+    public data = prop<ConfirmationDialogOption<unknown>>({ default: new ConfirmationDialogOption<unknown>() });
 }
 
 @Options({
@@ -35,11 +43,11 @@ class TaskDeleteDialogProp {
         'confirm'
     ]
 })
-export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
+export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp) { }
 </script>
 
 <style lang="scss" scoped>
-.task-delete-dialog-container {
+.confirmation-dialog-container {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
@@ -71,14 +79,22 @@ export default class TaskDeleteDialog extends Vue.with(TaskDeleteDialogProp) { }
             }
         }
 
-        .delete-button {
+        .confirm-button {
             margin-left: 12px;
 
             &:hover ::v-deep(.content-wrapper) {
-                background-color: var(--context-colors-warning-0-00);
+                background-color: var(--primary-colors-7-00);
             }
 
             ::v-deep(.content-wrapper) {
+                background-color: var(--primary-colors-8-00);
+            }
+
+            &.warning:hover ::v-deep(.content-wrapper) {
+                background-color: var(--context-colors-warning-0-00);
+            }
+
+            &.warning ::v-deep(.content-wrapper) {
                 background-color: var(--context-colors-warning-1-00);
             }
         }
