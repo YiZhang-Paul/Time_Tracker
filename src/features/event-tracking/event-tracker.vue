@@ -1,6 +1,6 @@
 <template>
     <div class="event-tracker-container">
-        <div class="working-duration" :class="{ active: !isIdling }">
+        <div class="working-duration" :class="{ active: isWorking }">
             <briefcase class="icon" />
             <span>00:00:00</span>
         </div>
@@ -25,6 +25,10 @@ import store from '../../store';
     }
 })
 export default class EventTracker extends Vue {
+    get isWorking(): boolean {
+        return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
+    }
+
     get isIdling(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsIdling);
     }

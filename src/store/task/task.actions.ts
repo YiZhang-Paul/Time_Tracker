@@ -24,7 +24,7 @@ export enum ActionKey {
 }
 
 interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
-    commit<T extends keyof Mutations>(key: T, payload: Parameters<Mutations[T]>[1]): ReturnType<Mutations[T]>;
+    commit<T extends keyof Mutations>(key: T, payload?: Parameters<Mutations[T]>[1]): ReturnType<Mutations[T]>;
 }
 
 export type Actions = {
