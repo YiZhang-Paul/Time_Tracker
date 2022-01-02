@@ -66,8 +66,9 @@ export default class EventTracker extends Vue {
     font-size: var(--font-sizes-500);
 
     .working-duration, .idling-duration {
-        @include flex-row(center, center);
+        @include flex-row(center);
         transition: color 0.5s;
+        width: 40%;
 
         &.active {
             color: var(--font-colors-1-00);
@@ -79,12 +80,8 @@ export default class EventTracker extends Vue {
         }
     }
 
-    .working-duration {
-        margin-right: 2.5vh;
-
-        .icon {
-            color: var(--event-type-colors-working-0-00);
-        }
+    .working-duration .icon {
+        color: var(--event-type-colors-working-0-00);
     }
 
     .idling-duration .icon {
