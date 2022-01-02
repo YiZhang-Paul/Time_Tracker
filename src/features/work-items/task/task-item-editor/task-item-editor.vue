@@ -14,6 +14,8 @@
         </textarea>
 
         <div class="footer">
+            <play-circle class="action-button start-button" @click="$emit('start', item)" />
+
             <div class="effort-selector" @click="onEffortSelect()">
                 <weight class="icon" />
                 <span>{{ item.effort }}</span>
@@ -21,15 +23,15 @@
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <content-save class="save-button" @click="onSave()" />
-            <delete class="delete-button" @click="$emit('delete', item)" />
+            <content-save class="action-button save-button" @click="onSave()" />
+            <delete class="action-button delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete, Weight } from 'mdue';
+import { ContentSave, Delete, Weight, PlayCircle } from 'mdue';
 
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -42,12 +44,14 @@ class TaskItemEditorProp {
     components: {
         ContentSave,
         Delete,
-        Weight
+        Weight,
+        PlayCircle
     },
     emits: [
         'create',
         'update',
-        'delete'
+        'delete',
+        'start'
     ]
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
@@ -165,11 +169,23 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             flex-grow: 1;
         }
 
+        .action-button {
+            cursor: pointer;
+            font-size: var(--font-sizes-600);
+            transition: color 0.3s;
+        }
+
         .save-button, .delete-button {
             margin-left: 1vh;
-            cursor: pointer;
-            font-size: var(--font-sizes-500);
-            transition: color 0.3s;
+        }
+
+        .start-button {
+            margin-right: 1vh;
+            color: var(--start-button-color-inactive);
+
+            &:hover {
+                color: var(--start-button-color-active);
+            }
         }
 
         .save-button {

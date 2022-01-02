@@ -14,6 +14,8 @@
         </textarea>
 
         <div class="footer">
+            <play-circle class="action-button start-button" @click="$emit('start', item)" />
+
             <priority-indicator class="priority-selector"
                 :priority="item.priority"
                 @click="onPrioritySelect()">
@@ -21,15 +23,15 @@
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <content-save class="save-button" @click="onSave()" />
-            <delete class="delete-button" @click="$emit('delete', item)" />
+            <content-save class="action-button save-button" @click="onSave()" />
+            <delete class="action-button delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete } from 'mdue';
+import { ContentSave, Delete, PlayCircle } from 'mdue';
 
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
@@ -44,12 +46,14 @@ class InterruptionItemEditorProp {
     components: {
         ContentSave,
         Delete,
+        PlayCircle,
         PriorityIndicator
     },
     emits: [
         'create',
         'update',
-        'delete'
+        'delete',
+        'start'
     ]
 })
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
@@ -164,11 +168,23 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
             flex-grow: 1;
         }
 
+        .action-button {
+            cursor: pointer;
+            font-size: var(--font-sizes-600);
+            transition: color 0.3s;
+        }
+
         .save-button, .delete-button {
             margin-left: 1vh;
-            cursor: pointer;
-            font-size: var(--font-sizes-500);
-            transition: color 0.3s;
+        }
+
+        .start-button {
+            margin-right: 1vh;
+            color: var(--start-button-color-inactive);
+
+            &:hover {
+                color: var(--start-button-color-active);
+            }
         }
 
         .save-button {
