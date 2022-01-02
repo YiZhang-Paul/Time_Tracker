@@ -4,7 +4,7 @@
             <task-item-card class="task-item-card"
                 :class="getItemCardClasses(item)"
                 :item="item"
-                :isActive="activeId === item.id"
+                :isSelected="selectedItemId === item.id"
                 @click="$emit('select', item)">
             </task-item-card>
         </div>
@@ -46,7 +46,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         return store.task.getters(store.task.getter.Summaries)(text);
     }
 
-    get activeId(): number {
+    get selectedItemId(): number {
         return store.task.getters(store.task.getter.EditingItem)?.id ?? -1;
     }
 
@@ -57,7 +57,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     public getItemCardClasses(item: TaskItemSummaryDto): ClassConfigs {
         return {
             animated: this.animated.has(item.id),
-            active: this.activeId === item.id
+            selected: this.selectedItemId === item.id
         };
     }
 
@@ -97,7 +97,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
             margin-left: 20%;
         }
 
-        &.animated.active {
+        &.animated.selected {
             margin-left: 0;
         }
     }

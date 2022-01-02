@@ -1,5 +1,5 @@
 <template>
-    <div class="interruption-item-card-container" :class="{ active: isActive }">
+    <div class="interruption-item-card-container" :class="{ selected: isSelected }">
         <span class="name">{{ item.name }}</span>
 
         <div class="progress-indicator">
@@ -16,7 +16,7 @@ import PriorityIndicator from '../../../../../shared/indicators/priority-indicat
 
 class InterruptionItemCardProp {
     public item = prop<InterruptionItemSummaryDto>({ default: null });
-    public isActive = prop<boolean>({ default: false });
+    public isSelected = prop<boolean>({ default: false });
 }
 
 @Options({
@@ -42,7 +42,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
     box-shadow: 4px 0 6px 1px rgba(0, 0, 0, 0.3);
     color: var(--font-colors-0-00);
 
-    &:hover, &.active {
+    &:hover, &.selected {
         cursor: pointer;
         background: linear-gradient(270deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 

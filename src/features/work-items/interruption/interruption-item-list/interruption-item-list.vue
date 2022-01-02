@@ -4,7 +4,7 @@
             <interruption-item-card class="interruption-item-card"
                 :class="getItemCardClasses(item)"
                 :item="item"
-                :isActive="activeId === item.id"
+                :isSelected="selectedItemId === item.id"
                 @click="$emit('select', item)">
             </interruption-item-card>
         </div>
@@ -46,7 +46,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         return store.interruption.getters(store.interruption.getter.Summaries)(text);
     }
 
-    get activeId(): number {
+    get selectedItemId(): number {
         return store.interruption.getters(store.interruption.getter.EditingItem)?.id ?? -1;
     }
 
@@ -57,7 +57,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     public getItemCardClasses(item: InterruptionItemSummaryDto): ClassConfigs {
         return {
             animated: this.animated.has(item.id),
-            active: this.activeId === item.id
+            selected: this.selectedItemId === item.id
         };
     }
 
@@ -99,7 +99,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
             margin-right: 20%;
         }
 
-        &.animated.active {
+        &.animated.selected {
             margin-right: 0;
         }
     }
