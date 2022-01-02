@@ -63,6 +63,7 @@ html, body, #app {
     right: $border-gap;
     width: 20vw;
     height: 10vh;
+    @include animate-opacity(0, 1, 0.4s, 1.5s);
 }
 
 .time-display {

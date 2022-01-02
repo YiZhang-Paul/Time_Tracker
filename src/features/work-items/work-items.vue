@@ -237,7 +237,7 @@ export default class WorkItems extends Vue {
         height: $item-creator-dimension;
         top: calc(#{$border-gap} + (#{$search-box-height} - #{$item-creator-dimension}) / 2);
         left: calc(50% + #{$search-box-width} / 2 + 2.5vh);
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
+        @include animate-opacity(0, 1, 0.3s, 0.8s);
     }
 
     .interruption-item-editor, .task-item-editor {
