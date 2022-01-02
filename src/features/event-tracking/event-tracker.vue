@@ -17,6 +17,7 @@ import { Options, Vue } from 'vue-class-component';
 import { Briefcase, PalmTree } from 'mdue';
 
 import store from '../../store';
+import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 
 @Options({
     components: {
@@ -25,8 +26,8 @@ import store from '../../store';
     }
 })
 export default class EventTracker extends Vue {
-    public unrecordedWorkingDuration = 0;
-    public unrecordedIdlingDuration = 0;
+    public unrecordedWorkingDuration = '00:00:00';
+    public unrecordedIdlingDuration = '00:00:00';
 
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
@@ -43,12 +44,14 @@ export default class EventTracker extends Vue {
     }
 
     private updateUnrecordedWorkingDuration(): void {
-        this.unrecordedWorkingDuration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedWorkingDuration);
+        const duration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedWorkingDuration);
+        this.unrecordedWorkingDuration = TimeUtility.getDurationString(duration);
         setTimeout(() => this.updateUnrecordedWorkingDuration(), 1000);
     }
 
     private updateUnrecordedIdlingDuration(): void {
-        this.unrecordedIdlingDuration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedIdlingDuration);
+        const duration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedIdlingDuration);
+        this.unrecordedIdlingDuration = TimeUtility.getDurationString(duration);
         setTimeout(() => this.updateUnrecordedIdlingDuration(), 1000);
     }
 }

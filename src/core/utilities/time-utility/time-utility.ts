@@ -5,6 +5,10 @@ const months = [
     'October', 'November', 'December'
 ];
 
+const oneSecond = 1000;
+const oneMinute = oneSecond * 60;
+const oneHour = oneMinute * 60;
+
 export class TimeUtility {
     public static getDateTimeString(date: Date, locale = 'en-US'): string {
         return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
@@ -12,13 +16,21 @@ export class TimeUtility {
 
     public static getTimeString(date: Date): string {
         const hours = date.getHours();
-        const minutes = `${date.getMinutes() < 10 ? '0' : ''}${date.getMinutes()}`;
+        const minutes = this.prependZero(date.getMinutes());
 
         return `${hours > 12 ? hours % 12 : hours}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getShortMonthString(date: Date): string {
         return months[date.getMonth()].slice(0, 3);
+    }
+
+    public static getDurationString(milliseconds: number): string {
+        const hours = Math.floor(milliseconds / oneHour);
+        const minutes = Math.floor(milliseconds % oneHour / oneMinute);
+        const seconds = Math.floor(milliseconds % oneMinute / oneSecond);
+
+        return `${this.prependZero(hours)}:${this.prependZero(minutes)}:${this.prependZero(seconds)}`;
     }
 
     public static getDateSuffix(day: number): string {
@@ -35,5 +47,9 @@ export class TimeUtility {
         }
 
         return 'th';
+    }
+
+    private static prependZero(value: number): string {
+        return `${value < 10 ? '0' : ''}${value}`;
     }
 }
