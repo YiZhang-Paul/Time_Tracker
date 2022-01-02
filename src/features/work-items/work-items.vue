@@ -26,7 +26,8 @@
             :item="editingInterruptionItem"
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
-            @delete="onInterruptionDeleteStart($event)">
+            @delete="onInterruptionDeleteStart($event)"
+            @start="onInterruptionStart($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="editingTaskItem"
@@ -34,7 +35,8 @@
             :item="editingTaskItem"
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
-            @delete="onTaskDeleteStart($event)">
+            @delete="onTaskDeleteStart($event)"
+            @start="onTaskStart($event)">
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
@@ -142,6 +144,10 @@ export default class WorkItems extends Vue {
         this.interruptionDeleteDialogOption = null;
     }
 
+    public onInterruptionStart(item: InterruptionItem): void {
+        store.eventHistory.dispatch(store.eventHistory.action.StartInterruptionItem, item.id);
+    }
+
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.editingTaskItem?.id !== item.id) {
             store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
@@ -174,6 +180,10 @@ export default class WorkItems extends Vue {
     public onTaskDelete(item: TaskItem): void {
         store.task.dispatch(store.task.action.DeleteTaskItem, item.id);
         this.taskDeleteDialogOption = null;
+    }
+
+    public onTaskStart(item: TaskItem): void {
+        store.eventHistory.dispatch(store.eventHistory.action.StartTaskItem, item.id);
     }
 }
 </script>

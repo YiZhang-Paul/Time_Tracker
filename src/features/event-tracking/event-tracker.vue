@@ -26,8 +26,8 @@ import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
     }
 })
 export default class EventTracker extends Vue {
-    public unrecordedWorkingDuration = '00:00:00';
-    public unrecordedIdlingDuration = '00:00:00';
+    public unrecordedWorkingDuration = '--:--:--';
+    public unrecordedIdlingDuration = '--:--:--';
 
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);

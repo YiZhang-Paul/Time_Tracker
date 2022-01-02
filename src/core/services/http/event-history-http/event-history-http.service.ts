@@ -15,4 +15,22 @@ export class EventHistoryHttpService {
             return null;
         }
     }
+
+    public async startInterruptionItem(id: number): Promise<boolean> {
+        try {
+            return (await axios.post(`${this._api}/interruption-items/${id}`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    public async startTaskItem(id: number): Promise<boolean> {
+        try {
+            return (await axios.post(`${this._api}/task-items/${id}`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
 }
