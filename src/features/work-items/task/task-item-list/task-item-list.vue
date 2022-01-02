@@ -44,8 +44,14 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
+        const items = store.task.getters(store.task.getter.Summaries)(text);
+        const active = store.task.getters(store.task.getter.ActiveSummary);
 
-        return store.task.getters(store.task.getter.Summaries)(text);
+        if (!active) {
+            return items;
+        }
+
+        return [active, ...items.filter(_ => _.id !== active.id)];
     }
 
     get selectedItemId(): number {

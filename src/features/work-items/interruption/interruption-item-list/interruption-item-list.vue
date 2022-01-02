@@ -44,8 +44,14 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
+        const items = store.interruption.getters(store.interruption.getter.Summaries)(text);
+        const active = store.interruption.getters(store.interruption.getter.ActiveSummary);
 
-        return store.interruption.getters(store.interruption.getter.Summaries)(text);
+        if (!active) {
+            return items;
+        }
+
+        return [active, ...items.filter(_ => _.id !== active.id)];
     }
 
     get selectedItemId(): number {
