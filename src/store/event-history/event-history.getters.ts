@@ -1,5 +1,6 @@
 import { GetterTree } from 'vuex';
 
+import { EventHistory } from '../../core/models/event-history/event-history';
 import { EventType } from '../../core/enums/event-type.enum';
 
 import { IState } from './event-history.state';
@@ -11,7 +12,8 @@ export enum GetterKey {
     IsWorking = 'is_working',
     IsActiveWorkItem = 'is_active_work_item',
     UnrecordedIdlingDuration = 'unrecorded_idling_duration',
-    UnrecordedWorkingDuration = 'unrecorded_working_duration'
+    UnrecordedWorkingDuration = 'unrecorded_working_duration',
+    LastHistory = 'last_history'
 }
 
 export type Getters = {
@@ -20,6 +22,7 @@ export type Getters = {
     [GetterKey.IsActiveWorkItem](state: IState): (type: EventType, id: number) => boolean;
     [GetterKey.UnrecordedIdlingDuration](state: IState): number;
     [GetterKey.UnrecordedWorkingDuration](state: IState): number;
+    [GetterKey.LastHistory](state: IState): EventHistory | null;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
@@ -65,5 +68,6 @@ export const getters: GetterTree<IState, IState> & Getters = {
         }
 
         return Date.now() - new Date(state.lastHistory!.timestamp).getTime();
-    }
+    },
+    [GetterKey.LastHistory]: (state: IState): EventHistory | null => state.lastHistory
 };

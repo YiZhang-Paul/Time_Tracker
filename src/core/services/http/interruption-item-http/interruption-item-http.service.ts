@@ -17,6 +17,15 @@ export class InterruptionItemHttpService {
         }
     }
 
+    public async getInterruptionSummary(id: number): Promise<InterruptionItemSummaryDto | null> {
+        try {
+            return (await axios.get(`${this._api}/summaries/${id}`)).data;
+        }
+        catch {
+            return null;
+        }
+    }
+
     public async getInterruptionSummaries(): Promise<InterruptionItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;

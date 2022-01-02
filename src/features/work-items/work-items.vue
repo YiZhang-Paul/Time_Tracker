@@ -100,16 +100,15 @@ export default class WorkItems extends Vue {
     }
 
     public async created(): Promise<void> {
+        await store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
         await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
-        const interruptions = store.interruption.getters(store.interruption.getter.Summaries)('');
-        const tasks = store.task.getters(store.task.getter.Summaries)('');
 
-        if (interruptions.length) {
-            this.onInterruptionSelect(interruptions[0]);
+        if (store.eventHistory.getters(store.eventHistory.getter.IsWorking)) {
+            this.openActiveWorkItem();
         }
-        else if (tasks.length) {
-            this.onTaskSelect(tasks[0]);
+        else {
+            this.openAvailableWorkItem();
         }
     }
 
@@ -205,6 +204,43 @@ export default class WorkItems extends Vue {
 
     public onTaskStart(item: TaskItem): void {
         store.eventHistory.dispatch(store.eventHistory.action.StartTaskItem, item.id);
+    }
+
+    private async openActiveWorkItem(): Promise<void> {
+        const history = store.eventHistory.getters(store.eventHistory.getter.LastHistory);
+
+        if (!history) {
+            return;
+        }
+
+        if (history.eventType === EventType.Interruption) {
+            const key = store.interruption.action.GetInterruptionSummary;
+            const item = await store.interruption.dispatch(key, history.resourceId);
+
+            if (item) {
+                this.onInterruptionSelect(item);
+            }
+        }
+        else {
+            const key = store.task.action.GetTaskSummary;
+            const item = await store.task.dispatch(key, history.resourceId);
+
+            if (item) {
+                this.onTaskSelect(item);
+            }
+        }
+    }
+
+    private openAvailableWorkItem(): void {
+        const interruptions = store.interruption.getters(store.interruption.getter.Summaries)(this.searchText);
+        const tasks = store.task.getters(store.task.getter.Summaries)(this.searchText);
+
+        if (interruptions.length) {
+            this.onInterruptionSelect(interruptions[0]);
+        }
+        else if (tasks.length) {
+            this.onTaskSelect(tasks[0]);
+        }
     }
 }
 </script>

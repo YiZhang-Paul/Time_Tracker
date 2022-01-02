@@ -1,5 +1,6 @@
 import { ActionContext, ActionTree } from 'vuex';
 
+import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
 import { TaskItemHttpService } from '../../core/services/http/task-item-http/task-item-http.service';
 
@@ -14,6 +15,7 @@ export const setActionServices = (taskItemHttp: TaskItemHttpService): void => {
 };
 
 export enum ActionKey {
+    GetTaskSummary = 'get_task_summary',
     LoadTaskSummaries = 'load_task_summaries',
     CreateTaskItem = 'create_task_item',
     UpdateTaskItem = 'update_task_item',
@@ -28,6 +30,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
+    [ActionKey.GetTaskSummary](context: ActionAugments, payload: number): Promise<TaskItemSummaryDto | null>;
     [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void>;
     [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
     [ActionKey.UpdateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
@@ -38,6 +41,9 @@ export type Actions = {
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
+    async [ActionKey.GetTaskSummary](_: ActionAugments, payload: number): Promise<TaskItemSummaryDto | null> {
+        return await taskItemHttpService.getTaskSummary(payload);
+    },
     async [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void> {
         context.commit(MutationKey.SetSummaries, await taskItemHttpService.getTaskSummaries());
     },

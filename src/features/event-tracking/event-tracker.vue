@@ -37,8 +37,7 @@ export default class EventTracker extends Vue {
         return store.eventHistory.getters(store.eventHistory.getter.IsIdling);
     }
 
-    public async created(): Promise<void> {
-        await store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
+    public created(): void {
         this.updateUnrecordedWorkingDuration();
         this.updateUnrecordedIdlingDuration();
     }
