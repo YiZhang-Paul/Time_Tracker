@@ -14,7 +14,13 @@
         </textarea>
 
         <div class="footer">
-            <play-circle class="action-button start-button" @click="$emit('start', item)" />
+            <play-circle v-if="!isActiveWorkItem"
+                class="action-button start-button"
+                @click="$emit('start', item)" />
+
+            <stop-circle v-if="isActiveWorkItem"
+                class="action-button stop-button"
+                @click="$emit('stop', item)" />
 
             <div class="effort-selector" @click="onEffortSelect()">
                 <weight class="icon" />
@@ -31,9 +37,11 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete, Weight, PlayCircle } from 'mdue';
+import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
+import store from '../../../../store';
 import { TaskItem } from '../../../../core/models/task/task-item';
+import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
@@ -45,16 +53,24 @@ class TaskItemEditorProp {
         ContentSave,
         Delete,
         Weight,
-        PlayCircle
+        PlayCircle,
+        StopCircle
     },
     emits: [
         'create',
         'update',
         'delete',
-        'start'
+        'start',
+        'stop'
     ]
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+    get isActiveWorkItem(): boolean {
+        const key = store.eventHistory.getter.IsActiveWorkItem;
+
+        return store.eventHistory.getters(key)(EventType.Task, this.item.id);
+    }
+
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
     }
@@ -175,16 +191,27 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             transition: color 0.3s;
         }
 
+        .start-button, .stop-button {
+            margin-right: 1vh;
+        }
+
         .save-button, .delete-button {
             margin-left: 1vh;
         }
 
         .start-button {
-            margin-right: 1vh;
             color: var(--start-button-color-inactive);
 
             &:hover {
                 color: var(--start-button-color-active);
+            }
+        }
+
+        .stop-button {
+            color: var(--stop-button-color-inactive);
+
+            &:hover {
+                color: var(--stop-button-color-active);
             }
         }
 

@@ -14,7 +14,13 @@
         </textarea>
 
         <div class="footer">
-            <play-circle class="action-button start-button" @click="$emit('start', item)" />
+            <play-circle v-if="!isActiveWorkItem"
+                class="action-button start-button"
+                @click="$emit('start', item)" />
+
+            <stop-circle v-if="isActiveWorkItem"
+                class="action-button stop-button"
+                @click="$emit('stop', item)" />
 
             <priority-indicator class="priority-selector"
                 :priority="item.priority"
@@ -31,10 +37,12 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete, PlayCircle } from 'mdue';
+import { ContentSave, Delete, PlayCircle, StopCircle } from 'mdue';
 
+import store from '../../../../store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
+import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 
@@ -47,16 +55,24 @@ class InterruptionItemEditorProp {
         ContentSave,
         Delete,
         PlayCircle,
+        StopCircle,
         PriorityIndicator
     },
     emits: [
         'create',
         'update',
         'delete',
-        'start'
+        'start',
+        'stop'
     ]
 })
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
+    get isActiveWorkItem(): boolean {
+        const key = store.eventHistory.getter.IsActiveWorkItem;
+
+        return store.eventHistory.getters(key)(EventType.Interruption, this.item.id);
+    }
+
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
     }
@@ -174,16 +190,27 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
             transition: color 0.3s;
         }
 
+        .start-button, .stop-button {
+            margin-right: 1vh;
+        }
+
         .save-button, .delete-button {
             margin-left: 1vh;
         }
 
         .start-button {
-            margin-right: 1vh;
             color: var(--start-button-color-inactive);
 
             &:hover {
                 color: var(--start-button-color-active);
+            }
+        }
+
+        .stop-button {
+            color: var(--stop-button-color-inactive);
+
+            &:hover {
+                color: var(--stop-button-color-active);
             }
         }
 
