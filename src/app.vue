@@ -58,7 +58,6 @@ html, body, #app {
 }
 
 .event-tracker {
-    z-index: 2;
     position: absolute;
     top: $content-top;
     right: $border-gap;

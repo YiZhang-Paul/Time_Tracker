@@ -19,6 +19,7 @@
         </dialog-panel>
 
         <search-box class="search-box" @search="searchText = $event"></search-box>
+        <work-item-creator class="work-item-creator"></work-item-creator>
 
         <interruption-item-editor v-if="editingInterruptionItem"
             class="interruption-item-editor"
@@ -45,8 +46,6 @@
             :searchText="searchText"
             @select="onTaskSelect($event)">
         </task-item-list>
-
-        <work-item-creator class="work-item-creator"></work-item-creator>
     </div>
 </template>
 
@@ -184,6 +183,8 @@ export default class WorkItems extends Vue {
     @import '../../styles/animations.scss';
 
     $border-gap: 1.5vh;
+    $search-box-width: 35%;
+    $search-box-height: 9%;
     $item-list-width: 20%;
     $item-creator-dimension: 5.5vh;
 
@@ -191,13 +192,21 @@ export default class WorkItems extends Vue {
     position: relative;
 
     .search-box {
-        $box-width: 35%;
-
         position: absolute;
         top: $border-gap;
-        left: calc(50% - #{$box-width} / 2);
-        width: $box-width;
-        height: 9%;
+        left: calc(50% - #{$search-box-width} / 2);
+        width: $search-box-width;
+        height: $search-box-height;
+    }
+
+    .work-item-creator {
+        z-index: 1;
+        position: absolute;
+        width: $item-creator-dimension;
+        height: $item-creator-dimension;
+        top: calc(#{$border-gap} + (#{$search-box-height} - #{$item-creator-dimension}) / 2);
+        left: calc(50% + #{$search-box-width} / 2 + 2.5vh);
+        @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 
     .interruption-item-editor, .task-item-editor {
@@ -222,15 +231,6 @@ export default class WorkItems extends Vue {
 
     .task-item-list {
         right: $border-gap;
-    }
-
-    .work-item-creator {
-        position: absolute;
-        width: $item-creator-dimension;
-        height: $item-creator-dimension;
-        left: calc(50% - #{$item-creator-dimension} / 2);
-        bottom: 3.5vh;
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 }
 </style>
