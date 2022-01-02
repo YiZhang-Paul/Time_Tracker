@@ -7,7 +7,7 @@
 
         <div class="idling-duration" :class="{ active: isIdling }">
             <palm-tree class="icon" />
-            <span>00:00:00</span>
+            <span>{{ idlingDuration }}</span>
         </div>
     </div>
 </template>
@@ -25,6 +25,8 @@ import store from '../../store';
     }
 })
 export default class EventTracker extends Vue {
+    public idlingDuration = 0;
+
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
     }
@@ -33,8 +35,14 @@ export default class EventTracker extends Vue {
         return store.eventHistory.getters(store.eventHistory.getter.IsIdling);
     }
 
-    public created(): void {
-        store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
+    public async created(): Promise<void> {
+        await store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
+        this.updateIdlingDuration();
+    }
+
+    private updateIdlingDuration(): void {
+        this.idlingDuration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
+        setTimeout(() => this.updateIdlingDuration(), 1000);
     }
 }
 </script>
