@@ -206,28 +206,15 @@ export default class WorkItems extends Vue {
         store.eventHistory.dispatch(store.eventHistory.action.StartTaskItem, item.id);
     }
 
-    private async openActiveWorkItem(): Promise<void> {
-        const history = store.eventHistory.getters(store.eventHistory.getter.LastHistory);
+    private openActiveWorkItem(): void {
+        const activeInterruption = store.interruption.getters(store.interruption.getter.ActiveSummary);
+        const activeTask = store.task.getters(store.task.getter.ActiveSummary);
 
-        if (!history) {
-            return;
+        if (activeInterruption) {
+            this.onInterruptionSelect(activeInterruption);
         }
-
-        if (history.eventType === EventType.Interruption) {
-            const key = store.interruption.action.GetInterruptionSummary;
-            const item = await store.interruption.dispatch(key, history.resourceId);
-
-            if (item) {
-                this.onInterruptionSelect(item);
-            }
-        }
-        else {
-            const key = store.task.action.GetTaskSummary;
-            const item = await store.task.dispatch(key, history.resourceId);
-
-            if (item) {
-                this.onTaskSelect(item);
-            }
+        else if (activeTask) {
+            this.onTaskSelect(activeTask);
         }
     }
 

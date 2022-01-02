@@ -17,15 +17,6 @@ export class TaskItemHttpService {
         }
     }
 
-    public async getTaskSummary(id: number): Promise<TaskItemSummaryDto | null> {
-        try {
-            return (await axios.get(`${this._api}/summaries/${id}`)).data;
-        }
-        catch {
-            return null;
-        }
-    }
-
     public async getTaskSummaries(): Promise<TaskItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;

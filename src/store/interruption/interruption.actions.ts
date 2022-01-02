@@ -1,6 +1,5 @@
 import { ActionContext, ActionTree } from 'vuex';
 
-import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { InterruptionItemHttpService } from '../../core/services/http/interruption-item-http/interruption-item-http.service';
 
@@ -15,7 +14,6 @@ export const setActionServices = (interruptionItemHttp: InterruptionItemHttpServ
 };
 
 export enum ActionKey {
-    GetInterruptionSummary = 'get_interruption_summary',
     LoadInterruptionSummaries = 'load_interruption_summaries',
     CreateInterruptionItem = 'create_interruption_item',
     UpdateInterruptionItem = 'update_interruption_item',
@@ -30,7 +28,6 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
-    [ActionKey.GetInterruptionSummary](context: ActionAugments, payload: number): Promise<InterruptionItemSummaryDto | null>;
     [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void>;
     [ActionKey.CreateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean>;
     [ActionKey.UpdateInterruptionItem](context: ActionAugments, payload: InterruptionItem): Promise<boolean>;
@@ -41,9 +38,6 @@ export type Actions = {
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
-    async [ActionKey.GetInterruptionSummary](_: ActionAugments, payload: number): Promise<InterruptionItemSummaryDto | null> {
-        return await interruptionItemHttpService.getInterruptionSummary(payload);
-    },
     async [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void> {
         context.commit(MutationKey.SetSummaries, await interruptionItemHttpService.getInterruptionSummaries());
     },
