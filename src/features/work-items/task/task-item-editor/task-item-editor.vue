@@ -14,13 +14,15 @@
         </textarea>
 
         <div class="footer">
-            <play-circle v-if="!isActiveWorkItem"
-                class="action-button start-button"
-                @click="$emit('start', item)" />
+            <template v-if="item.id !== -1">
+                <play-circle v-if="!isActiveWorkItem"
+                    class="action-button start-button"
+                    @click="$emit('start', item)" />
 
-            <stop-circle v-if="isActiveWorkItem"
-                class="action-button stop-button"
-                @click="$emit('stop', item)" />
+                <stop-circle v-if="isActiveWorkItem"
+                    class="action-button stop-button"
+                    @click="$emit('stop', item)" />
+            </template>
 
             <div class="effort-selector" @click="onEffortSelect()">
                 <weight class="icon" />
