@@ -1,5 +1,5 @@
 <template>
-    <div class="task-item-card-container" :class="{ selected: isSelected }">
+    <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <div class="progress-indicator">
             <span>{{ item.effort }}</span>
         </div>
@@ -16,6 +16,7 @@ import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-d
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
     public isSelected = prop<boolean>({ default: false });
+    public isActive = prop<boolean>({ default: false });
 }
 
 export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
@@ -43,6 +44,10 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         .progress-indicator {
             background-color: var(--item-type-colors-task-2-02);
         }
+    }
+
+    &.active {
+        color: var(--context-colors-suggestion-0-00);
     }
 
     .progress-indicator {

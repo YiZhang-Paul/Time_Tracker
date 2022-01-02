@@ -5,6 +5,7 @@
                 :class="getItemCardClasses(item)"
                 :item="item"
                 :isSelected="selectedItemId === item.id"
+                :isActive="isActive(item)"
                 @click="$emit('select', item)">
             </interruption-item-card>
         </div>
@@ -17,6 +18,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import store from '../../../../store';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
+import { EventType } from '../../../../core/enums/event-type.enum';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
 
@@ -61,6 +63,12 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         };
     }
 
+    public isActive(item: InterruptionItemSummaryDto): boolean {
+        const key = store.eventHistory.getter.IsActiveWorkItem;
+
+        return store.eventHistory.getters(key)(EventType.Interruption, item.id);
+    }
+
     private animateItemCards(): void {
         const elements = document.querySelectorAll('.interruption-item-card');
 
@@ -92,7 +100,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     .interruption-item-card {
         margin-right: 110%;
-        transition: margin-right 0.3s;
+        transition: margin-right 0.3s, color 0.3s;
         direction: ltr;
 
         &.animated {

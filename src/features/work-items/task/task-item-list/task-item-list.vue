@@ -5,6 +5,7 @@
                 :class="getItemCardClasses(item)"
                 :item="item"
                 :isSelected="selectedItemId === item.id"
+                :isActive="isActive(item)"
                 @click="$emit('select', item)">
             </task-item-card>
         </div>
@@ -17,6 +18,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import store from '../../../../store';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
+import { EventType } from '../../../../core/enums/event-type.enum';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -61,6 +63,12 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         };
     }
 
+    public isActive(item: TaskItemSummaryDto): boolean {
+        const key = store.eventHistory.getter.IsActiveWorkItem;
+
+        return store.eventHistory.getters(key)(EventType.Task, item.id);
+    }
+
     private animateItemCards(): void {
         const elements = document.querySelectorAll('.task-item-card');
 
@@ -91,7 +99,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     .task-item-card {
         margin-left: 110%;
-        transition: margin-left 0.3s;
+        transition: margin-left 0.3s, color 0.3s;
 
         &.animated {
             margin-left: 20%;
