@@ -9,6 +9,8 @@ import { IState, state } from './interruption.state';
 import { GetterKey, getters, Getters } from './interruption.getters';
 import { Mutations, MutationKey, mutations } from './interruption.mutations';
 import { ActionKey, actions, Actions, setActionServices } from './interruption.actions';
+
+export const key = 'interruption';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createModule = (): Module<IState, any> => ({
     namespaced: true,

@@ -9,6 +9,8 @@ import { IState, state } from './event-history.state';
 import { GetterKey, getters, Getters } from './event-history.getters';
 import { Mutations, MutationKey, mutations } from './event-history.mutations';
 import { ActionKey, actions, Actions, setActionServices } from './event-history.actions';
+
+export const key = 'eventHistory';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createModule = (): Module<IState, any> => ({
     namespaced: true,

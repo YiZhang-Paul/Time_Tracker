@@ -9,6 +9,8 @@ import { IState, state } from './task.state';
 import { GetterKey, getters, Getters } from './task.getters';
 import { Mutations, MutationKey, mutations } from './task.mutations';
 import { ActionKey, actions, Actions, setActionServices } from './task.actions';
+
+export const key = 'task';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createModule = (): Module<IState, any> => ({
     namespaced: true,
