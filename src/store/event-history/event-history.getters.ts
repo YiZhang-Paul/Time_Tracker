@@ -9,13 +9,15 @@ const dayStart = new Date(new Date().setHours(0, 0, 0, 0));
 export enum GetterKey {
     IsIdling = 'is_idling',
     IsWorking = 'is_working',
-    IdlingDuration = 'idling_duration'
+    UnrecordedIdlingDuration = 'unrecorded_idling_duration',
+    UnrecordedWorkingDuration = 'unrecorded_working_duration'
 }
 
 export type Getters = {
     [GetterKey.IsIdling](state: IState): boolean;
     [GetterKey.IsWorking](state: IState): boolean;
-    [GetterKey.IdlingDuration](state: IState): number;
+    [GetterKey.UnrecordedIdlingDuration](state: IState): number;
+    [GetterKey.UnrecordedWorkingDuration](state: IState): number;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
@@ -33,7 +35,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         return Boolean(state.lastHistory) && state.lastHistory!.eventType !== EventType.Idling;
     },
-    [GetterKey.IdlingDuration]: (state: IState): number => {
+    [GetterKey.UnrecordedIdlingDuration]: (state: IState): number => {
         const isWorking = state.lastHistory && state.lastHistory.eventType !== EventType.Idling;
 
         if (!state.lastUpdated || isWorking) {
@@ -43,5 +45,14 @@ export const getters: GetterTree<IState, IState> & Getters = {
         const start = state.lastHistory ? new Date(state.lastHistory.timestamp) : dayStart;
 
         return Date.now() - start.getTime();
+    },
+    [GetterKey.UnrecordedWorkingDuration]: (state: IState): number => {
+        const isIdling = !state.lastHistory || state.lastHistory.eventType === EventType.Idling;
+
+        if (!state.lastUpdated || isIdling) {
+            return 0;
+        }
+
+        return Date.now() - new Date(state.lastHistory!.timestamp).getTime();
     }
 };

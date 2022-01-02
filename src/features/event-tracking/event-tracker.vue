@@ -2,12 +2,12 @@
     <div class="event-tracker-container">
         <div class="working-duration" :class="{ active: isWorking }">
             <briefcase class="icon" />
-            <span>00:00:00</span>
+            <span>{{ unrecordedWorkingDuration }}</span>
         </div>
 
         <div class="idling-duration" :class="{ active: isIdling }">
             <palm-tree class="icon" />
-            <span>{{ idlingDuration }}</span>
+            <span>{{ unrecordedIdlingDuration }}</span>
         </div>
     </div>
 </template>
@@ -25,7 +25,8 @@ import store from '../../store';
     }
 })
 export default class EventTracker extends Vue {
-    public idlingDuration = 0;
+    public unrecordedWorkingDuration = 0;
+    public unrecordedIdlingDuration = 0;
 
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
@@ -37,12 +38,18 @@ export default class EventTracker extends Vue {
 
     public async created(): Promise<void> {
         await store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
-        this.updateIdlingDuration();
+        this.updateUnrecordedWorkingDuration();
+        this.updateUnrecordedIdlingDuration();
     }
 
-    private updateIdlingDuration(): void {
-        this.idlingDuration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
-        setTimeout(() => this.updateIdlingDuration(), 1000);
+    private updateUnrecordedWorkingDuration(): void {
+        this.unrecordedWorkingDuration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedWorkingDuration);
+        setTimeout(() => this.updateUnrecordedWorkingDuration(), 1000);
+    }
+
+    private updateUnrecordedIdlingDuration(): void {
+        this.unrecordedIdlingDuration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedIdlingDuration);
+        setTimeout(() => this.updateUnrecordedIdlingDuration(), 1000);
     }
 }
 </script>
