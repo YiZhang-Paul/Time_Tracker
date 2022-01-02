@@ -63,6 +63,7 @@ import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
+import { EventType } from '../../core/enums/event-type.enum';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
@@ -145,9 +146,16 @@ export default class WorkItems extends Vue {
         }
     }
 
-    public onInterruptionDelete(item: InterruptionItem): void {
-        store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id);
+    public async onInterruptionDelete(item: InterruptionItem): Promise<void> {
+        if (!await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id)) {
+            return;
+        }
+
         this.interruptionDeleteDialogOption = null;
+
+        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
+            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        }
     }
 
     public onInterruptionStart(item: InterruptionItem): void {
@@ -183,9 +191,16 @@ export default class WorkItems extends Vue {
         }
     }
 
-    public onTaskDelete(item: TaskItem): void {
-        store.task.dispatch(store.task.action.DeleteTaskItem, item.id);
+    public async onTaskDelete(item: TaskItem): Promise<void> {
+        if (!await store.task.dispatch(store.task.action.DeleteTaskItem, item.id)) {
+            return;
+        }
+
         this.taskDeleteDialogOption = null;
+
+        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
+            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        }
     }
 
     public onTaskStart(item: TaskItem): void {
