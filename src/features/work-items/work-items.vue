@@ -27,7 +27,8 @@
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
-            @start="onInterruptionStart($event)">
+            @start="onInterruptionStart($event)"
+            @stop="onIdlingStart()">
         </interruption-item-editor>
 
         <task-item-editor v-if="editingTaskItem"
@@ -36,7 +37,8 @@
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
-            @start="onTaskStart($event)">
+            @start="onTaskStart($event)"
+            @stop="onIdlingStart()">
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
@@ -108,6 +110,10 @@ export default class WorkItems extends Vue {
         else if (tasks.length) {
             this.onTaskSelect(tasks[0]);
         }
+    }
+
+    public onIdlingStart(): void {
+        store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
     }
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {

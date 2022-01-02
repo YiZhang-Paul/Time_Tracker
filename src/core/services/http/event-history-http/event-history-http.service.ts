@@ -16,6 +16,15 @@ export class EventHistoryHttpService {
         }
     }
 
+    public async startIdlingSession(): Promise<boolean> {
+        try {
+            return (await axios.post(`${this._api}/idling-sessions`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
+
     public async startInterruptionItem(id: number): Promise<boolean> {
         try {
             return (await axios.post(`${this._api}/interruption-items/${id}`)).data;
