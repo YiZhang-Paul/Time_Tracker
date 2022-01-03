@@ -1,19 +1,5 @@
 <template>
     <div class="work-items-container">
-        <dialog-panel v-if="interruptionDeleteDialogOption"
-            :dialog="confirmationDialog"
-            :data="interruptionDeleteDialogOption"
-            @cancel="interruptionDeleteDialogOption = null"
-            @confirm="onInterruptionDelete($event)">
-        </dialog-panel>
-
-        <dialog-panel v-if="taskDeleteDialogOption"
-            :dialog="confirmationDialog"
-            :data="taskDeleteDialogOption"
-            @cancel="taskDeleteDialogOption = null"
-            @confirm="onTaskDelete($event)">
-        </dialog-panel>
-
         <search-box class="search-box" @search="searchText = $event"></search-box>
         <work-item-creator class="work-item-creator"></work-item-creator>
 
@@ -59,10 +45,10 @@ import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
+import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
-import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
@@ -74,7 +60,6 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 @Options({
     components: {
         SearchBox,
-        DialogPanel,
         InterruptionItemEditor,
         InterruptionItemList,
         TaskItemEditor,
@@ -83,9 +68,6 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
     }
 })
 export default class WorkItems extends Vue {
-    public readonly confirmationDialog = markRaw(ConfirmationDialog);
-    public interruptionDeleteDialogOption: ConfirmationDialogOption<InterruptionItem> | null = null;
-    public taskDeleteDialogOption: ConfirmationDialogOption<TaskItem> | null = null;
     public searchText = '';
 
     get editingInterruptionItem(): InterruptionItem | null {
@@ -138,19 +120,10 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
-            this.interruptionDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
-        }
-    }
-
-    public async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id)) {
-            return;
-        }
-
-        this.interruptionDeleteDialogOption = null;
-
-        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
-            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+            const data = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
+            const preConfirm = this.onInterruptionDelete.bind(this);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
+            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
         }
     }
 
@@ -183,19 +156,10 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
-            this.taskDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
-        }
-    }
-
-    public async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await store.task.dispatch(store.task.action.DeleteTaskItem, item.id)) {
-            return;
-        }
-
-        this.taskDeleteDialogOption = null;
-
-        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
-            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+            const data = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
+            const preConfirm = this.onTaskDelete.bind(this);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
+            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
         }
     }
 
@@ -224,6 +188,26 @@ export default class WorkItems extends Vue {
         }
         else if (tasks.length) {
             this.onTaskSelect(tasks[0]);
+        }
+    }
+
+    private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
+        if (!await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id)) {
+            return;
+        }
+
+        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
+            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        }
+    }
+
+    private async onTaskDelete(item: TaskItem): Promise<void> {
+        if (!await store.task.dispatch(store.task.action.DeleteTaskItem, item.id)) {
+            return;
+        }
+
+        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
+            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
         }
     }
 }
