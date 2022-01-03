@@ -2,6 +2,7 @@
     <work-items class="work-items"></work-items>
     <event-tracker class="event-tracker"></event-tracker>
     <time-display class="time-display"></time-display>
+    <dialogs-base></dialogs-base>
 </template>
 
 <script lang="ts">
@@ -10,12 +11,14 @@ import { Options, Vue } from 'vue-class-component';
 import WorkItems from './features/work-items/work-items.vue';
 import EventTracker from './features/event-tracking/event-tracker.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
+import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
         WorkItems,
         EventTracker,
-        TimeDisplay
+        TimeDisplay,
+        DialogsBase
     }
 })
 export default class App extends Vue { }

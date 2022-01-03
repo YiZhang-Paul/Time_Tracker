@@ -1,13 +1,5 @@
 <template>
     <div class="event-tracker-container">
-        <dialog-panel v-if="breakPromptDialogOption"
-            :dialog="confirmationDialog"
-            :data="breakPromptDialogOption"
-            :width="'35vw'"
-            @cancel="onBreakSkip()"
-            @confirm="onBreakStart()">
-        </dialog-panel>
-
         <div class="working-duration" :class="{ active: isWorking }">
             <briefcase class="icon" />
             <span>{{ workingDuration }}</span>
@@ -27,6 +19,7 @@ import { Briefcase, PalmTree } from 'mdue';
 
 import store from '../../store';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
+import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
@@ -40,8 +33,7 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     }
 })
 export default class EventTracker extends Vue {
-    public readonly confirmationDialog = markRaw(ConfirmationDialog);
-    public breakPromptDialogOption: ConfirmationDialogOption | null = null;
+    public showBreakPrompt = false;
     public workingDuration = '';
     public idlingDuration = '';
 
@@ -71,7 +63,7 @@ export default class EventTracker extends Vue {
     }
 
     private updateBreakCheck(): void {
-        if (this.breakPromptDialogOption) {
+        if (this.showBreakPrompt) {
             return;
         }
 
@@ -81,7 +73,10 @@ export default class EventTracker extends Vue {
 
         if (this.isWorking && duration / limit >= 1) {
             const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
-            this.breakPromptDialogOption = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
+            const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw' });
+            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
+            this.showBreakPrompt = true;
         }
     }
 }
