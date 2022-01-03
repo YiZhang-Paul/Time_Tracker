@@ -9,8 +9,10 @@ export enum GetterKey {
     IsIdling = 'is_idling',
     IsWorking = 'is_working',
     IsActiveWorkItem = 'is_active_work_item',
+    IsScheduledBreakNeeded = 'is_scheduled_break_needed',
     IdlingDuration = 'idling_duration',
     WorkingDuration = 'working_duration',
+    WorkingDurationLimit = 'working_duration_limit',
     OngoingTimeDistribution = 'ongoing_time_distribution'
 }
 
@@ -18,8 +20,11 @@ export type Getters = {
     [GetterKey.IsIdling](state: IState): boolean;
     [GetterKey.IsWorking](state: IState): boolean;
     [GetterKey.IsActiveWorkItem](state: IState): (type: EventType, id: number) => boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.IsScheduledBreakNeeded](state: IState, getters: any): boolean;
     [GetterKey.IdlingDuration](state: IState): number;
     [GetterKey.WorkingDuration](state: IState): number;
+    [GetterKey.WorkingDurationLimit](state: IState): number;
     [GetterKey.OngoingTimeDistribution](state: IState): OngoingEventTimeDistribution | null;
 }
 
@@ -51,6 +56,19 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         return eventType !== EventType.Idling && eventType === type && resourceId === id;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.IsScheduledBreakNeeded]: (state: IState, getters: any): boolean => {
+        if (!getters[GetterKey.IsWorking]) {
+            return false;
+        }
+
+        const limit = state.workingDurationLimit;
+        const { sinceLastBreakPrompt, unconcluded } = state.ongoingTimeDistribution!;
+        const concluded = sinceLastBreakPrompt.interruption + sinceLastBreakPrompt.task;
+        const unconcludedTime = Date.now() - new Date(unconcluded!.timestamp).getTime();
+
+        return concluded + unconcludedTime >= limit;
+    },
     [GetterKey.IdlingDuration]: (state: IState): number => {
         if (!state.ongoingTimeDistribution) {
             return 0;
@@ -64,8 +82,9 @@ export const getters: GetterTree<IState, IState> & Getters = {
         }
 
         const start = unconcluded ? new Date(unconcluded.timestamp) : new Date(new Date().setHours(0, 0, 0, 0));
+        const unconcludedTime = Date.now() - start.getTime();
 
-        return sinceStart.idling + Date.now() - start.getTime();
+        return sinceStart.idling + unconcludedTime;
     },
     [GetterKey.WorkingDuration]: (state: IState): number => {
         if (!state.ongoingTimeDistribution) {
@@ -80,7 +99,10 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return concluded;
         }
 
-        return concluded + Date.now() - new Date(unconcluded!.timestamp).getTime();
+        const unconcludedTime = Date.now() - new Date(unconcluded!.timestamp).getTime();
+
+        return concluded + unconcludedTime;
     },
+    [GetterKey.WorkingDurationLimit]: (state: IState): number => state.workingDurationLimit,
     [GetterKey.OngoingTimeDistribution]: (state: IState): OngoingEventTimeDistribution | null => state.ongoingTimeDistribution
 };
