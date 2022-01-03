@@ -16,8 +16,8 @@ import { Options, Vue, prop } from 'vue-class-component';
 class DialogPanelProp {
     public dialog = prop<unknown>({ default: null });
     public data = prop<unknown>({ default: null });
-    public width = prop<string>({ default: '40vw' });
-    public height = prop<string>({ default: '55vh' });
+    public width = prop<string>({ default: '30vw' });
+    public height = prop<string>({ default: '15vh' });
 }
 
 @Options({

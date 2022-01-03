@@ -1,4 +1,4 @@
-export class ConfirmationDialogOption<T> {
+export class ConfirmationDialogOption<T = null> {
     public title: string;
     public confirmText: string;
     public cancelText: string;

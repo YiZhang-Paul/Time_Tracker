@@ -3,8 +3,6 @@
         <dialog-panel v-if="interruptionDeleteDialogOption"
             :dialog="confirmationDialog"
             :data="interruptionDeleteDialogOption"
-            :width="'30vw'"
-            :height="'15vh'"
             @cancel="interruptionDeleteDialogOption = null"
             @confirm="onInterruptionDelete($event)">
         </dialog-panel>
@@ -12,8 +10,6 @@
         <dialog-panel v-if="taskDeleteDialogOption"
             :dialog="confirmationDialog"
             :data="taskDeleteDialogOption"
-            :width="'30vw'"
-            :height="'15vh'"
             @cancel="taskDeleteDialogOption = null"
             @confirm="onTaskDelete($event)">
         </dialog-panel>

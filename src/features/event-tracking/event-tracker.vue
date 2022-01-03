@@ -1,5 +1,13 @@
 <template>
     <div class="event-tracker-container">
+        <dialog-panel v-if="breakPromptDialogOption"
+            :dialog="confirmationDialog"
+            :data="breakPromptDialogOption"
+            :width="'35vw'"
+            @cancel="onBreakSkip()"
+            @confirm="onBreakStart()">
+        </dialog-panel>
+
         <div class="working-duration" :class="{ active: isWorking }">
             <briefcase class="icon" />
             <span>{{ workingDuration }}</span>
@@ -13,19 +21,26 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { Briefcase, PalmTree } from 'mdue';
 
 import store from '../../store';
+import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
+import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
+import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 @Options({
     components: {
         Briefcase,
-        PalmTree
+        PalmTree,
+        DialogPanel
     }
 })
 export default class EventTracker extends Vue {
+    public readonly confirmationDialog = markRaw(ConfirmationDialog);
+    public breakPromptDialogOption: ConfirmationDialogOption | null = null;
     public workingDuration = '';
     public idlingDuration = '';
 
@@ -38,20 +53,35 @@ export default class EventTracker extends Vue {
     }
 
     public created(): void {
-        this.updateWorkingDuration();
-        this.updateIdlingDuration();
+        this.updateProgress();
     }
 
-    private updateWorkingDuration(): void {
+    private updateProgress(): void {
+        this.updateDurations();
+        this.updateBreakCheck();
+        setTimeout(() => this.updateProgress(), 1000);
+    }
+
+    private updateDurations(): void {
+        const workingDuration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
+        const idlingDuration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
+        this.workingDuration = TimeUtility.getDurationString(workingDuration);
+        this.idlingDuration = TimeUtility.getDurationString(idlingDuration);
+    }
+
+    private updateBreakCheck(): void {
+        if (this.breakPromptDialogOption) {
+            return;
+        }
+
+        const oneMinute = 1000 * 60;
+        const limit = oneMinute * 50;
         const duration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
-        this.workingDuration = TimeUtility.getDurationString(duration);
-        setTimeout(() => this.updateWorkingDuration(), 1000);
-    }
 
-    private updateIdlingDuration(): void {
-        const duration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
-        this.idlingDuration = TimeUtility.getDurationString(duration);
-        setTimeout(() => this.updateIdlingDuration(), 1000);
+        if (this.isWorking && duration / limit >= 1) {
+            const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
+            this.breakPromptDialogOption = new ConfirmationDialogOption(title, 'Take a break', 'Skip');
+        }
     }
 }
 </script>
