@@ -100,7 +100,7 @@ export default class WorkItems extends Vue {
     }
 
     public async created(): Promise<void> {
-        await store.eventHistory.dispatch(store.eventHistory.action.LoadLastHistory);
+        await store.eventHistory.dispatch(store.eventHistory.action.LoadCurrentTimeDistribution);
         await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
 

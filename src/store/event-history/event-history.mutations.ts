@@ -1,24 +1,19 @@
 import { MutationTree } from 'vuex';
 
-import { EventHistory } from '../../core/models/event-history/event-history';
+import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
 
 import { IState } from './event-history.state';
 
 export enum MutationKey {
-    SetLastHistory = 'set_last_history',
-    SetLastUpdated = 'set_last_updated'
+    SetCurrentTimeDistribution = 'set_current_time_distribution'
 }
 
 export type Mutations = {
-    [MutationKey.SetLastHistory](state: IState, history: EventHistory | null): void;
-    [MutationKey.SetLastUpdated](state: IState): void;
+    [MutationKey.SetCurrentTimeDistribution](state: IState, distribution: EventTimeDistribution | null): void;
 }
 
 export const mutations: MutationTree<IState> & Mutations = {
-    [MutationKey.SetLastHistory](state: IState, history: EventHistory | null): void {
-        state.lastHistory = history;
-    },
-    [MutationKey.SetLastUpdated](state: IState): void {
-        state.lastUpdated = new Date();
+    [MutationKey.SetCurrentTimeDistribution](state: IState, distribution: EventTimeDistribution | null): void {
+        state.currentTimeDistribution = distribution;
     }
 };

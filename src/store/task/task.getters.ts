@@ -2,7 +2,7 @@ import { GetterTree } from 'vuex';
 
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
-import { EventHistory } from '../../core/models/event-history/event-history';
+import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
 import { EventType } from '../../core/enums/event-type.enum';
 import { GetterKey as eventHistoryGetterKey } from '../event-history/event-history.getters';
 import { key as eventHistoryKey } from '../event-history/event-history.store';
@@ -34,13 +34,14 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        const history: EventHistory = rootGetters[`${eventHistoryKey}/${eventHistoryGetterKey.LastHistory}`];
+        const key = `${eventHistoryKey}/${eventHistoryGetterKey.CurrentTimeDistribution}`;
+        const { unconcluded } = rootGetters[key] as EventTimeDistribution;
 
-        if (history.eventType !== EventType.Task) {
+        if (unconcluded!.eventType !== EventType.Task) {
             return null;
         }
 
-        return state.summaries.find(_ => _.id === history.resourceId) ?? null;
+        return state.summaries.find(_ => _.id === unconcluded!.resourceId) ?? null;
     },
     [GetterKey.EditingItem]: (state: IState): TaskItem | null => state.editingItem
 };

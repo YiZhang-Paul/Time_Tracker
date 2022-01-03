@@ -1,11 +1,9 @@
-import { EventHistory } from '../../core/models/event-history/event-history';
+import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
 
 export interface IState {
-    lastHistory: EventHistory | null;
-    lastUpdated: Date | null;
+    currentTimeDistribution: EventTimeDistribution | null;
 }
 
 export const state = (): IState => ({
-    lastHistory: null,
-    lastUpdated: null
+    currentTimeDistribution: null
 });

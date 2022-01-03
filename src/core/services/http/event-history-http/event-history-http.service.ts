@@ -1,18 +1,18 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
-import { EventHistory } from '../../../models/event-history/event-history';
+import { EventTimeDistribution } from '../../../models/event-history/event-time-distribution';
 
 @injectable()
 export class EventHistoryHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/event-histories`;
 
-    public async getLastEventHistory(): Promise<EventHistory | null> {
+    public async getCurrentTimeDistribution(): Promise<EventTimeDistribution> {
         try {
-            return (await axios.get(`${this._api}/last-history`)).data;
+            return (await axios.get(`${this._api}/time-distribution/today`)).data;
         }
         catch {
-            return null;
+            return new EventTimeDistribution();
         }
     }
 
