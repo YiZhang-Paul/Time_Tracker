@@ -1,6 +1,6 @@
 import { GetterTree } from 'vuex';
 
-import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
 import { EventType } from '../../core/enums/event-type.enum';
 
 import { IState } from './event-history.state';
@@ -11,7 +11,7 @@ export enum GetterKey {
     IsActiveWorkItem = 'is_active_work_item',
     IdlingDuration = 'idling_duration',
     WorkingDuration = 'working_duration',
-    CurrentTimeDistribution = 'current_time_distribution'
+    OngoingTimeDistribution = 'ongoing_time_distribution'
 }
 
 export type Getters = {
@@ -20,60 +20,60 @@ export type Getters = {
     [GetterKey.IsActiveWorkItem](state: IState): (type: EventType, id: number) => boolean;
     [GetterKey.IdlingDuration](state: IState): number;
     [GetterKey.WorkingDuration](state: IState): number;
-    [GetterKey.CurrentTimeDistribution](state: IState): EventTimeDistribution | null;
+    [GetterKey.OngoingTimeDistribution](state: IState): OngoingEventTimeDistribution | null;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
     [GetterKey.IsIdling]: (state: IState): boolean => {
-        if (!state.currentTimeDistribution) {
+        if (!state.ongoingTimeDistribution) {
             return false;
         }
 
-        const { unconcluded } = state.currentTimeDistribution;
+        const { unconcluded } = state.ongoingTimeDistribution;
 
         return !unconcluded || unconcluded.eventType === EventType.Idling;
     },
     [GetterKey.IsWorking]: (state: IState): boolean => {
-        if (!state.currentTimeDistribution) {
+        if (!state.ongoingTimeDistribution) {
             return false;
         }
 
-        const { unconcluded } = state.currentTimeDistribution;
+        const { unconcluded } = state.ongoingTimeDistribution;
 
         return Boolean(unconcluded) && unconcluded!.eventType !== EventType.Idling;
     },
     [GetterKey.IsActiveWorkItem]: (state: IState) => (type: EventType, id: number) => {
-        if (!state.currentTimeDistribution?.unconcluded) {
+        if (!state.ongoingTimeDistribution?.unconcluded) {
             return false;
         }
 
-        const { eventType, resourceId } = state.currentTimeDistribution.unconcluded;
+        const { eventType, resourceId } = state.ongoingTimeDistribution.unconcluded;
 
         return eventType !== EventType.Idling && eventType === type && resourceId === id;
     },
     [GetterKey.IdlingDuration]: (state: IState): number => {
-        if (!state.currentTimeDistribution) {
+        if (!state.ongoingTimeDistribution) {
             return 0;
         }
 
-        const { idling, unconcluded } = state.currentTimeDistribution;
+        const { sinceStart, unconcluded } = state.ongoingTimeDistribution;
         const isWorking = unconcluded && unconcluded.eventType !== EventType.Idling;
 
         if (isWorking) {
-            return idling;
+            return sinceStart.idling;
         }
 
         const start = unconcluded ? new Date(unconcluded.timestamp) : new Date(new Date().setHours(0, 0, 0, 0));
 
-        return idling + Date.now() - start.getTime();
+        return sinceStart.idling + Date.now() - start.getTime();
     },
     [GetterKey.WorkingDuration]: (state: IState): number => {
-        if (!state.currentTimeDistribution) {
+        if (!state.ongoingTimeDistribution) {
             return 0;
         }
 
-        const { interruption, task, unconcluded } = state.currentTimeDistribution;
-        const concluded = interruption + task;
+        const { sinceStart, unconcluded } = state.ongoingTimeDistribution;
+        const concluded = sinceStart.interruption + sinceStart.task;
         const isIdling = !unconcluded || unconcluded.eventType === EventType.Idling;
 
         if (isIdling) {
@@ -82,5 +82,5 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         return concluded + Date.now() - new Date(unconcluded!.timestamp).getTime();
     },
-    [GetterKey.CurrentTimeDistribution]: (state: IState): EventTimeDistribution | null => state.currentTimeDistribution
+    [GetterKey.OngoingTimeDistribution]: (state: IState): OngoingEventTimeDistribution | null => state.ongoingTimeDistribution
 };

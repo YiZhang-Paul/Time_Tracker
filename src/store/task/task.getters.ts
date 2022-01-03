@@ -2,7 +2,7 @@ import { GetterTree } from 'vuex';
 
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
-import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
 import { EventType } from '../../core/enums/event-type.enum';
 import { GetterKey as eventHistoryGetterKey } from '../event-history/event-history.getters';
 import { key as eventHistoryKey } from '../event-history/event-history.store';
@@ -34,8 +34,8 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        const key = `${eventHistoryKey}/${eventHistoryGetterKey.CurrentTimeDistribution}`;
-        const { unconcluded } = rootGetters[key] as EventTimeDistribution;
+        const key = `${eventHistoryKey}/${eventHistoryGetterKey.OngoingTimeDistribution}`;
+        const { unconcluded } = rootGetters[key] as OngoingEventTimeDistribution;
 
         if (unconcluded!.eventType !== EventType.Task) {
             return null;

@@ -22,14 +22,12 @@ import { ConfirmationDialogOption } from '../../core/models/options/confirmation
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
-import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 @Options({
     components: {
         Briefcase,
-        PalmTree,
-        DialogPanel
+        PalmTree
     }
 })
 export default class EventTracker extends Vue {
@@ -71,13 +69,21 @@ export default class EventTracker extends Vue {
         const limit = oneMinute * 50;
         const duration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
 
-        if (this.isWorking && duration / limit >= 1) {
-            const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
-            const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw' });
-            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
-            this.showBreakPrompt = true;
+        if (!this.isWorking || duration / limit < 1) {
+            return;
         }
+
+        const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
+        const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
+
+        const config = new DialogConfig(markRaw(ConfirmationDialog), data, {
+            width: '35vw',
+            preCancel: () => console.log('hi'),
+            preConfirm: () => console.log('hey')
+        });
+
+        store.dialog.dispatch(store.dialog.action.OpenDialog, config);
+        this.showBreakPrompt = true;
     }
 }
 </script>

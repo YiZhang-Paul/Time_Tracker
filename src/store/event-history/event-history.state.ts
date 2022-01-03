@@ -1,9 +1,9 @@
-import { EventTimeDistribution } from '../../core/models/event-history/event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
 
 export interface IState {
-    currentTimeDistribution: EventTimeDistribution | null;
+    ongoingTimeDistribution: OngoingEventTimeDistribution | null;
 }
 
 export const state = (): IState => ({
-    currentTimeDistribution: null
+    ongoingTimeDistribution: null
 });
