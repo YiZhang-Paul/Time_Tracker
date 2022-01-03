@@ -59,6 +59,7 @@ import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
+import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
@@ -137,7 +138,7 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
-            this.interruptionDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', true, item);
+            this.interruptionDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
         }
     }
 
@@ -182,7 +183,7 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
-            this.taskDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', true, item);
+            this.taskDeleteDialogOption = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
         }
     }
 

@@ -11,7 +11,7 @@
             </flat-button>
 
             <raised-button class="confirm-button"
-                :class="{ warning: data.isWarning }"
+                :class="confirmButtonClasses"
                 @click="$emit('confirm', data.data)">
 
                 {{ data.confirmText }}
@@ -25,6 +25,8 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Alert } from 'mdue';
 
 import { ConfirmationDialogOption } from '../../../core/models/options/confirmation-dialog-option';
+import { ClassConfigs } from '../../../core/models/generic/class-configs';
+import { ButtonType } from '../../../core/enums/button-type.enum';
 import FlatButton from '../../buttons/flat-button/flat-button.vue';
 import RaisedButton from '../../buttons/raised-button/raised-button.vue';
 
@@ -43,7 +45,14 @@ class ConfirmationDialogProp {
         'confirm'
     ]
 })
-export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp) { }
+export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp) {
+    get confirmButtonClasses(): ClassConfigs {
+        return {
+            confirm: this.data.type === ButtonType.Confirm,
+            warning: this.data.type === ButtonType.Warning
+        };
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -88,6 +97,14 @@ export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp)
 
             ::v-deep(.content-wrapper) {
                 background-color: var(--primary-colors-8-00);
+            }
+
+            &.confirm:hover ::v-deep(.content-wrapper) {
+                background-color: var(--context-colors-info-0-00);
+            }
+
+            &.confirm ::v-deep(.content-wrapper) {
+                background-color: var(--context-colors-info-1-00);
             }
 
             &.warning:hover ::v-deep(.content-wrapper) {

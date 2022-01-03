@@ -27,6 +27,7 @@ import { Briefcase, PalmTree } from 'mdue';
 
 import store from '../../store';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
+import { ButtonType } from '../../core/enums/button-type.enum';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import DialogPanel from '../../shared/panels/dialog-panel/dialog-panel.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
@@ -80,7 +81,7 @@ export default class EventTracker extends Vue {
 
         if (this.isWorking && duration / limit >= 1) {
             const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
-            this.breakPromptDialogOption = new ConfirmationDialogOption(title, 'Take a break', 'Skip');
+            this.breakPromptDialogOption = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
         }
     }
 }
