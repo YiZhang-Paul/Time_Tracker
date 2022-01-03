@@ -29,11 +29,11 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 
 export type Actions = {
     [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void>;
-    [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
-    [ActionKey.UpdateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean>;
-    [ActionKey.DeleteTaskItem](context: ActionAugments, payload: number): Promise<boolean>;
+    [ActionKey.CreateTaskItem](context: ActionAugments, item: TaskItem): Promise<boolean>;
+    [ActionKey.UpdateTaskItem](context: ActionAugments, item: TaskItem): Promise<boolean>;
+    [ActionKey.DeleteTaskItem](context: ActionAugments, id: number): Promise<boolean>;
     [ActionKey.StartTaskItemCreation](context: ActionAugments): void;
-    [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean>;
+    [ActionKey.StartTaskItemEdit](context: ActionAugments, id: number): Promise<boolean>;
     [ActionKey.EndTaskItemEdit](context: ActionAugments): void;
 }
 
@@ -41,36 +41,36 @@ export const actions: ActionTree<IState, IState> & Actions = {
     async [ActionKey.LoadTaskSummaries](context: ActionAugments): Promise<void> {
         context.commit(MutationKey.SetSummaries, await taskItemHttpService.getTaskSummaries());
     },
-    async [ActionKey.CreateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean> {
-        const item = await taskItemHttpService.createTaskItem(payload);
+    async [ActionKey.CreateTaskItem](context: ActionAugments, item: TaskItem): Promise<boolean> {
+        const created = await taskItemHttpService.createTaskItem(item);
 
-        if (item) {
-            context.commit(MutationKey.SetEditingItem, item);
+        if (created) {
+            context.commit(MutationKey.SetEditingItem, created);
         }
 
-        return Boolean(item);
+        return Boolean(created);
     },
-    async [ActionKey.UpdateTaskItem](context: ActionAugments, payload: TaskItem): Promise<boolean> {
-        const item = await taskItemHttpService.updateTaskItem(payload);
+    async [ActionKey.UpdateTaskItem](context: ActionAugments, item: TaskItem): Promise<boolean> {
+        const updated = await taskItemHttpService.updateTaskItem(item);
 
-        if (item && context.getters[GetterKey.EditingItem]?.id === item.id) {
-            context.commit(MutationKey.SetEditingItem, item);
+        if (updated && context.getters[GetterKey.EditingItem]?.id === updated.id) {
+            context.commit(MutationKey.SetEditingItem, updated);
         }
 
-        return Boolean(item);
+        return Boolean(updated);
     },
-    async [ActionKey.DeleteTaskItem](context: ActionAugments, payload: number): Promise<boolean> {
-        const isDeleted = await taskItemHttpService.deleteTaskItem(payload);
+    async [ActionKey.DeleteTaskItem](context: ActionAugments, id: number): Promise<boolean> {
+        const isDeleted = await taskItemHttpService.deleteTaskItem(id);
 
         if (!isDeleted) {
             return false;
         }
 
-        if (context.getters[GetterKey.EditingItem]?.id === payload) {
+        if (context.getters[GetterKey.EditingItem]?.id === id) {
             context.dispatch(ActionKey.EndTaskItemEdit);
         }
 
-        context.commit(MutationKey.DeleteSummary, payload);
+        context.commit(MutationKey.DeleteSummary, id);
 
         return true;
     },
@@ -78,8 +78,8 @@ export const actions: ActionTree<IState, IState> & Actions = {
         context.dispatch(ActionKey.EndTaskItemEdit);
         setTimeout(() => context.commit(MutationKey.SetEditingItem, new TaskItem(-1)));
     },
-    async [ActionKey.StartTaskItemEdit](context: ActionAugments, payload: number): Promise<boolean> {
-        const item = await taskItemHttpService.getTaskItem(payload);
+    async [ActionKey.StartTaskItemEdit](context: ActionAugments, id: number): Promise<boolean> {
+        const item = await taskItemHttpService.getTaskItem(id);
 
         if (item) {
             context.dispatch(ActionKey.EndTaskItemEdit);
