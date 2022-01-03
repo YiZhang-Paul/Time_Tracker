@@ -17,6 +17,12 @@ import {
     createHandlers as createEventHistoryHandlers,
     key as eventHistoryKey
 } from './event-history/event-history.store';
+
+import {
+    createModule as createDialogModule,
+    createHandlers as createDialogHandlers,
+    key as dialogKey
+} from './dialog/dialog.store';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let store: Store<any>;
 const getStore = () => store;
@@ -26,7 +32,8 @@ export const createStore = () => {
         modules: {
             [interruptionKey]: createInterruptionModule(),
             [taskKey]: createTaskModule(),
-            [eventHistoryKey]: createEventHistoryModule()
+            [eventHistoryKey]: createEventHistoryModule(),
+            [dialogKey]: createDialogModule()
         }
     });
 
@@ -34,7 +41,8 @@ export const createStore = () => {
         store,
         [interruptionKey]: createInterruptionHandlers(interruptionKey, getStore),
         [taskKey]: createTaskHandlers(taskKey, getStore),
-        [eventHistoryKey]: createEventHistoryHandlers(eventHistoryKey, getStore)
+        [eventHistoryKey]: createEventHistoryHandlers(eventHistoryKey, getStore),
+        [dialogKey]: createDialogHandlers(dialogKey, getStore)
     };
 };
 
