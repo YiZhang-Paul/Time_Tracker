@@ -2,12 +2,12 @@
     <div class="event-tracker-container">
         <div class="working-duration" :class="{ active: isWorking }">
             <briefcase class="icon" />
-            <span>{{ unrecordedWorkingDuration }}</span>
+            <span>{{ workingDuration }}</span>
         </div>
 
         <div class="idling-duration" :class="{ active: isIdling }">
             <palm-tree class="icon" />
-            <span>{{ unrecordedIdlingDuration }}</span>
+            <span>{{ idlingDuration }}</span>
         </div>
     </div>
 </template>
@@ -26,8 +26,8 @@ import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
     }
 })
 export default class EventTracker extends Vue {
-    public unrecordedWorkingDuration = '--:--:--';
-    public unrecordedIdlingDuration = '--:--:--';
+    public workingDuration = '';
+    public idlingDuration = '';
 
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
@@ -38,20 +38,20 @@ export default class EventTracker extends Vue {
     }
 
     public created(): void {
-        this.updateUnrecordedWorkingDuration();
-        this.updateUnrecordedIdlingDuration();
+        this.updateWorkingDuration();
+        this.updateIdlingDuration();
     }
 
-    private updateUnrecordedWorkingDuration(): void {
-        const duration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedWorkingDuration);
-        this.unrecordedWorkingDuration = TimeUtility.getDurationString(duration);
-        setTimeout(() => this.updateUnrecordedWorkingDuration(), 1000);
+    private updateWorkingDuration(): void {
+        const duration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
+        this.workingDuration = TimeUtility.getDurationString(duration);
+        setTimeout(() => this.updateWorkingDuration(), 1000);
     }
 
-    private updateUnrecordedIdlingDuration(): void {
-        const duration = store.eventHistory.getters(store.eventHistory.getter.UnrecordedIdlingDuration);
-        this.unrecordedIdlingDuration = TimeUtility.getDurationString(duration);
-        setTimeout(() => this.updateUnrecordedIdlingDuration(), 1000);
+    private updateIdlingDuration(): void {
+        const duration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
+        this.idlingDuration = TimeUtility.getDurationString(duration);
+        setTimeout(() => this.updateIdlingDuration(), 1000);
     }
 }
 </script>

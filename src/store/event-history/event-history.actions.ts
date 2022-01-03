@@ -31,7 +31,8 @@ export type Actions = {
 
 export const actions: ActionTree<IState, IState> & Actions = {
     async [ActionKey.LoadCurrentTimeDistribution](context: ActionAugments): Promise<void> {
-        const distribution = await eventHistoryHttpService.getCurrentTimeDistribution();
+        const dayStart = new Date(new Date().setHours(0, 0, 0, 0));
+        const distribution = await eventHistoryHttpService.getTimeDistribution(dayStart);
         context.commit(MutationKey.SetCurrentTimeDistribution, distribution);
     },
     async [ActionKey.StartIdlingSession](context: ActionAugments): Promise<boolean> {

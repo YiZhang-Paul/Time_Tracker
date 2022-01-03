@@ -7,9 +7,9 @@ import { EventTimeDistribution } from '../../../models/event-history/event-time-
 export class EventHistoryHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/event-histories`;
 
-    public async getCurrentTimeDistribution(): Promise<EventTimeDistribution> {
+    public async getTimeDistribution(start: Date): Promise<EventTimeDistribution> {
         try {
-            return (await axios.get(`${this._api}/time-distribution/today`)).data;
+            return (await axios.get(`${this._api}/time-distribution/${start.toISOString()}`)).data;
         }
         catch {
             return new EventTimeDistribution();
