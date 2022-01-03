@@ -5,7 +5,9 @@
             :dialog="config.component"
             :data="config.data"
             :width="config.options.width"
-            :height="config.options.height">
+            :height="config.options.height"
+            @cancel="onCancel($event, config)"
+            @confirm="onConfirm($event, config)">
         </dialog-panel>
     </div>
 </template>
@@ -25,6 +27,30 @@ import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
 export default class DialogsBase extends Vue {
     get configs(): DialogConfig<unknown, unknown>[] {
         return store.dialog.getters(store.dialog.getter.Configs);
+    }
+
+    public async onCancel<T>(payload: T, config: DialogConfig<unknown, unknown>): Promise<void> {
+        if (config.options?.preCancel) {
+            await config.options.preCancel(payload);
+        }
+
+        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+
+        if (config.options?.postCancel) {
+            await config.options.postCancel(payload);
+        }
+    }
+
+    public async onConfirm<T>(payload: T, config: DialogConfig<unknown, unknown>): Promise<void> {
+        if (config.options?.preConfirm) {
+            await config.options.preConfirm(payload);
+        }
+
+        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+
+        if (config.options?.postConfirm) {
+            await config.options.postConfirm(payload);
+        }
     }
 }
 </script>

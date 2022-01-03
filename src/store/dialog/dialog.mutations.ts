@@ -5,15 +5,20 @@ import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { IState } from './dialog.state';
 
 export enum MutationKey {
-    EnqueueConfig = 'enqueue_config'
+    AddConfig = 'add_config',
+    DeleteConfig = 'delete_config'
 }
 
 export type Mutations = {
-    [MutationKey.EnqueueConfig](state: IState, config: DialogConfig<unknown, unknown>): void;
+    [MutationKey.AddConfig](state: IState, config: DialogConfig<unknown, unknown>): void;
+    [MutationKey.DeleteConfig](state: IState, config: DialogConfig<unknown, unknown>): void;
 }
 
 export const mutations: MutationTree<IState> & Mutations = {
-    [MutationKey.EnqueueConfig](state: IState, config: DialogConfig<unknown, unknown>): void {
-        state.configs.push(config);
+    [MutationKey.AddConfig](state: IState, config: DialogConfig<unknown, unknown>): void {
+        state.configs = [...state.configs, config];
+    },
+    [MutationKey.DeleteConfig](state: IState, config: DialogConfig<unknown, unknown>): void {
+        state.configs = state.configs.filter(_ => _ !== config);
     }
 };
