@@ -1,8 +1,8 @@
 import { MutationTree } from 'vuex';
 
-import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
 
-import { IState } from './event-history.state';
+import { IState } from './event.state';
 
 export enum MutationKey {
     SetOngoingTimeDistribution = 'set_ongoing_time_distribution'

@@ -1,14 +1,14 @@
 import { ActionContext, ActionTree } from 'vuex';
 
-import { EventHistoryHttpService } from '../../core/services/http/event-history-http/event-history-http.service';
+import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
-import { IState } from './event-history.state';
-import { Mutations, MutationKey } from './event-history.mutations';
+import { IState } from './event.state';
+import { Mutations, MutationKey } from './event.mutations';
 
-let eventHistoryHttpService: EventHistoryHttpService;
+let eventHttpService: EventHttpService;
 
-export const setActionServices = (eventHistoryHttp: EventHistoryHttpService): void => {
-    eventHistoryHttpService = eventHistoryHttp;
+export const setActionServices = (eventHttp: EventHttpService): void => {
+    eventHttpService = eventHttp;
 };
 
 export enum ActionKey {
@@ -36,11 +36,11 @@ export type Actions = {
 export const actions: ActionTree<IState, IState> & Actions = {
     async [ActionKey.LoadOngoingTimeDistribution](context: ActionAugments): Promise<void> {
         const dayStart = new Date(new Date().setHours(0, 0, 0, 0));
-        const distribution = await eventHistoryHttpService.getOngoingTimeDistribution(dayStart);
+        const distribution = await eventHttpService.getOngoingTimeDistribution(dayStart);
         context.commit(MutationKey.SetOngoingTimeDistribution, distribution);
     },
     async [ActionKey.StartIdlingSession](context: ActionAugments): Promise<boolean> {
-        const isStarted = await eventHistoryHttpService.startIdlingSession();
+        const isStarted = await eventHttpService.startIdlingSession();
 
         if (isStarted) {
             await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
@@ -49,7 +49,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         return isStarted;
     },
     async [ActionKey.StartInterruptionItem](context: ActionAugments, id: number): Promise<boolean> {
-        const isStarted = await eventHistoryHttpService.startInterruptionItem(id);
+        const isStarted = await eventHttpService.startInterruptionItem(id);
 
         if (isStarted) {
             await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
@@ -58,7 +58,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         return isStarted;
     },
     async [ActionKey.StartTaskItem](context: ActionAugments, id: number): Promise<boolean> {
-        const isStarted = await eventHistoryHttpService.startTaskItem(id);
+        const isStarted = await eventHttpService.startTaskItem(id);
 
         if (isStarted) {
             await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
@@ -67,7 +67,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         return isStarted;
     },
     async [ActionKey.StartBreakSession](context: ActionAugments): Promise<boolean> {
-        const isStarted = await eventHistoryHttpService.startBreakSession();
+        const isStarted = await eventHttpService.startBreakSession();
 
         if (isStarted) {
             await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
@@ -76,7 +76,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         return isStarted;
     },
     async [ActionKey.SkipBreakSession](context: ActionAugments): Promise<boolean> {
-        const isSkipped = await eventHistoryHttpService.skipBreakSession();
+        const isSkipped = await eventHttpService.skipBreakSession();
 
         if (isSkipped) {
             await context.dispatch(ActionKey.LoadOngoingTimeDistribution);

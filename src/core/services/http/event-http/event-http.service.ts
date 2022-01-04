@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
-import { OngoingEventTimeDistribution } from '../../../models/event-history/ongoing-event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../../models/event/ongoing-event-time-distribution';
 
 @injectable()
-export class EventHistoryHttpService {
+export class EventHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/events`;
 
     public async getOngoingTimeDistribution(start: Date): Promise<OngoingEventTimeDistribution> {

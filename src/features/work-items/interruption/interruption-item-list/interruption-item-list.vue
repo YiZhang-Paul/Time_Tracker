@@ -70,9 +70,9 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     public isActive(item: InterruptionItemSummaryDto): boolean {
-        const key = store.eventHistory.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return store.eventHistory.getters(key)(EventType.Interruption, item.id);
+        return store.event.getters(key)(EventType.Interruption, item.id);
     }
 
     private animateItemCards(): void {

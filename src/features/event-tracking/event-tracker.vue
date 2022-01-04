@@ -36,11 +36,11 @@ export default class EventTracker extends Vue {
     public notWorkingDuration = '';
 
     get isWorking(): boolean {
-        return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
+        return store.event.getters(store.event.getter.IsWorking);
     }
 
     get isNotWorking(): boolean {
-        return store.eventHistory.getters(store.eventHistory.getter.IsNotWorking);
+        return store.event.getters(store.event.getter.IsNotWorking);
     }
 
     public created(): void {
@@ -54,20 +54,20 @@ export default class EventTracker extends Vue {
     }
 
     private updateDurations(): void {
-        const workingDuration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
-        const notWorkingDuration = store.eventHistory.getters(store.eventHistory.getter.NotWorkingDuration);
+        const workingDuration = store.event.getters(store.event.getter.WorkingDuration);
+        const notWorkingDuration = store.event.getters(store.event.getter.NotWorkingDuration);
         this.workingDuration = TimeUtility.getDurationString(workingDuration);
         this.notWorkingDuration = TimeUtility.getDurationString(notWorkingDuration);
     }
 
     private updateBreakCheck(): void {
-        const key = store.eventHistory.getter.IsScheduledBreakNeeded;
+        const key = store.event.getter.IsScheduledBreakNeeded;
 
-        if (this.isBreakPromptActive || !store.eventHistory.getters(key)) {
+        if (this.isBreakPromptActive || !store.event.getters(key)) {
             return;
         }
 
-        const limit = store.eventHistory.getters(store.eventHistory.getter.WorkingDurationLimit);
+        const limit = store.event.getters(store.event.getter.WorkingDurationLimit);
         const title = `You have worked more than ${limit / 60 / 1000} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
         const preCancel = this.skipBreakSession.bind(this);
@@ -78,12 +78,12 @@ export default class EventTracker extends Vue {
     }
 
     private async startBreakSession(): Promise<void> {
-        await store.eventHistory.dispatch(store.eventHistory.action.StartBreakSession);
+        await store.event.dispatch(store.event.action.StartBreakSession);
         this.isBreakPromptActive = false;
     }
 
     private async skipBreakSession(): Promise<void> {
-        await store.eventHistory.dispatch(store.eventHistory.action.SkipBreakSession);
+        await store.event.dispatch(store.event.action.SkipBreakSession);
         this.isBreakPromptActive = false;
     }
 }

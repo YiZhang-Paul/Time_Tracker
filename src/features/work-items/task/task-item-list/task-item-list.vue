@@ -70,9 +70,9 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     public isActive(item: TaskItemSummaryDto): boolean {
-        const key = store.eventHistory.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return store.eventHistory.getters(key)(EventType.Task, item.id);
+        return store.event.getters(key)(EventType.Task, item.id);
     }
 
     private animateItemCards(): void {

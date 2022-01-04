@@ -70,9 +70,9 @@ class InterruptionItemEditorProp {
 })
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
     get isActiveWorkItem(): boolean {
-        const key = store.eventHistory.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return store.eventHistory.getters(key)(EventType.Interruption, this.item.id);
+        return store.event.getters(key)(EventType.Interruption, this.item.id);
     }
 
     get creationTime(): string {

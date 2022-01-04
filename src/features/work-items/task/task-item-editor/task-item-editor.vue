@@ -68,9 +68,9 @@ class TaskItemEditorProp {
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     get isActiveWorkItem(): boolean {
-        const key = store.eventHistory.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return store.eventHistory.getters(key)(EventType.Task, this.item.id);
+        return store.event.getters(key)(EventType.Task, this.item.id);
     }
 
     get creationTime(): string {

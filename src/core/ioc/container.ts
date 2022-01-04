@@ -3,7 +3,7 @@ import { Container } from 'inversify';
 
 import { InterruptionItemHttpService } from '../services/http/interruption-item-http/interruption-item-http.service';
 import { TaskItemHttpService } from '../services/http/task-item-http/task-item-http.service';
-import { EventHistoryHttpService } from '../services/http/event-history-http/event-history-http.service';
+import { EventHttpService } from '../services/http/event-http/event-http.service';
 
 import { types } from './types';
 
@@ -20,6 +20,6 @@ container
     .inTransientScope();
 
 container
-    .bind<EventHistoryHttpService>(types.EventHistoryHttpService)
-    .to(EventHistoryHttpService)
+    .bind<EventHttpService>(types.EventHttpService)
+    .to(EventHttpService)
     .inTransientScope();

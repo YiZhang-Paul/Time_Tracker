@@ -79,11 +79,11 @@ export default class WorkItems extends Vue {
     }
 
     public async created(): Promise<void> {
-        await store.eventHistory.dispatch(store.eventHistory.action.LoadOngoingTimeDistribution);
+        await store.event.dispatch(store.event.action.LoadOngoingTimeDistribution);
         await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
         await store.task.dispatch(store.task.action.LoadTaskSummaries);
 
-        if (store.eventHistory.getters(store.eventHistory.getter.IsWorking)) {
+        if (store.event.getters(store.event.getter.IsWorking)) {
             this.openActiveWorkItem();
         }
         else {
@@ -92,7 +92,7 @@ export default class WorkItems extends Vue {
     }
 
     public onIdlingStart(): void {
-        store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        store.event.dispatch(store.event.action.StartIdlingSession);
     }
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
@@ -128,7 +128,7 @@ export default class WorkItems extends Vue {
     }
 
     public onInterruptionStart(item: InterruptionItem): void {
-        store.eventHistory.dispatch(store.eventHistory.action.StartInterruptionItem, item.id);
+        store.event.dispatch(store.event.action.StartInterruptionItem, item.id);
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
@@ -164,7 +164,7 @@ export default class WorkItems extends Vue {
     }
 
     public onTaskStart(item: TaskItem): void {
-        store.eventHistory.dispatch(store.eventHistory.action.StartTaskItem, item.id);
+        store.event.dispatch(store.event.action.StartTaskItem, item.id);
     }
 
     private openActiveWorkItem(): void {
@@ -196,8 +196,8 @@ export default class WorkItems extends Vue {
             return;
         }
 
-        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
-            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        if (store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
+            await store.event.dispatch(store.event.action.StartIdlingSession);
         }
     }
 
@@ -206,8 +206,8 @@ export default class WorkItems extends Vue {
             return;
         }
 
-        if (store.eventHistory.getters(store.eventHistory.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
-            await store.eventHistory.dispatch(store.eventHistory.action.StartIdlingSession);
+        if (store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
+            await store.event.dispatch(store.event.action.StartIdlingSession);
         }
     }
 }

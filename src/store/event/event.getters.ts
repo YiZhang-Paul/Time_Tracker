@@ -1,9 +1,9 @@
 import { GetterTree } from 'vuex';
 
-import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
 import { EventType } from '../../core/enums/event-type.enum';
 
-import { IState } from './event-history.state';
+import { IState } from './event.state';
 
 export enum GetterKey {
     IsWorking = 'is_working',

@@ -13,10 +13,10 @@ import {
 } from './task/task.store';
 
 import {
-    createModule as createEventHistoryModule,
-    createHandlers as createEventHistoryHandlers,
-    key as eventHistoryKey
-} from './event-history/event-history.store';
+    createModule as createEventModule,
+    createHandlers as createEventHandlers,
+    key as eventKey
+} from './event/event.store';
 
 import {
     createModule as createDialogModule,
@@ -32,7 +32,7 @@ export const createStore = () => {
         modules: {
             [interruptionKey]: createInterruptionModule(),
             [taskKey]: createTaskModule(),
-            [eventHistoryKey]: createEventHistoryModule(),
+            [eventKey]: createEventModule(),
             [dialogKey]: createDialogModule()
         }
     });
@@ -41,7 +41,7 @@ export const createStore = () => {
         store,
         [interruptionKey]: createInterruptionHandlers(interruptionKey, getStore),
         [taskKey]: createTaskHandlers(taskKey, getStore),
-        [eventHistoryKey]: createEventHistoryHandlers(eventHistoryKey, getStore),
+        [eventKey]: createEventHandlers(eventKey, getStore),
         [dialogKey]: createDialogHandlers(dialogKey, getStore)
     };
 };

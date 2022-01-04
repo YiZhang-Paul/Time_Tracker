@@ -1,4 +1,4 @@
-import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
 
 const oneMinute = 1000 * 60;
 

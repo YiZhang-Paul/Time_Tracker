@@ -2,10 +2,10 @@ import { GetterTree } from 'vuex';
 
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
-import { OngoingEventTimeDistribution } from '../../core/models/event-history/ongoing-event-time-distribution';
+import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
 import { EventType } from '../../core/enums/event-type.enum';
-import { GetterKey as eventHistoryGetterKey } from '../event-history/event-history.getters';
-import { key as eventHistoryKey } from '../event-history/event-history.store';
+import { GetterKey as eventGetterKey } from '../event/event.getters';
+import { key as eventKey } from '../event/event.store';
 
 import { IState } from './interruption.state';
 
@@ -30,11 +30,11 @@ export const getters: GetterTree<IState, IState> & Getters = {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [GetterKey.ActiveSummary]: (state: IState, _a: any, _b: any, rootGetters: any): InterruptionItemSummaryDto | null => {
-        if (!rootGetters[`${eventHistoryKey}/${eventHistoryGetterKey.IsWorking}`]) {
+        if (!rootGetters[`${eventKey}/${eventGetterKey.IsWorking}`]) {
             return null;
         }
 
-        const key = `${eventHistoryKey}/${eventHistoryGetterKey.OngoingTimeDistribution}`;
+        const key = `${eventKey}/${eventGetterKey.OngoingTimeDistribution}`;
         const { unconcluded } = rootGetters[key] as OngoingEventTimeDistribution;
 
         if (unconcluded!.eventType !== EventType.Interruption) {
