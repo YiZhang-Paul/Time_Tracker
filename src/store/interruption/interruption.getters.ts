@@ -37,11 +37,11 @@ export const getters: GetterTree<IState, IState> & Getters = {
         const key = `${eventKey}/${eventGetterKey.OngoingTimeSummary}`;
         const { unconcluded } = rootGetters[key] as OngoingEventTimeSummary;
 
-        if (unconcluded!.eventType !== EventType.Interruption) {
+        if (unconcluded.eventType !== EventType.Interruption) {
             return null;
         }
 
-        return state.summaries.find(_ => _.id === unconcluded!.resourceId) ?? null;
+        return state.summaries.find(_ => _.id === unconcluded.resourceId) ?? null;
     },
     [GetterKey.EditingItem]: (state: IState): InterruptionItem | null => state.editingItem
 };

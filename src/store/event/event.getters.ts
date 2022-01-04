@@ -33,16 +33,12 @@ export type Getters = {
 
 export const getters: GetterTree<IState, IState> & Getters = {
     [GetterKey.IsWorking]: (state: IState): boolean => {
-        const type = state.ongoingTimeSummary?.unconcluded?.eventType;
+        const type = state.ongoingTimeSummary?.unconcluded.eventType;
 
         return type === EventType.Interruption || type === EventType.Task;
     },
     [GetterKey.IsNotWorking]: (state: IState): boolean => {
-        if (state.ongoingTimeSummary && !state.ongoingTimeSummary.unconcluded) {
-            return true;
-        }
-
-        const type = state.ongoingTimeSummary?.unconcluded?.eventType;
+        const type = state.ongoingTimeSummary?.unconcluded.eventType;
 
         return type === EventType.Idling || type === EventType.Break;
     },
@@ -52,7 +48,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return false;
         }
 
-        const { eventType, resourceId } = state.ongoingTimeSummary!.unconcluded!;
+        const { eventType, resourceId } = state.ongoingTimeSummary!.unconcluded;
 
         return eventType === type && resourceId === id;
     },
@@ -64,7 +60,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         const limit = state.workingDurationLimit;
         const { sinceLastBreakPrompt, unconcluded } = state.ongoingTimeSummary!;
-        const unconcludedTime = Date.now() - new Date(unconcluded!.timestamp).getTime();
+        const unconcludedTime = Date.now() - new Date(unconcluded.timestamp).getTime();
 
         return sinceLastBreakPrompt.working + unconcludedTime >= limit;
     },
@@ -76,7 +72,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         const { sinceStart, unconcluded } = state.ongoingTimeSummary;
         const isWorking = getters[GetterKey.IsWorking];
-        const unconcludedTime = isWorking ? Date.now() - new Date(unconcluded!.timestamp).getTime() : 0;
+        const unconcludedTime = isWorking ? Date.now() - new Date(unconcluded.timestamp).getTime() : 0;
 
         return sinceStart.working + unconcludedTime;
     },
@@ -87,13 +83,8 @@ export const getters: GetterTree<IState, IState> & Getters = {
         }
 
         const { sinceStart, unconcluded } = state.ongoingTimeSummary;
-
-        if (getters[GetterKey.IsWorking]) {
-            return sinceStart.notWorking;
-        }
-
-        const start = unconcluded ? new Date(unconcluded.timestamp) : new Date(new Date().setHours(0, 0, 0, 0));
-        const unconcludedTime = Date.now() - start.getTime();
+        const isWorking = getters[GetterKey.IsWorking];
+        const unconcludedTime = isWorking ? 0 : Date.now() - new Date(unconcluded.timestamp).getTime();
 
         return sinceStart.notWorking + unconcludedTime;
     },
