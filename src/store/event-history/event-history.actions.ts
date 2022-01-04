@@ -15,7 +15,9 @@ export enum ActionKey {
     LoadOngoingTimeDistribution = 'load_ongoing_time_distribution',
     StartIdlingSession = 'start_idling_session',
     StartInterruptionItem = 'start_interruption_item',
-    StartTaskItem = 'start_task_item'
+    StartTaskItem = 'start_task_item',
+    StartBreakSession = 'start_break_session',
+    SkipBreakSession = 'skip_break_session'
 }
 
 interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
@@ -27,6 +29,8 @@ export type Actions = {
     [ActionKey.StartIdlingSession](context: ActionAugments): Promise<boolean>;
     [ActionKey.StartInterruptionItem](context: ActionAugments, id: number): Promise<boolean>;
     [ActionKey.StartTaskItem](context: ActionAugments, id: number): Promise<boolean>;
+    [ActionKey.StartBreakSession](context: ActionAugments): Promise<boolean>;
+    [ActionKey.SkipBreakSession](context: ActionAugments): Promise<boolean>;
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
@@ -61,5 +65,23 @@ export const actions: ActionTree<IState, IState> & Actions = {
         }
 
         return isStarted;
+    },
+    async [ActionKey.StartBreakSession](context: ActionAugments): Promise<boolean> {
+        const isStarted = await eventHistoryHttpService.startBreakSession();
+
+        if (isStarted) {
+            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+        }
+
+        return isStarted;
+    },
+    async [ActionKey.SkipBreakSession](context: ActionAugments): Promise<boolean> {
+        const isSkipped = await eventHistoryHttpService.skipBreakSession();
+
+        if (isSkipped) {
+            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+        }
+
+        return isSkipped;
     }
 };

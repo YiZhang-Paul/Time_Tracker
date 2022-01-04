@@ -42,4 +42,22 @@ export class EventHistoryHttpService {
             return false;
         }
     }
+
+    public async startBreakSession(): Promise<boolean> {
+        try {
+            return (await axios.put(`${this._api}/scheduled-break-prompts`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    public async skipBreakSession(): Promise<boolean> {
+        try {
+            return (await axios.put(`${this._api}/scheduled-break-prompts?skip=true`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
 }

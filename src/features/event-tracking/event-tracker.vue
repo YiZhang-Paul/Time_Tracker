@@ -5,9 +5,9 @@
             <span>{{ workingDuration }}</span>
         </div>
 
-        <div class="idling-duration" :class="{ active: isIdling }">
+        <div class="not-working-duration" :class="{ active: isNotWorking }">
             <palm-tree class="icon" />
-            <span>{{ idlingDuration }}</span>
+            <span>{{ notWorkingDuration }}</span>
         </div>
     </div>
 </template>
@@ -31,16 +31,16 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     }
 })
 export default class EventTracker extends Vue {
-    public showBreakPrompt = false;
+    public isBreakPromptActive = false;
     public workingDuration = '';
-    public idlingDuration = '';
+    public notWorkingDuration = '';
 
     get isWorking(): boolean {
         return store.eventHistory.getters(store.eventHistory.getter.IsWorking);
     }
 
-    get isIdling(): boolean {
-        return store.eventHistory.getters(store.eventHistory.getter.IsIdling);
+    get isNotWorking(): boolean {
+        return store.eventHistory.getters(store.eventHistory.getter.IsNotWorking);
     }
 
     public created(): void {
@@ -55,35 +55,36 @@ export default class EventTracker extends Vue {
 
     private updateDurations(): void {
         const workingDuration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
-        const idlingDuration = store.eventHistory.getters(store.eventHistory.getter.IdlingDuration);
+        const notWorkingDuration = store.eventHistory.getters(store.eventHistory.getter.NotWorkingDuration);
         this.workingDuration = TimeUtility.getDurationString(workingDuration);
-        this.idlingDuration = TimeUtility.getDurationString(idlingDuration);
+        this.notWorkingDuration = TimeUtility.getDurationString(notWorkingDuration);
     }
 
     private updateBreakCheck(): void {
-        if (this.showBreakPrompt) {
+        const key = store.eventHistory.getter.IsScheduledBreakNeeded;
+
+        if (this.isBreakPromptActive || !store.eventHistory.getters(key)) {
             return;
         }
 
-        const oneMinute = 1000 * 60;
-        const limit = oneMinute * 50;
-        const duration = store.eventHistory.getters(store.eventHistory.getter.WorkingDuration);
-
-        if (!this.isWorking || duration / limit < 1) {
-            return;
-        }
-
-        const title = `You have worked more than ${limit / oneMinute} minutes. Time to take a break.`;
+        const limit = store.eventHistory.getters(store.eventHistory.getter.WorkingDurationLimit);
+        const title = `You have worked more than ${limit / 60 / 1000} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
+        const preCancel = this.skipBreakSession.bind(this);
+        const preConfirm = this.startBreakSession.bind(this);
+        const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
+        setTimeout(() => store.dialog.dispatch(store.dialog.action.OpenDialog, config), 1500);
+        this.isBreakPromptActive = true;
+    }
 
-        const config = new DialogConfig(markRaw(ConfirmationDialog), data, {
-            width: '35vw',
-            preCancel: () => console.log('hi'),
-            preConfirm: () => console.log('hey')
-        });
+    private async startBreakSession(): Promise<void> {
+        await store.eventHistory.dispatch(store.eventHistory.action.StartBreakSession);
+        this.isBreakPromptActive = false;
+    }
 
-        store.dialog.dispatch(store.dialog.action.OpenDialog, config);
-        this.showBreakPrompt = true;
+    private async skipBreakSession(): Promise<void> {
+        await store.eventHistory.dispatch(store.eventHistory.action.SkipBreakSession);
+        this.isBreakPromptActive = false;
     }
 }
 </script>
@@ -96,7 +97,7 @@ export default class EventTracker extends Vue {
     color: var(--font-colors-3-00);
     font-size: var(--font-sizes-500);
 
-    .working-duration, .idling-duration {
+    .working-duration, .not-working-duration {
         @include flex-row(center);
         transition: color 0.5s;
         width: 40%;
@@ -115,8 +116,8 @@ export default class EventTracker extends Vue {
         color: var(--event-type-colors-working-0-00);
     }
 
-    .idling-duration .icon {
-        color: var(--event-type-colors-idling-0-00);
+    .not-working-duration .icon {
+        color: var(--event-type-colors-not-working-0-00);
     }
 }
 </style>

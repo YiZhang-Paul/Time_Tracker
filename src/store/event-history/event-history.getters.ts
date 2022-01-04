@@ -6,55 +6,55 @@ import { EventType } from '../../core/enums/event-type.enum';
 import { IState } from './event-history.state';
 
 export enum GetterKey {
-    IsIdling = 'is_idling',
     IsWorking = 'is_working',
+    IsNotWorking = 'is_not_working',
     IsActiveWorkItem = 'is_active_work_item',
     IsScheduledBreakNeeded = 'is_scheduled_break_needed',
-    IdlingDuration = 'idling_duration',
     WorkingDuration = 'working_duration',
+    NotWorkingDuration = 'not_working_duration',
     WorkingDurationLimit = 'working_duration_limit',
     OngoingTimeDistribution = 'ongoing_time_distribution'
 }
 
 export type Getters = {
-    [GetterKey.IsIdling](state: IState): boolean;
     [GetterKey.IsWorking](state: IState): boolean;
-    [GetterKey.IsActiveWorkItem](state: IState): (type: EventType, id: number) => boolean;
+    [GetterKey.IsNotWorking](state: IState): boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.IsActiveWorkItem](state: IState, getters: any): (type: EventType, id: number) => boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [GetterKey.IsScheduledBreakNeeded](state: IState, getters: any): boolean;
-    [GetterKey.IdlingDuration](state: IState): number;
-    [GetterKey.WorkingDuration](state: IState): number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.WorkingDuration](state: IState, getters: any): number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.NotWorkingDuration](state: IState, getters: any): number;
     [GetterKey.WorkingDurationLimit](state: IState): number;
     [GetterKey.OngoingTimeDistribution](state: IState): OngoingEventTimeDistribution | null;
 }
 
 export const getters: GetterTree<IState, IState> & Getters = {
-    [GetterKey.IsIdling]: (state: IState): boolean => {
-        if (!state.ongoingTimeDistribution) {
-            return false;
-        }
-
-        const { unconcluded } = state.ongoingTimeDistribution;
-
-        return !unconcluded || unconcluded.eventType === EventType.Idling;
-    },
     [GetterKey.IsWorking]: (state: IState): boolean => {
-        if (!state.ongoingTimeDistribution) {
-            return false;
-        }
+        const type = state.ongoingTimeDistribution?.unconcluded?.eventType;
 
-        const { unconcluded } = state.ongoingTimeDistribution;
-
-        return Boolean(unconcluded) && unconcluded!.eventType !== EventType.Idling;
+        return type === EventType.Interruption || type === EventType.Task;
     },
-    [GetterKey.IsActiveWorkItem]: (state: IState) => (type: EventType, id: number) => {
-        if (!state.ongoingTimeDistribution?.unconcluded) {
+    [GetterKey.IsNotWorking]: (state: IState): boolean => {
+        if (state.ongoingTimeDistribution && !state.ongoingTimeDistribution.unconcluded) {
+            return true;
+        }
+
+        const type = state.ongoingTimeDistribution?.unconcluded?.eventType;
+
+        return type === EventType.Idling || type === EventType.Break;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.IsActiveWorkItem]: (state: IState, getters: any) => (type: EventType, id: number) => {
+        if (!getters[GetterKey.IsWorking]) {
             return false;
         }
 
-        const { eventType, resourceId } = state.ongoingTimeDistribution.unconcluded;
+        const { eventType, resourceId } = state.ongoingTimeDistribution!.unconcluded!;
 
-        return eventType !== EventType.Idling && eventType === type && resourceId === id;
+        return eventType === type && resourceId === id;
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [GetterKey.IsScheduledBreakNeeded]: (state: IState, getters: any): boolean => {
@@ -69,37 +69,34 @@ export const getters: GetterTree<IState, IState> & Getters = {
 
         return concluded + unconcludedTime >= limit;
     },
-    [GetterKey.IdlingDuration]: (state: IState): number => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.WorkingDuration]: (state: IState, getters: any): number => {
         if (!state.ongoingTimeDistribution) {
             return 0;
         }
 
         const { sinceStart, unconcluded } = state.ongoingTimeDistribution;
-        const isWorking = unconcluded && unconcluded.eventType !== EventType.Idling;
+        const isWorking = getters[GetterKey.IsWorking];
+        const concluded = sinceStart.interruption + sinceStart.task;
+        const unconcludedTime = isWorking ? Date.now() - new Date(unconcluded!.timestamp).getTime() : 0;
 
-        if (isWorking) {
-            return sinceStart.idling;
+        return concluded + unconcludedTime;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [GetterKey.NotWorkingDuration]: (state: IState, getters: any): number => {
+        if (!state.ongoingTimeDistribution) {
+            return 0;
+        }
+
+        const { sinceStart, unconcluded } = state.ongoingTimeDistribution;
+        const concluded = sinceStart.idling + sinceStart.break;
+
+        if (getters[GetterKey.IsWorking]) {
+            return concluded;
         }
 
         const start = unconcluded ? new Date(unconcluded.timestamp) : new Date(new Date().setHours(0, 0, 0, 0));
         const unconcludedTime = Date.now() - start.getTime();
-
-        return sinceStart.idling + unconcludedTime;
-    },
-    [GetterKey.WorkingDuration]: (state: IState): number => {
-        if (!state.ongoingTimeDistribution) {
-            return 0;
-        }
-
-        const { sinceStart, unconcluded } = state.ongoingTimeDistribution;
-        const concluded = sinceStart.interruption + sinceStart.task;
-        const isIdling = !unconcluded || unconcluded.eventType === EventType.Idling;
-
-        if (isIdling) {
-            return concluded;
-        }
-
-        const unconcludedTime = Date.now() - new Date(unconcluded!.timestamp).getTime();
 
         return concluded + unconcludedTime;
     },
