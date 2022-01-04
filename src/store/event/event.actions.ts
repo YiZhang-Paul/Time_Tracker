@@ -12,7 +12,7 @@ export const setActionServices = (eventHttp: EventHttpService): void => {
 };
 
 export enum ActionKey {
-    LoadOngoingTimeDistribution = 'load_ongoing_time_distribution',
+    LoadOngoingTimeSummary = 'load_ongoing_time_summary',
     StartIdlingSession = 'start_idling_session',
     StartInterruptionItem = 'start_interruption_item',
     StartTaskItem = 'start_task_item',
@@ -25,7 +25,7 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
-    [ActionKey.LoadOngoingTimeDistribution](context: ActionAugments): Promise<void>;
+    [ActionKey.LoadOngoingTimeSummary](context: ActionAugments): Promise<void>;
     [ActionKey.StartIdlingSession](context: ActionAugments): Promise<boolean>;
     [ActionKey.StartInterruptionItem](context: ActionAugments, id: number): Promise<boolean>;
     [ActionKey.StartTaskItem](context: ActionAugments, id: number): Promise<boolean>;
@@ -34,16 +34,16 @@ export type Actions = {
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
-    async [ActionKey.LoadOngoingTimeDistribution](context: ActionAugments): Promise<void> {
+    async [ActionKey.LoadOngoingTimeSummary](context: ActionAugments): Promise<void> {
         const dayStart = new Date(new Date().setHours(0, 0, 0, 0));
-        const distribution = await eventHttpService.getOngoingTimeDistribution(dayStart);
-        context.commit(MutationKey.SetOngoingTimeDistribution, distribution);
+        const summary = await eventHttpService.getOngoingTimeSummary(dayStart);
+        context.commit(MutationKey.SetOngoingTimeSummary, summary);
     },
     async [ActionKey.StartIdlingSession](context: ActionAugments): Promise<boolean> {
         const isStarted = await eventHttpService.startIdlingSession();
 
         if (isStarted) {
-            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+            await context.dispatch(ActionKey.LoadOngoingTimeSummary);
         }
 
         return isStarted;
@@ -52,7 +52,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const isStarted = await eventHttpService.startInterruptionItem(id);
 
         if (isStarted) {
-            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+            await context.dispatch(ActionKey.LoadOngoingTimeSummary);
         }
 
         return isStarted;
@@ -61,7 +61,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const isStarted = await eventHttpService.startTaskItem(id);
 
         if (isStarted) {
-            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+            await context.dispatch(ActionKey.LoadOngoingTimeSummary);
         }
 
         return isStarted;
@@ -70,7 +70,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const isStarted = await eventHttpService.startBreakSession();
 
         if (isStarted) {
-            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+            await context.dispatch(ActionKey.LoadOngoingTimeSummary);
         }
 
         return isStarted;
@@ -79,7 +79,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         const isSkipped = await eventHttpService.skipBreakSession();
 
         if (isSkipped) {
-            await context.dispatch(ActionKey.LoadOngoingTimeDistribution);
+            await context.dispatch(ActionKey.LoadOngoingTimeSummary);
         }
 
         return isSkipped;

@@ -2,7 +2,7 @@ import { GetterTree } from 'vuex';
 
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
-import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
+import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { EventType } from '../../core/enums/event-type.enum';
 import { GetterKey as eventGetterKey } from '../event/event.getters';
 import { key as eventKey } from '../event/event.store';
@@ -34,8 +34,8 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        const key = `${eventKey}/${eventGetterKey.OngoingTimeDistribution}`;
-        const { unconcluded } = rootGetters[key] as OngoingEventTimeDistribution;
+        const key = `${eventKey}/${eventGetterKey.OngoingTimeSummary}`;
+        const { unconcluded } = rootGetters[key] as OngoingEventTimeSummary;
 
         if (unconcluded!.eventType !== EventType.Interruption) {
             return null;
