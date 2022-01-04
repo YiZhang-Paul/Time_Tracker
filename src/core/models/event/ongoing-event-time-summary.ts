@@ -2,7 +2,8 @@ import { EventTimeSummary } from './event-time-summary';
 import { EventHistory } from './event-history';
 
 export class OngoingEventTimeSummary {
-    public sinceStart!: EventTimeSummary;
-    public sinceLastBreakPrompt!: EventTimeSummary;
-    public unconcluded!: EventHistory;
+    public concludedSinceStart!: EventTimeSummary;
+    public concludedSinceLastBreakPrompt!: EventTimeSummary;
+    public unconcludedSinceStart!: EventHistory;
+    public unconcludedSinceLastBreakPrompt!: EventHistory;
 }
