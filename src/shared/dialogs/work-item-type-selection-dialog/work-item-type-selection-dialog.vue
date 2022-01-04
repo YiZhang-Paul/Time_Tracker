@@ -2,7 +2,7 @@
     <div class="work-item-type-selection-dialog-container">
         <div class="title">
             <lightbulb-on class="icon" />
-            <span>What kind of work item is this?</span>
+            <span>What's the problem?</span>
         </div>
 
         <div class="options">
@@ -21,7 +21,7 @@
             </raised-button>
         </div>
 
-        <flat-button class="cancel-button" @click="$emit('cancel')">Cancel</flat-button>
+        <flat-button class="cancel-button" @click="$emit('cancel')">I changed my mind</flat-button>
     </div>
 </template>
 
@@ -62,7 +62,7 @@ export default class WorkItemTypeSelectionDialog extends Vue { }
         @include animate-opacity(0, 1, 0.3s, 0.2s);
 
         .icon {
-            margin-right: 8px;
+            margin-right: 12px;
             color: var(--context-colors-suggestion-0-00);
             font-size: var(--font-sizes-700);
         }
@@ -102,6 +102,7 @@ export default class WorkItemTypeSelectionDialog extends Vue { }
         margin-right: 12.5%;
         color: var(--font-colors-3-00);
         font-size: var(--font-sizes-400);
+        @include animate-opacity(0, 1, 0.3s, 1.5s);
 
         &:hover ::v-deep(.content-wrapper) {
             color: var(--font-colors-0-00);

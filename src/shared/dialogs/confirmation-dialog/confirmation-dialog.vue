@@ -69,7 +69,7 @@ export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp)
         @include animate-opacity(0, 1, 0.3s, 0.2s);
 
         .icon {
-            margin-right: 8px;
+            margin-right: 12px;
             font-size: var(--font-sizes-700);
         }
     }

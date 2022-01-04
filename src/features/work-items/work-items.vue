@@ -120,7 +120,7 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
+            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onInterruptionDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
             store.dialog.dispatch(store.dialog.action.OpenDialog, config);
@@ -156,7 +156,7 @@ export default class WorkItems extends Vue {
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Cancel', ButtonType.Warning, item);
+            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
             store.dialog.dispatch(store.dialog.action.OpenDialog, config);
