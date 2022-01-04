@@ -14,19 +14,37 @@
         </textarea>
 
         <div class="footer">
+            <template v-if="item.id !== -1">
+                <play-circle v-if="!isActiveWorkItem"
+                    class="action-button start-button"
+                    @click="$emit('start', item)" />
+
+                <stop-circle v-if="isActiveWorkItem"
+                    class="action-button stop-button"
+                    @click="$emit('stop', item)" />
+            </template>
+
+            <div class="effort-selector" @click="onEffortSelect()">
+                <weight class="icon" />
+                <span>{{ item.effort }}</span>
+            </div>
+
+            <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <content-save class="save-button" @click="onSave()" />
-            <delete class="delete-button" @click="$emit('delete', item)" />
+            <content-save class="action-button save-button" @click="onSave()" />
+            <delete class="action-button delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { ContentSave, Delete } from 'mdue';
+import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
-import { TaskItem } from '../../../core/models/task/task-item';
-import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import store from '../../../../store';
+import { TaskItem } from '../../../../core/models/task/task-item';
+import { EventType } from '../../../../core/enums/event-type.enum';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
@@ -35,17 +53,34 @@ class TaskItemEditorProp {
 @Options({
     components: {
         ContentSave,
-        Delete
+        Delete,
+        Weight,
+        PlayCircle,
+        StopCircle
     },
     emits: [
         'create',
         'update',
-        'delete'
+        'delete',
+        'start',
+        'stop'
     ]
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+    get isActiveWorkItem(): boolean {
+        const key = store.event.getter.IsActiveWorkItem;
+
+        return store.event.getters(key)(EventType.Task, this.item.id);
+    }
+
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    }
+
+    public onEffortSelect(): void {
+        const options = [0, 1, 2, 3, 5, 8, 13];
+        const index = options.indexOf(this.item.effort) + 1;
+        this.item.effort = options[index % options.length];
     }
 
     public onSave(): void {
@@ -59,8 +94,8 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
 <style lang="scss" scoped>
 .task-item-editor-container {
-    @import '../../../styles/presets.scss';
-    @import '../../../styles/animations.scss';
+    @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     $content-width: 95%;
 
@@ -79,9 +114,21 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         border-radius: 5px;
         background-color: var(--primary-colors-10-00);
         box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
-        animation: emerge-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
+        animation: raise-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
 
-        @keyframes emerge-header {
+        .name {
+            width: 90%;
+            border: none;
+            outline: none;
+            background-color: var(--primary-colors-8-00);
+            color: var(--font-colors-0-00);
+            text-align: center;
+            font-size: var(--font-sizes-600);
+            font-family: inherit;
+            @include animate-opacity(0, 1, 0.3s, 0.6s);
+        }
+
+        @keyframes raise-header {
             from {
                 background-color: var(--primary-colors-10-00);
                 box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
@@ -95,17 +142,6 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         @keyframes shrink-header {
             from { height: $starting-height; }
             to { height: 12.5%; }
-        }
-
-        .name {
-            width: 90%;
-            border: none;
-            outline: none;
-            background-color: var(--primary-colors-8-00);
-            color: var(--font-colors-0-00);
-            font-size: var(--font-sizes-600);
-            text-align: center;
-            @include animate-opacity(0, 1, 0.3s, 0.6s);
         }
     }
 
@@ -131,13 +167,54 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         height: 10%;
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-300);
+        @include animate-opacity(0, 1, 0.3s, 0.6s);
+
+        .effort-selector {
+            @include flex-row(center, center);
+            transition: color 0.3s;
+
+            &:hover {
+                cursor: pointer;
+                color: var(--font-colors-0-00);
+            }
+
+            .icon {
+                margin-right: 4px;
+            }
+        }
+
+        .filler {
+            flex-grow: 1;
+        }
+
+        .action-button {
+            cursor: pointer;
+            font-size: var(--font-sizes-600);
+            transition: color 0.3s;
+        }
+
+        .start-button, .stop-button {
+            margin-right: 1vh;
+        }
 
         .save-button, .delete-button {
             margin-left: 1vh;
-            cursor: pointer;
-            font-size: var(--font-sizes-500);
-            transition: color 0.3s;
-            @include animate-opacity(0, 1, 0.3s, 0.6s);
+        }
+
+        .start-button {
+            color: var(--start-button-color-inactive);
+
+            &:hover {
+                color: var(--start-button-color-active);
+            }
+        }
+
+        .stop-button {
+            color: var(--stop-button-color-inactive);
+
+            &:hover {
+                color: var(--stop-button-color-active);
+            }
         }
 
         .save-button {

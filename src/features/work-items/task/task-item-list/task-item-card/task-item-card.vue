@@ -1,7 +1,7 @@
 <template>
-    <div class="task-item-card-container" :class="{ active: isActive }">
+    <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <div class="progress-indicator">
-            <span>{{ item.id }}</span>
+            <span>{{ item.effort }}</span>
         </div>
 
         <span class="name">{{ item.name }}</span>
@@ -11,10 +11,11 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
+import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
 
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
+    public isSelected = prop<boolean>({ default: false });
     public isActive = prop<boolean>({ default: false });
 }
 
@@ -23,7 +24,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
 
 <style lang="scss" scoped>
 .task-item-card-container {
-    @import '../../../../styles/presets.scss';
+    @import '../../../../../styles/presets.scss';
 
     $height: 7.5vh;
 
@@ -36,13 +37,17 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
     box-shadow: -4px 0 6px 1px rgba(0, 0, 0, 0.3);
     color: var(--font-colors-0-00);
 
-    &:hover, &.active {
+    &:hover, &.selected {
         cursor: pointer;
         background: linear-gradient(90deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 
         .progress-indicator {
-            background-color: var(--secondary-colors-2-02);
+            background-color: var(--item-type-colors-task-2-02);
         }
+    }
+
+    &.active {
+        color: var(--context-colors-suggestion-0-00);
     }
 
     .progress-indicator {
@@ -52,7 +57,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         margin-left: $margin;
         width: calc(#{$height} - #{$margin} * 2);
         height: calc(#{$height} - #{$margin} * 2);
-        border: 2px dashed #17878D;
+        border: 2px dashed var(--item-type-colors-task-0-00);
         border-radius: 50%;
         background-clip: padding-box;
         font-size: var(--font-sizes-500);

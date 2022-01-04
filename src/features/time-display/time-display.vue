@@ -3,7 +3,9 @@
         <span>{{ time }}</span>
 
         <div class="date" :style="{ 'background-color': environmentColor }">
-            <span>{{ date }}</span>
+            <span>{{ month }} {{ current.getDate() }}</span>
+            <sup>{{ dateSuffix }}</sup>
+            <span>, {{ current.getFullYear() }}</span>
         </div>
     </div>
 </template>
@@ -20,8 +22,12 @@ export default class TimeDisplay extends Vue {
         return TimeUtility.getTimeString(this.current);
     }
 
-    get date(): string {
-        return TimeUtility.getDateString(this.current);
+    get month(): string {
+        return TimeUtility.getShortMonthString(this.current);
+    }
+
+    get dateSuffix(): string {
+        return TimeUtility.getDateSuffix(this.current.getDate());
     }
 
     get environmentColor(): string {
@@ -50,7 +56,7 @@ export default class TimeDisplay extends Vue {
         @include flex-row(center, center);
         box-sizing: border-box;
         margin-left: 8px;
-        padding: 5px 8px;
+        padding: 4px 12px;
         border-radius: 15px;
         background-color: var(--primary-colors-8-00);
         box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);

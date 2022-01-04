@@ -6,23 +6,23 @@ import { TaskItem } from '../../core/models/task/task-item';
 import { IState } from './task.state';
 
 export enum MutationKey {
-    SetTaskItems = 'set_task_items',
-    DeleteTaskItem = 'delete_task_item',
+    SetSummaries = 'set_summaries',
+    DeleteSummary = 'delete_summary',
     SetEditingItem = 'set_editing_item'
 }
 
 export type Mutations = {
-    [MutationKey.SetTaskItems](state: IState, items: TaskItemSummaryDto[]): void;
-    [MutationKey.DeleteTaskItem](state: IState, id: number): void;
+    [MutationKey.SetSummaries](state: IState, summaries: TaskItemSummaryDto[]): void;
+    [MutationKey.DeleteSummary](state: IState, id: number): void;
     [MutationKey.SetEditingItem](state: IState, item: TaskItem | null): void;
 }
 
 export const mutations: MutationTree<IState> & Mutations = {
-    [MutationKey.SetTaskItems](state: IState, items: TaskItemSummaryDto[]): void {
-        state.items = items.slice();
+    [MutationKey.SetSummaries](state: IState, summaries: TaskItemSummaryDto[]): void {
+        state.summaries = summaries.slice();
     },
-    [MutationKey.DeleteTaskItem](state: IState, id: number): void {
-        state.items = state.items.filter(_ => _.id !== id);
+    [MutationKey.DeleteSummary](state: IState, id: number): void {
+        state.summaries = state.summaries.filter(_ => _.id !== id);
     },
     [MutationKey.SetEditingItem](state: IState, item: TaskItem | null): void {
         state.editingItem = item;

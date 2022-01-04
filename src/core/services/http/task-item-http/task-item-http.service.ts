@@ -17,7 +17,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async getTaskItems(): Promise<TaskItemSummaryDto[]> {
+    public async getTaskSummaries(): Promise<TaskItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;
         }

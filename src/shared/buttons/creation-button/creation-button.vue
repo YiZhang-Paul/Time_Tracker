@@ -20,7 +20,7 @@ export default class CreationButton extends Vue.with(CreationButtonProp) { }
 
 <style lang="scss" scoped>
 .creation-button-container {
-    @import '../../styles/presets.scss';
+    @import '../../../styles/presets.scss';
 
     @include flex-row(center, center);
     cursor: pointer;
