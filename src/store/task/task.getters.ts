@@ -24,7 +24,8 @@ export type Getters = {
 
 export const getters: GetterTree<IState, IState> & Getters = {
     [GetterKey.Summaries]: (state: IState) => (searchText: string) => {
-        const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(searchText));
+        const text = searchText.toLowerCase();
+        const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(text));
 
         return summaries.sort((a, b) => a.id - b.id);
     },
@@ -41,7 +42,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        return state.summaries.find(_ => _.id === unconcludedSinceStart.resourceId) ?? null;
+        return state.summaries.find(_ => _.id === unconcludedSinceStart.resourceId)!;
     },
     [GetterKey.EditingItem]: (state: IState): TaskItem | null => state.editingItem
 };
