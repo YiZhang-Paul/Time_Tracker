@@ -215,7 +215,7 @@ describe('event store unit test', () => {
 
             const result = store.event.getters(store.event.getter.WorkingDuration);
 
-            expect(Math.abs(result - 2000)).toBeLessThan(5);
+            expect(Math.abs(result - 2000)).toBeLessThan(100);
         });
 
         test('should return correct duration when working', () => {
@@ -226,7 +226,7 @@ describe('event store unit test', () => {
 
             const result = store.event.getters(store.event.getter.WorkingDuration);
 
-            expect(Math.abs(result - 5000)).toBeLessThan(5);
+            expect(Math.abs(result - 5000)).toBeLessThan(100);
         });
     });
 
@@ -245,7 +245,7 @@ describe('event store unit test', () => {
 
             const result = store.event.getters(store.event.getter.NotWorkingDuration);
 
-            expect(Math.abs(result - 2000)).toBeLessThan(5);
+            expect(Math.abs(result - 2000)).toBeLessThan(100);
         });
 
         test('should return correct duration when not working', () => {
@@ -256,7 +256,7 @@ describe('event store unit test', () => {
 
             const result = store.event.getters(store.event.getter.NotWorkingDuration);
 
-            expect(Math.abs(result - 5000)).toBeLessThan(5);
+            expect(Math.abs(result - 5000)).toBeLessThan(100);
         });
     });
 
