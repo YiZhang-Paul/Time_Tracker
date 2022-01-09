@@ -180,14 +180,12 @@ describe('interruption store unit test', () => {
 
     describe(ActionKey.StartInterruptionItemCreation, () => {
         test('should open empty interruption item', () => {
-            jest.useFakeTimers();
             store.interruption.commit(store.interruption.mutation.SetEditingItem, new InterruptionItem(1));
 
             store.interruption.dispatch(store.interruption.action.StartInterruptionItemCreation);
             jest.advanceTimersToNextTimer();
 
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(new InterruptionItem(-1));
-            jest.useRealTimers();
         });
     });
 
@@ -249,14 +247,6 @@ describe('interruption store unit test', () => {
     });
 
     describe(ActionKey.StartInterruptionItemEdit, () => {
-        beforeEach(() => {
-            jest.useFakeTimers();
-        });
-
-        afterEach(() => {
-            jest.useRealTimers();
-        });
-
         test('should do nothing on failure', async() => {
             interruptionItemHttpStub.getInterruptionItem.resolves(null);
 

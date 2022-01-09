@@ -236,26 +236,16 @@ describe('task store unit test', () => {
 
     describe(ActionKey.StartTaskItemCreation, () => {
         test('should open empty task item', () => {
-            jest.useFakeTimers();
             store.task.commit(store.task.mutation.SetEditingItem, new TaskItem(1));
 
             store.task.dispatch(store.task.action.StartTaskItemCreation);
             jest.advanceTimersToNextTimer();
 
             expect(store.task.getters(store.task.getter.EditingItem)).toEqual(new TaskItem(-1));
-            jest.useRealTimers();
         });
     });
 
     describe(ActionKey.StartTaskItemEdit, () => {
-        beforeEach(() => {
-            jest.useFakeTimers();
-        });
-
-        afterEach(() => {
-            jest.useRealTimers();
-        });
-
         test('should do nothing on failure', async() => {
             taskItemHttpStub.getTaskItem.resolves(null);
 

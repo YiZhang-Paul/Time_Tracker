@@ -1,4 +1,11 @@
 import { container } from './core/ioc/container';
 
-beforeEach(() => container.snapshot());
-afterEach(() => container.restore());
+beforeEach(() => {
+    jest.useFakeTimers();
+    container.snapshot();
+});
+
+afterEach(() => {
+    jest.useRealTimers();
+    container.restore();
+});
