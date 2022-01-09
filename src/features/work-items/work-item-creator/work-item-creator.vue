@@ -9,7 +9,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../../store';
+import { getStore } from '../../../store';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
 import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-selection-dialog/work-item-type-selection-dialog.vue';
@@ -20,9 +20,11 @@ import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-
     }
 })
 export default class WorkItemCreator extends Vue {
+    public store = getStore();
+
     get canCreate(): boolean {
-        const interruption = store.interruption.getters(store.interruption.getter.EditingItem);
-        const task = store.task.getters(store.task.getter.EditingItem);
+        const interruption = this.store.interruption.getters(this.store.interruption.getter.EditingItem);
+        const task = this.store.task.getters(this.store.task.getter.EditingItem);
 
         return interruption?.id !== -1 && task?.id !== -1;
     }
@@ -31,17 +33,17 @@ export default class WorkItemCreator extends Vue {
         const component = markRaw(WorkItemTypeSelectionDialog);
         const postConfirm = this.onTypeSelect.bind(this);
         const config = new DialogConfig(component, null, { width: '35vw', height: '20vh', postConfirm });
-        store.dialog.dispatch(store.dialog.action.OpenDialog, config);
+        this.store.dialog.dispatch(this.store.dialog.action.OpenDialog, config);
     }
 
     private onTypeSelect(isInterruption: boolean): void {
         if (isInterruption) {
-            store.task.dispatch(store.task.action.EndTaskItemEdit);
-            store.interruption.dispatch(store.interruption.action.StartInterruptionItemCreation);
+            this.store.task.dispatch(this.store.task.action.EndTaskItemEdit);
+            this.store.interruption.dispatch(this.store.interruption.action.StartInterruptionItemCreation);
         }
         else {
-            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
-            store.task.dispatch(store.task.action.StartTaskItemCreation);
+            this.store.interruption.dispatch(this.store.interruption.action.EndInterruptionItemEdit);
+            this.store.task.dispatch(this.store.task.action.StartTaskItemCreation);
         }
     }
 }

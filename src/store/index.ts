@@ -1,4 +1,5 @@
-import { createStore as createBaseStore, Store } from 'vuex';
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { createStore as createStoreBase } from 'vuex';
 
 import {
     createModule as createInterruptionModule,
@@ -23,12 +24,9 @@ import {
     createHandlers as createDialogHandlers,
     key as dialogKey
 } from './dialog/dialog.store';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let store: Store<any>;
-const getStore = () => store;
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+
 export const createStore = () => {
-    store = createBaseStore({
+    const base = createStoreBase({
         modules: {
             [interruptionKey]: createInterruptionModule(),
             [taskKey]: createTaskModule(),
@@ -38,12 +36,14 @@ export const createStore = () => {
     });
 
     return {
-        store,
-        [interruptionKey]: createInterruptionHandlers(interruptionKey, getStore),
-        [taskKey]: createTaskHandlers(taskKey, getStore),
-        [eventKey]: createEventHandlers(eventKey, getStore),
-        [dialogKey]: createDialogHandlers(dialogKey, getStore)
+        store: base,
+        [interruptionKey]: createInterruptionHandlers(interruptionKey, () => base),
+        [taskKey]: createTaskHandlers(taskKey, () => base),
+        [eventKey]: createEventHandlers(eventKey, () => base),
+        [dialogKey]: createDialogHandlers(dialogKey, () => base)
     };
 };
 
-export default createStore();
+let store = createStore();
+export const getStore = (): ReturnType<typeof createStore> => store;
+export const setStore = (_: ReturnType<typeof createStore>) => store = _;

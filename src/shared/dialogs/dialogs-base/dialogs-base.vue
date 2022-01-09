@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../../store';
+import { getStore } from '../../../store';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
 
@@ -25,8 +25,10 @@ import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
     }
 })
 export default class DialogsBase extends Vue {
+    public store = getStore();
+
     get configs(): DialogConfig<unknown, unknown>[] {
-        return store.dialog.getters(store.dialog.getter.Configs);
+        return this.store.dialog.getters(this.store.dialog.getter.Configs);
     }
 
     public async onCancel<T>(payload: T, config: DialogConfig<unknown, unknown>): Promise<void> {
@@ -34,7 +36,7 @@ export default class DialogsBase extends Vue {
             await config.options.preCancel(payload);
         }
 
-        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+        this.store.dialog.dispatch(this.store.dialog.action.CloseDialog, config);
 
         if (config.options?.postCancel) {
             await config.options.postCancel(payload);
@@ -46,7 +48,7 @@ export default class DialogsBase extends Vue {
             await config.options.preConfirm(payload);
         }
 
-        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+        this.store.dialog.dispatch(this.store.dialog.action.CloseDialog, config);
 
         if (config.options?.postConfirm) {
             await config.options.postConfirm(payload);

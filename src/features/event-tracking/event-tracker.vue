@@ -17,7 +17,7 @@ import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { Briefcase, PalmTree } from 'mdue';
 
-import store from '../../store';
+import { getStore } from '../../store';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
@@ -31,16 +31,17 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     }
 })
 export default class EventTracker extends Vue {
+    public store = getStore();
     public isBreakPromptActive = false;
     public workingDuration = '';
     public notWorkingDuration = '';
 
     get isWorking(): boolean {
-        return store.event.getters(store.event.getter.IsWorking);
+        return this.store.event.getters(this.store.event.getter.IsWorking);
     }
 
     get isNotWorking(): boolean {
-        return store.event.getters(store.event.getter.IsNotWorking);
+        return this.store.event.getters(this.store.event.getter.IsNotWorking);
     }
 
     public created(): void {
@@ -54,36 +55,36 @@ export default class EventTracker extends Vue {
     }
 
     private updateDurations(): void {
-        const workingDuration = store.event.getters(store.event.getter.WorkingDuration);
-        const notWorkingDuration = store.event.getters(store.event.getter.NotWorkingDuration);
+        const workingDuration = this.store.event.getters(this.store.event.getter.WorkingDuration);
+        const notWorkingDuration = this.store.event.getters(this.store.event.getter.NotWorkingDuration);
         this.workingDuration = TimeUtility.getDurationString(workingDuration);
         this.notWorkingDuration = TimeUtility.getDurationString(notWorkingDuration);
     }
 
     private updateBreakCheck(): void {
-        const key = store.event.getter.IsScheduledBreakNeeded;
+        const key = this.store.event.getter.IsScheduledBreakNeeded;
 
-        if (this.isBreakPromptActive || !store.event.getters(key)) {
+        if (this.isBreakPromptActive || !this.store.event.getters(key)) {
             return;
         }
 
-        const limit = store.event.getters(store.event.getter.WorkingDurationLimit);
+        const limit = this.store.event.getters(this.store.event.getter.WorkingDurationLimit);
         const title = `You have worked more than ${limit / 60 / 1000} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
         const preCancel = this.skipBreakSession.bind(this);
         const preConfirm = this.startBreakSession.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
-        setTimeout(() => store.dialog.dispatch(store.dialog.action.OpenDialog, config), 1500);
+        setTimeout(() => this.store.dialog.dispatch(this.store.dialog.action.OpenDialog, config), 1500);
         this.isBreakPromptActive = true;
     }
 
     private async startBreakSession(): Promise<void> {
-        await store.event.dispatch(store.event.action.StartBreakSession);
+        await this.store.event.dispatch(this.store.event.action.StartBreakSession);
         this.isBreakPromptActive = false;
     }
 
     private async skipBreakSession(): Promise<void> {
-        await store.event.dispatch(store.event.action.SkipBreakSession);
+        await this.store.event.dispatch(this.store.event.action.SkipBreakSession);
         this.isBreakPromptActive = false;
     }
 }

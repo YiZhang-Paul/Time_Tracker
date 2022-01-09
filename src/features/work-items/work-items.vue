@@ -39,7 +39,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../store';
+import { getStore } from '../../store';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
@@ -68,22 +68,23 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
     }
 })
 export default class WorkItems extends Vue {
+    public store = getStore();
     public searchText = '';
 
     get editingInterruptionItem(): InterruptionItem | null {
-        return store.interruption.getters(store.interruption.getter.EditingItem);
+        return this.store.interruption.getters(this.store.interruption.getter.EditingItem);
     }
 
     get editingTaskItem(): TaskItem | null {
-        return store.task.getters(store.task.getter.EditingItem);
+        return this.store.task.getters(this.store.task.getter.EditingItem);
     }
 
     public async created(): Promise<void> {
-        await store.event.dispatch(store.event.action.LoadOngoingTimeSummary);
-        await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
-        await store.task.dispatch(store.task.action.LoadTaskSummaries);
+        await this.store.event.dispatch(this.store.event.action.LoadOngoingTimeSummary);
+        await this.store.interruption.dispatch(this.store.interruption.action.LoadInterruptionSummaries);
+        await this.store.task.dispatch(this.store.task.action.LoadTaskSummaries);
 
-        if (store.event.getters(store.event.getter.IsWorking)) {
+        if (this.store.event.getters(this.store.event.getter.IsWorking)) {
             this.openActiveWorkItem();
         }
         else {
@@ -92,84 +93,84 @@ export default class WorkItems extends Vue {
     }
 
     public onIdlingStart(): void {
-        store.event.dispatch(store.event.action.StartIdlingSession);
+        this.store.event.dispatch(this.store.event.action.StartIdlingSession);
     }
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.editingInterruptionItem?.id !== item.id) {
-            store.task.dispatch(store.task.action.EndTaskItemEdit);
-            store.interruption.dispatch(store.interruption.action.StartInterruptionItemEdit, item.id);
+            this.store.task.dispatch(this.store.task.action.EndTaskItemEdit);
+            this.store.interruption.dispatch(this.store.interruption.action.StartInterruptionItemEdit, item.id);
         }
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
-        if (await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item)) {
-            store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
+        if (await this.store.interruption.dispatch(this.store.interruption.action.CreateInterruptionItem, item)) {
+            this.store.interruption.dispatch(this.store.interruption.action.LoadInterruptionSummaries);
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
-        if (await store.interruption.dispatch(store.interruption.action.UpdateInterruptionItem, item)) {
-            store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
+        if (await this.store.interruption.dispatch(this.store.interruption.action.UpdateInterruptionItem, item)) {
+            this.store.interruption.dispatch(this.store.interruption.action.LoadInterruptionSummaries);
         }
     }
 
     public onInterruptionDeleteStart(item: InterruptionItem): void {
         if (item.id === -1) {
-            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
+            this.store.interruption.dispatch(this.store.interruption.action.EndInterruptionItemEdit);
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onInterruptionDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
+            this.store.dialog.dispatch(this.store.dialog.action.OpenDialog, config);
         }
     }
 
     public onInterruptionStart(item: InterruptionItem): void {
-        store.event.dispatch(store.event.action.StartInterruptionItem, item.id);
+        this.store.event.dispatch(this.store.event.action.StartInterruptionItem, item.id);
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.editingTaskItem?.id !== item.id) {
-            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
-            store.task.dispatch(store.task.action.StartTaskItemEdit, item.id);
+            this.store.interruption.dispatch(this.store.interruption.action.EndInterruptionItemEdit);
+            this.store.task.dispatch(this.store.task.action.StartTaskItemEdit, item.id);
         }
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
-        if (await store.task.dispatch(store.task.action.CreateTaskItem, item)) {
-            store.task.dispatch(store.task.action.LoadTaskSummaries);
+        if (await this.store.task.dispatch(this.store.task.action.CreateTaskItem, item)) {
+            this.store.task.dispatch(this.store.task.action.LoadTaskSummaries);
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
-        if (await store.task.dispatch(store.task.action.UpdateTaskItem, item)) {
-            store.task.dispatch(store.task.action.LoadTaskSummaries);
+        if (await this.store.task.dispatch(this.store.task.action.UpdateTaskItem, item)) {
+            this.store.task.dispatch(this.store.task.action.LoadTaskSummaries);
         }
     }
 
     public onTaskDeleteStart(item: TaskItem): void {
         if (item.id === -1) {
-            store.task.dispatch(store.task.action.EndTaskItemEdit);
+            this.store.task.dispatch(this.store.task.action.EndTaskItemEdit);
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            store.dialog.dispatch(store.dialog.action.OpenDialog, config);
+            this.store.dialog.dispatch(this.store.dialog.action.OpenDialog, config);
         }
     }
 
     public onTaskStart(item: TaskItem): void {
-        store.event.dispatch(store.event.action.StartTaskItem, item.id);
+        this.store.event.dispatch(this.store.event.action.StartTaskItem, item.id);
     }
 
     private openActiveWorkItem(): void {
-        const activeInterruption = store.interruption.getters(store.interruption.getter.ActiveSummary);
-        const activeTask = store.task.getters(store.task.getter.ActiveSummary);
+        const activeInterruption = this.store.interruption.getters(this.store.interruption.getter.ActiveSummary);
+        const activeTask = this.store.task.getters(this.store.task.getter.ActiveSummary);
 
         if (activeInterruption) {
             this.onInterruptionSelect(activeInterruption);
@@ -180,8 +181,8 @@ export default class WorkItems extends Vue {
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = store.interruption.getters(store.interruption.getter.Summaries)(this.searchText);
-        const tasks = store.task.getters(store.task.getter.Summaries)(this.searchText);
+        const interruptions = this.store.interruption.getters(this.store.interruption.getter.Summaries)(this.searchText);
+        const tasks = this.store.task.getters(this.store.task.getter.Summaries)(this.searchText);
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);
@@ -192,22 +193,22 @@ export default class WorkItems extends Vue {
     }
 
     private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, item.id)) {
+        if (!await this.store.interruption.dispatch(this.store.interruption.action.DeleteInterruptionItem, item.id)) {
             return;
         }
 
-        if (store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
-            await store.event.dispatch(store.event.action.StartIdlingSession);
+        if (this.store.event.getters(this.store.event.getter.IsActiveWorkItem)(EventType.Interruption, item.id)) {
+            await this.store.event.dispatch(this.store.event.action.StartIdlingSession);
         }
     }
 
     private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await store.task.dispatch(store.task.action.DeleteTaskItem, item.id)) {
+        if (!await this.store.task.dispatch(this.store.task.action.DeleteTaskItem, item.id)) {
             return;
         }
 
-        if (store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
-            await store.event.dispatch(store.event.action.StartIdlingSession);
+        if (this.store.event.getters(this.store.event.getter.IsActiveWorkItem)(EventType.Task, item.id)) {
+            await this.store.event.dispatch(this.store.event.action.StartIdlingSession);
         }
     }
 }
