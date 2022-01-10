@@ -34,6 +34,7 @@ export default class EventTracker extends Vue {
     public isBreakPromptActive = false;
     public workingDuration = '';
     public notWorkingDuration = '';
+    private updateTimeout!: number;
 
     get isWorking(): boolean {
         return store.event.getters(store.event.getter.IsWorking);
@@ -47,10 +48,14 @@ export default class EventTracker extends Vue {
         this.updateProgress();
     }
 
+    public unmounted(): void {
+        clearTimeout(this.updateTimeout);
+    }
+
     private updateProgress(): void {
         this.updateDurations();
         this.updateBreakCheck();
-        setTimeout(() => this.updateProgress(), 1000);
+        this.updateTimeout = setTimeout(() => this.updateProgress(), 1000);
     }
 
     private updateDurations(): void {

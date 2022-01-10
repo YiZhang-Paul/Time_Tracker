@@ -15,6 +15,7 @@ export class DataStoreUtility {
         ActionKey
     >(namespace: string, getterKey: GetterKey, mutationKey: MutationKey, actionKey: ActionKey, getStore: () => Store<any>) {
         return {
+            namespace,
             getter: getterKey,
             mutation: mutationKey,
             action: actionKey,
