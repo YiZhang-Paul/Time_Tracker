@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createStore as createStoreBase } from 'vuex';
 
 import {
@@ -24,7 +23,7 @@ import {
     createHandlers as createDialogHandlers,
     key as dialogKey
 } from './dialog/dialog.store';
-
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createStore = () => {
     const base = createStoreBase({
         modules: {
@@ -44,6 +43,4 @@ export const createStore = () => {
     };
 };
 
-let store = createStore();
-export const getStore = (): ReturnType<typeof createStore> => store;
-export const setStore = (_: ReturnType<typeof createStore>) => store = _;
+export default createStore();
