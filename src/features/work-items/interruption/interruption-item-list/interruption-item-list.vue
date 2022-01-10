@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import { getStore } from '../../../../store';
+import store from '../../../../store';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -40,13 +40,12 @@ class InterruptionItemListProp {
     ]
 })
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
-    public store = getStore();
     private animated = new Set<number>();
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = this.store.interruption.getters(this.store.interruption.getter.Summaries)(text);
-        const active = this.store.interruption.getters(this.store.interruption.getter.ActiveSummary);
+        const items = store.interruption.getters(store.interruption.getter.Summaries)(text);
+        const active = store.interruption.getters(store.interruption.getter.ActiveSummary);
 
         if (!active) {
             return items;
@@ -56,7 +55,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     get selectedItemId(): number {
-        return this.store.interruption.getters(this.store.interruption.getter.EditingItem)?.id ?? -1;
+        return store.interruption.getters(store.interruption.getter.EditingItem)?.id ?? -1;
     }
 
     public mounted(): void {
@@ -71,9 +70,9 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     public isActive(item: InterruptionItemSummaryDto): boolean {
-        const key = this.store.event.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return this.store.event.getters(key)(EventType.Interruption, item.id);
+        return store.event.getters(key)(EventType.Interruption, item.id);
     }
 
     private animateItemCards(): void {

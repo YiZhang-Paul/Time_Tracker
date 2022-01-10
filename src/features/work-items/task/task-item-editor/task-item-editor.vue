@@ -41,7 +41,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
-import { getStore } from '../../../../store';
+import store from '../../../../store';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -67,12 +67,10 @@ class TaskItemEditorProp {
     ]
 })
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
-    public store = getStore();
-
     get isActiveWorkItem(): boolean {
-        const key = this.store.event.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return this.store.event.getters(key)(EventType.Task, this.item.id);
+        return store.event.getters(key)(EventType.Task, this.item.id);
     }
 
     get creationTime(): string {

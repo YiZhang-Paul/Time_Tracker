@@ -41,7 +41,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, PlayCircle, StopCircle } from 'mdue';
 
-import { getStore } from '../../../../store';
+import store from '../../../../store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -69,12 +69,10 @@ class InterruptionItemEditorProp {
     ]
 })
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
-    public store = getStore();
-
     get isActiveWorkItem(): boolean {
-        const key = this.store.event.getter.IsActiveWorkItem;
+        const key = store.event.getter.IsActiveWorkItem;
 
-        return this.store.event.getters(key)(EventType.Interruption, this.item.id);
+        return store.event.getters(key)(EventType.Interruption, this.item.id);
     }
 
     get creationTime(): string {
