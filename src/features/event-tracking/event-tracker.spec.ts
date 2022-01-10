@@ -28,38 +28,6 @@ describe('event tracker unit test', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('isWorking', () => {
-        test('should return correct status', () => {
-            const { namespace, getter } = store.event;
-
-            gettersStub.value({ [`${namespace}/${getter.IsWorking}`]: true });
-            component.unmount();
-            component = shallowMount(EventTracker);
-            expect(component.vm.isWorking).toEqual(true);
-
-            gettersStub.value({ [`${namespace}/${getter.IsWorking}`]: false });
-            component.unmount();
-            component = shallowMount(EventTracker);
-            expect(component.vm.isWorking).toEqual(false);
-        });
-    });
-
-    describe('isNotWorking', () => {
-        test('should return correct status', () => {
-            const { namespace, getter } = store.event;
-
-            gettersStub.value({ [`${namespace}/${getter.IsNotWorking}`]: true });
-            component.unmount();
-            component = shallowMount(EventTracker);
-            expect(component.vm.isNotWorking).toEqual(true);
-
-            gettersStub.value({ [`${namespace}/${getter.IsNotWorking}`]: false });
-            component.unmount();
-            component = shallowMount(EventTracker);
-            expect(component.vm.isNotWorking).toEqual(false);
-        });
-    });
-
     describe('created', () => {
         test('should update progress every second', () => {
             const { namespace, getter } = store.event;

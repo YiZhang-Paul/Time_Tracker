@@ -35,11 +35,12 @@ export default class EventTracker extends Vue {
     public workingDuration = '';
     public notWorkingDuration = '';
     private updateTimeout!: number;
-
+    /* istanbul ignore next */
     get isWorking(): boolean {
         return store.event.getters(store.event.getter.IsWorking);
     }
 
+    /* istanbul ignore next */
     get isNotWorking(): boolean {
         return store.event.getters(store.event.getter.IsNotWorking);
     }
