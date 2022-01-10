@@ -13,6 +13,10 @@ describe('confirmation dialog unit test', () => {
         component = shallowMount(ConfirmationDialog);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

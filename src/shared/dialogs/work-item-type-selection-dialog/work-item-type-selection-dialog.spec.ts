@@ -10,6 +10,10 @@ describe('work item type selection dialog unit test', () => {
         component = shallowMount(WorkItemTypeSelectionDialog);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

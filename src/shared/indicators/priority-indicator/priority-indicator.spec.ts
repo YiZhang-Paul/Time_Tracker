@@ -12,6 +12,10 @@ describe('priority indicator unit test', () => {
         component = shallowMount(PriorityIndicator);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

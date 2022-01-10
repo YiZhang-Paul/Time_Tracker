@@ -10,6 +10,10 @@ describe('dialog panel unit test', () => {
         component = shallowMount(DialogPanel);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

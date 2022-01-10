@@ -10,6 +10,10 @@ describe('creation button unit test', () => {
         component = shallowMount(CreationButton);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

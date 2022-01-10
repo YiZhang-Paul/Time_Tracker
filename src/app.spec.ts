@@ -10,6 +10,10 @@ describe('app unit test', () => {
         component = shallowMount(App);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });

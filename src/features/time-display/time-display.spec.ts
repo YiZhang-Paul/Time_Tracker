@@ -10,6 +10,10 @@ describe('time display unit test', () => {
         component = shallowMount(TimeDisplay);
     });
 
+    afterEach(() => {
+        component.unmount();
+    });
+
     test('should create component instance', () => {
         expect(component).toBeTruthy();
     });
