@@ -35,7 +35,7 @@ export const createStore = () => {
     });
 
     return {
-        store: base,
+        base,
         [interruptionKey]: createInterruptionHandlers(interruptionKey, () => base),
         [taskKey]: createTaskHandlers(taskKey, () => base),
         [eventKey]: createEventHandlers(eventKey, () => base),
