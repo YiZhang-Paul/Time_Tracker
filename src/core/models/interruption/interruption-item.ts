@@ -1,8 +1,10 @@
+import { Priority } from '../../enums/priority.enum';
+
 export class InterruptionItem {
     public id!: number;
     public name = '';
     public description = '';
-    public priority = 0;
+    public priority = Priority.Low;
     public creationTime = '';
     public modifiedTime = '';
 
