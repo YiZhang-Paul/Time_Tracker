@@ -50,16 +50,14 @@ describe('task item list unit test', () => {
             const { namespace: eventKey, getter: eventGetter } = store.event;
             const { namespace: taskKey, getter: taskGetter } = store.task;
 
-            const summaries = [
-                { id: 1 } as TaskItemSummaryDto,
-                { id: 2 } as TaskItemSummaryDto,
-                { id: 3 } as TaskItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${taskKey}/${taskGetter.ActiveSummary}`]: null,
-                [`${taskKey}/${taskGetter.Summaries}`]: () => summaries
+                [`${taskKey}/${taskGetter.Summaries}`]: () => [
+                    { id: 1 } as TaskItemSummaryDto,
+                    { id: 2 } as TaskItemSummaryDto,
+                    { id: 3 } as TaskItemSummaryDto
+                ]
             });
 
             component.unmount();
@@ -73,16 +71,14 @@ describe('task item list unit test', () => {
             const { namespace: taskKey, getter: taskGetter } = store.task;
             const active = { id: 9 } as TaskItemSummaryDto;
 
-            const summaries = [
-                { id: 1 } as TaskItemSummaryDto,
-                { id: 2 } as TaskItemSummaryDto,
-                { id: 3 } as TaskItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${taskKey}/${taskGetter.ActiveSummary}`]: active,
-                [`${taskKey}/${taskGetter.Summaries}`]: () => summaries
+                [`${taskKey}/${taskGetter.Summaries}`]: () => [
+                    { id: 1 } as TaskItemSummaryDto,
+                    { id: 2 } as TaskItemSummaryDto,
+                    { id: 3 } as TaskItemSummaryDto
+                ]
             });
 
             component.unmount();
@@ -96,16 +92,14 @@ describe('task item list unit test', () => {
             const { namespace: taskKey, getter: taskGetter } = store.task;
             const active = { id: 9 } as TaskItemSummaryDto;
 
-            const summaries = [
-                { id: 1 } as TaskItemSummaryDto,
-                { id: 9 } as TaskItemSummaryDto,
-                { id: 3 } as TaskItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${taskKey}/${taskGetter.ActiveSummary}`]: active,
-                [`${taskKey}/${taskGetter.Summaries}`]: () => summaries
+                [`${taskKey}/${taskGetter.Summaries}`]: () => [
+                    { id: 1 } as TaskItemSummaryDto,
+                    { id: 9 } as TaskItemSummaryDto,
+                    { id: 3 } as TaskItemSummaryDto
+                ]
             });
 
             component.unmount();

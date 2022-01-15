@@ -50,16 +50,14 @@ describe('interruption item list unit test', () => {
             const { namespace: eventKey, getter: eventGetter } = store.event;
             const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
 
-            const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
-                { id: 2 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${interruptionKey}/${interruptionGetter.ActiveSummary}`]: null,
-                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => summaries
+                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => [
+                    { id: 1 } as InterruptionItemSummaryDto,
+                    { id: 2 } as InterruptionItemSummaryDto,
+                    { id: 3 } as InterruptionItemSummaryDto
+                ]
             });
 
             component.unmount();
@@ -73,16 +71,14 @@ describe('interruption item list unit test', () => {
             const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
             const active = { id: 9 } as InterruptionItemSummaryDto;
 
-            const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
-                { id: 2 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${interruptionKey}/${interruptionGetter.ActiveSummary}`]: active,
-                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => summaries
+                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => [
+                    { id: 1 } as InterruptionItemSummaryDto,
+                    { id: 2 } as InterruptionItemSummaryDto,
+                    { id: 3 } as InterruptionItemSummaryDto
+                ]
             });
 
             component.unmount();
@@ -96,16 +92,14 @@ describe('interruption item list unit test', () => {
             const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
             const active = { id: 9 } as InterruptionItemSummaryDto;
 
-            const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
-                { id: 9 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
-            ];
-
             gettersStub.value({
                 [`${eventKey}/${eventGetter.IsActiveWorkItem}`]: () => false,
                 [`${interruptionKey}/${interruptionGetter.ActiveSummary}`]: active,
-                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => summaries
+                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => [
+                    { id: 1 } as InterruptionItemSummaryDto,
+                    { id: 9 } as InterruptionItemSummaryDto,
+                    { id: 3 } as InterruptionItemSummaryDto
+                ]
             });
 
             component.unmount();
