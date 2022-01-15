@@ -69,11 +69,12 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 })
 export default class WorkItems extends Vue {
     public searchText = '';
-
+    /* istanbul ignore next */
     get editingInterruptionItem(): InterruptionItem | null {
         return store.interruption.getters(store.interruption.getter.EditingItem);
     }
 
+    /* istanbul ignore next */
     get editingTaskItem(): TaskItem | null {
         return store.task.getters(store.task.getter.EditingItem);
     }
@@ -91,6 +92,7 @@ export default class WorkItems extends Vue {
         }
     }
 
+    /* istanbul ignore next */
     public onIdlingStart(): void {
         store.event.dispatch(store.event.action.StartIdlingSession);
     }
@@ -127,6 +129,7 @@ export default class WorkItems extends Vue {
         }
     }
 
+    /* istanbul ignore next */
     public onInterruptionStart(item: InterruptionItem): void {
         store.event.dispatch(store.event.action.StartInterruptionItem, item.id);
     }
@@ -163,6 +166,7 @@ export default class WorkItems extends Vue {
         }
     }
 
+    /* istanbul ignore next */
     public onTaskStart(item: TaskItem): void {
         store.event.dispatch(store.event.action.StartTaskItem, item.id);
     }
