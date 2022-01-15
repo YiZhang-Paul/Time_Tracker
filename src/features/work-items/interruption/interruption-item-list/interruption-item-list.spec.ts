@@ -1,12 +1,16 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 
 import InterruptionItemList from './interruption-item-list.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('interruption item list unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

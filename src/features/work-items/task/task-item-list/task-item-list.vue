@@ -15,12 +15,16 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class TaskItemListProp {
     public searchText = prop<string>({ default: '' });

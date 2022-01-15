@@ -41,12 +41,16 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, PlayCircle, StopCircle } from 'mdue';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class InterruptionItemEditorProp {
     public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });

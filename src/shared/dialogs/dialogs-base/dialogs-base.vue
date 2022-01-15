@@ -15,9 +15,13 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../../store';
+import { createStore } from '../../../store';
+import { types } from '../../../core/ioc/types';
+import { container } from '../../../core/ioc/container';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 @Options({
     components: {

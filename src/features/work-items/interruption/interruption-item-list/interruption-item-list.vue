@@ -15,12 +15,16 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class InterruptionItemListProp {
     public searchText = prop<string>({ default: '' });

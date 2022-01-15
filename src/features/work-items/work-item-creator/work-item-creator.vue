@@ -9,10 +9,14 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../../store';
+import { createStore } from '../../../store';
+import { types } from '../../../core/ioc/types';
+import { container } from '../../../core/ioc/container';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
 import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-selection-dialog/work-item-type-selection-dialog.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 @Options({
     components: {

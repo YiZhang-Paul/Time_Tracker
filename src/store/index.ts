@@ -42,5 +42,3 @@ export const createStore = () => {
         [dialogKey]: createDialogHandlers(dialogKey, () => base)
     };
 };
-
-export default createStore();

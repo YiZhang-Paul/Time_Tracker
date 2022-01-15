@@ -1,11 +1,15 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 
 import TaskItemEditor from './task-item-editor.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('task item editor unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

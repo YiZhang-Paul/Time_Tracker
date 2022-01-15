@@ -39,7 +39,9 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 
-import store from '../../store';
+import { createStore } from '../../store';
+import { types } from '../../core/ioc/types';
+import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
@@ -56,6 +58,8 @@ import InterruptionItemList from './interruption/interruption-item-list/interrup
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 @Options({
     components: {

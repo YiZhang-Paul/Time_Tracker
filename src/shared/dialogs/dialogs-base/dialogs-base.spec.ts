@@ -1,10 +1,14 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
 
-import store from '../../../store';
+import { createStore } from '../../../store';
+import { types } from '../../../core/ioc/types';
+import { container } from '../../../core/ioc/container';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 
 import DialogsBase from './dialogs-base.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('dialogs base unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

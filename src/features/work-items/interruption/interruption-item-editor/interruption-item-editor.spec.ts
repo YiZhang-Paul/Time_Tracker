@@ -1,12 +1,16 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { Priority } from '../../../../core/enums/priority.enum';
 
 import InterruptionItemEditor from './interruption-item-editor.vue';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('interruption item editor unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

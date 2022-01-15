@@ -41,10 +41,14 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
-import store from '../../../../store';
+import { createStore } from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+
+const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
