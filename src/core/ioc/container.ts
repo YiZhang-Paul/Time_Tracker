@@ -5,6 +5,8 @@ import { createStore } from '../../store';
 import { InterruptionItemHttpService } from '../services/http/interruption-item-http/interruption-item-http.service';
 import { TaskItemHttpService } from '../services/http/task-item-http/task-item-http.service';
 import { EventHttpService } from '../services/http/event-http/event-http.service';
+import { DialogStateService } from '../services/states/dialog-state/dialog-state.service';
+import { EventStateService } from '../services/states/event-state/event-state.service';
 
 import { types } from './types';
 
@@ -28,3 +30,13 @@ container
 container
     .bind<ReturnType<typeof createStore>>(types.Store)
     .toConstantValue(createStore());
+
+container
+    .bind<DialogStateService>(types.DialogStateService)
+    .to(DialogStateService)
+    .inTransientScope();
+
+container
+    .bind<EventStateService>(types.EventStateService)
+    .to(EventStateService)
+    .inTransientScope();
