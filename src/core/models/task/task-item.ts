@@ -2,7 +2,7 @@ export class TaskItem {
     public id!: number;
     public name = '';
     public description = '';
-    public effort = 0;
+    public effort = 1;
     public creationTime = '';
     public modifiedTime = '';
 

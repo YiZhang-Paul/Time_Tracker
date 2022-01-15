@@ -78,7 +78,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     }
 
     public onEffortSelect(): void {
-        const options = [0, 1, 2, 3, 5, 8, 13];
+        const options = [1, 2, 3, 5, 8, 13];
         const index = options.indexOf(this.item.effort) + 1;
         this.item.effort = options[index % options.length];
     }
