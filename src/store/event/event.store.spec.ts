@@ -6,6 +6,7 @@ import { ActionKey } from '../../store/event/event.actions';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { EventHistory } from '../../core/models/event/event-history';
+import { EventTimeSummary } from '../../core/models/event/event-time-summary';
 import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { EventType } from '../../core/enums/event-type.enum';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
@@ -27,8 +28,8 @@ describe('event store unit test', () => {
 
     beforeEach(() => {
         timeSummary = {
-            concludedSinceStart: { working: 5000, notWorking: 5000 },
-            concludedSinceLastBreakPrompt: { working: 2500, notWorking: 2500 },
+            concludedSinceStart: new EventTimeSummary(),
+            concludedSinceLastBreakPrompt: new EventTimeSummary(),
             unconcludedSinceStart: new EventHistory(),
             unconcludedSinceLastBreakPrompt: new EventHistory()
         };
