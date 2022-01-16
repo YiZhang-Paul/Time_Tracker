@@ -35,6 +35,7 @@ describe('event tracker unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(EventTracker);
+
         expect(component).toBeTruthy();
     });
 

@@ -29,6 +29,7 @@ describe('task item editor unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(TaskItemEditor);
+
         expect(component).toBeTruthy();
     });
 

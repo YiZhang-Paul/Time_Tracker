@@ -32,6 +32,7 @@ describe('dialogs base unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(DialogsBase);
+
         expect(component).toBeTruthy();
     });
 

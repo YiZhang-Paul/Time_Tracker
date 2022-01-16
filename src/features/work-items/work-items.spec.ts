@@ -54,6 +54,7 @@ describe('work items unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(WorkItems);
+
         expect(component).toBeTruthy();
     });
 

@@ -38,6 +38,7 @@ describe('interruption item list unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(InterruptionItemList);
+
         expect(component).toBeTruthy();
     });
 

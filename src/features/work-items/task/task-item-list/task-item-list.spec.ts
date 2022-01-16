@@ -38,6 +38,7 @@ describe('task item list unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(TaskItemList);
+
         expect(component).toBeTruthy();
     });
 

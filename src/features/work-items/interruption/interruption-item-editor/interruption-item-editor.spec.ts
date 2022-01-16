@@ -30,6 +30,7 @@ describe('interruption item editor unit test', () => {
 
     test('should create component instance', () => {
         component = shallowMount(InterruptionItemEditor);
+
         expect(component).toBeTruthy();
     });
 

@@ -8,21 +8,19 @@ describe('priority indicator unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
-    beforeEach(() => {
-        component = shallowMount(PriorityIndicator);
-    });
-
     afterEach(() => {
         component.unmount();
     });
 
     test('should create component instance', () => {
+        component = shallowMount(PriorityIndicator);
+
         expect(component).toBeTruthy();
     });
 
     describe('color', () => {
         test('should return correct color', async() => {
-            await component.setProps({ priority: Priority.Low });
+            component = shallowMount(PriorityIndicator, { props: { priority: Priority.Low } });
             expect(component.vm.color).toEqual('var(--priority-colors-low-0-00)');
 
             await component.setProps({ priority: Priority.Medium });
@@ -35,7 +33,7 @@ describe('priority indicator unit test', () => {
 
     describe('icons', () => {
         test('should return correct icons count', async() => {
-            await component.setProps({ priority: Priority.Low });
+            component = shallowMount(PriorityIndicator, { props: { priority: Priority.Low } });
             expect(component.vm.icons).toEqual(1);
 
             await component.setProps({ priority: Priority.Medium });

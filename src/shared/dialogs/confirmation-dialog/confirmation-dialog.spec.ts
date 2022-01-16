@@ -9,29 +9,29 @@ describe('confirmation dialog unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
-    beforeEach(() => {
-        component = shallowMount(ConfirmationDialog);
-    });
-
     afterEach(() => {
         component.unmount();
     });
 
     test('should create component instance', () => {
+        component = shallowMount(ConfirmationDialog);
+
         expect(component).toBeTruthy();
     });
 
     describe('confirmButtonClasses', () => {
         test('should return correct classes for confirm type', async() => {
             const data: ConfirmationDialogOption = { ...new ConfirmationDialogOption(), type: ButtonType.Confirm };
-            await component.setProps({ data });
+            component = shallowMount(ConfirmationDialog, { props: { data } });
+
             expect(component.vm.confirmButtonClasses.confirm).toEqual(true);
             expect(component.vm.confirmButtonClasses.warning).toEqual(false);
         });
 
         test('should return correct classes for warning type', async() => {
             const data: ConfirmationDialogOption = { ...new ConfirmationDialogOption(), type: ButtonType.Warning };
-            await component.setProps({ data });
+            component = shallowMount(ConfirmationDialog, { props: { data } });
+
             expect(component.vm.confirmButtonClasses.confirm).toEqual(false);
             expect(component.vm.confirmButtonClasses.warning).toEqual(true);
         });
