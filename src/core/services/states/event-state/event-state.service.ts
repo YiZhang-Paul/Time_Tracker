@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import { createStore } from '../../../../store';
 import { types } from '../../../ioc/types';
 import { container } from '../../../ioc/container';
+import { OngoingEventTimeSummary } from '../../../models/event/ongoing-event-time-summary';
 import { EventType } from '../../../enums/event-type.enum';
 
 @injectable()
@@ -31,6 +32,10 @@ export class EventStateService {
 
     get workDurationLimit(): number {
         return this.store.event.getters(this.store.event.getter.WorkDurationLimit);
+    }
+
+    get ongoingEventSummary(): OngoingEventTimeSummary | null {
+        return this.store.event.getters(this.store.event.getter.OngoingEventSummary);
     }
 
     public isActiveWorkItem(type: EventType, id: number): boolean {
