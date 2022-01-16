@@ -45,7 +45,7 @@ describe('task item list unit test', () => {
     describe('items', () => {
         test('should return empty collection when no items available', () => {
             stub(taskStateStub, 'activeSummary').get(() => null);
-            taskStateStub.getSummaries.returns([]);
+            taskStateStub.searchSummaries.returns([]);
             component = shallowMount(TaskItemList);
 
             expect(component.vm.items).toEqual([]);
@@ -59,7 +59,7 @@ describe('task item list unit test', () => {
             ];
 
             stub(taskStateStub, 'activeSummary').get(() => null);
-            taskStateStub.getSummaries.returns(summaries);
+            taskStateStub.searchSummaries.returns(summaries);
             component = shallowMount(TaskItemList);
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
@@ -73,7 +73,7 @@ describe('task item list unit test', () => {
             ];
 
             stub(taskStateStub, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
-            taskStateStub.getSummaries.returns(summaries);
+            taskStateStub.searchSummaries.returns(summaries);
             component = shallowMount(TaskItemList);
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
@@ -87,7 +87,7 @@ describe('task item list unit test', () => {
             ];
 
             stub(taskStateStub, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
-            taskStateStub.getSummaries.returns(summaries);
+            taskStateStub.searchSummaries.returns(summaries);
             component = shallowMount(TaskItemList);
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
@@ -119,7 +119,7 @@ describe('task item list unit test', () => {
             ];
 
             stub(taskStateStub, 'editingItem').get(() => new TaskItem(summaries[1].id));
-            taskStateStub.getSummaries.returns(summaries);
+            taskStateStub.searchSummaries.returns(summaries);
             component = shallowMount(TaskItemList, { attachTo: document.body });
             jest.advanceTimersByTime(300);
 

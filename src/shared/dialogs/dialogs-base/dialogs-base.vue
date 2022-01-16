@@ -34,7 +34,7 @@ export default class DialogsBase extends Vue {
             await config.options.preCancel(payload);
         }
 
-        this.dialogState.closeDialog(config);
+        this.dialogState.close(config);
 
         if (config.options.postCancel) {
             await config.options.postCancel(payload);
@@ -46,7 +46,7 @@ export default class DialogsBase extends Vue {
             await config.options.preConfirm(payload);
         }
 
-        this.dialogState.closeDialog(config);
+        this.dialogState.close(config);
 
         if (config.options.postConfirm) {
             await config.options.postConfirm(payload);

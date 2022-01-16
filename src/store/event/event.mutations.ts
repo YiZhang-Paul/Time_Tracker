@@ -5,15 +5,15 @@ import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-t
 import { IState } from './event.state';
 
 export enum MutationKey {
-    SetOngoingTimeSummary = 'set_ongoing_time_summary'
+    SetOngoingEventSummary = 'set_ongoing_event_summary'
 }
 
 export type Mutations = {
-    [MutationKey.SetOngoingTimeSummary](state: IState, summary: OngoingEventTimeSummary | null): void;
+    [MutationKey.SetOngoingEventSummary](state: IState, summary: OngoingEventTimeSummary | null): void;
 }
 
 export const mutations: MutationTree<IState> & Mutations = {
-    [MutationKey.SetOngoingTimeSummary](state: IState, summary: OngoingEventTimeSummary | null): void {
-        state.ongoingTimeSummary = summary;
+    [MutationKey.SetOngoingEventSummary](state: IState, summary: OngoingEventTimeSummary | null): void {
+        state.ongoingEventSummary = summary;
     }
 };

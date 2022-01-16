@@ -9,8 +9,8 @@
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
-            @start="eventState.startInterruptionItem($event.id)"
-            @stop="eventState.startIdlingSession()">
+            @start="eventState.startInterruption($event.id)"
+            @stop="eventState.startIdling()">
         </interruption-item-editor>
 
         <task-item-editor v-if="taskState.editingItem"
@@ -19,8 +19,8 @@
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
-            @start="eventState.startTaskItem($event.id)"
-            @stop="eventState.startIdlingSession()">
+            @start="eventState.startTask($event.id)"
+            @stop="eventState.startIdling()">
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
@@ -81,9 +81,9 @@ export default class WorkItems extends Vue {
 
     public async created(): Promise<void> {
         await Promise.all([
-            this.eventState.loadOngoingTimeSummary(),
-            this.interruptionState.loadInterruptionSummaries(),
-            this.taskState.loadTaskSummaries()
+            this.eventState.loadOngoingEventSummary(),
+            this.interruptionState.loadSummaries(),
+            this.taskState.loadSummaries()
         ]);
 
         if (this.eventState.isWorking) {
@@ -96,65 +96,65 @@ export default class WorkItems extends Vue {
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.interruptionState.editingItem?.id !== item.id) {
-            this.taskState.endTaskItemEdit();
-            this.interruptionState.startInterruptionItemEdit(item.id);
+            this.taskState.stopItemEdit();
+            this.interruptionState.startItemEdit(item.id);
         }
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.createInterruptionItem(item)) {
-            this.interruptionState.loadInterruptionSummaries();
+        if (await this.interruptionState.createItem(item)) {
+            this.interruptionState.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.updateInterruptionItem(item)) {
-            this.interruptionState.loadInterruptionSummaries();
+        if (await this.interruptionState.updateItem(item)) {
+            this.interruptionState.loadSummaries();
         }
     }
 
     public onInterruptionDeleteStart(item: InterruptionItem): void {
         if (item.id === -1) {
-            this.interruptionState.endInterruptionItemEdit();
+            this.interruptionState.stopItemEdit();
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onInterruptionDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.openDialog(config);
+            this.dialogState.open(config);
         }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskState.editingItem?.id !== item.id) {
-            this.interruptionState.endInterruptionItemEdit();
-            this.taskState.startTaskItemEdit(item.id);
+            this.interruptionState.stopItemEdit();
+            this.taskState.startItemEdit(item.id);
         }
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
-        if (await this.taskState.createTaskItem(item)) {
-            this.taskState.loadTaskSummaries();
+        if (await this.taskState.createItem(item)) {
+            this.taskState.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
-        if (await this.taskState.updateTaskItem(item)) {
-            this.taskState.loadTaskSummaries();
+        if (await this.taskState.updateItem(item)) {
+            this.taskState.loadSummaries();
         }
     }
 
     public onTaskDeleteStart(item: TaskItem): void {
         if (item.id === -1) {
-            this.taskState.endTaskItemEdit();
+            this.taskState.stopItemEdit();
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.openDialog(config);
+            this.dialogState.open(config);
         }
     }
 
@@ -162,14 +162,14 @@ export default class WorkItems extends Vue {
         if (this.interruptionState.activeSummary) {
             this.onInterruptionSelect(this.interruptionState.activeSummary);
         }
-        else if (this.taskState.activeSummary) {
-            this.onTaskSelect(this.taskState.activeSummary);
+        else {
+            this.onTaskSelect(this.taskState.activeSummary!);
         }
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = this.interruptionState.getSummaries(this.searchText);
-        const tasks = this.taskState.getSummaries(this.searchText);
+        const interruptions = this.interruptionState.searchSummaries(this.searchText);
+        const tasks = this.taskState.searchSummaries(this.searchText);
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);
@@ -180,22 +180,22 @@ export default class WorkItems extends Vue {
     }
 
     private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionState.deleteInterruptionItem(item.id)) {
+        if (!await this.interruptionState.deleteItem(item.id)) {
             return;
         }
 
         if (this.eventState.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventState.startIdlingSession();
+            await this.eventState.startIdling();
         }
     }
 
     private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await this.taskState.deleteTaskItem(item.id)) {
+        if (!await this.taskState.deleteItem(item.id)) {
             return;
         }
 
         if (this.eventState.isActiveWorkItem(EventType.Task, item.id)) {
-            await this.eventState.startIdlingSession();
+            await this.eventState.startIdling();
         }
     }
 }

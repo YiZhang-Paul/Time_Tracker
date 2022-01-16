@@ -42,7 +42,7 @@ describe('dialogs base unit test', () => {
 
             await component.vm.onCancel({ name: 'payload' }, new DialogConfig(null));
 
-            sinonExpect.calledOnce(dialogStateStub.closeDialog);
+            sinonExpect.calledOnce(dialogStateStub.close);
         });
 
         test('should invoke pre/post cancel hooks when available', async() => {
@@ -65,7 +65,7 @@ describe('dialogs base unit test', () => {
 
             await component.vm.onConfirm({ name: 'payload' }, new DialogConfig(null));
 
-            sinonExpect.calledOnce(dialogStateStub.closeDialog);
+            sinonExpect.calledOnce(dialogStateStub.close);
         });
 
         test('should invoke pre/post confirm hooks when available', async() => {

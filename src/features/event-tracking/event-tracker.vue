@@ -7,7 +7,7 @@
 
         <div class="not-working-duration" :class="{ active: eventState.isNotWorking }">
             <palm-tree class="icon" />
-            <span>{{ notWorkingDuration }}</span>
+            <span>{{ nonWorkingDuration }}</span>
         </div>
     </div>
 </template>
@@ -37,7 +37,7 @@ export default class EventTracker extends Vue {
     public eventState = container.get<EventStateService>(types.EventStateService);
     public isBreakPromptActive = false;
     public workingDuration = '';
-    public notWorkingDuration = '';
+    public nonWorkingDuration = '';
     private dialogState = container.get<DialogStateService>(types.DialogStateService);
     private updateTimeout!: number;
 
@@ -56,33 +56,33 @@ export default class EventTracker extends Vue {
     }
 
     private updateDurations(): void {
-        const { workingDuration, notWorkingDuration } = this.eventState;
+        const { workingDuration, nonWorkingDuration } = this.eventState;
         this.workingDuration = TimeUtility.getDurationString(workingDuration);
-        this.notWorkingDuration = TimeUtility.getDurationString(notWorkingDuration);
+        this.nonWorkingDuration = TimeUtility.getDurationString(nonWorkingDuration);
     }
 
     private updateBreakCheck(): void {
-        if (this.isBreakPromptActive || !this.eventState.isScheduledBreakNeeded) {
+        if (this.isBreakPromptActive || !this.eventState.hasScheduledBreak) {
             return;
         }
 
-        const limit = this.eventState.workingDurationLimit / 60 / 1000;
+        const limit = this.eventState.workDurationLimit / 60 / 1000;
         const title = `You have worked more than ${limit} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
-        const preCancel = this.skipBreakSession.bind(this);
-        const preConfirm = this.startBreakSession.bind(this);
+        const preCancel = this.skipBreak.bind(this);
+        const preConfirm = this.startBreak.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
-        setTimeout(() => this.dialogState.openDialog(config), 1500);
+        setTimeout(() => this.dialogState.open(config), 1500);
         this.isBreakPromptActive = true;
     }
 
-    private async startBreakSession(): Promise<void> {
-        await this.eventState.startBreakSession();
+    private async startBreak(): Promise<void> {
+        await this.eventState.startBreak();
         this.isBreakPromptActive = false;
     }
 
-    private async skipBreakSession(): Promise<void> {
-        await this.eventState.skipBreakSession();
+    private async skipBreak(): Promise<void> {
+        await this.eventState.skipBreak();
         this.isBreakPromptActive = false;
     }
 }

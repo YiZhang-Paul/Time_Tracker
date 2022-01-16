@@ -88,27 +88,27 @@ describe('work item creator unit test', () => {
 
             component.vm.onTypeSelectStart();
 
-            sinonExpect.calledOnce(dialogStateStub.openDialog);
+            sinonExpect.calledOnce(dialogStateStub.open);
         });
 
         test('should start new interruption when selected', () => {
             component = shallowMount(WorkItemCreator);
             component.vm.onTypeSelectStart();
 
-            dialogStateStub.openDialog.getCall(0).args[0].options.postConfirm!(true);
+            dialogStateStub.open.getCall(0).args[0].options.postConfirm!(true);
 
-            sinonExpect.calledOnce(taskStateStub.endTaskItemEdit);
-            sinonExpect.calledOnce(interruptionStateStub.startInterruptionItemCreation);
+            sinonExpect.calledOnce(taskStateStub.stopItemEdit);
+            sinonExpect.calledOnce(interruptionStateStub.startItemCreate);
         });
 
         test('should start new task when selected', () => {
             component = shallowMount(WorkItemCreator);
             component.vm.onTypeSelectStart();
 
-            dialogStateStub.openDialog.getCall(0).args[0].options.postConfirm!(false);
+            dialogStateStub.open.getCall(0).args[0].options.postConfirm!(false);
 
-            sinonExpect.calledOnce(interruptionStateStub.endInterruptionItemEdit);
-            sinonExpect.calledOnce(taskStateStub.startTaskItemCreation);
+            sinonExpect.calledOnce(interruptionStateStub.stopItemEdit);
+            sinonExpect.calledOnce(taskStateStub.startItemCreate);
         });
     });
 });

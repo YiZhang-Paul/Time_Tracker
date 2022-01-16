@@ -36,17 +36,17 @@ export default class WorkItemCreator extends Vue {
         const component = markRaw(WorkItemTypeSelectionDialog);
         const postConfirm = this.onTypeSelect.bind(this);
         const config = new DialogConfig(component, null, { width: '35vw', height: '20vh', postConfirm });
-        this.dialogState.openDialog(config);
+        this.dialogState.open(config);
     }
 
     private onTypeSelect(isInterruption: boolean): void {
         if (isInterruption) {
-            this.taskState.endTaskItemEdit();
-            this.interruptionState.startInterruptionItemCreation();
+            this.taskState.stopItemEdit();
+            this.interruptionState.startItemCreate();
         }
         else {
-            this.interruptionState.endInterruptionItemEdit();
-            this.taskState.startTaskItemCreation();
+            this.interruptionState.stopItemEdit();
+            this.taskState.startItemCreate();
         }
     }
 }

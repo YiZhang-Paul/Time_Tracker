@@ -68,6 +68,7 @@ class TaskItemEditorProp {
         'stop'
     ]
 })
+/* istanbul ignore next */
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     private eventState = container.get<EventStateService>(types.EventStateService);
 

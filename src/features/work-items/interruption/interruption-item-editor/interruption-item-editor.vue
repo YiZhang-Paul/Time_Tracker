@@ -70,6 +70,7 @@ class InterruptionItemEditorProp {
         'stop'
     ]
 })
+/* istanbul ignore next */
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
     private eventState = container.get<EventStateService>(types.EventStateService);
 

@@ -13,11 +13,11 @@ export class DialogStateService {
         return this.store.dialog.getters(this.store.dialog.getter.Configs);
     }
 
-    public openDialog(config: DialogConfig<unknown, unknown>): void {
-        this.store.dialog.dispatch(this.store.dialog.action.OpenDialog, config);
+    public open(config: DialogConfig<unknown, unknown>): void {
+        this.store.dialog.dispatch(this.store.dialog.action.Open, config);
     }
 
-    public closeDialog(config: DialogConfig<unknown, unknown>): void {
-        this.store.dialog.dispatch(this.store.dialog.action.CloseDialog, config);
+    public close(config: DialogConfig<unknown, unknown>): void {
+        this.store.dialog.dispatch(this.store.dialog.action.Close, config);
     }
 }

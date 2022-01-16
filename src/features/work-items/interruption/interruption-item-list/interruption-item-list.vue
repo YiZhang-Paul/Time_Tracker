@@ -49,7 +49,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = this.interruptionState.getSummaries(text);
+        const items = this.interruptionState.searchSummaries(text);
         const active = this.interruptionState.activeSummary;
 
         if (!active) {

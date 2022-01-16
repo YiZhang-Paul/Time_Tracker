@@ -34,40 +34,40 @@ describe('event store unit test', () => {
             unconcludedSinceLastBreakPrompt: new EventHistory()
         };
 
-        eventHttpStub.getOngoingTimeSummary.resolves(timeSummary);
+        eventHttpStub.getOngoingEventSummary.resolves(timeSummary);
     });
 
     describe(GetterKey.IsWorking, () => {
         test('should return false when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
             expect(store.event.getters(store.event.getter.IsWorking)).toEqual(false);
         });
 
         test('should return false when idling session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Idling;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsWorking)).toEqual(false);
         });
 
         test('should return false when break session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Break;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsWorking)).toEqual(false);
         });
 
         test('should return true when interruption item is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Interruption;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsWorking)).toEqual(true);
         });
 
         test('should return true when task item is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Task;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsWorking)).toEqual(true);
         });
@@ -75,35 +75,35 @@ describe('event store unit test', () => {
 
     describe(GetterKey.IsNotWorking, () => {
         test('should return false when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
             expect(store.event.getters(store.event.getter.IsNotWorking)).toEqual(false);
         });
 
         test('should return false when interruption item is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Interruption;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsNotWorking)).toEqual(false);
         });
 
         test('should return false when task item is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Task;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsNotWorking)).toEqual(false);
         });
 
         test('should return true when idling session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Idling;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsNotWorking)).toEqual(true);
         });
 
         test('should return true when break session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Break;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsNotWorking)).toEqual(true);
         });
@@ -111,7 +111,7 @@ describe('event store unit test', () => {
 
     describe(GetterKey.IsActiveWorkItem, () => {
         test('should return false when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
             expect(store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, 1)).toEqual(false);
         });
@@ -119,7 +119,7 @@ describe('event store unit test', () => {
         test('should return false when idling session is active', () => {
             timeSummary.unconcludedSinceStart.resourceId = 1;
             timeSummary.unconcludedSinceStart.eventType = EventType.Idling;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, 1)).toEqual(false);
         });
@@ -127,7 +127,7 @@ describe('event store unit test', () => {
         test('should return false when break session is active', () => {
             timeSummary.unconcludedSinceStart.resourceId = 1;
             timeSummary.unconcludedSinceStart.eventType = EventType.Break;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, 1)).toEqual(false);
         });
@@ -135,7 +135,7 @@ describe('event store unit test', () => {
         test('should return false when item is not active', () => {
             timeSummary.unconcludedSinceStart.resourceId = 1;
             timeSummary.unconcludedSinceStart.eventType = EventType.Interruption;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, 1)).toEqual(false);
         });
@@ -143,67 +143,67 @@ describe('event store unit test', () => {
         test('should return true when item is active', () => {
             timeSummary.unconcludedSinceStart.resourceId = 1;
             timeSummary.unconcludedSinceStart.eventType = EventType.Task;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             expect(store.event.getters(store.event.getter.IsActiveWorkItem)(EventType.Task, 1)).toEqual(true);
         });
     });
 
-    describe(GetterKey.IsScheduledBreakNeeded, () => {
+    describe(GetterKey.HasScheduledBreak, () => {
         test('should return false when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(false);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(false);
         });
 
         test('should return false when idling session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Idling;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(false);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(false);
         });
 
         test('should return false when break session is active', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Break;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(false);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(false);
         });
 
         test('should return false when scheduled break is not needed', () => {
-            const limit = store.event.getters(store.event.getter.WorkingDurationLimit);
+            const limit = store.event.getters(store.event.getter.WorkDurationLimit);
             timeSummary.unconcludedSinceStart.eventType = EventType.Interruption;
 
             timeSummary.concludedSinceLastBreakPrompt.working = limit / 2;
             timeSummary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(false);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(false);
 
             timeSummary.concludedSinceLastBreakPrompt.working = 0;
             timeSummary.unconcludedSinceLastBreakPrompt.timestamp = new Date(Date.now() - limit / 2).toISOString();
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(false);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(false);
         });
 
         test('should return true when scheduled break is needed', () => {
-            const limit = store.event.getters(store.event.getter.WorkingDurationLimit);
+            const limit = store.event.getters(store.event.getter.WorkDurationLimit);
             timeSummary.unconcludedSinceStart.eventType = EventType.Task;
 
             timeSummary.concludedSinceLastBreakPrompt.working = limit;
             timeSummary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(true);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(true);
 
             timeSummary.concludedSinceLastBreakPrompt.working = 0;
             timeSummary.unconcludedSinceLastBreakPrompt.timestamp = new Date(Date.now() - limit).toISOString();
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
-            expect(store.event.getters(store.event.getter.IsScheduledBreakNeeded)).toEqual(true);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
+            expect(store.event.getters(store.event.getter.HasScheduledBreak)).toEqual(true);
         });
     });
 
     describe(GetterKey.WorkingDuration, () => {
         test('should return zero when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
             expect(store.event.getters(store.event.getter.WorkingDuration)).toEqual(0);
         });
@@ -212,7 +212,7 @@ describe('event store unit test', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Break;
             timeSummary.unconcludedSinceStart.timestamp = new Date(Date.now() - 3000).toISOString();
             timeSummary.concludedSinceStart.working = 2000;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             const result = store.event.getters(store.event.getter.WorkingDuration);
 
@@ -223,7 +223,7 @@ describe('event store unit test', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Interruption;
             timeSummary.unconcludedSinceStart.timestamp = new Date(Date.now() - 3000).toISOString();
             timeSummary.concludedSinceStart.working = 2000;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
             const result = store.event.getters(store.event.getter.WorkingDuration);
 
@@ -231,20 +231,20 @@ describe('event store unit test', () => {
         });
     });
 
-    describe(GetterKey.NotWorkingDuration, () => {
+    describe(GetterKey.NonWorkingDuration, () => {
         test('should return zero when time summary is not available', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
-            expect(store.event.getters(store.event.getter.NotWorkingDuration)).toEqual(0);
+            expect(store.event.getters(store.event.getter.NonWorkingDuration)).toEqual(0);
         });
 
         test('should return correct duration when working', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Task;
             timeSummary.unconcludedSinceStart.timestamp = new Date(Date.now() - 3000).toISOString();
             timeSummary.concludedSinceStart.notWorking = 2000;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
-            const result = store.event.getters(store.event.getter.NotWorkingDuration);
+            const result = store.event.getters(store.event.getter.NonWorkingDuration);
 
             expect(Math.abs(result - 2000)).toBeLessThan(100);
         });
@@ -253,132 +253,132 @@ describe('event store unit test', () => {
             timeSummary.unconcludedSinceStart.eventType = EventType.Idling;
             timeSummary.unconcludedSinceStart.timestamp = new Date(Date.now() - 3000).toISOString();
             timeSummary.concludedSinceStart.notWorking = 2000;
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, timeSummary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, timeSummary);
 
-            const result = store.event.getters(store.event.getter.NotWorkingDuration);
+            const result = store.event.getters(store.event.getter.NonWorkingDuration);
 
             expect(Math.abs(result - 5000)).toBeLessThan(100);
         });
     });
 
-    describe(ActionKey.LoadOngoingTimeSummary, () => {
+    describe(ActionKey.LoadOngoingEventSummary, () => {
         test('should load ongoing time summary', async() => {
             const dayStart = new Date(new Date().setHours(0, 0, 0, 0));
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
 
-            await store.event.dispatch(store.event.action.LoadOngoingTimeSummary);
+            await store.event.dispatch(store.event.action.LoadOngoingEventSummary);
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.getOngoingTimeSummary, dayStart);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.getOngoingEventSummary, dayStart);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
         });
     });
 
-    describe(ActionKey.StartIdlingSession, () => {
+    describe(ActionKey.StartIdling, () => {
         test('should do nothing on failure', async() => {
-            eventHttpStub.startIdlingSession.resolves(false);
+            eventHttpStub.startIdling.resolves(false);
 
-            const result = await store.event.dispatch(store.event.action.StartIdlingSession);
+            const result = await store.event.dispatch(store.event.action.StartIdling);
 
-            sinonExpect.calledOnce(eventHttpStub.startIdlingSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.startIdling);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
             expect(result).toEqual(false);
         });
 
         test('should start session and load ongoing time summary on success', async() => {
-            eventHttpStub.startIdlingSession.resolves(true);
+            eventHttpStub.startIdling.resolves(true);
 
-            const result = await store.event.dispatch(store.event.action.StartIdlingSession);
+            const result = await store.event.dispatch(store.event.action.StartIdling);
 
-            sinonExpect.calledOnce(eventHttpStub.startIdlingSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.startIdling);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.StartInterruptionItem, () => {
+    describe(ActionKey.StartInterruption, () => {
         test('should do nothing on failure', async() => {
-            eventHttpStub.startInterruptionItem.resolves(false);
+            eventHttpStub.startInterruption.resolves(false);
 
-            const result = await store.event.dispatch(store.event.action.StartInterruptionItem, 1);
+            const result = await store.event.dispatch(store.event.action.StartInterruption, 1);
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.startInterruptionItem, 1);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startInterruption, 1);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
             expect(result).toEqual(false);
         });
 
         test('should start item and load ongoing time summary on success', async() => {
-            eventHttpStub.startInterruptionItem.resolves(true);
+            eventHttpStub.startInterruption.resolves(true);
 
-            const result = await store.event.dispatch(store.event.action.StartInterruptionItem, 1);
+            const result = await store.event.dispatch(store.event.action.StartInterruption, 1);
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.startInterruptionItem, 1);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startInterruption, 1);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.StartTaskItem, () => {
+    describe(ActionKey.StartTask, () => {
         test('should do nothing on failure', async() => {
-            eventHttpStub.startTaskItem.resolves(false);
+            eventHttpStub.startTask.resolves(false);
 
-            const result = await store.event.dispatch(store.event.action.StartTaskItem, 1);
+            const result = await store.event.dispatch(store.event.action.StartTask, 1);
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.startTaskItem, 1);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startTask, 1);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
             expect(result).toEqual(false);
         });
 
         test('should start item and load ongoing time summary on success', async() => {
-            eventHttpStub.startTaskItem.resolves(true);
+            eventHttpStub.startTask.resolves(true);
 
-            const result = await store.event.dispatch(store.event.action.StartTaskItem, 1);
+            const result = await store.event.dispatch(store.event.action.StartTask, 1);
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.startTaskItem, 1);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startTask, 1);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.StartBreakSession, () => {
+    describe(ActionKey.StartBreak, () => {
         test('should do nothing on failure', async() => {
-            eventHttpStub.startBreakSession.resolves(false);
+            eventHttpStub.startBreak.resolves(false);
 
-            const result = await store.event.dispatch(store.event.action.StartBreakSession);
+            const result = await store.event.dispatch(store.event.action.StartBreak);
 
-            sinonExpect.calledOnce(eventHttpStub.startBreakSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.startBreak);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
             expect(result).toEqual(false);
         });
 
         test('should start session and load ongoing time summary on success', async() => {
-            eventHttpStub.startBreakSession.resolves(true);
+            eventHttpStub.startBreak.resolves(true);
 
-            const result = await store.event.dispatch(store.event.action.StartBreakSession);
+            const result = await store.event.dispatch(store.event.action.StartBreak);
 
-            sinonExpect.calledOnce(eventHttpStub.startBreakSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.startBreak);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.SkipBreakSession, () => {
+    describe(ActionKey.SkipBreak, () => {
         test('should do nothing on failure', async() => {
-            eventHttpStub.skipBreakSession.resolves(false);
+            eventHttpStub.skipBreak.resolves(false);
 
-            const result = await store.event.dispatch(store.event.action.SkipBreakSession);
+            const result = await store.event.dispatch(store.event.action.SkipBreak);
 
-            sinonExpect.calledOnce(eventHttpStub.skipBreakSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).not.toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.skipBreak);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).not.toEqual(timeSummary);
             expect(result).toEqual(false);
         });
 
         test('should skip session and load ongoing time summary on success', async() => {
-            eventHttpStub.skipBreakSession.resolves(true);
+            eventHttpStub.skipBreak.resolves(true);
 
-            const result = await store.event.dispatch(store.event.action.SkipBreakSession);
+            const result = await store.event.dispatch(store.event.action.SkipBreak);
 
-            sinonExpect.calledOnce(eventHttpStub.skipBreakSession);
-            expect(store.event.getters(store.event.getter.OngoingTimeSummary)).toEqual(timeSummary);
+            sinonExpect.calledOnce(eventHttpStub.skipBreak);
+            expect(store.event.getters(store.event.getter.OngoingEventSummary)).toEqual(timeSummary);
             expect(result).toEqual(true);
         });
     });

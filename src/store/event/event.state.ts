@@ -3,11 +3,11 @@ import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-t
 const oneMinute = 1000 * 60;
 
 export interface IState {
-    ongoingTimeSummary: OngoingEventTimeSummary | null;
-    workingDurationLimit: number;
+    ongoingEventSummary: OngoingEventTimeSummary | null;
+    workDurationLimit: number;
 }
 
 export const state = (): IState => ({
-    ongoingTimeSummary: null,
-    workingDurationLimit: oneMinute * 50
+    ongoingEventSummary: null,
+    workDurationLimit: oneMinute * 50
 });

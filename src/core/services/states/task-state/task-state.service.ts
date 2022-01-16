@@ -18,35 +18,35 @@ export class TaskStateService {
         return this.store.task.getters(this.store.task.getter.ActiveSummary);
     }
 
-    public getSummaries(searchText: string): TaskItemSummaryDto[] {
+    public searchSummaries(searchText: string): TaskItemSummaryDto[] {
         return this.store.task.getters(this.store.task.getter.Summaries)(searchText);
     }
 
-    public async loadTaskSummaries(): Promise<void> {
-        await this.store.task.dispatch(this.store.task.action.LoadTaskSummaries);
+    public async loadSummaries(): Promise<void> {
+        await this.store.task.dispatch(this.store.task.action.LoadSummaries);
     }
 
-    public startTaskItemCreation(): void {
-        this.store.task.dispatch(this.store.task.action.StartTaskItemCreation);
+    public startItemCreate(): void {
+        this.store.task.dispatch(this.store.task.action.StartItemCreate);
     }
 
-    public async startTaskItemEdit(id: number): Promise<boolean> {
-        return await this.store.task.dispatch(this.store.task.action.StartTaskItemEdit, id);
+    public async startItemEdit(id: number): Promise<boolean> {
+        return await this.store.task.dispatch(this.store.task.action.StartItemEdit, id);
     }
 
-    public endTaskItemEdit(): void {
-        this.store.task.dispatch(this.store.task.action.EndTaskItemEdit);
+    public stopItemEdit(): void {
+        this.store.task.dispatch(this.store.task.action.StopItemEdit);
     }
 
-    public async createTaskItem(item: TaskItem): Promise<boolean> {
-        return await this.store.task.dispatch(this.store.task.action.CreateTaskItem, item);
+    public async createItem(item: TaskItem): Promise<boolean> {
+        return await this.store.task.dispatch(this.store.task.action.CreateItem, item);
     }
 
-    public async updateTaskItem(item: TaskItem): Promise<boolean> {
-        return await this.store.task.dispatch(this.store.task.action.UpdateTaskItem, item);
+    public async updateItem(item: TaskItem): Promise<boolean> {
+        return await this.store.task.dispatch(this.store.task.action.UpdateItem, item);
     }
 
-    public async deleteTaskItem(id: number): Promise<boolean> {
-        return await this.store.task.dispatch(this.store.task.action.DeleteTaskItem, id);
+    public async deleteItem(id: number): Promise<boolean> {
+        return await this.store.task.dispatch(this.store.task.action.DeleteItem, id);
     }
 }

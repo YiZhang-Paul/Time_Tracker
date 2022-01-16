@@ -18,35 +18,35 @@ export class InterruptionStateService {
         return this.store.interruption.getters(this.store.interruption.getter.ActiveSummary);
     }
 
-    public getSummaries(searchText: string): InterruptionItemSummaryDto[] {
+    public searchSummaries(searchText: string): InterruptionItemSummaryDto[] {
         return this.store.interruption.getters(this.store.interruption.getter.Summaries)(searchText);
     }
 
-    public async loadInterruptionSummaries(): Promise<void> {
-        await this.store.interruption.dispatch(this.store.interruption.action.LoadInterruptionSummaries);
+    public async loadSummaries(): Promise<void> {
+        await this.store.interruption.dispatch(this.store.interruption.action.LoadSummaries);
     }
 
-    public startInterruptionItemCreation(): void {
-        this.store.interruption.dispatch(this.store.interruption.action.StartInterruptionItemCreation);
+    public startItemCreate(): void {
+        this.store.interruption.dispatch(this.store.interruption.action.StartItemCreate);
     }
 
-    public async startInterruptionItemEdit(id: number): Promise<boolean> {
-        return await this.store.interruption.dispatch(this.store.interruption.action.StartInterruptionItemEdit, id);
+    public async startItemEdit(id: number): Promise<boolean> {
+        return await this.store.interruption.dispatch(this.store.interruption.action.StartItemEdit, id);
     }
 
-    public endInterruptionItemEdit(): void {
-        this.store.interruption.dispatch(this.store.interruption.action.EndInterruptionItemEdit);
+    public stopItemEdit(): void {
+        this.store.interruption.dispatch(this.store.interruption.action.StopItemEdit);
     }
 
-    public async createInterruptionItem(item: InterruptionItem): Promise<boolean> {
-        return await this.store.interruption.dispatch(this.store.interruption.action.CreateInterruptionItem, item);
+    public async createItem(item: InterruptionItem): Promise<boolean> {
+        return await this.store.interruption.dispatch(this.store.interruption.action.CreateItem, item);
     }
 
-    public async updateInterruptionItem(item: InterruptionItem): Promise<boolean> {
-        return await this.store.interruption.dispatch(this.store.interruption.action.UpdateInterruptionItem, item);
+    public async updateItem(item: InterruptionItem): Promise<boolean> {
+        return await this.store.interruption.dispatch(this.store.interruption.action.UpdateItem, item);
     }
 
-    public async deleteInterruptionItem(id: number): Promise<boolean> {
-        return await this.store.interruption.dispatch(this.store.interruption.action.DeleteInterruptionItem, id);
+    public async deleteItem(id: number): Promise<boolean> {
+        return await this.store.interruption.dispatch(this.store.interruption.action.DeleteItem, id);
     }
 }

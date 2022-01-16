@@ -26,7 +26,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async createTaskItem(item: TaskItem): Promise<TaskItem | null> {
+    public async createItem(item: TaskItem): Promise<TaskItem | null> {
         try {
             return (await axios.post(this._api, item)).data;
         }
@@ -35,7 +35,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async updateTaskItem(item: TaskItem): Promise<TaskItem | null> {
+    public async updateItem(item: TaskItem): Promise<TaskItem | null> {
         try {
             return (await axios.put(this._api, item)).data;
         }
@@ -44,7 +44,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async deleteTaskItem(id: number): Promise<boolean> {
+    public async deleteItem(id: number): Promise<boolean> {
         try {
             return (await axios.delete(`${this._api}/${id}`)).data;
         }

@@ -26,7 +26,7 @@ export class InterruptionItemHttpService {
         }
     }
 
-    public async createInterruptionItem(item: InterruptionItem): Promise<InterruptionItem | null> {
+    public async createItem(item: InterruptionItem): Promise<InterruptionItem | null> {
         try {
             return (await axios.post(this._api, item)).data;
         }
@@ -35,7 +35,7 @@ export class InterruptionItemHttpService {
         }
     }
 
-    public async updateInterruptionItem(item: InterruptionItem): Promise<InterruptionItem | null> {
+    public async updateItem(item: InterruptionItem): Promise<InterruptionItem | null> {
         try {
             return (await axios.put(this._api, item)).data;
         }
@@ -44,7 +44,7 @@ export class InterruptionItemHttpService {
         }
     }
 
-    public async deleteInterruptionItem(id: number): Promise<boolean> {
+    public async deleteItem(id: number): Promise<boolean> {
         try {
             return (await axios.delete(`${this._api}/${id}`)).data;
         }

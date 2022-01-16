@@ -17,47 +17,47 @@ export class EventStateService {
         return this.store.event.getters(this.store.event.getter.IsNotWorking);
     }
 
-    get isScheduledBreakNeeded(): boolean {
-        return this.store.event.getters(this.store.event.getter.IsScheduledBreakNeeded);
+    get hasScheduledBreak(): boolean {
+        return this.store.event.getters(this.store.event.getter.HasScheduledBreak);
     }
 
     get workingDuration(): number {
         return this.store.event.getters(this.store.event.getter.WorkingDuration);
     }
 
-    get notWorkingDuration(): number {
-        return this.store.event.getters(this.store.event.getter.NotWorkingDuration);
+    get nonWorkingDuration(): number {
+        return this.store.event.getters(this.store.event.getter.NonWorkingDuration);
     }
 
-    get workingDurationLimit(): number {
-        return this.store.event.getters(this.store.event.getter.WorkingDurationLimit);
+    get workDurationLimit(): number {
+        return this.store.event.getters(this.store.event.getter.WorkDurationLimit);
     }
 
     public isActiveWorkItem(type: EventType, id: number): boolean {
         return this.store.event.getters(this.store.event.getter.IsActiveWorkItem)(type, id);
     }
 
-    public async loadOngoingTimeSummary(): Promise<void> {
-        await this.store.event.dispatch(this.store.event.action.LoadOngoingTimeSummary);
+    public async loadOngoingEventSummary(): Promise<void> {
+        await this.store.event.dispatch(this.store.event.action.LoadOngoingEventSummary);
     }
 
-    public async startInterruptionItem(id: number): Promise<boolean> {
-        return await this.store.event.dispatch(this.store.event.action.StartInterruptionItem, id);
+    public async startInterruption(id: number): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartInterruption, id);
     }
 
-    public async startTaskItem(id: number): Promise<boolean> {
-        return await this.store.event.dispatch(this.store.event.action.StartTaskItem, id);
+    public async startTask(id: number): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartTask, id);
     }
 
-    public async startIdlingSession(): Promise<boolean> {
-        return await this.store.event.dispatch(this.store.event.action.StartIdlingSession);
+    public async startIdling(): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartIdling);
     }
 
-    public async startBreakSession(): Promise<boolean> {
-        return await this.store.event.dispatch(this.store.event.action.StartBreakSession);
+    public async startBreak(): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartBreak);
     }
 
-    public async skipBreakSession(): Promise<boolean> {
-        return await this.store.event.dispatch(this.store.event.action.SkipBreakSession);
+    public async skipBreak(): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.SkipBreak);
     }
 }

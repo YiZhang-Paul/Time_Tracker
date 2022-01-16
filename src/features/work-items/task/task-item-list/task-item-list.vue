@@ -49,7 +49,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = this.taskState.getSummaries(text);
+        const items = this.taskState.searchSummaries(text);
         const active = this.taskState.activeSummary;
 
         if (!active) {
@@ -60,7 +60,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     get selectedItemId(): number {
-        return this.taskState.editingItem?.id ?? -1;;
+        return this.taskState.editingItem?.id ?? -1;
     }
 
     public mounted(): void {

@@ -35,7 +35,7 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        const key = `${eventKey}/${eventGetterKey.OngoingTimeSummary}`;
+        const key = `${eventKey}/${eventGetterKey.OngoingEventSummary}`;
         const { unconcludedSinceStart } = rootGetters[key] as OngoingEventTimeSummary;
 
         if (unconcludedSinceStart.eventType !== EventType.Task) {

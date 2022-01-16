@@ -6,7 +6,7 @@ export function stubInterruptionStateService(): SinonStubbedInstance<Interruptio
     const stubbed = createStubInstance(InterruptionStateService);
     stub(stubbed, 'editingItem').get(() => null);
     stub(stubbed, 'activeSummary').get(() => null);
-    stubbed.getSummaries.returns([]);
+    stubbed.searchSummaries.returns([]);
 
     return stubbed;
 }

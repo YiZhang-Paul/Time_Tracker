@@ -45,7 +45,7 @@ describe('interruption item list unit test', () => {
     describe('items', () => {
         test('should return empty collection when no items available', () => {
             stub(interruptionStateStub, 'activeSummary').get(() => null);
-            interruptionStateStub.getSummaries.returns([]);
+            interruptionStateStub.searchSummaries.returns([]);
             component = shallowMount(InterruptionItemList);
 
             expect(component.vm.items).toEqual([]);
@@ -59,7 +59,7 @@ describe('interruption item list unit test', () => {
             ];
 
             stub(interruptionStateStub, 'activeSummary').get(() => null);
-            interruptionStateStub.getSummaries.returns(summaries);
+            interruptionStateStub.searchSummaries.returns(summaries);
             component = shallowMount(InterruptionItemList);
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
@@ -73,7 +73,7 @@ describe('interruption item list unit test', () => {
             ];
 
             stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
-            interruptionStateStub.getSummaries.returns(summaries);
+            interruptionStateStub.searchSummaries.returns(summaries);
             component = shallowMount(InterruptionItemList);
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
@@ -87,7 +87,7 @@ describe('interruption item list unit test', () => {
             ];
 
             stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
-            interruptionStateStub.getSummaries.returns(summaries);
+            interruptionStateStub.searchSummaries.returns(summaries);
             component = shallowMount(InterruptionItemList);
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
@@ -119,7 +119,7 @@ describe('interruption item list unit test', () => {
             ];
 
             stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(summaries[1].id));
-            interruptionStateStub.getSummaries.returns(summaries);
+            interruptionStateStub.searchSummaries.returns(summaries);
             component = shallowMount(InterruptionItemList, { attachTo: document.body });
             jest.advanceTimersByTime(300);
 

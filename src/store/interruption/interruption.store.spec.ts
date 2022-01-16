@@ -68,7 +68,7 @@ describe('interruption store unit test', () => {
         });
 
         test('should return null when not working', () => {
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, null);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, null);
 
             expect(store.interruption.getters(store.interruption.getter.ActiveSummary)).toBeNull();
         });
@@ -76,7 +76,7 @@ describe('interruption store unit test', () => {
         test('should return null when no interruption item is active', () => {
             const summary = new OngoingEventTimeSummary();
             summary.unconcludedSinceStart = { ...new EventHistory(), eventType: EventType.Task, resourceId: 2 };
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, summary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, summary);
 
             expect(store.interruption.getters(store.interruption.getter.ActiveSummary)).toBeNull();
         });
@@ -84,69 +84,69 @@ describe('interruption store unit test', () => {
         test('should return active summary found', () => {
             const summary = new OngoingEventTimeSummary();
             summary.unconcludedSinceStart = { ...new EventHistory(), eventType: EventType.Interruption, resourceId: 2 };
-            store.event.commit(store.event.mutation.SetOngoingTimeSummary, summary);
+            store.event.commit(store.event.mutation.SetOngoingEventSummary, summary);
 
             expect(store.interruption.getters(store.interruption.getter.ActiveSummary)).toEqual(summaries[1]);
         });
     });
 
-    describe(ActionKey.LoadInterruptionSummaries, () => {
+    describe(ActionKey.LoadSummaries, () => {
         test('should load interruption summaries', async() => {
-            await store.interruption.dispatch(store.interruption.action.LoadInterruptionSummaries);
+            await store.interruption.dispatch(store.interruption.action.LoadSummaries);
 
             sinonExpect.calledOnce(interruptionItemHttpStub.getInterruptionSummaries);
             expect(store.interruption.getters(store.interruption.getter.Summaries)('').length).toEqual(summaries.length);
         });
     });
 
-    describe(ActionKey.CreateInterruptionItem, () => {
+    describe(ActionKey.CreateItem, () => {
         test('should do nothing on failure', async() => {
             const item = new InterruptionItem(-1);
-            interruptionItemHttpStub.createInterruptionItem.resolves(null);
+            interruptionItemHttpStub.createItem.resolves(null);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
 
-            const result = await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item);
+            const result = await store.interruption.dispatch(store.interruption.action.CreateItem, item);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createInterruptionItem, item);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createItem, item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
             expect(result).toEqual(false);
         });
 
         test('should open created item on success', async() => {
             const item = new InterruptionItem(-1);
-            interruptionItemHttpStub.createInterruptionItem.resolves(item);
+            interruptionItemHttpStub.createItem.resolves(item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
 
-            const result = await store.interruption.dispatch(store.interruption.action.CreateInterruptionItem, item);
+            const result = await store.interruption.dispatch(store.interruption.action.CreateItem, item);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createInterruptionItem, item);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createItem, item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(item);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.UpdateInterruptionItem, () => {
+    describe(ActionKey.UpdateItem, () => {
         test('should do nothing on failure', async() => {
             const previous: InterruptionItem = { ...new InterruptionItem(1), name: 'previous_name' };
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
-            interruptionItemHttpStub.updateInterruptionItem.resolves(null);
+            interruptionItemHttpStub.updateItem.resolves(null);
             store.interruption.commit(store.interruption.mutation.SetEditingItem, previous);
 
-            const result = await store.interruption.dispatch(store.interruption.action.UpdateInterruptionItem, current);
+            const result = await store.interruption.dispatch(store.interruption.action.UpdateItem, current);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateInterruptionItem, current);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(previous);
             expect(result).toEqual(false);
         });
 
         test('should not open updated item on success when nothing is opened', async() => {
             const item = new InterruptionItem(1);
-            interruptionItemHttpStub.updateInterruptionItem.resolves(item);
+            interruptionItemHttpStub.updateItem.resolves(item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
 
-            const result = await store.interruption.dispatch(store.interruption.action.UpdateInterruptionItem, item);
+            const result = await store.interruption.dispatch(store.interruption.action.UpdateItem, item);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateInterruptionItem, item);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
             expect(result).toEqual(true);
         });
@@ -154,12 +154,12 @@ describe('interruption store unit test', () => {
         test('should not open updated item on success when another item is opened', async() => {
             const current = new InterruptionItem(1);
             const other = new InterruptionItem(2);
-            interruptionItemHttpStub.updateInterruptionItem.resolves(current);
+            interruptionItemHttpStub.updateItem.resolves(current);
             store.interruption.commit(store.interruption.mutation.SetEditingItem, other);
 
-            const result = await store.interruption.dispatch(store.interruption.action.UpdateInterruptionItem, current);
+            const result = await store.interruption.dispatch(store.interruption.action.UpdateItem, current);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateInterruptionItem, current);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(other);
             expect(result).toEqual(true);
         });
@@ -167,52 +167,52 @@ describe('interruption store unit test', () => {
         test('should open updated item on success when already opened', async() => {
             const previous: InterruptionItem = { ...new InterruptionItem(1), name: 'previous_name' };
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
-            interruptionItemHttpStub.updateInterruptionItem.resolves(current);
+            interruptionItemHttpStub.updateItem.resolves(current);
             store.interruption.commit(store.interruption.mutation.SetEditingItem, previous);
 
-            const result = await store.interruption.dispatch(store.interruption.action.UpdateInterruptionItem, current);
+            const result = await store.interruption.dispatch(store.interruption.action.UpdateItem, current);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateInterruptionItem, current);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(current);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.StartInterruptionItemCreation, () => {
+    describe(ActionKey.StartItemCreate, () => {
         test('should open empty interruption item', () => {
             store.interruption.commit(store.interruption.mutation.SetEditingItem, new InterruptionItem(1));
 
-            store.interruption.dispatch(store.interruption.action.StartInterruptionItemCreation);
+            store.interruption.dispatch(store.interruption.action.StartItemCreate);
             jest.advanceTimersToNextTimer();
 
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(new InterruptionItem(-1));
         });
     });
 
-    describe(ActionKey.DeleteInterruptionItem, () => {
+    describe(ActionKey.DeleteItem, () => {
         beforeEach(() => {
             store.interruption.commit(store.interruption.mutation.SetSummaries, summaries.slice());
         });
 
         test('should do nothing on failure', async() => {
             const { id } = summaries[1];
-            interruptionItemHttpStub.deleteInterruptionItem.resolves(false);
+            interruptionItemHttpStub.deleteItem.resolves(false);
 
-            const result = await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, id);
+            const result = await store.interruption.dispatch(store.interruption.action.DeleteItem, id);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteInterruptionItem, id);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.interruption.getters(store.interruption.getter.Summaries)('').length).toEqual(summaries.length);
             expect(result).toEqual(false);
         });
 
         test('should remove item on success', async() => {
             const { id } = summaries[1];
-            interruptionItemHttpStub.deleteInterruptionItem.resolves(true);
+            interruptionItemHttpStub.deleteItem.resolves(true);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
 
-            const result = await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, id);
+            const result = await store.interruption.dispatch(store.interruption.action.DeleteItem, id);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteInterruptionItem, id);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
             expect(store.interruption.getters(store.interruption.getter.Summaries)('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
@@ -221,12 +221,12 @@ describe('interruption store unit test', () => {
         test('should not close editing item when another item is opened', async() => {
             const { id } = summaries[1];
             const other = new InterruptionItem(summaries[2].id);
-            interruptionItemHttpStub.deleteInterruptionItem.resolves(true);
+            interruptionItemHttpStub.deleteItem.resolves(true);
             store.interruption.commit(store.interruption.mutation.SetEditingItem, other);
 
-            const result = await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, id);
+            const result = await store.interruption.dispatch(store.interruption.action.DeleteItem, id);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteInterruptionItem, id);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toEqual(other);
             expect(store.interruption.getters(store.interruption.getter.Summaries)('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
@@ -234,23 +234,23 @@ describe('interruption store unit test', () => {
 
         test('should close editing item when it is deleted', async() => {
             const { id } = summaries[1];
-            interruptionItemHttpStub.deleteInterruptionItem.resolves(true);
+            interruptionItemHttpStub.deleteItem.resolves(true);
             store.interruption.commit(store.interruption.mutation.SetEditingItem, new InterruptionItem(id));
 
-            const result = await store.interruption.dispatch(store.interruption.action.DeleteInterruptionItem, id);
+            const result = await store.interruption.dispatch(store.interruption.action.DeleteItem, id);
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteInterruptionItem, id);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
             expect(store.interruption.getters(store.interruption.getter.Summaries)('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
         });
     });
 
-    describe(ActionKey.StartInterruptionItemEdit, () => {
+    describe(ActionKey.StartItemEdit, () => {
         test('should do nothing on failure', async() => {
             interruptionItemHttpStub.getInterruptionItem.resolves(null);
 
-            const result = await store.interruption.dispatch(store.interruption.action.StartInterruptionItemEdit, 5);
+            const result = await store.interruption.dispatch(store.interruption.action.StartItemEdit, 5);
             jest.advanceTimersToNextTimer();
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getInterruptionItem, 5);
@@ -262,7 +262,7 @@ describe('interruption store unit test', () => {
             interruptionItemHttpStub.getInterruptionItem.resolves(item);
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
 
-            const result = await store.interruption.dispatch(store.interruption.action.StartInterruptionItemEdit, 5);
+            const result = await store.interruption.dispatch(store.interruption.action.StartItemEdit, 5);
             jest.advanceTimersToNextTimer();
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getInterruptionItem, 5);
@@ -271,11 +271,11 @@ describe('interruption store unit test', () => {
         });
     });
 
-    describe(ActionKey.EndInterruptionItemEdit, () => {
+    describe(ActionKey.StopItemEdit, () => {
         test('should end interruption item edit', () => {
             store.interruption.commit(store.interruption.mutation.SetEditingItem, new InterruptionItem(1));
 
-            store.interruption.dispatch(store.interruption.action.EndInterruptionItemEdit);
+            store.interruption.dispatch(store.interruption.action.StopItemEdit);
 
             expect(store.interruption.getters(store.interruption.getter.EditingItem)).toBeFalsy();
         });
