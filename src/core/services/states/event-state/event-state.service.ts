@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import { createStore } from '../../../../store';
 import { types } from '../../../ioc/types';
 import { container } from '../../../ioc/container';
+import { EventType } from '../../../enums/event-type.enum';
 
 @injectable()
 export class EventStateService {
@@ -30,6 +31,26 @@ export class EventStateService {
 
     get workingDurationLimit(): number {
         return this.store.event.getters(this.store.event.getter.WorkingDurationLimit);
+    }
+
+    public isActiveWorkItem(type: EventType, id: number): boolean {
+        return this.store.event.getters(this.store.event.getter.IsActiveWorkItem)(type, id);
+    }
+
+    public async loadOngoingTimeSummary(): Promise<void> {
+        await this.store.event.dispatch(this.store.event.action.LoadOngoingTimeSummary);
+    }
+
+    public async startInterruptionItem(id: number): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartInterruptionItem, id);
+    }
+
+    public async startTaskItem(id: number): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartTaskItem, id);
+    }
+
+    public async startIdlingSession(): Promise<boolean> {
+        return await this.store.event.dispatch(this.store.event.action.StartIdlingSession);
     }
 
     public async startBreakSession(): Promise<boolean> {

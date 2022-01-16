@@ -1,6 +1,6 @@
 <template>
     <div class="dialogs-base-container">
-        <dialog-panel v-for="(config, index) in configs"
+        <dialog-panel v-for="(config, index) in dialogState.configs"
             :key="index"
             :dialog="config.component"
             :data="config.data"
@@ -15,13 +15,11 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-import { createStore } from '../../../store';
 import { types } from '../../../core/ioc/types';
 import { container } from '../../../core/ioc/container';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
+import { DialogStateService } from '../../../core/services/states/dialog-state/dialog-state.service';
 import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
-
-const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 @Options({
     components: {
@@ -29,17 +27,14 @@ const store = container.get<ReturnType<typeof createStore>>(types.Store);
     }
 })
 export default class DialogsBase extends Vue {
-    /* istanbul ignore next */
-    get configs(): DialogConfig<unknown, unknown>[] {
-        return store.dialog.getters(store.dialog.getter.Configs);
-    }
+    public dialogState = container.get<DialogStateService>(types.DialogStateService);
 
     public async onCancel<T>(payload: T, config: DialogConfig<unknown, unknown>): Promise<void> {
         if (config.options.preCancel) {
             await config.options.preCancel(payload);
         }
 
-        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+        this.dialogState.closeDialog(config);
 
         if (config.options.postCancel) {
             await config.options.postCancel(payload);
@@ -51,7 +46,7 @@ export default class DialogsBase extends Vue {
             await config.options.preConfirm(payload);
         }
 
-        store.dialog.dispatch(store.dialog.action.CloseDialog, config);
+        this.dialogState.closeDialog(config);
 
         if (config.options.postConfirm) {
             await config.options.postConfirm(payload);

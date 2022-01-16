@@ -1,250 +1,225 @@
 import { shallowMount, VueWrapper, flushPromises } from '@vue/test-utils';
-import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
+import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
-import { createStore } from '../../store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
+import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
+import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
+import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
+import { EventStateService } from '../../core/services/states/event-state/event-state.service';
+import { stubDialogStateService } from '../../mocks/dialog-state.service.stub';
+import { stubInterruptionStateService } from '../../mocks/interruption-state.service.stub';
+import { stubTaskStateService } from '../../mocks/task-state.service.stub';
+import { stubEventStateService } from '../../mocks/event-state.service.stub';
 
 import WorkItems from './work-items.vue';
-
-const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('work items unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let sandbox: SinonSandbox;
-    let gettersStub: SinonStub;
-    let dispatchStub: SinonStub;
+    let dialogStateStub: SinonStubbedInstance<DialogStateService>;
+    let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
+    let taskStateStub: SinonStubbedInstance<TaskStateService>;
+    let eventStateStub: SinonStubbedInstance<EventStateService>;
 
-    beforeEach(async() => {
-        sandbox = createSandbox();
-        gettersStub = sandbox.stub(store.base, 'getters');
-        dispatchStub = sandbox.stub(store.base, 'dispatch');
-        component = shallowMount(WorkItems);
-        await flushPromises();
-        gettersStub.resetHistory();
-        dispatchStub.resetHistory();
+    beforeEach(() => {
+        dialogStateStub = stubDialogStateService();
+        interruptionStateStub = stubInterruptionStateService();
+        taskStateStub = stubTaskStateService();
+        eventStateStub = stubEventStateService();
+
+        container
+            .rebind<DialogStateService>(types.DialogStateService)
+            .toConstantValue(dialogStateStub);
+
+        container
+            .rebind<InterruptionStateService>(types.InterruptionStateService)
+            .toConstantValue(interruptionStateStub);
+
+        container
+            .rebind<TaskStateService>(types.TaskStateService)
+            .toConstantValue(taskStateStub);
+
+        container
+            .rebind<EventStateService>(types.EventStateService)
+            .toConstantValue(eventStateStub);
     });
 
     afterEach(() => {
-        sandbox.restore();
         component.unmount();
     });
 
     test('should create component instance', () => {
+        component = shallowMount(WorkItems);
         expect(component).toBeTruthy();
     });
 
     describe('created', () => {
         test('should initialize data', async() => {
-            const { namespace: eventKey, action: eventAction } = store.event;
-            const { namespace: interruptionKey, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
-
-            component.unmount();
             component = shallowMount(WorkItems);
             await flushPromises();
 
-            sinonExpect.calledWith(dispatchStub, `${eventKey}/${eventAction.LoadOngoingTimeSummary}`);
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.LoadInterruptionSummaries}`);
-            sinonExpect.calledWith(dispatchStub, `${taskKey}/${taskAction.LoadTaskSummaries}`);
+            sinonExpect.calledOnce(eventStateStub.loadOngoingTimeSummary);
+            sinonExpect.calledOnce(interruptionStateStub.loadInterruptionSummaries);
+            sinonExpect.calledOnce(taskStateStub.loadTaskSummaries);
         });
 
         test('should load active interruption item when available', async() => {
-            const { namespace: eventKey, getter: eventGetter } = store.event;
-            const { namespace: interruptionKey, getter: interruptionGetter, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
-            const item = { id: 1 } as InterruptionItemSummaryDto;
-
-            gettersStub.value({
-                [`${eventKey}/${eventGetter.IsWorking}`]: true,
-                [`${interruptionKey}/${interruptionGetter.ActiveSummary}`]: item,
-                [`${taskKey}/${taskGetter.ActiveSummary}`]: null
-            });
-
-            component.unmount();
+            stub(eventStateStub, 'isWorking').get(() => true);
+            stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 1 } as InterruptionItemSummaryDto));
+            stub(taskStateStub, 'activeSummary').get(() => null);
             component = shallowMount(WorkItems);
             await flushPromises();
 
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.StartInterruptionItemEdit}`, 1);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.startInterruptionItemEdit, 1);
         });
 
         test('should load active task item when available', async() => {
-            const { namespace: eventKey, getter: eventGetter } = store.event;
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter, action: taskAction } = store.task;
-            const item = { id: 1 } as TaskItemSummaryDto;
-
-            gettersStub.value({
-                [`${eventKey}/${eventGetter.IsWorking}`]: true,
-                [`${interruptionKey}/${interruptionGetter.ActiveSummary}`]: null,
-                [`${taskKey}/${taskGetter.ActiveSummary}`]: item
-            });
-
-            component.unmount();
+            stub(eventStateStub, 'isWorking').get(() => true);
+            stub(interruptionStateStub, 'activeSummary').get(() => null);
+            stub(taskStateStub, 'activeSummary').get(() => ({ id: 1 } as TaskItemSummaryDto));
             component = shallowMount(WorkItems);
             await flushPromises();
 
-            sinonExpect.calledWith(dispatchStub, `${taskKey}/${taskAction.StartTaskItemEdit}`, 1);
+            sinonExpect.calledOnceWithExactly(taskStateStub.startTaskItemEdit, 1);
         });
 
         test('should load first interruption item when available', async() => {
-            const { namespace: eventKey, getter: eventGetter } = store.event;
-            const { namespace: interruptionKey, getter: interruptionGetter, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
+            const interruptions = [
+                { id: 2 } as InterruptionItemSummaryDto,
+                { id: 3 } as InterruptionItemSummaryDto
+            ];
 
-            gettersStub.value({
-                [`${eventKey}/${eventGetter.IsWorking}`]: false,
-                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => [
-                    { id: 2 } as InterruptionItemSummaryDto,
-                    { id: 3 } as InterruptionItemSummaryDto
-                ],
-                [`${taskKey}/${taskGetter.Summaries}`]: () => [
-                    { id: 1 } as TaskItemSummaryDto,
-                    { id: 5 } as TaskItemSummaryDto
-                ]
-            });
+            const tasks = [
+                { id: 1 } as TaskItemSummaryDto,
+                { id: 5 } as TaskItemSummaryDto
+            ];
 
-            component.unmount();
+            stub(eventStateStub, 'isWorking').get(() => true);
+            interruptionStateStub.getSummaries.returns(interruptions);
+            taskStateStub.getSummaries.returns(tasks);
             component = shallowMount(WorkItems);
             await flushPromises();
 
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.StartInterruptionItemEdit}`, 2);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.startInterruptionItemEdit, 2);
         });
 
         test('should load first task item when available', async() => {
-            const { namespace: eventKey, getter: eventGetter } = store.event;
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter, action: taskAction } = store.task;
+            const tasks = [
+                { id: 1 } as TaskItemSummaryDto,
+                { id: 5 } as TaskItemSummaryDto
+            ];
 
-            gettersStub.value({
-                [`${eventKey}/${eventGetter.IsWorking}`]: false,
-                [`${interruptionKey}/${interruptionGetter.Summaries}`]: () => [],
-                [`${taskKey}/${taskGetter.Summaries}`]: () => [
-                    { id: 1 } as TaskItemSummaryDto,
-                    { id: 5 } as TaskItemSummaryDto
-                ]
-            });
-
-            component.unmount();
+            stub(eventStateStub, 'isWorking').get(() => false);
+            interruptionStateStub.getSummaries.returns([]);
+            taskStateStub.getSummaries.returns(tasks);
             component = shallowMount(WorkItems);
             await flushPromises();
 
-            sinonExpect.calledWith(dispatchStub, `${taskKey}/${taskAction.StartTaskItemEdit}`, 1);
+            sinonExpect.calledOnceWithExactly(taskStateStub.startTaskItemEdit, 1);
         });
     });
 
     describe('onInterruptionSelect', () => {
         test('should do nothing when item is already selected', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
-            gettersStub.value({ [`${interruptionKey}/${interruptionGetter.EditingItem}`]: new InterruptionItem(1) });
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(1));
             component = shallowMount(WorkItems);
 
             component.vm.onInterruptionSelect({ id: 1 } as InterruptionItemSummaryDto);
 
-            expect(dispatchStub.neverCalledWith(`${taskKey}/${taskAction.EndTaskItemEdit}`)).toEqual(true);
-            expect(dispatchStub.neverCalledWith(`${interruptionKey}/${interruptionAction.StartInterruptionItemEdit}`, 1)).toEqual(true);
+            sinonExpect.notCalled(taskStateStub.endTaskItemEdit);
+            sinonExpect.notCalled(interruptionStateStub.startInterruptionItemEdit);
         });
 
         test('should select item when no other item is selected', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
-            gettersStub.value({ [`${interruptionKey}/${interruptionGetter.EditingItem}`]: null });
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => null);
             component = shallowMount(WorkItems);
 
             component.vm.onInterruptionSelect({ id: 2 } as InterruptionItemSummaryDto);
 
-            sinonExpect.calledWith(dispatchStub, `${taskKey}/${taskAction.EndTaskItemEdit}`);
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.StartInterruptionItemEdit}`, 2);
+            sinonExpect.calledOnce(taskStateStub.endTaskItemEdit);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.startInterruptionItemEdit, 2);
         });
 
         test('should select item when item is not already selected', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
-            gettersStub.value({ [`${interruptionKey}/${interruptionGetter.EditingItem}`]: new InterruptionItem(1) });
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(1));
             component = shallowMount(WorkItems);
 
             component.vm.onInterruptionSelect({ id: 2 } as InterruptionItemSummaryDto);
 
-            sinonExpect.calledWith(dispatchStub, `${taskKey}/${taskAction.EndTaskItemEdit}`);
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.StartInterruptionItemEdit}`, 2);
+            sinonExpect.calledOnce(taskStateStub.endTaskItemEdit);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.startInterruptionItemEdit, 2);
         });
     });
 
     describe('onInterruptionCreate', () => {
         test('should not reload summaries when failed to create interruption item', async() => {
-            const { namespace, action } = store.interruption;
             const item = new InterruptionItem(-1);
-            dispatchStub.withArgs(`${namespace}/${action.CreateInterruptionItem}`).resolves(false);
+            interruptionStateStub.createInterruptionItem.resolves(false);
+            component = shallowMount(WorkItems);
 
             await component.vm.onInterruptionCreate(item);
 
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.CreateInterruptionItem}`, item);
-            expect(dispatchStub.neverCalledWith(`${namespace}/${action.LoadInterruptionSummaries}`)).toEqual(true);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.createInterruptionItem, item);
+            sinonExpect.notCalled(interruptionStateStub.loadInterruptionSummaries);
         });
 
         test('should reload summaries when successfully created interruption item', async() => {
-            const { namespace, action } = store.interruption;
             const item = new InterruptionItem(-1);
-            dispatchStub.withArgs(`${namespace}/${action.CreateInterruptionItem}`).resolves(true);
+            interruptionStateStub.createInterruptionItem.resolves(true);
+            component = shallowMount(WorkItems);
 
             await component.vm.onInterruptionCreate(item);
 
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.CreateInterruptionItem}`, item);
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.LoadInterruptionSummaries}`);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.createInterruptionItem, item);
+            sinonExpect.calledOnce(interruptionStateStub.loadInterruptionSummaries);
         });
     });
 
     describe('onInterruptionUpdate', () => {
         test('should not reload summaries when failed to update interruption item', async() => {
-            const { namespace, action } = store.interruption;
             const item = new InterruptionItem(1);
-            dispatchStub.withArgs(`${namespace}/${action.UpdateInterruptionItem}`).resolves(false);
+            interruptionStateStub.updateInterruptionItem.resolves(false);
+            component = shallowMount(WorkItems);
 
             await component.vm.onInterruptionUpdate(item);
 
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.UpdateInterruptionItem}`, item);
-            expect(dispatchStub.neverCalledWith(`${namespace}/${action.LoadInterruptionSummaries}`)).toEqual(true);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.updateInterruptionItem, item);
+            sinonExpect.notCalled(interruptionStateStub.loadInterruptionSummaries);
         });
 
         test('should reload summaries when successfully updated interruption item', async() => {
-            const { namespace, action } = store.interruption;
             const item = new InterruptionItem(1);
-            dispatchStub.withArgs(`${namespace}/${action.UpdateInterruptionItem}`).resolves(true);
+            interruptionStateStub.updateInterruptionItem.resolves(true);
+            component = shallowMount(WorkItems);
 
             await component.vm.onInterruptionUpdate(item);
 
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.UpdateInterruptionItem}`, item);
-            sinonExpect.calledWith(dispatchStub, `${namespace}/${action.LoadInterruptionSummaries}`);
+            sinonExpect.calledOnceWithExactly(interruptionStateStub.updateInterruptionItem, item);
+            sinonExpect.calledOnce(interruptionStateStub.loadInterruptionSummaries);
         });
     });
 
     describe('onInterruptionDeleteStart', () => {
         test('should delete new interruption item without prompting for confirmation', () => {
-            const { namespace: interruptionKey, action: interruptionAction } = store.interruption;
-            const { namespace: dialogKey, action: dialogAction } = store.dialog;
+            component = shallowMount(WorkItems);
 
             component.vm.onInterruptionDeleteStart(new InterruptionItem(-1));
 
-            sinonExpect.calledWith(dispatchStub, `${interruptionKey}/${interruptionAction.EndInterruptionItemEdit}`);
-            expect(dispatchStub.neverCalledWith(`${dialogKey}/${dialogAction.OpenDialog}`)).toEqual(true);
+            sinonExpect.calledOnce(interruptionStateStub.endInterruptionItemEdit);
+            sinonExpect.notCalled(dialogStateStub.openDialog);
         });
 
         test('should prompt for confirmation before deleting existing interruption item', () => {
-            const { namespace: interruptionKey, action: interruptionAction } = store.interruption;
-            const { namespace: dialogKey, action: dialogAction } = store.dialog;
+            component = shallowMount(WorkItems);
 
             component.vm.onInterruptionDeleteStart(new InterruptionItem(1));
 
-            sinonExpect.calledWith(dispatchStub, `${dialogKey}/${dialogAction.OpenDialog}`);
-            expect(dispatchStub.neverCalledWith(`${interruptionKey}/${interruptionAction.EndInterruptionItemEdit}`)).toEqual(true);
+            sinonExpect.notCalled(interruptionStateStub.endInterruptionItemEdit);
+            sinonExpect.calledOnce(dialogStateStub.openDialog);
         });
     });
 });

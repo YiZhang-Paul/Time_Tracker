@@ -1,10 +1,11 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
-import { assert as sinonExpect, createStubInstance, stub, SinonStubbedInstance } from 'sinon';
+import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
 import { EventStateService } from '../../core/services/states/event-state/event-state.service';
+import { stubDialogStateService } from '../../mocks/dialog-state.service.stub';
 import { stubEventStateService } from '../../mocks/event-state.service.stub';
 
 import EventTracker from './event-tracker.vue';
@@ -16,7 +17,7 @@ describe('event tracker unit test', () => {
     let eventStateStub: SinonStubbedInstance<EventStateService>;
 
     beforeEach(() => {
-        dialogStateStub = createStubInstance(DialogStateService);
+        dialogStateStub = stubDialogStateService();
         eventStateStub = stubEventStateService();
 
         container
