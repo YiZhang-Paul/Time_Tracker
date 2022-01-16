@@ -1,22 +1,22 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
-import { OngoingEventTimeDistribution } from '../../../models/event/ongoing-event-time-distribution';
+import { OngoingEventTimeSummary } from '../../../models/event/ongoing-event-time-summary';
 
 @injectable()
 export class EventHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/events`;
 
-    public async getOngoingTimeDistribution(start: Date): Promise<OngoingEventTimeDistribution> {
+    public async getOngoingEventSummary(start: Date): Promise<OngoingEventTimeSummary> {
         try {
-            return (await axios.get(`${this._api}/time-distribution/${start.toISOString()}`)).data;
+            return (await axios.get(`${this._api}/time-summary/${start.toISOString()}`)).data;
         }
         catch {
-            return new OngoingEventTimeDistribution();
+            return new OngoingEventTimeSummary();
         }
     }
 
-    public async startIdlingSession(): Promise<boolean> {
+    public async startIdling(): Promise<boolean> {
         try {
             return (await axios.post(`${this._api}/idling-sessions`)).data;
         }
@@ -25,7 +25,7 @@ export class EventHttpService {
         }
     }
 
-    public async startInterruptionItem(id: number): Promise<boolean> {
+    public async startInterruption(id: number): Promise<boolean> {
         try {
             return (await axios.post(`${this._api}/interruption-items/${id}`)).data;
         }
@@ -34,7 +34,7 @@ export class EventHttpService {
         }
     }
 
-    public async startTaskItem(id: number): Promise<boolean> {
+    public async startTask(id: number): Promise<boolean> {
         try {
             return (await axios.post(`${this._api}/task-items/${id}`)).data;
         }
@@ -43,7 +43,7 @@ export class EventHttpService {
         }
     }
 
-    public async startBreakSession(): Promise<boolean> {
+    public async startBreak(): Promise<boolean> {
         try {
             return (await axios.put(`${this._api}/scheduled-break-prompts`)).data;
         }
@@ -52,7 +52,7 @@ export class EventHttpService {
         }
     }
 
-    public async skipBreakSession(): Promise<boolean> {
+    public async skipBreak(): Promise<boolean> {
         try {
             return (await axios.put(`${this._api}/scheduled-break-prompts?skip=true`)).data;
         }

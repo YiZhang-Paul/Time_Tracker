@@ -8,7 +8,7 @@ import { TaskItem } from '../../../models/task/task-item';
 export class TaskItemHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/task-items`;
 
-    public async getTaskItem(id: number): Promise<TaskItem | null> {
+    public async getItem(id: number): Promise<TaskItem | null> {
         try {
             return (await axios.get(`${this._api}/${id}`)).data;
         }
@@ -17,7 +17,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async getTaskSummaries(): Promise<TaskItemSummaryDto[]> {
+    public async getSummaries(): Promise<TaskItemSummaryDto[]> {
         try {
             return (await axios.get(`${this._api}/summaries`)).data;
         }
@@ -26,7 +26,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async createTaskItem(item: TaskItem): Promise<TaskItem | null> {
+    public async createItem(item: TaskItem): Promise<TaskItem | null> {
         try {
             return (await axios.post(this._api, item)).data;
         }
@@ -35,7 +35,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async updateTaskItem(item: TaskItem): Promise<TaskItem | null> {
+    public async updateItem(item: TaskItem): Promise<TaskItem | null> {
         try {
             return (await axios.put(this._api, item)).data;
         }
@@ -44,7 +44,7 @@ export class TaskItemHttpService {
         }
     }
 
-    public async deleteTaskItem(id: number): Promise<boolean> {
+    public async deleteItem(id: number): Promise<boolean> {
         try {
             return (await axios.delete(`${this._api}/${id}`)).data;
         }

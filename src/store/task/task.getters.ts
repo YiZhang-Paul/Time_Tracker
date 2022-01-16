@@ -2,7 +2,7 @@ import { GetterTree } from 'vuex';
 
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
-import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
+import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { EventType } from '../../core/enums/event-type.enum';
 import { GetterKey as eventGetterKey } from '../event/event.getters';
 import { key as eventKey } from '../event/event.store';
@@ -24,7 +24,8 @@ export type Getters = {
 
 export const getters: GetterTree<IState, IState> & Getters = {
     [GetterKey.Summaries]: (state: IState) => (searchText: string) => {
-        const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(searchText));
+        const text = searchText.toLowerCase();
+        const summaries = state.summaries.filter(_ => _.name.toLowerCase().includes(text));
 
         return summaries.sort((a, b) => a.id - b.id);
     },
@@ -34,14 +35,14 @@ export const getters: GetterTree<IState, IState> & Getters = {
             return null;
         }
 
-        const key = `${eventKey}/${eventGetterKey.OngoingTimeDistribution}`;
-        const { unconcluded } = rootGetters[key] as OngoingEventTimeDistribution;
+        const key = `${eventKey}/${eventGetterKey.OngoingEventSummary}`;
+        const { unconcludedSinceStart } = rootGetters[key] as OngoingEventTimeSummary;
 
-        if (unconcluded!.eventType !== EventType.Task) {
+        if (unconcludedSinceStart.eventType !== EventType.Task) {
             return null;
         }
 
-        return state.summaries.find(_ => _.id === unconcluded!.resourceId) ?? null;
+        return state.summaries.find(_ => _.id === unconcludedSinceStart.resourceId)!;
     },
     [GetterKey.EditingItem]: (state: IState): TaskItem | null => state.editingItem
 };

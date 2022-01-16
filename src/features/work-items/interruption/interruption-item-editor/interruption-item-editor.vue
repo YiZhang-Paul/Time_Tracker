@@ -41,10 +41,12 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, PlayCircle, StopCircle } from 'mdue';
 
-import store from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 
@@ -68,11 +70,12 @@ class InterruptionItemEditorProp {
         'stop'
     ]
 })
+/* istanbul ignore next */
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
-    get isActiveWorkItem(): boolean {
-        const key = store.event.getter.IsActiveWorkItem;
+    private eventState = container.get<EventStateService>(types.EventStateService);
 
-        return store.event.getters(key)(EventType.Interruption, this.item.id);
+    get isActiveWorkItem(): boolean {
+        return this.eventState.isActiveWorkItem(EventType.Interruption, this.item.id);
     }
 
     get creationTime(): string {

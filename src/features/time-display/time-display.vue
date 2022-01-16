@@ -30,6 +30,7 @@ export default class TimeDisplay extends Vue {
         return TimeUtility.getDateSuffix(this.current.getDate());
     }
 
+    /* istanbul ignore next */
     get environmentColor(): string {
         return process.env.VUE_APP_ENV_COLOR;
     }
@@ -38,6 +39,7 @@ export default class TimeDisplay extends Vue {
         this.updateDateTime();
     }
 
+    /* istanbul ignore next */
     private updateDateTime(): void {
         this.current = new Date();
         setTimeout(() => this.updateDateTime(), 1000);

@@ -3,7 +3,7 @@ import { Store } from 'vuex';
 
 type Unpacked<T> = T extends Promise<infer R> ? R : T;
 type Handlers = { [key: string]: (...args: any) => any };
-
+/* istanbul ignore next */
 export class DataStoreUtility {
     public static getHandlers<
         State,
@@ -15,6 +15,7 @@ export class DataStoreUtility {
         ActionKey
     >(namespace: string, getterKey: GetterKey, mutationKey: MutationKey, actionKey: ActionKey, getStore: () => Store<any>) {
         return {
+            namespace,
             getter: getterKey,
             mutation: mutationKey,
             action: actionKey,

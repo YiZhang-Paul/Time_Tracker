@@ -6,8 +6,8 @@ import { IState } from './dialog.state';
 import { Mutations, MutationKey } from './dialog.mutations';
 
 export enum ActionKey {
-    OpenDialog = 'open_dialog',
-    CloseDialog = 'close_dialog'
+    Open = 'open',
+    Close = 'close'
 }
 
 interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
@@ -15,15 +15,15 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
-    [ActionKey.OpenDialog](context: ActionAugments, config: DialogConfig<unknown, unknown>): void;
-    [ActionKey.CloseDialog](context: ActionAugments, config: DialogConfig<unknown, unknown>): void;
+    [ActionKey.Open](context: ActionAugments, config: DialogConfig<unknown, unknown>): void;
+    [ActionKey.Close](context: ActionAugments, config: DialogConfig<unknown, unknown>): void;
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
-    [ActionKey.OpenDialog](context: ActionAugments, config: DialogConfig<unknown, unknown>): void {
+    [ActionKey.Open](context: ActionAugments, config: DialogConfig<unknown, unknown>): void {
         context.commit(MutationKey.AddConfig, config);
     },
-    [ActionKey.CloseDialog](context: ActionAugments, config: DialogConfig<unknown, unknown>): void {
+    [ActionKey.Close](context: ActionAugments, config: DialogConfig<unknown, unknown>): void {
         context.commit(MutationKey.DeleteConfig, config);
     }
 };

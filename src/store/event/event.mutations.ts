@@ -1,19 +1,19 @@
 import { MutationTree } from 'vuex';
 
-import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
+import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 
 import { IState } from './event.state';
 
 export enum MutationKey {
-    SetOngoingTimeDistribution = 'set_ongoing_time_distribution'
+    SetOngoingEventSummary = 'set_ongoing_event_summary'
 }
 
 export type Mutations = {
-    [MutationKey.SetOngoingTimeDistribution](state: IState, distribution: OngoingEventTimeDistribution | null): void;
+    [MutationKey.SetOngoingEventSummary](state: IState, summary: OngoingEventTimeSummary | null): void;
 }
 
 export const mutations: MutationTree<IState> & Mutations = {
-    [MutationKey.SetOngoingTimeDistribution](state: IState, distribution: OngoingEventTimeDistribution | null): void {
-        state.ongoingTimeDistribution = distribution;
+    [MutationKey.SetOngoingEventSummary](state: IState, summary: OngoingEventTimeSummary | null): void {
+        state.ongoingEventSummary = summary;
     }
 };

@@ -1,13 +1,13 @@
-import { OngoingEventTimeDistribution } from '../../core/models/event/ongoing-event-time-distribution';
+import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 
 const oneMinute = 1000 * 60;
 
 export interface IState {
-    ongoingTimeDistribution: OngoingEventTimeDistribution | null;
-    workingDurationLimit: number;
+    ongoingEventSummary: OngoingEventTimeSummary | null;
+    workDurationLimit: number;
 }
 
 export const state = (): IState => ({
-    ongoingTimeDistribution: null,
-    workingDurationLimit: oneMinute * 50
+    ongoingEventSummary: null,
+    workDurationLimit: oneMinute * 50
 });

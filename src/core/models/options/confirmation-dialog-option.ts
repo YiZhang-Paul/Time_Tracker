@@ -9,8 +9,8 @@ export class ConfirmationDialogOption<T = null> {
 
     constructor(
         title = 'Are you sure?',
-        confirmText = 'Confirm',
-        cancelText = 'Cancel',
+        confirmText = 'Yes',
+        cancelText = 'No',
         type = ButtonType.Default,
         data: T | null = null
     ) {

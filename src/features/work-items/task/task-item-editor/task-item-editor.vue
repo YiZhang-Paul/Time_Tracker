@@ -41,9 +41,11 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
-import store from '../../../../store';
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
@@ -66,11 +68,12 @@ class TaskItemEditorProp {
         'stop'
     ]
 })
+/* istanbul ignore next */
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
-    get isActiveWorkItem(): boolean {
-        const key = store.event.getter.IsActiveWorkItem;
+    private eventState = container.get<EventStateService>(types.EventStateService);
 
-        return store.event.getters(key)(EventType.Task, this.item.id);
+    get isActiveWorkItem(): boolean {
+        return this.eventState.isActiveWorkItem(EventType.Task, this.item.id);
     }
 
     get creationTime(): string {
@@ -78,7 +81,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     }
 
     public onEffortSelect(): void {
-        const options = [0, 1, 2, 3, 5, 8, 13];
+        const options = [1, 2, 3, 5, 8, 13];
         const index = options.indexOf(this.item.effort) + 1;
         this.item.effort = options[index % options.length];
     }

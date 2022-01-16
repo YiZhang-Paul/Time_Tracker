@@ -14,13 +14,13 @@ export const setActionServices = (interruptionItemHttp: InterruptionItemHttpServ
 };
 
 export enum ActionKey {
-    LoadInterruptionSummaries = 'load_interruption_summaries',
-    CreateInterruptionItem = 'create_interruption_item',
-    UpdateInterruptionItem = 'update_interruption_item',
-    DeleteInterruptionItem = 'delete_interruption_item',
-    StartInterruptionItemCreation = 'start_interruption_item_creation',
-    StartInterruptionItemEdit = 'start_interruption_item_edit',
-    EndInterruptionItemEdit = 'end_interruption_item_edit'
+    LoadSummaries = 'load_summaries',
+    CreateItem = 'create_item',
+    UpdateItem = 'update_item',
+    DeleteItem = 'delete_item',
+    StartItemCreate = 'start_item_create',
+    StartItemEdit = 'start_item_edit',
+    StopItemEdit = 'stop_item_edit'
 }
 
 interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
@@ -28,21 +28,21 @@ interface ActionAugments extends Omit<ActionContext<IState, IState>, 'commit'> {
 }
 
 export type Actions = {
-    [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void>;
-    [ActionKey.CreateInterruptionItem](context: ActionAugments, item: InterruptionItem): Promise<boolean>;
-    [ActionKey.UpdateInterruptionItem](context: ActionAugments, item: InterruptionItem): Promise<boolean>;
-    [ActionKey.DeleteInterruptionItem](context: ActionAugments, id: number): Promise<boolean>;
-    [ActionKey.StartInterruptionItemCreation](context: ActionAugments): void;
-    [ActionKey.StartInterruptionItemEdit](context: ActionAugments, id: number): Promise<boolean>;
-    [ActionKey.EndInterruptionItemEdit](context: ActionAugments): void;
+    [ActionKey.LoadSummaries](context: ActionAugments): Promise<void>;
+    [ActionKey.CreateItem](context: ActionAugments, item: InterruptionItem): Promise<boolean>;
+    [ActionKey.UpdateItem](context: ActionAugments, item: InterruptionItem): Promise<boolean>;
+    [ActionKey.DeleteItem](context: ActionAugments, id: number): Promise<boolean>;
+    [ActionKey.StartItemCreate](context: ActionAugments): void;
+    [ActionKey.StartItemEdit](context: ActionAugments, id: number): Promise<boolean>;
+    [ActionKey.StopItemEdit](context: ActionAugments): void;
 }
 
 export const actions: ActionTree<IState, IState> & Actions = {
-    async [ActionKey.LoadInterruptionSummaries](context: ActionAugments): Promise<void> {
-        context.commit(MutationKey.SetSummaries, await interruptionItemHttpService.getInterruptionSummaries());
+    async [ActionKey.LoadSummaries](context: ActionAugments): Promise<void> {
+        context.commit(MutationKey.SetSummaries, await interruptionItemHttpService.getSummaries());
     },
-    async [ActionKey.CreateInterruptionItem](context: ActionAugments, item: InterruptionItem): Promise<boolean> {
-        const created = await interruptionItemHttpService.createInterruptionItem(item);
+    async [ActionKey.CreateItem](context: ActionAugments, item: InterruptionItem): Promise<boolean> {
+        const created = await interruptionItemHttpService.createItem(item);
 
         if (created) {
             context.commit(MutationKey.SetEditingItem, created);
@@ -50,8 +50,8 @@ export const actions: ActionTree<IState, IState> & Actions = {
 
         return Boolean(created);
     },
-    async [ActionKey.UpdateInterruptionItem](context: ActionAugments, item: InterruptionItem): Promise<boolean> {
-        const updated = await interruptionItemHttpService.updateInterruptionItem(item);
+    async [ActionKey.UpdateItem](context: ActionAugments, item: InterruptionItem): Promise<boolean> {
+        const updated = await interruptionItemHttpService.updateItem(item);
 
         if (updated && context.getters[GetterKey.EditingItem]?.id === updated.id) {
             context.commit(MutationKey.SetEditingItem, updated);
@@ -59,36 +59,36 @@ export const actions: ActionTree<IState, IState> & Actions = {
 
         return Boolean(updated);
     },
-    [ActionKey.StartInterruptionItemCreation](context: ActionAugments): void {
-        context.dispatch(ActionKey.EndInterruptionItemEdit);
-        setTimeout(() => context.commit(MutationKey.SetEditingItem, new InterruptionItem(-1)));
-    },
-    async [ActionKey.DeleteInterruptionItem](context: ActionAugments, id: number): Promise<boolean> {
-        const isDeleted = await interruptionItemHttpService.deleteInterruptionItem(id);
+    async [ActionKey.DeleteItem](context: ActionAugments, id: number): Promise<boolean> {
+        const isDeleted = await interruptionItemHttpService.deleteItem(id);
 
         if (!isDeleted) {
             return false;
         }
 
         if (context.getters[GetterKey.EditingItem]?.id === id) {
-            context.dispatch(ActionKey.EndInterruptionItemEdit);
+            context.dispatch(ActionKey.StopItemEdit);
         }
 
         context.commit(MutationKey.DeleteSummary, id);
 
         return true;
     },
-    async [ActionKey.StartInterruptionItemEdit](context: ActionAugments, id: number): Promise<boolean> {
-        const item = await interruptionItemHttpService.getInterruptionItem(id);
+    [ActionKey.StartItemCreate](context: ActionAugments): void {
+        context.dispatch(ActionKey.StopItemEdit);
+        setTimeout(() => context.commit(MutationKey.SetEditingItem, new InterruptionItem(-1)));
+    },
+    async [ActionKey.StartItemEdit](context: ActionAugments, id: number): Promise<boolean> {
+        const item = await interruptionItemHttpService.getItem(id);
 
         if (item) {
-            context.dispatch(ActionKey.EndInterruptionItemEdit);
+            context.dispatch(ActionKey.StopItemEdit);
             setTimeout(() => context.commit(MutationKey.SetEditingItem, item));
         }
 
         return Boolean(item);
     },
-    [ActionKey.EndInterruptionItemEdit](context: ActionAugments): void {
+    [ActionKey.StopItemEdit](context: ActionAugments): void {
         context.commit(MutationKey.SetEditingItem, null);
     }
 };
