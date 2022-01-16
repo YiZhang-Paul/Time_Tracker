@@ -98,7 +98,7 @@ describe('work items unit test', () => {
                 { id: 5 } as TaskItemSummaryDto
             ];
 
-            stub(eventStateStub, 'isWorking').get(() => true);
+            stub(eventStateStub, 'isWorking').get(() => false);
             interruptionStateStub.getSummaries.returns(interruptions);
             taskStateStub.getSummaries.returns(tasks);
             component = shallowMount(WorkItems);
@@ -160,6 +160,7 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(-1);
             interruptionStateStub.createInterruptionItem.resolves(false);
             component = shallowMount(WorkItems);
+            interruptionStateStub.loadInterruptionSummaries.resetHistory();
 
             await component.vm.onInterruptionCreate(item);
 
@@ -171,6 +172,7 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(-1);
             interruptionStateStub.createInterruptionItem.resolves(true);
             component = shallowMount(WorkItems);
+            interruptionStateStub.loadInterruptionSummaries.resetHistory();
 
             await component.vm.onInterruptionCreate(item);
 
@@ -184,6 +186,7 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(1);
             interruptionStateStub.updateInterruptionItem.resolves(false);
             component = shallowMount(WorkItems);
+            interruptionStateStub.loadInterruptionSummaries.resetHistory();
 
             await component.vm.onInterruptionUpdate(item);
 
@@ -195,6 +198,7 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(1);
             interruptionStateStub.updateInterruptionItem.resolves(true);
             component = shallowMount(WorkItems);
+            interruptionStateStub.loadInterruptionSummaries.resetHistory();
 
             await component.vm.onInterruptionUpdate(item);
 

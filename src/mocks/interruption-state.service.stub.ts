@@ -5,6 +5,8 @@ import { InterruptionStateService } from '../core/services/states/interruption-s
 export function stubInterruptionStateService(): SinonStubbedInstance<InterruptionStateService> {
     const stubbed = createStubInstance(InterruptionStateService);
     stub(stubbed, 'editingItem').get(() => null);
+    stub(stubbed, 'activeSummary').get(() => null);
+    stubbed.getSummaries.resolves([]);
 
     return stubbed;
 }
