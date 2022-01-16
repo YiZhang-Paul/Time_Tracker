@@ -38,7 +38,7 @@ describe('interruption state service unit test', () => {
             { id: 4, name: 'name_4', priority: Priority.Low }
         ];
 
-        interruptionItemHttpStub.getInterruptionSummaries.resolves(summaries);
+        interruptionItemHttpStub.getSummaries.resolves(summaries);
     });
 
     test('should create service instance', () => {
@@ -80,7 +80,7 @@ describe('interruption state service unit test', () => {
         test('should load interruption summaries', async() => {
             await service.loadSummaries();
 
-            sinonExpect.calledOnce(interruptionItemHttpStub.getInterruptionSummaries);
+            sinonExpect.calledOnce(interruptionItemHttpStub.getSummaries);
             expect(service.searchSummaries('').length).toEqual(summaries.length);
         });
     });
@@ -115,7 +115,7 @@ describe('interruption state service unit test', () => {
         test('should do nothing on failure', async() => {
             const previous: InterruptionItem = { ...new InterruptionItem(1), name: 'previous_name' };
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
-            interruptionItemHttpStub.getInterruptionItem.resolves(previous);
+            interruptionItemHttpStub.getItem.resolves(previous);
             interruptionItemHttpStub.updateItem.resolves(null);
             await service.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
@@ -142,7 +142,7 @@ describe('interruption state service unit test', () => {
         test('should not open updated item on success when another item is opened', async() => {
             const current = new InterruptionItem(1);
             const other = new InterruptionItem(2);
-            interruptionItemHttpStub.getInterruptionItem.resolves(other);
+            interruptionItemHttpStub.getItem.resolves(other);
             interruptionItemHttpStub.updateItem.resolves(current);
             await service.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
@@ -157,7 +157,7 @@ describe('interruption state service unit test', () => {
         test('should open updated item on success when already opened', async() => {
             const previous: InterruptionItem = { ...new InterruptionItem(1), name: 'previous_name' };
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
-            interruptionItemHttpStub.getInterruptionItem.resolves(previous);
+            interruptionItemHttpStub.getItem.resolves(previous);
             interruptionItemHttpStub.updateItem.resolves(current);
             await service.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
@@ -202,7 +202,7 @@ describe('interruption state service unit test', () => {
         test('should not close editing item when another item is opened', async() => {
             const { id } = summaries[1];
             const other = new InterruptionItem(summaries[2].id);
-            interruptionItemHttpStub.getInterruptionItem.resolves(other);
+            interruptionItemHttpStub.getItem.resolves(other);
             interruptionItemHttpStub.deleteItem.resolves(true);
             await service.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
@@ -217,7 +217,7 @@ describe('interruption state service unit test', () => {
 
         test('should close editing item when it is deleted', async() => {
             const { id } = summaries[1];
-            interruptionItemHttpStub.getInterruptionItem.resolves(new InterruptionItem(id));
+            interruptionItemHttpStub.getItem.resolves(new InterruptionItem(id));
             interruptionItemHttpStub.deleteItem.resolves(true);
             await service.startItemEdit(id);
             jest.advanceTimersToNextTimer();
@@ -244,24 +244,24 @@ describe('interruption state service unit test', () => {
 
     describe('startItemEdit', () => {
         test('should do nothing on failure', async() => {
-            interruptionItemHttpStub.getInterruptionItem.resolves(null);
+            interruptionItemHttpStub.getItem.resolves(null);
 
             const result = await service.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getInterruptionItem, 5);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getItem, 5);
             expect(result).toEqual(false);
         });
 
         test('should open item on success', async() => {
             const item = new InterruptionItem(5);
-            interruptionItemHttpStub.getInterruptionItem.resolves(item);
+            interruptionItemHttpStub.getItem.resolves(item);
             expect(service.editingItem).toBeFalsy();
 
             const result = await service.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
-            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getInterruptionItem, 5);
+            sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getItem, 5);
             expect(service.editingItem).toEqual(item);
             expect(result).toEqual(true);
         });
@@ -269,7 +269,7 @@ describe('interruption state service unit test', () => {
 
     describe('stopItemEdit', () => {
         test('should end interruption item edit', async() => {
-            interruptionItemHttpStub.getInterruptionItem.resolves(new InterruptionItem(1));
+            interruptionItemHttpStub.getItem.resolves(new InterruptionItem(1));
             await service.startItemEdit(1);
             jest.advanceTimersToNextTimer();
             expect(service.editingItem).not.toBeFalsy();

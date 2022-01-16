@@ -39,7 +39,7 @@ export type Actions = {
 
 export const actions: ActionTree<IState, IState> & Actions = {
     async [ActionKey.LoadSummaries](context: ActionAugments): Promise<void> {
-        context.commit(MutationKey.SetSummaries, await taskItemHttpService.getTaskSummaries());
+        context.commit(MutationKey.SetSummaries, await taskItemHttpService.getSummaries());
     },
     async [ActionKey.CreateItem](context: ActionAugments, item: TaskItem): Promise<boolean> {
         const created = await taskItemHttpService.createItem(item);
@@ -79,7 +79,7 @@ export const actions: ActionTree<IState, IState> & Actions = {
         setTimeout(() => context.commit(MutationKey.SetEditingItem, new TaskItem(-1)));
     },
     async [ActionKey.StartItemEdit](context: ActionAugments, id: number): Promise<boolean> {
-        const item = await taskItemHttpService.getTaskItem(id);
+        const item = await taskItemHttpService.getItem(id);
 
         if (item) {
             context.dispatch(ActionKey.StopItemEdit);

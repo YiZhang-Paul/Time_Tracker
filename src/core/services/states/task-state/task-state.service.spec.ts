@@ -37,7 +37,7 @@ describe('task state service unit test', () => {
             { id: 2, name: 'name_2', effort: 13 }
         ];
 
-        taskItemHttpStub.getTaskSummaries.resolves(summaries);
+        taskItemHttpStub.getSummaries.resolves(summaries);
     });
 
     test('should create service instance', () => {
@@ -79,7 +79,7 @@ describe('task state service unit test', () => {
         test('should load task summaries', async() => {
             await service.loadSummaries();
 
-            sinonExpect.calledOnce(taskItemHttpStub.getTaskSummaries);
+            sinonExpect.calledOnce(taskItemHttpStub.getSummaries);
             expect(service.searchSummaries('').length).toEqual(summaries.length);
         });
     });
@@ -114,7 +114,7 @@ describe('task state service unit test', () => {
         test('should do nothing on failure', async() => {
             const previous: TaskItem = { ...new TaskItem(1), name: 'previous_name' };
             const current: TaskItem = { ...new TaskItem(1), name: 'current_name' };
-            taskItemHttpStub.getTaskItem.resolves(previous);
+            taskItemHttpStub.getItem.resolves(previous);
             taskItemHttpStub.updateItem.resolves(null);
             await service.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
@@ -141,7 +141,7 @@ describe('task state service unit test', () => {
         test('should not open updated item on success when another item is opened', async() => {
             const current = new TaskItem(1);
             const other = new TaskItem(2);
-            taskItemHttpStub.getTaskItem.resolves(other);
+            taskItemHttpStub.getItem.resolves(other);
             taskItemHttpStub.updateItem.resolves(current);
             await service.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
@@ -156,7 +156,7 @@ describe('task state service unit test', () => {
         test('should open updated item on success when already opened', async() => {
             const previous: TaskItem = { ...new TaskItem(1), name: 'previous_name' };
             const current: TaskItem = { ...new TaskItem(1), name: 'current_name' };
-            taskItemHttpStub.getTaskItem.resolves(previous);
+            taskItemHttpStub.getItem.resolves(previous);
             taskItemHttpStub.updateItem.resolves(current);
             await service.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
@@ -201,7 +201,7 @@ describe('task state service unit test', () => {
         test('should not close editing item when another item is opened', async() => {
             const { id } = summaries[1];
             const other = new TaskItem(summaries[2].id);
-            taskItemHttpStub.getTaskItem.resolves(other);
+            taskItemHttpStub.getItem.resolves(other);
             taskItemHttpStub.deleteItem.resolves(true);
             await service.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
@@ -216,7 +216,7 @@ describe('task state service unit test', () => {
 
         test('should close editing item when it is deleted', async() => {
             const { id } = summaries[1];
-            taskItemHttpStub.getTaskItem.resolves(new TaskItem(id));
+            taskItemHttpStub.getItem.resolves(new TaskItem(id));
             taskItemHttpStub.deleteItem.resolves(true);
             await service.startItemEdit(id);
             jest.advanceTimersToNextTimer();
@@ -243,24 +243,24 @@ describe('task state service unit test', () => {
 
     describe('startItemEdit', () => {
         test('should do nothing on failure', async() => {
-            taskItemHttpStub.getTaskItem.resolves(null);
+            taskItemHttpStub.getItem.resolves(null);
 
             const result = await service.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
-            sinonExpect.calledOnceWithExactly(taskItemHttpStub.getTaskItem, 5);
+            sinonExpect.calledOnceWithExactly(taskItemHttpStub.getItem, 5);
             expect(result).toEqual(false);
         });
 
         test('should open item on success', async() => {
             const item = new TaskItem(5);
-            taskItemHttpStub.getTaskItem.resolves(item);
+            taskItemHttpStub.getItem.resolves(item);
             expect(service.editingItem).toBeFalsy();
 
             const result = await service.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
-            sinonExpect.calledOnceWithExactly(taskItemHttpStub.getTaskItem, 5);
+            sinonExpect.calledOnceWithExactly(taskItemHttpStub.getItem, 5);
             expect(service.editingItem).toEqual(item);
             expect(result).toEqual(true);
         });
@@ -268,7 +268,7 @@ describe('task state service unit test', () => {
 
     describe('stopItemEdit', () => {
         test('should end task item edit', async() => {
-            taskItemHttpStub.getTaskItem.resolves(new TaskItem(1));
+            taskItemHttpStub.getItem.resolves(new TaskItem(1));
             await service.startItemEdit(1);
             jest.advanceTimersToNextTimer();
             expect(service.editingItem).not.toBeFalsy();
