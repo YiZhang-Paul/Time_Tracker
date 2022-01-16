@@ -34,11 +34,11 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     }
 })
 export default class EventTracker extends Vue {
-    public dialogState = container.get<DialogStateService>(types.DialogStateService);
     public eventState = container.get<EventStateService>(types.EventStateService);
     public isBreakPromptActive = false;
     public workingDuration = '';
     public notWorkingDuration = '';
+    private dialogState = container.get<DialogStateService>(types.DialogStateService);
     private updateTimeout!: number;
 
     public created(): void {

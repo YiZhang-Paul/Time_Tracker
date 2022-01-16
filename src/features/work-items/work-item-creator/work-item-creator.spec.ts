@@ -1,95 +1,80 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
-import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStub } from 'sinon';
+import { assert as sinonExpect, createStubInstance, stub, SinonStubbedInstance } from 'sinon';
 
-import { createStore } from '../../../store';
 import { types } from '../../../core/ioc/types';
 import { container } from '../../../core/ioc/container';
 import { InterruptionItem } from '../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../core/models/task/task-item';
+import { DialogStateService } from '../../../core/services/states/dialog-state/dialog-state.service';
+import { InterruptionStateService } from '../../../core/services/states/interruption-state/interruption-state.service';
+import { TaskStateService } from '../../../core/services/states/task-state/task-state.service';
+import { stubInterruptionStateService } from '../../../mocks/interruption-state.service.stub';
+import { stubTaskStateService } from '../../../mocks/task-state.service.stub';
 
 import WorkItemCreator from './work-item-creator.vue';
-
-const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 describe('work item creator unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let sandbox: SinonSandbox;
-    let gettersStub: SinonStub;
-    let dispatchStub: SinonStub;
+    let dialogStateStub: SinonStubbedInstance<DialogStateService>;
+    let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
+    let taskStateStub: SinonStubbedInstance<TaskStateService>;
 
     beforeEach(() => {
-        sandbox = createSandbox();
-        gettersStub = sandbox.stub(store.base, 'getters');
-        dispatchStub = sandbox.stub(store.base, 'dispatch');
-        component = shallowMount(WorkItemCreator);
+        dialogStateStub = createStubInstance(DialogStateService);
+        interruptionStateStub = stubInterruptionStateService();
+        taskStateStub = stubTaskStateService();
+
+        container
+            .rebind<DialogStateService>(types.DialogStateService)
+            .toConstantValue(dialogStateStub);
+
+        container
+            .rebind<InterruptionStateService>(types.InterruptionStateService)
+            .toConstantValue(interruptionStateStub);
+
+        container
+            .rebind<TaskStateService>(types.TaskStateService)
+            .toConstantValue(taskStateStub);
     });
 
     afterEach(() => {
-        sandbox.restore();
         component.unmount();
     });
 
     test('should create component instance', () => {
+        component = shallowMount(WorkItemCreator);
         expect(component).toBeTruthy();
     });
 
     describe('canCreate', () => {
         test('should return false when new interruption is being added', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
-
-            gettersStub.value({
-                [`${interruptionKey}/${interruptionGetter.EditingItem}`]: new InterruptionItem(-1),
-                [`${taskKey}/${taskGetter.EditingItem}`]: null
-            });
-
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(-1));
+            stub(taskStateStub, 'editingItem').get(() => null);
             component = shallowMount(WorkItemCreator);
 
             expect(component.vm.canCreate).toEqual(false);
         });
 
         test('should return false when new task is being added', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
-
-            gettersStub.value({
-                [`${interruptionKey}/${interruptionGetter.EditingItem}`]: null,
-                [`${taskKey}/${taskGetter.EditingItem}`]: new TaskItem(-1)
-            });
-
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => null);
+            stub(taskStateStub, 'editingItem').get(() => new TaskItem(-1));
             component = shallowMount(WorkItemCreator);
 
             expect(component.vm.canCreate).toEqual(false);
         });
 
         test('should return true when nothing is being added', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
-
-            gettersStub.value({
-                [`${interruptionKey}/${interruptionGetter.EditingItem}`]: null,
-                [`${taskKey}/${taskGetter.EditingItem}`]: new TaskItem(1)
-            });
-
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => null);
+            stub(taskStateStub, 'editingItem').get(() => new TaskItem(1));
             component = shallowMount(WorkItemCreator);
 
             expect(component.vm.canCreate).toEqual(true);
         });
 
         test('should return true when nothing is being edited', () => {
-            const { namespace: interruptionKey, getter: interruptionGetter } = store.interruption;
-            const { namespace: taskKey, getter: taskGetter } = store.task;
-
-            gettersStub.value({
-                [`${interruptionKey}/${interruptionGetter.EditingItem}`]: null,
-                [`${taskKey}/${taskGetter.EditingItem}`]: null
-            });
-
-            component.unmount();
+            stub(interruptionStateStub, 'editingItem').get(() => null);
+            stub(taskStateStub, 'editingItem').get(() => null);
             component = shallowMount(WorkItemCreator);
 
             expect(component.vm.canCreate).toEqual(true);
@@ -98,39 +83,31 @@ describe('work item creator unit test', () => {
 
     describe('onTypeSelectStart', () => {
         test('should prompt for work item type selection', () => {
+            component = shallowMount(WorkItemCreator);
+
             component.vm.onTypeSelectStart();
 
-            sinonExpect.calledOnce(dispatchStub);
+            sinonExpect.calledOnce(dialogStateStub.openDialog);
         });
 
         test('should start new interruption when selected', () => {
-            const { namespace: interruptionKey, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
+            component = shallowMount(WorkItemCreator);
             component.vm.onTypeSelectStart();
 
-            const callback = dispatchStub.getCall(0).args[1].options.postConfirm;
-            dispatchStub.resetHistory();
-            // eslint-disable-next-line standard/no-callback-literal
-            callback(true);
+            dialogStateStub.openDialog.getCall(0).args[0].options.postConfirm!(true);
 
-            sinonExpect.calledTwice(dispatchStub);
-            expect(dispatchStub.getCall(0).args[0]).toEqual(`${taskKey}/${taskAction.EndTaskItemEdit}`);
-            expect(dispatchStub.getCall(1).args[0]).toEqual(`${interruptionKey}/${interruptionAction.StartInterruptionItemCreation}`);
+            sinonExpect.calledOnce(taskStateStub.endTaskItemEdit);
+            sinonExpect.calledOnce(interruptionStateStub.startInterruptionItemCreation);
         });
 
         test('should start new task when selected', () => {
-            const { namespace: interruptionKey, action: interruptionAction } = store.interruption;
-            const { namespace: taskKey, action: taskAction } = store.task;
+            component = shallowMount(WorkItemCreator);
             component.vm.onTypeSelectStart();
 
-            const callback = dispatchStub.getCall(0).args[1].options.postConfirm;
-            dispatchStub.resetHistory();
-            // eslint-disable-next-line standard/no-callback-literal
-            callback(false);
+            dialogStateStub.openDialog.getCall(0).args[0].options.postConfirm!(false);
 
-            sinonExpect.calledTwice(dispatchStub);
-            expect(dispatchStub.getCall(0).args[0]).toEqual(`${interruptionKey}/${interruptionAction.EndInterruptionItemEdit}`);
-            expect(dispatchStub.getCall(1).args[0]).toEqual(`${taskKey}/${taskAction.StartTaskItemCreation}`);
+            sinonExpect.calledOnce(interruptionStateStub.endInterruptionItemEdit);
+            sinonExpect.calledOnce(taskStateStub.startTaskItemCreation);
         });
     });
 });
