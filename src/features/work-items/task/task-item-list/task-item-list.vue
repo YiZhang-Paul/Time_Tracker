@@ -15,16 +15,15 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import { createStore } from '../../../../store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { TaskStateService } from '../../../../core/services/states/task-state/task-state.service';
+import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
-
-const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class TaskItemListProp {
     public searchText = prop<string>({ default: '' });
@@ -44,12 +43,14 @@ class TaskItemListProp {
     ]
 })
 export default class TaskItemList extends Vue.with(TaskItemListProp) {
+    private taskState = container.get<TaskStateService>(types.TaskStateService);
+    private eventState = container.get<EventStateService>(types.EventStateService);
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = store.task.getters(store.task.getter.Summaries)(text);
-        const active = store.task.getters(store.task.getter.ActiveSummary);
+        const items = this.taskState.getSummaries(text);
+        const active = this.taskState.activeSummary;
 
         if (!active) {
             return items;
@@ -59,7 +60,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     get selectedItemId(): number {
-        return store.task.getters(store.task.getter.EditingItem)?.id ?? -1;
+        return this.taskState.editingItem?.id ?? -1;;
     }
 
     public mounted(): void {
@@ -74,9 +75,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     public isActive(item: TaskItemSummaryDto): boolean {
-        const key = store.event.getter.IsActiveWorkItem;
-
-        return store.event.getters(key)(EventType.Task, item.id);
+        return this.eventState.isActiveWorkItem(EventType.Task, item.id);
     }
 
     private animateItemCards(): void {
