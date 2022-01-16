@@ -15,16 +15,15 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import { createStore } from '../../../../store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { InterruptionStateService } from '../../../../core/services/states/interruption-state/interruption-state.service';
+import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
-
-const store = container.get<ReturnType<typeof createStore>>(types.Store);
 
 class InterruptionItemListProp {
     public searchText = prop<string>({ default: '' });
@@ -44,12 +43,14 @@ class InterruptionItemListProp {
     ]
 })
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
+    private interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
+    private eventState = container.get<EventStateService>(types.EventStateService);
     private animated = new Set<number>();
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = store.interruption.getters(store.interruption.getter.Summaries)(text);
-        const active = store.interruption.getters(store.interruption.getter.ActiveSummary);
+        const items = this.interruptionState.getSummaries(text);
+        const active = this.interruptionState.activeSummary;
 
         if (!active) {
             return items;
@@ -59,7 +60,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     get selectedItemId(): number {
-        return store.interruption.getters(store.interruption.getter.EditingItem)?.id ?? -1;
+        return this.interruptionState.editingItem?.id ?? -1;
     }
 
     public mounted(): void {
@@ -74,9 +75,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     public isActive(item: InterruptionItemSummaryDto): boolean {
-        const key = store.event.getter.IsActiveWorkItem;
-
-        return store.event.getters(key)(EventType.Interruption, item.id);
+        return this.eventState.isActiveWorkItem(EventType.Interruption, item.id);
     }
 
     private animateItemCards(): void {

@@ -6,7 +6,7 @@ export function stubTaskStateService(): SinonStubbedInstance<TaskStateService> {
     const stubbed = createStubInstance(TaskStateService);
     stub(stubbed, 'editingItem').get(() => null);
     stub(stubbed, 'activeSummary').get(() => null);
-    stubbed.getSummaries.resolves([]);
+    stubbed.getSummaries.returns([]);
 
     return stubbed;
 }
