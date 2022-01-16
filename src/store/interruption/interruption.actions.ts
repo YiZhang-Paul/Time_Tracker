@@ -59,10 +59,6 @@ export const actions: ActionTree<IState, IState> & Actions = {
 
         return Boolean(updated);
     },
-    [ActionKey.StartItemCreate](context: ActionAugments): void {
-        context.dispatch(ActionKey.StopItemEdit);
-        setTimeout(() => context.commit(MutationKey.SetEditingItem, new InterruptionItem(-1)));
-    },
     async [ActionKey.DeleteItem](context: ActionAugments, id: number): Promise<boolean> {
         const isDeleted = await interruptionItemHttpService.deleteItem(id);
 
@@ -77,6 +73,10 @@ export const actions: ActionTree<IState, IState> & Actions = {
         context.commit(MutationKey.DeleteSummary, id);
 
         return true;
+    },
+    [ActionKey.StartItemCreate](context: ActionAugments): void {
+        context.dispatch(ActionKey.StopItemEdit);
+        setTimeout(() => context.commit(MutationKey.SetEditingItem, new InterruptionItem(-1)));
     },
     async [ActionKey.StartItemEdit](context: ActionAugments, id: number): Promise<boolean> {
         const item = await interruptionItemHttpService.getInterruptionItem(id);
