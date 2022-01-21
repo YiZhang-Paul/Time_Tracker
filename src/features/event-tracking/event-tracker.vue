@@ -1,11 +1,11 @@
 <template>
     <div class="event-tracker-container">
-        <div class="working-duration" :class="{ active: eventState.isWorking }">
+        <div class="working-duration" :class="{ active: eventStore.isWorking }">
             <briefcase class="icon" />
             <span>{{ workingDuration }}</span>
         </div>
 
-        <div class="not-working-duration" :class="{ active: eventState.isNotWorking }">
+        <div class="not-working-duration" :class="{ active: eventStore.isNotWorking }">
             <palm-tree class="icon" />
             <span>{{ nonWorkingDuration }}</span>
         </div>
@@ -15,15 +15,14 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { Briefcase, PalmTree } from 'mdue';
 
-import { types } from '../../core/ioc/types';
-import { container } from '../../core/ioc/container';
+import { useDialogStore } from '../../stores/dialog/dialog.store';
+import { useEventStore } from '../../stores/event/event.store';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
-import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
-import { EventStateService } from '../../core/services/states/event-state/event-state.service';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
@@ -31,14 +30,17 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     components: {
         Briefcase,
         PalmTree
+    },
+    computed: {
+        ...mapStores(useDialogStore, useEventStore)
     }
 })
 export default class EventTracker extends Vue {
-    public eventState = container.get<EventStateService>(types.EventStateService);
     public isBreakPromptActive = false;
     public workingDuration = '';
     public nonWorkingDuration = '';
-    private dialogState = container.get<DialogStateService>(types.DialogStateService);
+    public eventStore!: ReturnType<typeof useEventStore>;
+    private dialogStore!: ReturnType<typeof useDialogStore>;
     private updateTimeout!: number;
 
     public created(): void {
@@ -56,33 +58,32 @@ export default class EventTracker extends Vue {
     }
 
     private updateDurations(): void {
-        const { workingDuration, nonWorkingDuration } = this.eventState;
-        this.workingDuration = TimeUtility.getDurationString(workingDuration);
-        this.nonWorkingDuration = TimeUtility.getDurationString(nonWorkingDuration);
+        this.workingDuration = TimeUtility.getDurationString(this.eventStore.getWorkingDuration());
+        this.nonWorkingDuration = TimeUtility.getDurationString(this.eventStore.getNonWorkingDuration());
     }
 
     private updateBreakCheck(): void {
-        if (this.isBreakPromptActive || !this.eventState.hasScheduledBreak) {
+        if (this.isBreakPromptActive || !this.eventStore.hasScheduledBreak()) {
             return;
         }
 
-        const limit = this.eventState.workDurationLimit / 60 / 1000;
+        const limit = this.eventStore.workDurationLimit / 60 / 1000;
         const title = `You have worked more than ${limit} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
         const preCancel = this.skipBreak.bind(this);
         const preConfirm = this.startBreak.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
-        setTimeout(() => this.dialogState.open(config), 1500);
+        setTimeout(() => this.dialogStore.open(config), 1500);
         this.isBreakPromptActive = true;
     }
 
     private async startBreak(): Promise<void> {
-        await this.eventState.startBreak();
+        await this.eventStore.startBreak();
         this.isBreakPromptActive = false;
     }
 
     private async skipBreak(): Promise<void> {
-        await this.eventState.skipBreak();
+        await this.eventStore.skipBreak();
         this.isBreakPromptActive = false;
     }
 }

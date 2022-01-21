@@ -1,33 +1,23 @@
+import { setActivePinia, createPinia } from 'pinia';
 import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 'sinon';
 
-import { createStore } from '../../../../store';
-import { types } from '../../../ioc/types';
-import { container } from '../../../ioc/container';
-import { InterruptionItemSummaryDto } from '../../../dtos/interruption-item-summary-dto';
-import { InterruptionItem } from '../../../models/interruption/interruption-item';
-import { Priority } from '../../../enums/priority.enum';
-import { InterruptionItemHttpService } from '../../http/interruption-item-http/interruption-item-http.service';
+import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
+import { InterruptionItem } from '../../core/models/interruption/interruption-item';
+import { Priority } from '../../core/enums/priority.enum';
+import { InterruptionItemHttpService } from '../../core/services/http/interruption-item-http/interruption-item-http.service';
 
-import { InterruptionStateService } from './interruption-state.service';
+import { setServices, useInterruptionStore } from './interruption.store';
 
-describe('interruption state service unit test', () => {
-    let service: InterruptionStateService;
+describe('interruption store unit test', () => {
+    let store: ReturnType<typeof useInterruptionStore>;
     let interruptionItemHttpStub: SinonStubbedInstance<InterruptionItemHttpService>;
     let summaries: InterruptionItemSummaryDto[];
 
     beforeEach(() => {
         interruptionItemHttpStub = createStubInstance(InterruptionItemHttpService);
-
-        container
-            .rebind<InterruptionItemHttpService>(types.InterruptionItemHttpService)
-            .toConstantValue(interruptionItemHttpStub);
-
-        container
-            .rebind<ReturnType<typeof createStore>>(types.Store)
-            .toDynamicValue(() => createStore())
-            .inTransientScope();
-
-        service = container.get<InterruptionStateService>(types.InterruptionStateService);
+        setServices(interruptionItemHttpStub);
+        setActivePinia(createPinia());
+        store = useInterruptionStore();
     });
 
     beforeEach(() => {
@@ -41,28 +31,24 @@ describe('interruption state service unit test', () => {
         interruptionItemHttpStub.getSummaries.resolves(summaries);
     });
 
-    test('should create service instance', () => {
-        expect(service).toBeTruthy();
-    });
-
-    describe('searchSummaries', () => {
+    describe('filteredSummaries', () => {
         beforeEach(async() => {
-            await service.loadSummaries();
+            await store.loadSummaries();
         });
 
         test('should return filtered summaries', () => {
-            let result = service.searchSummaries('me_5');
+            let result = store.filteredSummaries('me_5');
             expect(result.map(_ => _.name)).toEqual([]);
 
-            result = service.searchSummaries('me_3');
+            result = store.filteredSummaries('me_3');
             expect(result.map(_ => _.name)).toEqual(['name_3']);
 
-            result = service.searchSummaries('ME_4');
+            result = store.filteredSummaries('ME_4');
             expect(result.map(_ => _.name)).toEqual(['name_4']);
         });
 
         test('should return sorted summaries', () => {
-            const result = service.searchSummaries('');
+            const result = store.filteredSummaries('');
 
             expect(result.map(_ => _.name)).toEqual(['name_2', 'name_3', 'name_1', 'name_4']);
         });
@@ -70,18 +56,18 @@ describe('interruption state service unit test', () => {
 
     describe('activeSummary', () => {
         test('should return null when not working', async() => {
-            await service.loadSummaries();
+            await store.loadSummaries();
 
-            expect(service.activeSummary).toBeNull();
+            expect(store.activeSummary).toBeNull();
         });
     });
 
     describe('loadSummaries', () => {
         test('should load interruption summaries', async() => {
-            await service.loadSummaries();
+            await store.loadSummaries();
 
             sinonExpect.calledOnce(interruptionItemHttpStub.getSummaries);
-            expect(service.searchSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').length).toEqual(summaries.length);
         });
     });
 
@@ -89,24 +75,24 @@ describe('interruption state service unit test', () => {
         test('should do nothing on failure', async() => {
             const item = new InterruptionItem(-1);
             interruptionItemHttpStub.createItem.resolves(null);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            const result = await service.createItem(item);
+            const result = await store.createItem(item);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createItem, item);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
             expect(result).toEqual(false);
         });
 
         test('should open created item on success', async() => {
             const item = new InterruptionItem(-1);
             interruptionItemHttpStub.createItem.resolves(item);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            const result = await service.createItem(item);
+            const result = await store.createItem(item);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.createItem, item);
-            expect(service.editingItem).toEqual(item);
+            expect(store.editingItem).toEqual(item);
             expect(result).toEqual(true);
         });
     });
@@ -117,25 +103,25 @@ describe('interruption state service unit test', () => {
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
             interruptionItemHttpStub.getItem.resolves(previous);
             interruptionItemHttpStub.updateItem.resolves(null);
-            await service.startItemEdit(previous.id);
+            await store.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
 
-            const result = await service.updateItem(current);
+            const result = await store.updateItem(current);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
-            expect(service.editingItem).toEqual(previous);
+            expect(store.editingItem).toEqual(previous);
             expect(result).toEqual(false);
         });
 
         test('should not open updated item on success when nothing is opened', async() => {
             const item = new InterruptionItem(1);
             interruptionItemHttpStub.updateItem.resolves(item);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            const result = await service.updateItem(item);
+            const result = await store.updateItem(item);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, item);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
             expect(result).toEqual(true);
         });
 
@@ -144,13 +130,13 @@ describe('interruption state service unit test', () => {
             const other = new InterruptionItem(2);
             interruptionItemHttpStub.getItem.resolves(other);
             interruptionItemHttpStub.updateItem.resolves(current);
-            await service.startItemEdit(other.id);
+            await store.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
 
-            const result = await service.updateItem(current);
+            const result = await store.updateItem(current);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
-            expect(service.editingItem).toEqual(other);
+            expect(store.editingItem).toEqual(other);
             expect(result).toEqual(true);
         });
 
@@ -159,43 +145,43 @@ describe('interruption state service unit test', () => {
             const current: InterruptionItem = { ...new InterruptionItem(1), name: 'current_name' };
             interruptionItemHttpStub.getItem.resolves(previous);
             interruptionItemHttpStub.updateItem.resolves(current);
-            await service.startItemEdit(previous.id);
+            await store.startItemEdit(previous.id);
             jest.advanceTimersToNextTimer();
 
-            const result = await service.updateItem(current);
+            const result = await store.updateItem(current);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.updateItem, current);
-            expect(service.editingItem).toEqual(current);
+            expect(store.editingItem).toEqual(current);
             expect(result).toEqual(true);
         });
     });
 
     describe('deleteItem', () => {
         beforeEach(async() => {
-            await service.loadSummaries();
+            await store.loadSummaries();
         });
 
         test('should do nothing on failure', async() => {
             const { id } = summaries[1];
             interruptionItemHttpStub.deleteItem.resolves(false);
 
-            const result = await service.deleteItem(id);
+            const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
-            expect(service.searchSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').length).toEqual(summaries.length);
             expect(result).toEqual(false);
         });
 
         test('should remove item on success', async() => {
             const { id } = summaries[1];
             interruptionItemHttpStub.deleteItem.resolves(true);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            const result = await service.deleteItem(id);
+            const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
-            expect(service.editingItem).toBeFalsy();
-            expect(service.searchSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.editingItem).toBeFalsy();
+            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
         });
 
@@ -204,14 +190,14 @@ describe('interruption state service unit test', () => {
             const other = new InterruptionItem(summaries[2].id);
             interruptionItemHttpStub.getItem.resolves(other);
             interruptionItemHttpStub.deleteItem.resolves(true);
-            await service.startItemEdit(other.id);
+            await store.startItemEdit(other.id);
             jest.advanceTimersToNextTimer();
 
-            const result = await service.deleteItem(id);
+            const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
-            expect(service.editingItem).toEqual(other);
-            expect(service.searchSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.editingItem).toEqual(other);
+            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
         });
 
@@ -219,26 +205,26 @@ describe('interruption state service unit test', () => {
             const { id } = summaries[1];
             interruptionItemHttpStub.getItem.resolves(new InterruptionItem(id));
             interruptionItemHttpStub.deleteItem.resolves(true);
-            await service.startItemEdit(id);
+            await store.startItemEdit(id);
             jest.advanceTimersToNextTimer();
 
-            const result = await service.deleteItem(id);
+            const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
-            expect(service.editingItem).toBeFalsy();
-            expect(service.searchSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.editingItem).toBeFalsy();
+            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
             expect(result).toEqual(true);
         });
     });
 
     describe('startItemCreate', () => {
         test('should open empty interruption item', () => {
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            service.startItemCreate();
+            store.startItemCreate();
             jest.advanceTimersToNextTimer();
 
-            expect(service.editingItem).toEqual(new InterruptionItem(-1));
+            expect(store.editingItem).toEqual(new InterruptionItem(-1));
         });
     });
 
@@ -246,7 +232,7 @@ describe('interruption state service unit test', () => {
         test('should do nothing on failure', async() => {
             interruptionItemHttpStub.getItem.resolves(null);
 
-            const result = await service.startItemEdit(5);
+            const result = await store.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getItem, 5);
@@ -256,13 +242,13 @@ describe('interruption state service unit test', () => {
         test('should open item on success', async() => {
             const item = new InterruptionItem(5);
             interruptionItemHttpStub.getItem.resolves(item);
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
 
-            const result = await service.startItemEdit(5);
+            const result = await store.startItemEdit(5);
             jest.advanceTimersToNextTimer();
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.getItem, 5);
-            expect(service.editingItem).toEqual(item);
+            expect(store.editingItem).toEqual(item);
             expect(result).toEqual(true);
         });
     });
@@ -270,13 +256,13 @@ describe('interruption state service unit test', () => {
     describe('stopItemEdit', () => {
         test('should end interruption item edit', async() => {
             interruptionItemHttpStub.getItem.resolves(new InterruptionItem(1));
-            await service.startItemEdit(1);
+            await store.startItemEdit(1);
             jest.advanceTimersToNextTimer();
-            expect(service.editingItem).not.toBeFalsy();
+            expect(store.editingItem).not.toBeFalsy();
 
-            service.stopItemEdit();
+            store.stopItemEdit();
 
-            expect(service.editingItem).toBeFalsy();
+            expect(store.editingItem).toBeFalsy();
         });
     });
 });

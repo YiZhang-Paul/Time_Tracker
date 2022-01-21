@@ -3,24 +3,24 @@
         <search-box class="search-box" @search="searchText = $event"></search-box>
         <work-item-creator class="work-item-creator"></work-item-creator>
 
-        <interruption-item-editor v-if="interruptionState.editingItem"
+        <interruption-item-editor v-if="interruptionStore.editingItem"
             class="interruption-item-editor"
-            :item="interruptionState.editingItem"
+            :item="interruptionStore.editingItem"
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
-            @start="eventState.startInterruption($event.id)"
-            @stop="eventState.startIdling()">
+            @start="eventStore.startInterruption($event.id)"
+            @stop="eventStore.startIdling()">
         </interruption-item-editor>
 
-        <task-item-editor v-if="taskState.editingItem"
+        <task-item-editor v-if="taskStore.editingItem"
             class="task-item-editor"
-            :item="taskState.editingItem"
+            :item="taskStore.editingItem"
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
-            @start="eventState.startTask($event.id)"
-            @stop="eventState.startIdling()">
+            @start="eventStore.startTask($event.id)"
+            @stop="eventStore.startIdling()">
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
@@ -38,9 +38,12 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
-import { types } from '../../core/ioc/types';
-import { container } from '../../core/ioc/container';
+import { useDialogStore } from '../../stores/dialog/dialog.store';
+import { useEventStore } from '../../stores/event/event.store';
+import { useInterruptionStore } from '../../stores/interruption/interruption.store';
+import { useTaskStore } from '../../stores/task/task.store';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
@@ -49,10 +52,6 @@ import { ConfirmationDialogOption } from '../../core/models/options/confirmation
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
-import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
-import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
-import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
-import { EventStateService } from '../../core/services/states/event-state/event-state.service';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
@@ -70,23 +69,30 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         TaskItemEditor,
         TaskItemList,
         WorkItemCreator
+    },
+    computed: {
+        ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItems extends Vue {
     public searchText = '';
-    public interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
-    public taskState = container.get<TaskStateService>(types.TaskStateService);
-    public eventState = container.get<EventStateService>(types.EventStateService);
-    private dialogState = container.get<DialogStateService>(types.DialogStateService);
+    public eventStore!: ReturnType<typeof useEventStore>;
+    public interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    public taskStore!: ReturnType<typeof useTaskStore>;
+    private dialogStore!: ReturnType<typeof useDialogStore>;
 
-    public async created(): Promise<void> {
+    public created(): void {
+        this.initialize();
+    }
+
+    public async initialize(): Promise<void> {
         await Promise.all([
-            this.eventState.loadOngoingEventSummary(),
-            this.interruptionState.loadSummaries(),
-            this.taskState.loadSummaries()
+            this.eventStore.loadOngoingEventSummary(),
+            this.interruptionStore.loadSummaries(),
+            this.taskStore.loadSummaries()
         ]);
 
-        if (this.eventState.isWorking) {
+        if (this.eventStore.isWorking) {
             this.openActiveWorkItem();
         }
         else {
@@ -95,81 +101,81 @@ export default class WorkItems extends Vue {
     }
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
-        if (this.interruptionState.editingItem?.id !== item.id) {
-            this.taskState.stopItemEdit();
-            this.interruptionState.startItemEdit(item.id);
+        if (this.interruptionStore.editingItem?.id !== item.id) {
+            this.taskStore.stopItemEdit();
+            this.interruptionStore.startItemEdit(item.id);
         }
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.createItem(item)) {
-            this.interruptionState.loadSummaries();
+        if (await this.interruptionStore.createItem(item)) {
+            this.interruptionStore.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.updateItem(item)) {
-            this.interruptionState.loadSummaries();
+        if (await this.interruptionStore.updateItem(item)) {
+            this.interruptionStore.loadSummaries();
         }
     }
 
     public onInterruptionDeleteStart(item: InterruptionItem): void {
         if (item.id === -1) {
-            this.interruptionState.stopItemEdit();
+            this.interruptionStore.stopItemEdit();
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onInterruptionDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.open(config);
+            this.dialogStore.open(config);
         }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
-        if (this.taskState.editingItem?.id !== item.id) {
-            this.interruptionState.stopItemEdit();
-            this.taskState.startItemEdit(item.id);
+        if (this.taskStore.editingItem?.id !== item.id) {
+            this.interruptionStore.stopItemEdit();
+            this.taskStore.startItemEdit(item.id);
         }
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
-        if (await this.taskState.createItem(item)) {
-            this.taskState.loadSummaries();
+        if (await this.taskStore.createItem(item)) {
+            this.taskStore.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
-        if (await this.taskState.updateItem(item)) {
-            this.taskState.loadSummaries();
+        if (await this.taskStore.updateItem(item)) {
+            this.taskStore.loadSummaries();
         }
     }
 
     public onTaskDeleteStart(item: TaskItem): void {
         if (item.id === -1) {
-            this.taskState.stopItemEdit();
+            this.taskStore.stopItemEdit();
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.open(config);
+            this.dialogStore.open(config);
         }
     }
 
     private openActiveWorkItem(): void {
-        if (this.interruptionState.activeSummary) {
-            this.onInterruptionSelect(this.interruptionState.activeSummary);
+        if (this.interruptionStore.activeSummary) {
+            this.onInterruptionSelect(this.interruptionStore.activeSummary);
         }
         else {
-            this.onTaskSelect(this.taskState.activeSummary!);
+            this.onTaskSelect(this.taskStore.activeSummary!);
         }
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = this.interruptionState.searchSummaries(this.searchText);
-        const tasks = this.taskState.searchSummaries(this.searchText);
+        const interruptions = this.interruptionStore.filteredSummaries(this.searchText);
+        const tasks = this.taskStore.filteredSummaries(this.searchText);
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);
@@ -180,22 +186,22 @@ export default class WorkItems extends Vue {
     }
 
     private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionState.deleteItem(item.id)) {
+        if (!await this.interruptionStore.deleteItem(item.id)) {
             return;
         }
 
-        if (this.eventState.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventState.startIdling();
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
         }
     }
 
     private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await this.taskState.deleteItem(item.id)) {
+        if (!await this.taskStore.deleteItem(item.id)) {
             return;
         }
 
-        if (this.eventState.isActiveWorkItem(EventType.Task, item.id)) {
-            await this.eventState.startIdling();
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
         }
     }
 }

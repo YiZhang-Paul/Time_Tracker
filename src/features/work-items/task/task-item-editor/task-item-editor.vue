@@ -39,13 +39,12 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
 
-import { types } from '../../../../core/ioc/types';
-import { container } from '../../../../core/ioc/container';
+import { useEventStore } from '../../../../stores/event/event.store';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
-import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class TaskItemEditorProp {
@@ -66,14 +65,17 @@ class TaskItemEditorProp {
         'delete',
         'start',
         'stop'
-    ]
+    ],
+    computed: {
+        ...mapStores(useEventStore)
+    }
 })
 /* istanbul ignore next */
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
-    private eventState = container.get<EventStateService>(types.EventStateService);
+    private eventStore!: ReturnType<typeof useEventStore>;
 
     get isActiveWorkItem(): boolean {
-        return this.eventState.isActiveWorkItem(EventType.Task, this.item.id);
+        return this.eventStore.isActiveWorkItem(EventType.Task, this.item.id);
     }
 
     get creationTime(): string {

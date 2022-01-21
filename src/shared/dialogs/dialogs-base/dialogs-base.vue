@@ -1,6 +1,6 @@
 <template>
     <div class="dialogs-base-container">
-        <dialog-panel v-for="(config, index) in dialogState.configs"
+        <dialog-panel v-for="(config, index) in dialogStore.configs"
             :key="index"
             :dialog="config.component"
             :data="config.data"
@@ -14,27 +14,29 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
-import { types } from '../../../core/ioc/types';
-import { container } from '../../../core/ioc/container';
+import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
-import { DialogStateService } from '../../../core/services/states/dialog-state/dialog-state.service';
 import DialogPanel from '../../panels/dialog-panel/dialog-panel.vue';
 
 @Options({
     components: {
         DialogPanel
+    },
+    computed: {
+        ...mapStores(useDialogStore)
     }
 })
 export default class DialogsBase extends Vue {
-    public dialogState = container.get<DialogStateService>(types.DialogStateService);
+    public dialogStore!: ReturnType<typeof useDialogStore>;
 
     public async onCancel<T>(payload: T, config: DialogConfig<unknown, unknown>): Promise<void> {
         if (config.options.preCancel) {
             await config.options.preCancel(payload);
         }
 
-        this.dialogState.close(config);
+        this.dialogStore.close(config);
 
         if (config.options.postCancel) {
             await config.options.postCancel(payload);
@@ -46,7 +48,7 @@ export default class DialogsBase extends Vue {
             await config.options.preConfirm(payload);
         }
 
-        this.dialogState.close(config);
+        this.dialogStore.close(config);
 
         if (config.options.postConfirm) {
             await config.options.postConfirm(payload);

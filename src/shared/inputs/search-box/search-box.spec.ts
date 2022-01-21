@@ -6,20 +6,20 @@ describe('search box unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
+    beforeEach(() => {
+        component = shallowMount(SearchBox);
+    });
+
     afterEach(() => {
         component.unmount();
     });
 
     test('should create component instance', () => {
-        component = shallowMount(SearchBox);
-
         expect(component).toBeTruthy();
     });
 
     describe('onSearch', () => {
         test('should default to empty string for invalid search text value', () => {
-            component = shallowMount(SearchBox);
-
             component.vm.onSearch(null);
             jest.advanceTimersByTime(200);
 
@@ -27,7 +27,6 @@ describe('search box unit test', () => {
         });
 
         test('should emit nothing when search text is not changed', () => {
-            component = shallowMount(SearchBox);
             component.vm.onSearch('search_text');
             jest.advanceTimersByTime(200);
             const emitCount = component.emitted().search.length;
@@ -42,8 +41,6 @@ describe('search box unit test', () => {
         });
 
         test('should debounce on search', () => {
-            component = shallowMount(SearchBox);
-
             component.vm.onSearch('search_text');
             jest.advanceTimersByTime(150);
             expect(component.emitted().search).toBeFalsy();

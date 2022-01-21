@@ -1,27 +1,21 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
-import { assert as sinonExpect, createSandbox, SinonSandbox, SinonStubbedInstance } from 'sinon';
+import { createTestingPinia } from '@pinia/testing';
+import { assert as sinonExpect, createSandbox, SinonSandbox, spy } from 'sinon';
 
-import { types } from '../../../core/ioc/types';
-import { container } from '../../../core/ioc/container';
+import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
-import { DialogStateService } from '../../../core/services/states/dialog-state/dialog-state.service';
-import { stubDialogStateService } from '../../../mocks/dialog-state.service.stub';
 
 import DialogsBase from './dialogs-base.vue';
 
 describe('dialogs base unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let dialogStateStub: SinonStubbedInstance<DialogStateService>;
+    let dialogStore: ReturnType<typeof useDialogStore>;
     let sandbox: SinonSandbox;
 
     beforeEach(() => {
-        dialogStateStub = stubDialogStateService();
-
-        container
-            .rebind<DialogStateService>(types.DialogStateService)
-            .toConstantValue(dialogStateStub);
-
+        component = shallowMount(DialogsBase, { global: { plugins: [createTestingPinia()] } });
+        dialogStore = useDialogStore();
         sandbox = createSandbox();
     });
 
@@ -31,18 +25,16 @@ describe('dialogs base unit test', () => {
     });
 
     test('should create component instance', () => {
-        component = shallowMount(DialogsBase);
-
         expect(component).toBeTruthy();
     });
 
     describe('onCancel', () => {
         test('should close dialog', async() => {
-            component = shallowMount(DialogsBase);
+            const closeSpy = spy(dialogStore, 'close');
 
             await component.vm.onCancel({ name: 'payload' }, new DialogConfig(null));
 
-            sinonExpect.calledOnce(dialogStateStub.close);
+            sinonExpect.calledOnce(closeSpy);
         });
 
         test('should invoke pre/post cancel hooks when available', async() => {
@@ -50,7 +42,6 @@ describe('dialogs base unit test', () => {
             const postCancelStub = sandbox.stub();
             const payload = { name: 'payload' };
             const config = new DialogConfig(null, null, { preCancel: preCancelStub, postCancel: postCancelStub });
-            component = shallowMount(DialogsBase);
 
             await component.vm.onCancel(payload, config);
 
@@ -61,11 +52,11 @@ describe('dialogs base unit test', () => {
 
     describe('onConfirm', () => {
         test('should close dialog', async() => {
-            component = shallowMount(DialogsBase);
+            const closeSpy = spy(dialogStore, 'close');
 
             await component.vm.onConfirm({ name: 'payload' }, new DialogConfig(null));
 
-            sinonExpect.calledOnce(dialogStateStub.close);
+            sinonExpect.calledOnce(closeSpy);
         });
 
         test('should invoke pre/post confirm hooks when available', async() => {
@@ -73,7 +64,6 @@ describe('dialogs base unit test', () => {
             const postConfirmStub = sandbox.stub();
             const payload = { name: 'payload' };
             const config = new DialogConfig(null, null, { preConfirm: preConfirmStub, postConfirm: postConfirmStub });
-            component = shallowMount(DialogsBase);
 
             await component.vm.onConfirm(payload, config);
 
