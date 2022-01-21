@@ -3,6 +3,5 @@ export const types = {
     InterruptionItemHttpService: Symbol.for('InterruptionItemHttpService'),
     TaskItemHttpService: Symbol.for('TaskItemHttpService'),
     EventHttpService: Symbol.for('EventHttpService'),
-    InterruptionStateService: Symbol.for('InterruptionStateService'),
-    TaskStateService: Symbol.for('TaskStateService')
+    InterruptionStateService: Symbol.for('InterruptionStateService')
 };

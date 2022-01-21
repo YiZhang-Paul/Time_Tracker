@@ -6,7 +6,6 @@ import { InterruptionItemHttpService } from '../services/http/interruption-item-
 import { TaskItemHttpService } from '../services/http/task-item-http/task-item-http.service';
 import { EventHttpService } from '../services/http/event-http/event-http.service';
 import { InterruptionStateService } from '../services/states/interruption-state/interruption-state.service';
-import { TaskStateService } from '../services/states/task-state/task-state.service';
 
 import { types } from './types';
 
@@ -34,9 +33,4 @@ container
 container
     .bind<InterruptionStateService>(types.InterruptionStateService)
     .to(InterruptionStateService)
-    .inTransientScope();
-
-container
-    .bind<TaskStateService>(types.TaskStateService)
-    .to(TaskStateService)
     .inTransientScope();

@@ -13,9 +13,9 @@
             @stop="eventStore.startIdling()">
         </interruption-item-editor>
 
-        <task-item-editor v-if="taskState.editingItem"
+        <task-item-editor v-if="taskStore.editingItem"
             class="task-item-editor"
-            :item="taskState.editingItem"
+            :item="taskStore.editingItem"
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
@@ -42,6 +42,7 @@ import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
+import { useTaskStore } from '../../stores/task/task.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
@@ -53,7 +54,6 @@ import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
 import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
-import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
@@ -73,21 +73,21 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         WorkItemCreator
     },
     computed: {
-        ...mapStores(useDialogStore, useEventStore)
+        ...mapStores(useDialogStore, useEventStore, useTaskStore)
     }
 })
 export default class WorkItems extends Vue {
     public searchText = '';
     public interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
-    public taskState = container.get<TaskStateService>(types.TaskStateService);
     public eventStore!: ReturnType<typeof useEventStore>;
+    public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
 
     public async created(): Promise<void> {
         await Promise.all([
             this.eventStore.loadOngoingEventSummary(),
             this.interruptionState.loadSummaries(),
-            this.taskState.loadSummaries()
+            this.taskStore.loadSummaries()
         ]);
 
         if (this.eventStore.isWorking) {
@@ -100,7 +100,7 @@ export default class WorkItems extends Vue {
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.interruptionState.editingItem?.id !== item.id) {
-            this.taskState.stopItemEdit();
+            this.taskStore.stopItemEdit();
             this.interruptionState.startItemEdit(item.id);
         }
     }
@@ -131,27 +131,27 @@ export default class WorkItems extends Vue {
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
-        if (this.taskState.editingItem?.id !== item.id) {
+        if (this.taskStore.editingItem?.id !== item.id) {
             this.interruptionState.stopItemEdit();
-            this.taskState.startItemEdit(item.id);
+            this.taskStore.startItemEdit(item.id);
         }
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
-        if (await this.taskState.createItem(item)) {
-            this.taskState.loadSummaries();
+        if (await this.taskStore.createItem(item)) {
+            this.taskStore.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
-        if (await this.taskState.updateItem(item)) {
-            this.taskState.loadSummaries();
+        if (await this.taskStore.updateItem(item)) {
+            this.taskStore.loadSummaries();
         }
     }
 
     public onTaskDeleteStart(item: TaskItem): void {
         if (item.id === -1) {
-            this.taskState.stopItemEdit();
+            this.taskStore.stopItemEdit();
         }
         else {
             const title = 'The task will be permanently deleted. Proceed?';
@@ -167,13 +167,13 @@ export default class WorkItems extends Vue {
             this.onInterruptionSelect(this.interruptionState.activeSummary);
         }
         else {
-            this.onTaskSelect(this.taskState.activeSummary!);
+            this.onTaskSelect(this.taskStore.activeSummary!);
         }
     }
 
     private openAvailableWorkItem(): void {
         const interruptions = this.interruptionState.searchSummaries(this.searchText);
-        const tasks = this.taskState.searchSummaries(this.searchText);
+        const tasks = this.taskStore.filteredSummaries(this.searchText);
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);
@@ -194,7 +194,7 @@ export default class WorkItems extends Vue {
     }
 
     private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await this.taskState.deleteItem(item.id)) {
+        if (!await this.taskStore.deleteItem(item.id)) {
             return;
         }
 

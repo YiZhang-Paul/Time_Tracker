@@ -17,12 +17,10 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
 import { useEventStore } from '../../../../stores/event/event.store';
-import { types } from '../../../../core/ioc/types';
-import { container } from '../../../../core/ioc/container';
+import { useTaskStore } from '../../../../stores/task/task.store';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
-import { TaskStateService } from '../../../../core/services/states/task-state/task-state.service';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -43,18 +41,18 @@ class TaskItemListProp {
         'select'
     ],
     computed: {
-        ...mapStores(useEventStore)
+        ...mapStores(useEventStore, useTaskStore)
     }
 })
 export default class TaskItemList extends Vue.with(TaskItemListProp) {
-    private taskState = container.get<TaskStateService>(types.TaskStateService);
     private eventStore!: ReturnType<typeof useEventStore>;
+    private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase()?.trim() ?? '';
-        const items = this.taskState.searchSummaries(text);
-        const active = this.taskState.activeSummary;
+        const items = this.taskStore.filteredSummaries(text);
+        const active = this.taskStore.activeSummary;
 
         if (!active) {
             return items;
@@ -64,7 +62,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     get selectedItemId(): number {
-        return this.taskState.editingItem?.id ?? -1;
+        return this.taskStore.editingItem?.id ?? -1;
     }
 
     public mounted(): void {
@@ -83,13 +81,11 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     private animateItemCards(): void {
-        const elements = document.querySelectorAll('.task-item-card');
+        let total = 0;
 
-        for (let i = 0, j = 0; i < elements.length; ++i) {
-            const { id } = this.items[i];
-
+        for (const { id } of this.items) {
             if (!this.animated.has(id)) {
-                setTimeout(() => this.animated.add(id), 200 + j++ * 25);
+                setTimeout(() => this.animated.add(id), 200 + total++ * 25);
             }
         }
     }
