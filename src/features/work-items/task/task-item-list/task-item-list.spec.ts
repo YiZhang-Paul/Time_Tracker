@@ -84,13 +84,13 @@ describe('task item list unit test', () => {
 
     describe('selectedItemId', () => {
         test('should return -1 when no item selected', () => {
-            stub(taskStore, 'editingItem').get(() => null);
+            taskStore.editingItem = null;
 
             expect(component.vm.selectedItemId).toEqual(-1);
         });
 
         test('should return id of selected item', () => {
-            stub(taskStore, 'editingItem').get(() => ({ id: 5 } as TaskItemSummaryDto));
+            taskStore.editingItem = new TaskItem(5);
 
             expect(component.vm.selectedItemId).toEqual(5);
         });

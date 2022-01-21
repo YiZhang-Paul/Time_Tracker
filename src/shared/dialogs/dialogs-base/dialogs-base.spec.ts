@@ -1,6 +1,6 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { assert as sinonExpect, createSandbox, SinonSandbox } from 'sinon';
+import { assert as sinonExpect, createSandbox, SinonSandbox, spy } from 'sinon';
 
 import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
@@ -30,9 +30,11 @@ describe('dialogs base unit test', () => {
 
     describe('onCancel', () => {
         test('should close dialog', async() => {
+            const closeSpy = spy(dialogStore, 'close');
+
             await component.vm.onCancel({ name: 'payload' }, new DialogConfig(null));
 
-            expect(dialogStore.close).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(closeSpy);
         });
 
         test('should invoke pre/post cancel hooks when available', async() => {
@@ -50,9 +52,11 @@ describe('dialogs base unit test', () => {
 
     describe('onConfirm', () => {
         test('should close dialog', async() => {
+            const closeSpy = spy(dialogStore, 'close');
+
             await component.vm.onConfirm({ name: 'payload' }, new DialogConfig(null));
 
-            expect(dialogStore.close).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(closeSpy);
         });
 
         test('should invoke pre/post confirm hooks when available', async() => {

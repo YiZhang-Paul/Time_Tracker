@@ -65,9 +65,11 @@ describe('work item creator unit test', () => {
 
     describe('onTypeSelectStart', () => {
         test('should prompt for work item type selection', () => {
+            const openSpy = spy(dialogStore, 'open');
+
             component.vm.onTypeSelectStart();
 
-            expect(dialogStore.open).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(openSpy);
         });
 
         test('should start new interruption when selected', () => {

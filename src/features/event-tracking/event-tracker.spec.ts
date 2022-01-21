@@ -1,6 +1,6 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { stub } from 'sinon';
+import { assert as sinonExpect, spy, stub } from 'sinon';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
@@ -45,50 +45,54 @@ describe('event tracker unit test', () => {
         });
 
         test('should prompt for break when applicable', () => {
+            const openSpy = spy(dialogStore, 'open');
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2000);
             // there will be 1.5 seconds delay before opening dialog
-            expect(dialogStore.open).not.toHaveBeenCalled();
+            sinonExpect.notCalled(openSpy);
             expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(500);
 
-            expect(dialogStore.open).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(openSpy);
             expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(60000);
             // only one dialog will be opened
-            expect(dialogStore.open).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(openSpy);
             expect(component.vm.isBreakPromptActive).toEqual(true);
         });
 
         test('should not prompt for break when not applicable', () => {
+            const openSpy = spy(dialogStore, 'open');
             stub(eventStore, 'hasScheduledBreak').returns(false);
             jest.advanceTimersByTime(60000);
 
-            expect(dialogStore.open).not.toHaveBeenCalled();
+            sinonExpect.notCalled(openSpy);
             expect(component.vm.isBreakPromptActive).toEqual(false);
         });
 
         test('should properly start break session on confirmation', async() => {
+            const openSpy = spy(dialogStore, 'open');
+            const startBreakSpy = spy(eventStore, 'startBreak');
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(null);
+            await openSpy.getCall(0).args[0].options.preConfirm!(null);
 
-            expect(eventStore.startBreak).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(startBreakSpy);
             expect(component.vm.isBreakPromptActive).toEqual(false);
         });
 
         test('should properly skip break session on cancellation', async() => {
+            const openSpy = spy(dialogStore, 'open');
+            const skipBreakSpy = spy(eventStore, 'skipBreak');
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preCancel(null);
+            await openSpy.getCall(0).args[0].options.preCancel!(null);
 
-            expect(eventStore.skipBreak).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(skipBreakSpy);
             expect(component.vm.isBreakPromptActive).toEqual(false);
         });
     });
