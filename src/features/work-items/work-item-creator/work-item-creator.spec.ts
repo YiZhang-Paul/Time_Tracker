@@ -1,11 +1,12 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
-import { assert as sinonExpect, createStubInstance, stub, SinonStubbedInstance } from 'sinon';
+import { createTestingPinia } from '@pinia/testing';
+import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
+import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { types } from '../../../core/ioc/types';
 import { container } from '../../../core/ioc/container';
 import { InterruptionItem } from '../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../core/models/task/task-item';
-import { DialogStateService } from '../../../core/services/states/dialog-state/dialog-state.service';
 import { InterruptionStateService } from '../../../core/services/states/interruption-state/interruption-state.service';
 import { TaskStateService } from '../../../core/services/states/task-state/task-state.service';
 import { stubInterruptionStateService } from '../../../mocks/interruption-state.service.stub';
@@ -16,18 +17,13 @@ import WorkItemCreator from './work-item-creator.vue';
 describe('work item creator unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let dialogStateStub: SinonStubbedInstance<DialogStateService>;
     let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
     let taskStateStub: SinonStubbedInstance<TaskStateService>;
+    let dialogStore: ReturnType<typeof useDialogStore>;
 
     beforeEach(() => {
-        dialogStateStub = createStubInstance(DialogStateService);
         interruptionStateStub = stubInterruptionStateService();
         taskStateStub = stubTaskStateService();
-
-        container
-            .rebind<DialogStateService>(types.DialogStateService)
-            .toConstantValue(dialogStateStub);
 
         container
             .rebind<InterruptionStateService>(types.InterruptionStateService)
@@ -84,28 +80,33 @@ describe('work item creator unit test', () => {
 
     describe('onTypeSelectStart', () => {
         test('should prompt for work item type selection', () => {
-            component = shallowMount(WorkItemCreator);
+            component = shallowMount(WorkItemCreator, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
 
             component.vm.onTypeSelectStart();
 
-            sinonExpect.calledOnce(dialogStateStub.open);
+            expect(dialogStore.open).toHaveBeenCalledTimes(1);
         });
 
         test('should start new interruption when selected', () => {
-            component = shallowMount(WorkItemCreator);
+            component = shallowMount(WorkItemCreator, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             component.vm.onTypeSelectStart();
 
-            dialogStateStub.open.getCall(0).args[0].options.postConfirm!(true);
+            const { mock } = dialogStore.open as jest.Mock;
+            mock.calls[0][0].options.postConfirm(true);
 
             sinonExpect.calledOnce(taskStateStub.stopItemEdit);
             sinonExpect.calledOnce(interruptionStateStub.startItemCreate);
         });
 
         test('should start new task when selected', () => {
-            component = shallowMount(WorkItemCreator);
+            component = shallowMount(WorkItemCreator, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             component.vm.onTypeSelectStart();
 
-            dialogStateStub.open.getCall(0).args[0].options.postConfirm!(false);
+            const { mock } = dialogStore.open as jest.Mock;
+            mock.calls[0][0].options.postConfirm(false);
 
             sinonExpect.calledOnce(interruptionStateStub.stopItemEdit);
             sinonExpect.calledOnce(taskStateStub.startItemCreate);

@@ -8,8 +8,7 @@ module.exports = {
         '**/src/**/*.{js,ts,vue}',
         '!**/{node_modules,mocks}/**',
         '!**/src/core/services/http/**',
-        '!**/src/main.ts',
-        '!**/src/store/index.ts'
+        '!**/src/main.ts'
     ],
     transform: {
         '^.+\\.vue$': 'vue-jest'

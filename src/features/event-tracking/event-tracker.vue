@@ -15,14 +15,15 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { Briefcase, PalmTree } from 'mdue';
 
+import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
-import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
 import { EventStateService } from '../../core/services/states/event-state/event-state.service';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
@@ -31,6 +32,9 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     components: {
         Briefcase,
         PalmTree
+    },
+    computed: {
+        ...mapStores(useDialogStore)
     }
 })
 export default class EventTracker extends Vue {
@@ -38,7 +42,7 @@ export default class EventTracker extends Vue {
     public isBreakPromptActive = false;
     public workingDuration = '';
     public nonWorkingDuration = '';
-    private dialogState = container.get<DialogStateService>(types.DialogStateService);
+    private dialogStore!: ReturnType<typeof useDialogStore>;
     private updateTimeout!: number;
 
     public created(): void {
@@ -72,7 +76,7 @@ export default class EventTracker extends Vue {
         const preCancel = this.skipBreak.bind(this);
         const preConfirm = this.startBreak.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
-        setTimeout(() => this.dialogState.open(config), 1500);
+        setTimeout(() => this.dialogStore.open(config), 1500);
         this.isBreakPromptActive = true;
     }
 

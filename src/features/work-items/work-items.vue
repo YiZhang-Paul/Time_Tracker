@@ -38,7 +38,9 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
+import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
@@ -49,7 +51,6 @@ import { ConfirmationDialogOption } from '../../core/models/options/confirmation
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
-import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
 import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
 import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
 import { EventStateService } from '../../core/services/states/event-state/event-state.service';
@@ -70,6 +71,9 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         TaskItemEditor,
         TaskItemList,
         WorkItemCreator
+    },
+    computed: {
+        ...mapStores(useDialogStore)
     }
 })
 export default class WorkItems extends Vue {
@@ -77,7 +81,7 @@ export default class WorkItems extends Vue {
     public interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
     public taskState = container.get<TaskStateService>(types.TaskStateService);
     public eventState = container.get<EventStateService>(types.EventStateService);
-    private dialogState = container.get<DialogStateService>(types.DialogStateService);
+    private dialogStore!: ReturnType<typeof useDialogStore>;
 
     public async created(): Promise<void> {
         await Promise.all([
@@ -122,7 +126,7 @@ export default class WorkItems extends Vue {
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onInterruptionDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.open(config);
+            this.dialogStore.open(config);
         }
     }
 
@@ -154,7 +158,7 @@ export default class WorkItems extends Vue {
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogState.open(config);
+            this.dialogStore.open(config);
         }
     }
 

@@ -1,11 +1,11 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
+import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
-import { DialogStateService } from '../../core/services/states/dialog-state/dialog-state.service';
 import { EventStateService } from '../../core/services/states/event-state/event-state.service';
-import { stubDialogStateService } from '../../mocks/dialog-state.service.stub';
 import { stubEventStateService } from '../../mocks/event-state.service.stub';
 
 import EventTracker from './event-tracker.vue';
@@ -13,16 +13,11 @@ import EventTracker from './event-tracker.vue';
 describe('event tracker unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let dialogStateStub: SinonStubbedInstance<DialogStateService>;
     let eventStateStub: SinonStubbedInstance<EventStateService>;
+    let dialogStore: ReturnType<typeof useDialogStore>;
 
     beforeEach(() => {
-        dialogStateStub = stubDialogStateService();
         eventStateStub = stubEventStateService();
-
-        container
-            .rebind<DialogStateService>(types.DialogStateService)
-            .toConstantValue(dialogStateStub);
 
         container
             .rebind<EventStateService>(types.EventStateService)
@@ -59,38 +54,42 @@ describe('event tracker unit test', () => {
 
         test('should prompt for break when applicable', () => {
             stub(eventStateStub, 'hasScheduledBreak').get(() => true);
-            component = shallowMount(EventTracker);
+            component = shallowMount(EventTracker, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             jest.advanceTimersByTime(1000);
             // there will be 1.5 seconds delay before opening dialog
-            sinonExpect.notCalled(dialogStateStub.open);
+            expect(dialogStore.open).not.toHaveBeenCalled();
             expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(500);
 
-            sinonExpect.calledOnce(dialogStateStub.open);
+            expect(dialogStore.open).toHaveBeenCalledTimes(1);
             expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(60000);
             // only one dialog will be opened
-            sinonExpect.calledOnce(dialogStateStub.open);
+            expect(dialogStore.open).toHaveBeenCalledTimes(1);
             expect(component.vm.isBreakPromptActive).toEqual(true);
         });
 
         test('should not prompt for break when not applicable', () => {
             stub(eventStateStub, 'hasScheduledBreak').get(() => false);
-            component = shallowMount(EventTracker);
+            component = shallowMount(EventTracker, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             jest.advanceTimersByTime(60000);
 
-            sinonExpect.notCalled(dialogStateStub.open);
+            expect(dialogStore.open).not.toHaveBeenCalled();
             expect(component.vm.isBreakPromptActive).toEqual(false);
         });
 
         test('should properly start break session on confirmation', async() => {
             stub(eventStateStub, 'hasScheduledBreak').get(() => true);
-            component = shallowMount(EventTracker);
+            component = shallowMount(EventTracker, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             jest.advanceTimersByTime(1500);
 
-            await dialogStateStub.open.getCall(0).args[0].options.preConfirm!(null);
+            const { mock } = dialogStore.open as jest.Mock;
+            await mock.calls[0][0].options.preConfirm(null);
 
             sinonExpect.calledOnce(eventStateStub.startBreak);
             expect(component.vm.isBreakPromptActive).toEqual(false);
@@ -98,10 +97,12 @@ describe('event tracker unit test', () => {
 
         test('should properly skip break session on cancellation', async() => {
             stub(eventStateStub, 'hasScheduledBreak').get(() => true);
-            component = shallowMount(EventTracker);
+            component = shallowMount(EventTracker, { global: { plugins: [createTestingPinia()] } });
+            dialogStore = useDialogStore();
             jest.advanceTimersByTime(1500);
 
-            await dialogStateStub.open.getCall(0).args[0].options.preCancel!(null);
+            const { mock } = dialogStore.open as jest.Mock;
+            await mock.calls[0][0].options.preCancel(null);
 
             sinonExpect.calledOnce(eventStateStub.skipBreak);
             expect(component.vm.isBreakPromptActive).toEqual(false);
