@@ -105,7 +105,7 @@ export const useEventStore = defineStore('event', {
             return isStarted;
         },
         async startBreak(): Promise<boolean> {
-            const isStarted = await eventHttpService.startBreak();
+            const isStarted = await eventHttpService.startBreak(600000);
 
             if (isStarted) {
                 await this.loadOngoingEventSummary();
