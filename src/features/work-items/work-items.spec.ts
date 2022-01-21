@@ -53,30 +53,28 @@ describe('work items unit test', () => {
         test('should load active interruption item when available', async() => {
             const startItemEditSpy = spy(interruptionStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => true);
-            stub(interruptionStore, 'activeSummary').get(() => ({ id: 1 } as InterruptionItemSummaryDto));
+            stub(interruptionStore, 'activeSummary').get(() => ({ id: 5 } as InterruptionItemSummaryDto));
             stub(taskStore, 'activeSummary').get(() => null);
-            taskStore.$reset();
 
             await component.vm.initialize();
 
-            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 5);
         });
 
         test('should load active task item when available', async() => {
             const startItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => true);
             stub(interruptionStore, 'activeSummary').get(() => null);
-            stub(taskStore, 'activeSummary').get(() => ({ id: 1 } as TaskItemSummaryDto));
-            taskStore.$reset();
+            stub(taskStore, 'activeSummary').get(() => ({ id: 5 } as TaskItemSummaryDto));
 
             await component.vm.initialize();
 
-            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 5);
         });
 
         test('should load first interruption item when available', async() => {
             const interruptions = [
-                { id: 2 } as InterruptionItemSummaryDto,
+                { id: 9 } as InterruptionItemSummaryDto,
                 { id: 3 } as InterruptionItemSummaryDto
             ];
 
@@ -89,16 +87,15 @@ describe('work items unit test', () => {
             stub(eventStore, 'isWorking').get(() => false);
             stub(interruptionStore, 'filteredSummaries').get(() => () => interruptions);
             stub(taskStore, 'filteredSummaries').get(() => () => tasks);
-            taskStore.$reset();
 
             await component.vm.initialize();
 
-            sinonExpect.calledOnceWithExactly(startItemEditSpy, 2);
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 9);
         });
 
         test('should load first task item when available', async() => {
             const tasks = [
-                { id: 1 } as TaskItemSummaryDto,
+                { id: 3 } as TaskItemSummaryDto,
                 { id: 5 } as TaskItemSummaryDto
             ];
 
@@ -106,11 +103,10 @@ describe('work items unit test', () => {
             stub(eventStore, 'isWorking').get(() => false);
             stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(taskStore, 'filteredSummaries').get(() => () => tasks);
-            taskStore.$reset();
 
             await component.vm.initialize();
 
-            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 3);
         });
 
         test('should do nothing when no item is available', async() => {
@@ -119,7 +115,6 @@ describe('work items unit test', () => {
             stub(eventStore, 'isWorking').get(() => false);
             stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(taskStore, 'filteredSummaries').get(() => () => []);
-            taskStore.$reset();
 
             await component.vm.initialize();
 
@@ -168,7 +163,6 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(-1);
             const createItemStub = stub(interruptionStore, 'createItem').resolves(false);
             const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
-            interruptionStore.$reset();
 
             await component.vm.onInterruptionCreate(item);
 
@@ -180,7 +174,6 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(-1);
             const createItemStub = stub(interruptionStore, 'createItem').resolves(true);
             const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
-            interruptionStore.$reset();
 
             await component.vm.onInterruptionCreate(item);
 
@@ -194,7 +187,6 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(1);
             const updateItemStub = stub(interruptionStore, 'updateItem').resolves(false);
             const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
-            interruptionStore.$reset();
 
             await component.vm.onInterruptionUpdate(item);
 
@@ -206,7 +198,6 @@ describe('work items unit test', () => {
             const item = new InterruptionItem(1);
             const updateItemStub = stub(interruptionStore, 'updateItem').resolves(true);
             const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
-            interruptionStore.$reset();
 
             await component.vm.onInterruptionUpdate(item);
 
@@ -253,7 +244,6 @@ describe('work items unit test', () => {
             const startIdlingSpy = spy(eventStore, 'startIdling');
             stub(eventStore, 'isActiveWorkItem').get(() => () => true);
             stub(interruptionStore, 'deleteItem').resolves(false);
-            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);
@@ -268,7 +258,6 @@ describe('work items unit test', () => {
             const isActiveWorkItemStub = stub().returns(false);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(interruptionStore, 'deleteItem').resolves(true);
-            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);
@@ -284,7 +273,6 @@ describe('work items unit test', () => {
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(interruptionStore, 'deleteItem').resolves(true);
-            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);
@@ -334,7 +322,6 @@ describe('work items unit test', () => {
             const item = new TaskItem(-1);
             const createItemStub = stub(taskStore, 'createItem').resolves(false);
             const loadSummariesSpy = spy(taskStore, 'loadSummaries');
-            taskStore.$reset();
 
             await component.vm.onTaskCreate(item);
 
@@ -346,7 +333,6 @@ describe('work items unit test', () => {
             const item = new TaskItem(-1);
             const createItemStub = stub(taskStore, 'createItem').resolves(true);
             const loadSummariesSpy = spy(taskStore, 'loadSummaries');
-            taskStore.$reset();
 
             await component.vm.onTaskCreate(item);
 
@@ -360,7 +346,6 @@ describe('work items unit test', () => {
             const item = new TaskItem(1);
             const updateItemStub = stub(taskStore, 'updateItem').resolves(false);
             const loadSummariesSpy = spy(taskStore, 'loadSummaries');
-            taskStore.$reset();
 
             await component.vm.onTaskUpdate(item);
 
@@ -372,7 +357,6 @@ describe('work items unit test', () => {
             const item = new TaskItem(1);
             const updateItemStub = stub(taskStore, 'updateItem').resolves(true);
             const loadSummariesSpy = spy(taskStore, 'loadSummaries');
-            taskStore.$reset();
 
             await component.vm.onTaskUpdate(item);
 
@@ -419,7 +403,6 @@ describe('work items unit test', () => {
             const startIdlingSpy = spy(eventStore, 'startIdling');
             stub(eventStore, 'isActiveWorkItem').get(() => () => true);
             stub(taskStore, 'deleteItem').resolves(false);
-            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);
@@ -434,7 +417,6 @@ describe('work items unit test', () => {
             const isActiveWorkItemStub = stub().returns(false);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(taskStore, 'deleteItem').resolves(true);
-            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);
@@ -450,7 +432,6 @@ describe('work items unit test', () => {
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(taskStore, 'deleteItem').resolves(true);
-            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
             await openSpy.getCall(0).args[0].options.preConfirm!(item);

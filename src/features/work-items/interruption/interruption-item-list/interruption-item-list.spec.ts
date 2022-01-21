@@ -41,44 +41,44 @@ describe('interruption item list unit test', () => {
 
         test('should return items matching filter criteria', () => {
             const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
-                { id: 2 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
+                { id: 3 } as InterruptionItemSummaryDto,
+                { id: 6 } as InterruptionItemSummaryDto,
+                { id: 7 } as InterruptionItemSummaryDto
             ];
 
             stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             stub(interruptionStore, 'activeSummary').get(() => null);
             interruptionStore.$reset();
 
-            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
+            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([3, 6, 7]);
         });
 
         test('should include active summary item when available', () => {
             const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
-                { id: 2 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
+                { id: 3 } as InterruptionItemSummaryDto,
+                { id: 6 } as InterruptionItemSummaryDto,
+                { id: 7 } as InterruptionItemSummaryDto
             ];
 
             stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             stub(interruptionStore, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
             interruptionStore.$reset();
 
-            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
+            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 3, 6, 7]);
         });
 
         test('should avoid including duplicate active summary item and ensure it is always on top', () => {
             const summaries = [
-                { id: 1 } as InterruptionItemSummaryDto,
+                { id: 2 } as InterruptionItemSummaryDto,
                 { id: 9 } as InterruptionItemSummaryDto,
-                { id: 3 } as InterruptionItemSummaryDto
+                { id: 5 } as InterruptionItemSummaryDto
             ];
 
             stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             stub(interruptionStore, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
             interruptionStore.$reset();
 
-            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
+            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 2, 5]);
         });
     });
 
