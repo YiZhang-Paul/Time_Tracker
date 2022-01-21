@@ -1,15 +1,15 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TaskStateService } from '../../../../core/services/states/task-state/task-state.service';
-import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 import { stubTaskStateService } from '../../../../mocks/task-state.service.stub';
-import { stubEventStateService } from '../../../../mocks/event-state.service.stub';
 
 import TaskItemList from './task-item-list.vue';
 
@@ -17,19 +17,14 @@ describe('task item list unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
     let taskStateStub: SinonStubbedInstance<TaskStateService>;
-    let eventStateStub: SinonStubbedInstance<EventStateService>;
+    let eventStore: ReturnType<typeof useEventStore>;
 
     beforeEach(() => {
         taskStateStub = stubTaskStateService();
-        eventStateStub = stubEventStateService();
 
         container
             .rebind<TaskStateService>(types.TaskStateService)
             .toConstantValue(taskStateStub);
-
-        container
-            .rebind<EventStateService>(types.EventStateService)
-            .toConstantValue(eventStateStub);
     });
 
     afterEach(() => {
@@ -60,7 +55,7 @@ describe('task item list unit test', () => {
 
             stub(taskStateStub, 'activeSummary').get(() => null);
             taskStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(TaskItemList);
+            component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
         });
@@ -74,7 +69,7 @@ describe('task item list unit test', () => {
 
             stub(taskStateStub, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
             taskStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(TaskItemList);
+            component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
         });
@@ -88,7 +83,7 @@ describe('task item list unit test', () => {
 
             stub(taskStateStub, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
             taskStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(TaskItemList);
+            component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
         });
@@ -120,7 +115,7 @@ describe('task item list unit test', () => {
 
             stub(taskStateStub, 'editingItem').get(() => new TaskItem(summaries[1].id));
             taskStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(TaskItemList, { attachTo: document.body });
+            component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] }, attachTo: document.body });
             jest.advanceTimersByTime(300);
 
             expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
@@ -135,14 +130,15 @@ describe('task item list unit test', () => {
     describe('isActive', () => {
         test('should check correct item type', () => {
             const item = { id: 1 } as TaskItemSummaryDto;
+            component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             stub(taskStateStub, 'activeSummary').get(() => item);
-            eventStateStub.isActiveWorkItem.returns(true);
-            component = shallowMount(TaskItemList);
-            eventStateStub.isActiveWorkItem.resetHistory();
+            const isActiveWorkItemStub = stub().returns(true);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
 
             const result = component.vm.isActive(item);
 
-            sinonExpect.calledOnceWithExactly(eventStateStub.isActiveWorkItem, EventType.Task, 1);
+            sinonExpect.calledOnceWithExactly(isActiveWorkItemStub, EventType.Task, 1);
             expect(result).toEqual(true);
         });
     });

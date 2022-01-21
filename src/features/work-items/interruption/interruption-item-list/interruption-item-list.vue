@@ -14,14 +14,15 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { InterruptionStateService } from '../../../../core/services/states/interruption-state/interruption-state.service';
-import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
 
@@ -40,11 +41,14 @@ class InterruptionItemListProp {
     },
     emits: [
         'select'
-    ]
+    ],
+    computed: {
+        ...mapStores(useEventStore)
+    }
 })
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
     private interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
-    private eventState = container.get<EventStateService>(types.EventStateService);
+    private eventStore!: ReturnType<typeof useEventStore>;
     private animated = new Set<number>();
 
     get items(): InterruptionItemSummaryDto[] {
@@ -75,7 +79,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     }
 
     public isActive(item: InterruptionItemSummaryDto): boolean {
-        return this.eventState.isActiveWorkItem(EventType.Interruption, item.id);
+        return this.eventStore.isActiveWorkItem(EventType.Interruption, item.id);
     }
 
     private animateItemCards(): void {

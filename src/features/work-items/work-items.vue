@@ -9,8 +9,8 @@
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
-            @start="eventState.startInterruption($event.id)"
-            @stop="eventState.startIdling()">
+            @start="eventStore.startInterruption($event.id)"
+            @stop="eventStore.startIdling()">
         </interruption-item-editor>
 
         <task-item-editor v-if="taskState.editingItem"
@@ -19,8 +19,8 @@
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
-            @start="eventState.startTask($event.id)"
-            @stop="eventState.startIdling()">
+            @start="eventStore.startTask($event.id)"
+            @stop="eventStore.startIdling()">
         </task-item-editor>
 
         <interruption-item-list class="interruption-item-list"
@@ -41,6 +41,7 @@ import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
+import { useEventStore } from '../../stores/event/event.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
@@ -53,7 +54,6 @@ import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
 import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
 import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
-import { EventStateService } from '../../core/services/states/event-state/event-state.service';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
@@ -73,24 +73,24 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         WorkItemCreator
     },
     computed: {
-        ...mapStores(useDialogStore)
+        ...mapStores(useDialogStore, useEventStore)
     }
 })
 export default class WorkItems extends Vue {
     public searchText = '';
     public interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
     public taskState = container.get<TaskStateService>(types.TaskStateService);
-    public eventState = container.get<EventStateService>(types.EventStateService);
+    public eventStore!: ReturnType<typeof useEventStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
 
     public async created(): Promise<void> {
         await Promise.all([
-            this.eventState.loadOngoingEventSummary(),
+            this.eventStore.loadOngoingEventSummary(),
             this.interruptionState.loadSummaries(),
             this.taskState.loadSummaries()
         ]);
 
-        if (this.eventState.isWorking) {
+        if (this.eventStore.isWorking) {
             this.openActiveWorkItem();
         }
         else {
@@ -188,8 +188,8 @@ export default class WorkItems extends Vue {
             return;
         }
 
-        if (this.eventState.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventState.startIdling();
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
         }
     }
 
@@ -198,8 +198,8 @@ export default class WorkItems extends Vue {
             return;
         }
 
-        if (this.eventState.isActiveWorkItem(EventType.Task, item.id)) {
-            await this.eventState.startIdling();
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
         }
     }
 }

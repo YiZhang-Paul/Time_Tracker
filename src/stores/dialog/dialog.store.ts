@@ -7,10 +7,10 @@ export const useDialogStore = defineStore('dialog', {
         configs: [] as DialogConfig<unknown, unknown>[]
     }),
     actions: {
-        open(config: DialogConfig<unknown, unknown>) {
+        open(config: DialogConfig<unknown, unknown>): void {
             this.configs = [...this.configs, config];
         },
-        close(config: DialogConfig<unknown, unknown>) {
+        close(config: DialogConfig<unknown, unknown>): void {
             this.configs = this.configs.filter(_ => _ !== config);
         }
     }

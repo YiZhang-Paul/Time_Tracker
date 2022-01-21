@@ -1,15 +1,15 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { InterruptionStateService } from '../../../../core/services/states/interruption-state/interruption-state.service';
-import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 import { stubInterruptionStateService } from '../../../../mocks/interruption-state.service.stub';
-import { stubEventStateService } from '../../../../mocks/event-state.service.stub';
 
 import InterruptionItemList from './interruption-item-list.vue';
 
@@ -17,19 +17,14 @@ describe('interruption item list unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
     let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
-    let eventStateStub: SinonStubbedInstance<EventStateService>;
+    let eventStore: ReturnType<typeof useEventStore>;
 
     beforeEach(() => {
         interruptionStateStub = stubInterruptionStateService();
-        eventStateStub = stubEventStateService();
 
         container
             .rebind<InterruptionStateService>(types.InterruptionStateService)
             .toConstantValue(interruptionStateStub);
-
-        container
-            .rebind<EventStateService>(types.EventStateService)
-            .toConstantValue(eventStateStub);
     });
 
     afterEach(() => {
@@ -60,7 +55,7 @@ describe('interruption item list unit test', () => {
 
             stub(interruptionStateStub, 'activeSummary').get(() => null);
             interruptionStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(InterruptionItemList);
+            component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
         });
@@ -74,7 +69,7 @@ describe('interruption item list unit test', () => {
 
             stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
             interruptionStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(InterruptionItemList);
+            component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
         });
@@ -88,7 +83,7 @@ describe('interruption item list unit test', () => {
 
             stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
             interruptionStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(InterruptionItemList);
+            component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] } });
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
         });
@@ -120,7 +115,7 @@ describe('interruption item list unit test', () => {
 
             stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(summaries[1].id));
             interruptionStateStub.searchSummaries.returns(summaries);
-            component = shallowMount(InterruptionItemList, { attachTo: document.body });
+            component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] }, attachTo: document.body });
             jest.advanceTimersByTime(300);
 
             expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
@@ -135,14 +130,15 @@ describe('interruption item list unit test', () => {
     describe('isActive', () => {
         test('should check correct item type', () => {
             const item = { id: 1 } as InterruptionItemSummaryDto;
+            component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             stub(interruptionStateStub, 'activeSummary').get(() => item);
-            eventStateStub.isActiveWorkItem.returns(true);
-            component = shallowMount(InterruptionItemList);
-            eventStateStub.isActiveWorkItem.resetHistory();
+            const isActiveWorkItemStub = stub().returns(true);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
 
             const result = component.vm.isActive(item);
 
-            sinonExpect.calledOnceWithExactly(eventStateStub.isActiveWorkItem, EventType.Interruption, 1);
+            sinonExpect.calledOnceWithExactly(isActiveWorkItemStub, EventType.Interruption, 1);
             expect(result).toEqual(true);
         });
     });

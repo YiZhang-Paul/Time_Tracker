@@ -14,14 +14,15 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TaskStateService } from '../../../../core/services/states/task-state/task-state.service';
-import { EventStateService } from '../../../../core/services/states/event-state/event-state.service';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -40,11 +41,14 @@ class TaskItemListProp {
     },
     emits: [
         'select'
-    ]
+    ],
+    computed: {
+        ...mapStores(useEventStore)
+    }
 })
 export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private taskState = container.get<TaskStateService>(types.TaskStateService);
-    private eventState = container.get<EventStateService>(types.EventStateService);
+    private eventStore!: ReturnType<typeof useEventStore>;
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
@@ -75,7 +79,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     }
 
     public isActive(item: TaskItemSummaryDto): boolean {
-        return this.eventState.isActiveWorkItem(EventType.Task, item.id);
+        return this.eventStore.isActiveWorkItem(EventType.Task, item.id);
     }
 
     private animateItemCards(): void {

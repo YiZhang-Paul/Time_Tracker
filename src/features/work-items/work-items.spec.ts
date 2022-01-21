@@ -3,6 +3,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
+import { useEventStore } from '../../stores/event/event.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
@@ -11,10 +12,8 @@ import { InterruptionItem } from '../../core/models/interruption/interruption-it
 import { TaskItem } from '../../core/models/task/task-item';
 import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
 import { TaskStateService } from '../../core/services/states/task-state/task-state.service';
-import { EventStateService } from '../../core/services/states/event-state/event-state.service';
 import { stubInterruptionStateService } from '../../mocks/interruption-state.service.stub';
 import { stubTaskStateService } from '../../mocks/task-state.service.stub';
-import { stubEventStateService } from '../../mocks/event-state.service.stub';
 
 import WorkItems from './work-items.vue';
 
@@ -23,13 +22,12 @@ describe('work items unit test', () => {
     let component: VueWrapper<any>;
     let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
     let taskStateStub: SinonStubbedInstance<TaskStateService>;
-    let eventStateStub: SinonStubbedInstance<EventStateService>;
     let dialogStore: ReturnType<typeof useDialogStore>;
+    let eventStore: ReturnType<typeof useEventStore>;
 
     beforeEach(() => {
         interruptionStateStub = stubInterruptionStateService();
         taskStateStub = stubTaskStateService();
-        eventStateStub = stubEventStateService();
 
         container
             .rebind<InterruptionStateService>(types.InterruptionStateService)
@@ -38,10 +36,6 @@ describe('work items unit test', () => {
         container
             .rebind<TaskStateService>(types.TaskStateService)
             .toConstantValue(taskStateStub);
-
-        container
-            .rebind<EventStateService>(types.EventStateService)
-            .toConstantValue(eventStateStub);
     });
 
     afterEach(() => {
@@ -49,36 +43,39 @@ describe('work items unit test', () => {
     });
 
     test('should create component instance', () => {
-        component = shallowMount(WorkItems);
+        component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
 
         expect(component).toBeTruthy();
     });
 
     describe('created', () => {
         test('should initialize data', async() => {
-            component = shallowMount(WorkItems);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             await flushPromises();
 
-            sinonExpect.calledOnce(eventStateStub.loadOngoingEventSummary);
             sinonExpect.calledOnce(interruptionStateStub.loadSummaries);
             sinonExpect.calledOnce(taskStateStub.loadSummaries);
+            expect(eventStore.loadOngoingEventSummary).toHaveBeenCalledTimes(1);
         });
 
         test('should load active interruption item when available', async() => {
-            stub(eventStateStub, 'isWorking').get(() => true);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 1 } as InterruptionItemSummaryDto));
             stub(taskStateStub, 'activeSummary').get(() => null);
-            component = shallowMount(WorkItems);
+            stub(eventStore, 'isWorking').get(() => true);
             await flushPromises();
 
             sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 1);
         });
 
         test('should load active task item when available', async() => {
-            stub(eventStateStub, 'isWorking').get(() => true);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             stub(interruptionStateStub, 'activeSummary').get(() => null);
             stub(taskStateStub, 'activeSummary').get(() => ({ id: 1 } as TaskItemSummaryDto));
-            component = shallowMount(WorkItems);
+            stub(eventStore, 'isWorking').get(() => true);
             await flushPromises();
 
             sinonExpect.calledOnceWithExactly(taskStateStub.startItemEdit, 1);
@@ -95,10 +92,11 @@ describe('work items unit test', () => {
                 { id: 5 } as TaskItemSummaryDto
             ];
 
-            stub(eventStateStub, 'isWorking').get(() => false);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
+            stub(eventStore, 'isWorking').get(() => false);
             interruptionStateStub.searchSummaries.returns(interruptions);
             taskStateStub.searchSummaries.returns(tasks);
-            component = shallowMount(WorkItems);
             await flushPromises();
 
             sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 2);
@@ -110,20 +108,22 @@ describe('work items unit test', () => {
                 { id: 5 } as TaskItemSummaryDto
             ];
 
-            stub(eventStateStub, 'isWorking').get(() => false);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
+            stub(eventStore, 'isWorking').get(() => false);
             interruptionStateStub.searchSummaries.returns([]);
             taskStateStub.searchSummaries.returns(tasks);
-            component = shallowMount(WorkItems);
             await flushPromises();
 
             sinonExpect.calledOnceWithExactly(taskStateStub.startItemEdit, 1);
         });
 
         test('should do nothing when no item is available', async() => {
-            stub(eventStateStub, 'isWorking').get(() => false);
+            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
+            stub(eventStore, 'isWorking').get(() => false);
             interruptionStateStub.searchSummaries.returns([]);
             taskStateStub.searchSummaries.returns([]);
-            component = shallowMount(WorkItems);
             await flushPromises();
 
             sinonExpect.notCalled(interruptionStateStub.startItemEdit);
@@ -250,46 +250,51 @@ describe('work items unit test', () => {
 
         test('should not start idling session when failed to delete interruption item', async() => {
             const item = new InterruptionItem(5);
-            interruptionStateStub.deleteItem.resolves(false);
-            eventStateStub.isActiveWorkItem.returns(true);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            stub(eventStore, 'isActiveWorkItem').get(() => () => true);
+            interruptionStateStub.deleteItem.resolves(false);
             component.vm.onInterruptionDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.notCalled(eventStateStub.startIdling);
+            expect(eventStore.startIdling).not.toHaveBeenCalled();
         });
 
         test('should not start idling session when deleted interruption item is not active', async() => {
             const item = new InterruptionItem(5);
-            interruptionStateStub.deleteItem.resolves(true);
-            eventStateStub.isActiveWorkItem.returns(false);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            const isActiveWorkItemStub = stub().returns(false);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            interruptionStateStub.deleteItem.resolves(true);
             component.vm.onInterruptionDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.calledOnce(eventStateStub.isActiveWorkItem);
-            sinonExpect.notCalled(eventStateStub.startIdling);
+            sinonExpect.calledOnce(isActiveWorkItemStub);
+            expect(eventStore.startIdling).not.toHaveBeenCalled();
         });
 
         test('should start idling session when deleted interruption item is active', async() => {
             const item = new InterruptionItem(5);
-            interruptionStateStub.deleteItem.resolves(true);
-            eventStateStub.isActiveWorkItem.returns(true);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            const isActiveWorkItemStub = stub().returns(true);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            interruptionStateStub.deleteItem.resolves(true);
             component.vm.onInterruptionDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.calledOnce(eventStateStub.isActiveWorkItem);
-            sinonExpect.calledOnce(eventStateStub.startIdling);
+            sinonExpect.calledOnce(isActiveWorkItemStub);
+            expect(eventStore.startIdling).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -412,46 +417,51 @@ describe('work items unit test', () => {
 
         test('should not start idling session when failed to delete task item', async() => {
             const item = new TaskItem(5);
-            taskStateStub.deleteItem.resolves(false);
-            eventStateStub.isActiveWorkItem.returns(true);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            stub(eventStore, 'isActiveWorkItem').get(() => () => true);
+            taskStateStub.deleteItem.resolves(false);
             component.vm.onTaskDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.notCalled(eventStateStub.startIdling);
+            expect(eventStore.startIdling).not.toHaveBeenCalled();
         });
 
         test('should not start idling session when deleted task item is not active', async() => {
             const item = new TaskItem(5);
-            taskStateStub.deleteItem.resolves(true);
-            eventStateStub.isActiveWorkItem.returns(false);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            const isActiveWorkItemStub = stub().returns(false);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            taskStateStub.deleteItem.resolves(true);
             component.vm.onTaskDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.calledOnce(eventStateStub.isActiveWorkItem);
-            sinonExpect.notCalled(eventStateStub.startIdling);
+            sinonExpect.calledOnce(isActiveWorkItemStub);
+            expect(eventStore.startIdling).not.toHaveBeenCalled();
         });
 
         test('should start idling session when deleted task item is active', async() => {
             const item = new TaskItem(5);
-            taskStateStub.deleteItem.resolves(true);
-            eventStateStub.isActiveWorkItem.returns(true);
             component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+            eventStore = useEventStore();
             dialogStore = useDialogStore();
+            const isActiveWorkItemStub = stub().returns(true);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            taskStateStub.deleteItem.resolves(true);
             component.vm.onTaskDeleteStart(item);
 
             const { mock } = dialogStore.open as jest.Mock;
             await mock.calls[0][0].options.preConfirm(item);
 
-            sinonExpect.calledOnce(eventStateStub.isActiveWorkItem);
-            sinonExpect.calledOnce(eventStateStub.startIdling);
+            sinonExpect.calledOnce(isActiveWorkItemStub);
+            expect(eventStore.startIdling).toHaveBeenCalledTimes(1);
         });
     });
 });
