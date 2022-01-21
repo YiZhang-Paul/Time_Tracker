@@ -8,14 +8,15 @@ describe('interruption item card unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
+    beforeEach(() => {
+        component = shallowMount(InterruptionItemCard, { props: { item: new InterruptionItemSummaryDto() } });
+    });
+
     afterEach(() => {
         component.unmount();
     });
 
     test('should create component instance', () => {
-        const item = new InterruptionItemSummaryDto();
-        component = shallowMount(InterruptionItemCard, { props: { item } });
-
         expect(component).toBeTruthy();
     });
 });

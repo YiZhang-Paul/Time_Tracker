@@ -14,6 +14,8 @@ describe('dialogs base unit test', () => {
     let sandbox: SinonSandbox;
 
     beforeEach(() => {
+        component = shallowMount(DialogsBase, { global: { plugins: [createTestingPinia()] } });
+        dialogStore = useDialogStore();
         sandbox = createSandbox();
     });
 
@@ -23,16 +25,11 @@ describe('dialogs base unit test', () => {
     });
 
     test('should create component instance', () => {
-        component = shallowMount(DialogsBase, { global: { plugins: [createTestingPinia()] } });
-
         expect(component).toBeTruthy();
     });
 
     describe('onCancel', () => {
         test('should close dialog', async() => {
-            component = shallowMount(DialogsBase, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-
             await component.vm.onCancel({ name: 'payload' }, new DialogConfig(null));
 
             expect(dialogStore.close).toHaveBeenCalledTimes(1);
@@ -43,7 +40,6 @@ describe('dialogs base unit test', () => {
             const postCancelStub = sandbox.stub();
             const payload = { name: 'payload' };
             const config = new DialogConfig(null, null, { preCancel: preCancelStub, postCancel: postCancelStub });
-            component = shallowMount(DialogsBase);
 
             await component.vm.onCancel(payload, config);
 
@@ -54,9 +50,6 @@ describe('dialogs base unit test', () => {
 
     describe('onConfirm', () => {
         test('should close dialog', async() => {
-            component = shallowMount(DialogsBase, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-
             await component.vm.onConfirm({ name: 'payload' }, new DialogConfig(null));
 
             expect(dialogStore.close).toHaveBeenCalledTimes(1);
@@ -67,7 +60,6 @@ describe('dialogs base unit test', () => {
             const postConfirmStub = sandbox.stub();
             const payload = { name: 'payload' };
             const config = new DialogConfig(null, null, { preConfirm: preConfirmStub, postConfirm: postConfirmStub });
-            component = shallowMount(DialogsBase);
 
             await component.vm.onConfirm(payload, config);
 
