@@ -58,13 +58,12 @@ export default class EventTracker extends Vue {
     }
 
     private updateDurations(): void {
-        const { workingDuration, nonWorkingDuration } = this.eventStore;
-        this.workingDuration = TimeUtility.getDurationString(workingDuration);
-        this.nonWorkingDuration = TimeUtility.getDurationString(nonWorkingDuration);
+        this.workingDuration = TimeUtility.getDurationString(this.eventStore.getWorkingDuration());
+        this.nonWorkingDuration = TimeUtility.getDurationString(this.eventStore.getNonWorkingDuration());
     }
 
     private updateBreakCheck(): void {
-        if (this.isBreakPromptActive || !this.eventStore.hasScheduledBreak) {
+        if (this.isBreakPromptActive || !this.eventStore.hasScheduledBreak()) {
             return;
         }
 

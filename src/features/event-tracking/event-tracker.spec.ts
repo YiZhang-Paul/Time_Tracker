@@ -29,15 +29,15 @@ describe('event tracker unit test', () => {
 
     describe('created', () => {
         test('should update progress every second', () => {
-            stub(eventStore, 'workingDuration').get(() => 3000000);
-            stub(eventStore, 'nonWorkingDuration').get(() => 601000);
+            const getWorkingDurationStub = stub(eventStore, 'getWorkingDuration').returns(3000000);
+            const getNonWorkingDurationStub = stub(eventStore, 'getNonWorkingDuration').returns(601000);
             jest.advanceTimersByTime(1000);
 
             expect(component.vm.workingDuration).toEqual('00:50:00');
             expect(component.vm.nonWorkingDuration).toEqual('00:10:01');
 
-            stub(eventStore, 'workingDuration').get(() => 3001000);
-            stub(eventStore, 'nonWorkingDuration').get(() => 601000);
+            getWorkingDurationStub.returns(3001000);
+            getNonWorkingDurationStub.returns(601000);
             jest.advanceTimersByTime(1000);
 
             expect(component.vm.workingDuration).toEqual('00:50:01');
@@ -45,7 +45,7 @@ describe('event tracker unit test', () => {
         });
 
         test('should prompt for break when applicable', () => {
-            stub(eventStore, 'hasScheduledBreak').get(() => true);
+            stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2000);
             // there will be 1.5 seconds delay before opening dialog
             expect(dialogStore.open).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe('event tracker unit test', () => {
         });
 
         test('should not prompt for break when not applicable', () => {
-            stub(eventStore, 'hasScheduledBreak').get(() => false);
+            stub(eventStore, 'hasScheduledBreak').returns(false);
             jest.advanceTimersByTime(60000);
 
             expect(dialogStore.open).not.toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe('event tracker unit test', () => {
         });
 
         test('should properly start break session on confirmation', async() => {
-            stub(eventStore, 'hasScheduledBreak').get(() => true);
+            stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
             const { mock } = dialogStore.open as jest.Mock;
@@ -82,7 +82,7 @@ describe('event tracker unit test', () => {
         });
 
         test('should properly skip break session on cancellation', async() => {
-            stub(eventStore, 'hasScheduledBreak').get(() => true);
+            stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
             const { mock } = dialogStore.open as jest.Mock;

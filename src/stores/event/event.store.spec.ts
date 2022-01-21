@@ -143,59 +143,65 @@ describe('event store unit test', () => {
 
     describe('hasScheduledBreak', () => {
         test('should return false when event summary is not available', () => {
+            const result = store.hasScheduledBreak();
+
             expect(store.ongoingEventSummary).toBeNull();
-            expect(store.hasScheduledBreak).toEqual(false);
+            expect(result).toEqual(false);
         });
 
         test('should return false when idling session is active', async() => {
             summary.unconcludedSinceStart.eventType = EventType.Idling;
             await store.loadOngoingEventSummary();
 
-            expect(store.hasScheduledBreak).toEqual(false);
+            expect(store.hasScheduledBreak()).toEqual(false);
         });
 
         test('should return false when break session is active', async() => {
             summary.unconcludedSinceStart.eventType = EventType.Break;
             await store.loadOngoingEventSummary();
 
-            expect(store.hasScheduledBreak).toEqual(false);
+            expect(store.hasScheduledBreak()).toEqual(false);
         });
 
         test('should return false when scheduled break is not needed', async() => {
             const limit = store.workDurationLimit;
             summary.unconcludedSinceStart.eventType = EventType.Interruption;
-
             summary.concludedSinceLastBreakPrompt.working = limit / 2;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
             await store.loadOngoingEventSummary();
-            expect(store.hasScheduledBreak).toEqual(false);
+
+            expect(store.hasScheduledBreak()).toEqual(false);
 
             summary.concludedSinceLastBreakPrompt.working = 0;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date(Date.now() - limit / 2).toISOString();
             await store.loadOngoingEventSummary();
-            expect(store.hasScheduledBreak).toEqual(false);
+
+            expect(store.hasScheduledBreak()).toEqual(false);
         });
 
         test('should return true when scheduled break is needed', async() => {
             const limit = store.workDurationLimit;
             summary.unconcludedSinceStart.eventType = EventType.Task;
-
             summary.concludedSinceLastBreakPrompt.working = limit;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
             await store.loadOngoingEventSummary();
-            expect(store.hasScheduledBreak).toEqual(true);
+
+            expect(store.hasScheduledBreak()).toEqual(true);
 
             summary.concludedSinceLastBreakPrompt.working = 0;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date(Date.now() - limit).toISOString();
             await store.loadOngoingEventSummary();
-            expect(store.hasScheduledBreak).toEqual(true);
+
+            expect(store.hasScheduledBreak()).toEqual(true);
         });
     });
 
-    describe('workingDuration', () => {
+    describe('getWorkingDuration', () => {
         test('should return zero when event summary is not available', () => {
+            const result = store.getWorkingDuration();
+
             expect(store.ongoingEventSummary).toBeNull();
-            expect(store.workingDuration).toEqual(0);
+            expect(result).toEqual(0);
         });
 
         test('should return correct duration when not working', async() => {
@@ -204,7 +210,7 @@ describe('event store unit test', () => {
             summary.concludedSinceStart.working = 2000;
             await store.loadOngoingEventSummary();
 
-            expect(Math.abs(store.workingDuration - 2000)).toBeLessThan(100);
+            expect(Math.abs(store.getWorkingDuration() - 2000)).toBeLessThan(100);
         });
 
         test('should return correct duration when working', async() => {
@@ -213,14 +219,16 @@ describe('event store unit test', () => {
             summary.concludedSinceStart.working = 2000;
             await store.loadOngoingEventSummary();
 
-            expect(Math.abs(store.workingDuration - 5000)).toBeLessThan(100);
+            expect(Math.abs(store.getWorkingDuration() - 5000)).toBeLessThan(100);
         });
     });
 
-    describe('nonWorkingDuration', () => {
+    describe('getNonWorkingDuration', () => {
         test('should return zero when event summary is not available', () => {
+            const result = store.getNonWorkingDuration();
+
             expect(store.ongoingEventSummary).toBeNull();
-            expect(store.nonWorkingDuration).toEqual(0);
+            expect(result).toEqual(0);
         });
 
         test('should return correct duration when working', async() => {
@@ -229,7 +237,7 @@ describe('event store unit test', () => {
             summary.concludedSinceStart.notWorking = 2000;
             await store.loadOngoingEventSummary();
 
-            expect(Math.abs(store.nonWorkingDuration - 2000)).toBeLessThan(100);
+            expect(Math.abs(store.getNonWorkingDuration() - 2000)).toBeLessThan(100);
         });
 
         test('should return correct duration when not working', async() => {
@@ -238,7 +246,7 @@ describe('event store unit test', () => {
             summary.concludedSinceStart.notWorking = 2000;
             await store.loadOngoingEventSummary();
 
-            expect(Math.abs(store.nonWorkingDuration - 5000)).toBeLessThan(100);
+            expect(Math.abs(store.getNonWorkingDuration() - 5000)).toBeLessThan(100);
         });
     });
 
