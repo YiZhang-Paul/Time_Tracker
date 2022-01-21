@@ -104,9 +104,8 @@ describe('task item list unit test', () => {
                 { id: 3 } as TaskItemSummaryDto
             ];
 
-            stub(taskStore, 'editingItem').get(() => new TaskItem(summaries[1].id));
             stub(taskStore, 'filteredSummaries').get(() => () => summaries);
-            taskStore.$reset();
+            taskStore.editingItem = new TaskItem(summaries[1].id);
             jest.useRealTimers();
             await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -122,9 +121,9 @@ describe('task item list unit test', () => {
     describe('isActive', () => {
         test('should check correct item type', () => {
             const item = { id: 1 } as TaskItemSummaryDto;
-            stub(taskStore, 'activeSummary').get(() => item);
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            stub(taskStore, 'activeSummary').get(() => item);
 
             const result = component.vm.isActive(item);
 

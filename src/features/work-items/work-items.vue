@@ -3,9 +3,9 @@
         <search-box class="search-box" @search="searchText = $event"></search-box>
         <work-item-creator class="work-item-creator"></work-item-creator>
 
-        <interruption-item-editor v-if="interruptionState.editingItem"
+        <interruption-item-editor v-if="interruptionStore.editingItem"
             class="interruption-item-editor"
-            :item="interruptionState.editingItem"
+            :item="interruptionStore.editingItem"
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
@@ -42,9 +42,8 @@ import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
+import { useInterruptionStore } from '../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../stores/task/task.store';
-import { types } from '../../core/ioc/types';
-import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
@@ -53,7 +52,6 @@ import { ConfirmationDialogOption } from '../../core/models/options/confirmation
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
 import { EventType } from '../../core/enums/event-type.enum';
-import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
@@ -73,20 +71,24 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         WorkItemCreator
     },
     computed: {
-        ...mapStores(useDialogStore, useEventStore, useTaskStore)
+        ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItems extends Vue {
     public searchText = '';
-    public interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
     public eventStore!: ReturnType<typeof useEventStore>;
+    public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
 
-    public async created(): Promise<void> {
+    public created(): void {
+        this.initialize();
+    }
+
+    public async initialize(): Promise<void> {
         await Promise.all([
             this.eventStore.loadOngoingEventSummary(),
-            this.interruptionState.loadSummaries(),
+            this.interruptionStore.loadSummaries(),
             this.taskStore.loadSummaries()
         ]);
 
@@ -99,27 +101,27 @@ export default class WorkItems extends Vue {
     }
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
-        if (this.interruptionState.editingItem?.id !== item.id) {
+        if (this.interruptionStore.editingItem?.id !== item.id) {
             this.taskStore.stopItemEdit();
-            this.interruptionState.startItemEdit(item.id);
+            this.interruptionStore.startItemEdit(item.id);
         }
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.createItem(item)) {
-            this.interruptionState.loadSummaries();
+        if (await this.interruptionStore.createItem(item)) {
+            this.interruptionStore.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionState.updateItem(item)) {
-            this.interruptionState.loadSummaries();
+        if (await this.interruptionStore.updateItem(item)) {
+            this.interruptionStore.loadSummaries();
         }
     }
 
     public onInterruptionDeleteStart(item: InterruptionItem): void {
         if (item.id === -1) {
-            this.interruptionState.stopItemEdit();
+            this.interruptionStore.stopItemEdit();
         }
         else {
             const title = 'The item will be permanently deleted. Proceed?';
@@ -132,7 +134,7 @@ export default class WorkItems extends Vue {
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
-            this.interruptionState.stopItemEdit();
+            this.interruptionStore.stopItemEdit();
             this.taskStore.startItemEdit(item.id);
         }
     }
@@ -163,8 +165,8 @@ export default class WorkItems extends Vue {
     }
 
     private openActiveWorkItem(): void {
-        if (this.interruptionState.activeSummary) {
-            this.onInterruptionSelect(this.interruptionState.activeSummary);
+        if (this.interruptionStore.activeSummary) {
+            this.onInterruptionSelect(this.interruptionStore.activeSummary);
         }
         else {
             this.onTaskSelect(this.taskStore.activeSummary!);
@@ -172,7 +174,7 @@ export default class WorkItems extends Vue {
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = this.interruptionState.searchSummaries(this.searchText);
+        const interruptions = this.interruptionStore.filteredSummaries(this.searchText);
         const tasks = this.taskStore.filteredSummaries(this.searchText);
 
         if (interruptions.length) {
@@ -184,7 +186,7 @@ export default class WorkItems extends Vue {
     }
 
     private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionState.deleteItem(item.id)) {
+        if (!await this.interruptionStore.deleteItem(item.id)) {
             return;
         }
 

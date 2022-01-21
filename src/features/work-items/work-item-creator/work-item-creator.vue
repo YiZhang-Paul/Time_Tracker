@@ -11,11 +11,9 @@ import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../../stores/dialog/dialog.store';
+import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
-import { types } from '../../../core/ioc/types';
-import { container } from '../../../core/ioc/container';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
-import { InterruptionStateService } from '../../../core/services/states/interruption-state/interruption-state.service';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
 import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-selection-dialog/work-item-type-selection-dialog.vue';
 
@@ -24,16 +22,16 @@ import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-
         CreationButton
     },
     computed: {
-        ...mapStores(useDialogStore, useTaskStore)
+        ...mapStores(useDialogStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItemCreator extends Vue {
     private dialogStore!: ReturnType<typeof useDialogStore>;
+    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
-    private interruptionState = container.get<InterruptionStateService>(types.InterruptionStateService);
 
     get canCreate(): boolean {
-        return this.interruptionState.editingItem?.id !== -1 && this.taskStore.editingItem?.id !== -1;
+        return this.interruptionStore.editingItem?.id !== -1 && this.taskStore.editingItem?.id !== -1;
     }
 
     public onTypeSelectStart(): void {
@@ -46,10 +44,10 @@ export default class WorkItemCreator extends Vue {
     private onTypeSelect(isInterruption: boolean): void {
         if (isInterruption) {
             this.taskStore.stopItemEdit();
-            this.interruptionState.startItemCreate();
+            this.interruptionStore.startItemCreate();
         }
         else {
-            this.interruptionState.stopItemEdit();
+            this.interruptionStore.stopItemEdit();
             this.taskStore.startItemCreate();
         }
     }

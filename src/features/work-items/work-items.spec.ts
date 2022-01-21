@@ -1,35 +1,32 @@
-import { shallowMount, VueWrapper, flushPromises } from '@vue/test-utils';
+import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { assert as sinonExpect, stub, SinonStubbedInstance } from 'sinon';
+import { assert as sinonExpect, spy, stub } from 'sinon';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
+import { useInterruptionStore } from '../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../stores/task/task.store';
-import { types } from '../../core/ioc/types';
-import { container } from '../../core/ioc/container';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
-import { InterruptionStateService } from '../../core/services/states/interruption-state/interruption-state.service';
-import { stubInterruptionStateService } from '../../mocks/interruption-state.service.stub';
 
 import WorkItems from './work-items.vue';
 
 describe('work items unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
-    let interruptionStateStub: SinonStubbedInstance<InterruptionStateService>;
     let dialogStore: ReturnType<typeof useDialogStore>;
     let eventStore: ReturnType<typeof useEventStore>;
+    let interruptionStore: ReturnType<typeof useInterruptionStore>;
     let taskStore: ReturnType<typeof useTaskStore>;
 
     beforeEach(() => {
-        interruptionStateStub = stubInterruptionStateService();
-
-        container
-            .rebind<InterruptionStateService>(types.InterruptionStateService)
-            .toConstantValue(interruptionStateStub);
+        component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
+        dialogStore = useDialogStore();
+        eventStore = useEventStore();
+        interruptionStore = useInterruptionStore();
+        taskStore = useTaskStore();
     });
 
     afterEach(() => {
@@ -37,48 +34,44 @@ describe('work items unit test', () => {
     });
 
     test('should create component instance', () => {
-        component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-
         expect(component).toBeTruthy();
     });
 
-    describe('created', () => {
+    describe('initialize', () => {
         test('should initialize data', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
-            await flushPromises();
+            const loadOngoingEventSummarySpy = spy(eventStore, 'loadOngoingEventSummary');
+            const loadInterruptionSummariesSpy = spy(interruptionStore, 'loadSummaries');
+            const loadTaskSummariesSpy = spy(taskStore, 'loadSummaries');
 
-            sinonExpect.calledOnce(interruptionStateStub.loadSummaries);
-            expect(eventStore.loadOngoingEventSummary).toHaveBeenCalledTimes(1);
-            expect(taskStore.loadSummaries).toHaveBeenCalledTimes(1);
+            await component.vm.initialize();
+
+            sinonExpect.calledOnce(loadOngoingEventSummarySpy);
+            sinonExpect.calledOnce(loadInterruptionSummariesSpy);
+            sinonExpect.calledOnce(loadTaskSummariesSpy);
         });
 
         test('should load active interruption item when available', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
-            stub(interruptionStateStub, 'activeSummary').get(() => ({ id: 1 } as InterruptionItemSummaryDto));
-            stub(taskStore, 'activeSummary').get(() => null);
+            const startItemEditSpy = spy(interruptionStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => true);
+            stub(interruptionStore, 'activeSummary').get(() => ({ id: 1 } as InterruptionItemSummaryDto));
+            stub(taskStore, 'activeSummary').get(() => null);
             taskStore.$reset();
-            await flushPromises();
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 1);
+            await component.vm.initialize();
+
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
         });
 
         test('should load active task item when available', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
-            stub(interruptionStateStub, 'activeSummary').get(() => null);
-            stub(taskStore, 'activeSummary').get(() => ({ id: 1 } as TaskItemSummaryDto));
+            const startItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => true);
+            stub(interruptionStore, 'activeSummary').get(() => null);
+            stub(taskStore, 'activeSummary').get(() => ({ id: 1 } as TaskItemSummaryDto));
             taskStore.$reset();
-            await flushPromises();
 
-            expect(taskStore.startItemEdit).toHaveBeenCalledTimes(1);
-            expect(taskStore.startItemEdit).toHaveBeenCalledWith(1);
+            await component.vm.initialize();
+
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
         });
 
         test('should load first interruption item when available', async() => {
@@ -92,16 +85,15 @@ describe('work items unit test', () => {
                 { id: 5 } as TaskItemSummaryDto
             ];
 
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
+            const startItemEditSpy = spy(interruptionStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => interruptions);
             stub(taskStore, 'filteredSummaries').get(() => () => tasks);
-            interruptionStateStub.searchSummaries.returns(interruptions);
             taskStore.$reset();
-            await flushPromises();
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 2);
+            await component.vm.initialize();
+
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 2);
         });
 
         test('should load first task item when available', async() => {
@@ -110,414 +102,361 @@ describe('work items unit test', () => {
                 { id: 5 } as TaskItemSummaryDto
             ];
 
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
+            const startItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(taskStore, 'filteredSummaries').get(() => () => tasks);
-            const startTaskItemEditStub = stub(taskStore, 'startItemEdit');
-            interruptionStateStub.searchSummaries.returns([]);
             taskStore.$reset();
-            await flushPromises();
 
-            sinonExpect.calledOnceWithExactly(startTaskItemEditStub, 1);
+            await component.vm.initialize();
+
+            sinonExpect.calledOnceWithExactly(startItemEditSpy, 1);
         });
 
         test('should do nothing when no item is available', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
+            const startInterruptionItemEditSpy = spy(interruptionStore, 'startItemEdit');
+            const startTaskItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(taskStore, 'filteredSummaries').get(() => () => []);
-            const startTaskItemEditStub = stub(taskStore, 'startItemEdit');
-            interruptionStateStub.searchSummaries.returns([]);
             taskStore.$reset();
-            await flushPromises();
 
-            sinonExpect.notCalled(interruptionStateStub.startItemEdit);
-            sinonExpect.notCalled(startTaskItemEditStub);
+            await component.vm.initialize();
+
+            sinonExpect.notCalled(startInterruptionItemEditSpy);
+            sinonExpect.notCalled(startTaskItemEditSpy);
         });
     });
 
     describe('onInterruptionSelect', () => {
-        test('should do nothing when item is already selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(1));
-            await flushPromises();
+        test('should do nothing when item is already selected', () => {
+            const startInterruptionItemEditSpy = spy(interruptionStore, 'startItemEdit');
+            const stopTaskItemEditSpy = spy(taskStore, 'stopItemEdit');
+            interruptionStore.editingItem = new InterruptionItem(1);
 
             component.vm.onInterruptionSelect({ id: 1 } as InterruptionItemSummaryDto);
 
-            sinonExpect.notCalled(interruptionStateStub.startItemEdit);
-            expect(taskStore.stopItemEdit).not.toHaveBeenCalled();
+            sinonExpect.notCalled(startInterruptionItemEditSpy);
+            sinonExpect.notCalled(stopTaskItemEditSpy);
         });
 
-        test('should select item when no other item is selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(interruptionStateStub, 'editingItem').get(() => null);
-            await flushPromises();
+        test('should select item when no other item is selected', () => {
+            const startInterruptionItemEditSpy = spy(interruptionStore, 'startItemEdit');
+            const stopTaskItemEditSpy = spy(taskStore, 'stopItemEdit');
+            interruptionStore.editingItem = null;
 
             component.vm.onInterruptionSelect({ id: 2 } as InterruptionItemSummaryDto);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 2);
-            expect(taskStore.stopItemEdit).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnceWithExactly(startInterruptionItemEditSpy, 2);
+            sinonExpect.calledOnce(stopTaskItemEditSpy);
         });
 
-        test('should select item when item is not already selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(interruptionStateStub, 'editingItem').get(() => new InterruptionItem(1));
-            await flushPromises();
+        test('should select item when item is not already selected', () => {
+            const startInterruptionItemEditSpy = spy(interruptionStore, 'startItemEdit');
+            const stopTaskItemEditSpy = spy(taskStore, 'stopItemEdit');
+            interruptionStore.editingItem = new InterruptionItem(1);
 
             component.vm.onInterruptionSelect({ id: 2 } as InterruptionItemSummaryDto);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.startItemEdit, 2);
-            expect(taskStore.stopItemEdit).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnceWithExactly(startInterruptionItemEditSpy, 2);
+            sinonExpect.calledOnce(stopTaskItemEditSpy);
         });
     });
 
     describe('onInterruptionCreate', () => {
         test('should not reload summaries when failed to create interruption item', async() => {
             const item = new InterruptionItem(-1);
-            interruptionStateStub.createItem.resolves(false);
-            component = shallowMount(WorkItems);
-            interruptionStateStub.loadSummaries.resetHistory();
-            await flushPromises();
+            const createItemStub = stub(interruptionStore, 'createItem').resolves(false);
+            const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
+            interruptionStore.$reset();
 
             await component.vm.onInterruptionCreate(item);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.createItem, item);
-            sinonExpect.notCalled(interruptionStateStub.loadSummaries);
+            sinonExpect.calledOnceWithExactly(createItemStub, item);
+            sinonExpect.notCalled(loadSummariesSpy);
         });
 
         test('should reload summaries when successfully created interruption item', async() => {
             const item = new InterruptionItem(-1);
-            interruptionStateStub.createItem.resolves(true);
-            component = shallowMount(WorkItems);
-            interruptionStateStub.loadSummaries.resetHistory();
-            await flushPromises();
+            const createItemStub = stub(interruptionStore, 'createItem').resolves(true);
+            const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
+            interruptionStore.$reset();
 
             await component.vm.onInterruptionCreate(item);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.createItem, item);
-            sinonExpect.calledOnce(interruptionStateStub.loadSummaries);
+            sinonExpect.calledOnceWithExactly(createItemStub, item);
+            sinonExpect.calledOnce(loadSummariesSpy);
         });
     });
 
     describe('onInterruptionUpdate', () => {
         test('should not reload summaries when failed to update interruption item', async() => {
             const item = new InterruptionItem(1);
-            interruptionStateStub.updateItem.resolves(false);
-            component = shallowMount(WorkItems);
-            interruptionStateStub.loadSummaries.resetHistory();
-            await flushPromises();
+            const updateItemStub = stub(interruptionStore, 'updateItem').resolves(false);
+            const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
+            interruptionStore.$reset();
 
             await component.vm.onInterruptionUpdate(item);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.updateItem, item);
-            sinonExpect.notCalled(interruptionStateStub.loadSummaries);
+            sinonExpect.calledOnceWithExactly(updateItemStub, item);
+            sinonExpect.notCalled(loadSummariesSpy);
         });
 
         test('should reload summaries when successfully updated interruption item', async() => {
             const item = new InterruptionItem(1);
-            interruptionStateStub.updateItem.resolves(true);
-            component = shallowMount(WorkItems);
-            interruptionStateStub.loadSummaries.resetHistory();
-            await flushPromises();
+            const updateItemStub = stub(interruptionStore, 'updateItem').resolves(true);
+            const loadSummariesSpy = spy(interruptionStore, 'loadSummaries');
+            interruptionStore.$reset();
 
             await component.vm.onInterruptionUpdate(item);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.updateItem, item);
-            sinonExpect.calledOnce(interruptionStateStub.loadSummaries);
+            sinonExpect.calledOnceWithExactly(updateItemStub, item);
+            sinonExpect.calledOnce(loadSummariesSpy);
         });
     });
 
     describe('onInterruptionDeleteStart', () => {
-        test('should delete new interruption item without prompting for confirmation', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            await flushPromises();
+        test('should delete new interruption item without prompting for confirmation', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const stopItemEditSpy = spy(interruptionStore, 'stopItemEdit');
 
             component.vm.onInterruptionDeleteStart(new InterruptionItem(-1));
 
-            sinonExpect.calledOnce(interruptionStateStub.stopItemEdit);
-            expect(dialogStore.open).not.toHaveBeenCalled();
+            sinonExpect.calledOnce(stopItemEditSpy);
+            sinonExpect.notCalled(openSpy);
         });
 
-        test('should prompt for confirmation before deleting existing interruption item', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            await flushPromises();
+        test('should prompt for confirmation before deleting existing interruption item', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const stopItemEditSpy = spy(interruptionStore, 'stopItemEdit');
 
             component.vm.onInterruptionDeleteStart(new InterruptionItem(1));
 
-            sinonExpect.notCalled(interruptionStateStub.stopItemEdit);
-            expect(dialogStore.open).toHaveBeenCalledTimes(1);
+            sinonExpect.notCalled(stopItemEditSpy);
+            sinonExpect.calledOnce(openSpy);
         });
 
         test('should delete interruption item on confirmation', async() => {
             const item = new InterruptionItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            await flushPromises();
+            const openSpy = spy(dialogStore, 'open');
+            const deleteItemSpy = spy(interruptionStore, 'deleteItem');
             component.vm.onInterruptionDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
-            sinonExpect.calledOnceWithExactly(interruptionStateStub.deleteItem, 5);
+            sinonExpect.calledOnceWithExactly(deleteItemSpy, 5);
         });
 
         test('should not start idling session when failed to delete interruption item', async() => {
             const item = new InterruptionItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            dialogStore = useDialogStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             stub(eventStore, 'isActiveWorkItem').get(() => () => true);
-            interruptionStateStub.deleteItem.resolves(false);
-            await flushPromises();
+            stub(interruptionStore, 'deleteItem').resolves(false);
+            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
-            expect(eventStore.startIdling).not.toHaveBeenCalled();
+            sinonExpect.notCalled(startIdlingSpy);
         });
 
         test('should not start idling session when deleted interruption item is not active', async() => {
             const item = new InterruptionItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            dialogStore = useDialogStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             const isActiveWorkItemStub = stub().returns(false);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
-            interruptionStateStub.deleteItem.resolves(true);
-            await flushPromises();
+            stub(interruptionStore, 'deleteItem').resolves(true);
+            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
             sinonExpect.calledOnce(isActiveWorkItemStub);
-            expect(eventStore.startIdling).not.toHaveBeenCalled();
+            sinonExpect.notCalled(startIdlingSpy);
         });
 
         test('should start idling session when deleted interruption item is active', async() => {
             const item = new InterruptionItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            dialogStore = useDialogStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
-            interruptionStateStub.deleteItem.resolves(true);
-            await flushPromises();
+            stub(interruptionStore, 'deleteItem').resolves(true);
+            interruptionStore.$reset();
             component.vm.onInterruptionDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
             sinonExpect.calledOnce(isActiveWorkItemStub);
-            expect(eventStore.startIdling).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(startIdlingSpy);
         });
     });
 
     describe('onTaskSelect', () => {
-        test('should do nothing when item is already selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(taskStore, 'editingItem').get(() => new TaskItem(1));
-            await flushPromises();
+        test('should do nothing when item is already selected', () => {
+            const stopInterruptionItemEditSpy = spy(interruptionStore, 'stopItemEdit');
+            const startTaskItemEditSpy = spy(taskStore, 'startItemEdit');
+            taskStore.editingItem = new TaskItem(1);
 
             component.vm.onTaskSelect({ id: 1 } as TaskItemSummaryDto);
 
-            sinonExpect.notCalled(interruptionStateStub.stopItemEdit);
-            expect(taskStore.startItemEdit).not.toHaveBeenCalled();
+            sinonExpect.notCalled(stopInterruptionItemEditSpy);
+            sinonExpect.notCalled(startTaskItemEditSpy);
         });
 
-        test('should select item when no other item is selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(taskStore, 'editingItem').get(() => null);
-            await flushPromises();
+        test('should select item when no other item is selected', () => {
+            const stopInterruptionItemEditSpy = spy(interruptionStore, 'stopItemEdit');
+            const startTaskItemEditSpy = spy(taskStore, 'startItemEdit');
+            taskStore.editingItem = null;
 
             component.vm.onTaskSelect({ id: 2 } as TaskItemSummaryDto);
 
-            sinonExpect.calledOnce(interruptionStateStub.stopItemEdit);
-            expect(taskStore.startItemEdit).toHaveBeenCalledTimes(1);
-            expect(taskStore.startItemEdit).toHaveBeenCalledWith(2);
+            sinonExpect.calledOnce(stopInterruptionItemEditSpy);
+            sinonExpect.calledOnceWithExactly(startTaskItemEditSpy, 2);
         });
 
-        test('should select item when item is not already selected', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
-            stub(taskStore, 'editingItem').get(() => new TaskItem(1));
-            component = shallowMount(WorkItems);
-            await flushPromises();
+        test('should select item when item is not already selected', () => {
+            const stopInterruptionItemEditSpy = spy(interruptionStore, 'stopItemEdit');
+            const startTaskItemEditSpy = spy(taskStore, 'startItemEdit');
+            taskStore.editingItem = new TaskItem(1);
 
             component.vm.onTaskSelect({ id: 2 } as TaskItemSummaryDto);
 
-            sinonExpect.calledOnce(interruptionStateStub.stopItemEdit);
-            expect(taskStore.startItemEdit).toHaveBeenCalledTimes(1);
-            expect(taskStore.startItemEdit).toHaveBeenCalledWith(2);
+            sinonExpect.calledOnce(stopInterruptionItemEditSpy);
+            sinonExpect.calledOnceWithExactly(startTaskItemEditSpy, 2);
         });
     });
 
     describe('onTaskCreate', () => {
         test('should not reload summaries when failed to create task item', async() => {
             const item = new TaskItem(-1);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
             const createItemStub = stub(taskStore, 'createItem').resolves(false);
-            const loadSummariesStub = stub(taskStore, 'loadSummaries');
-            await flushPromises();
+            const loadSummariesSpy = spy(taskStore, 'loadSummaries');
+            taskStore.$reset();
 
             await component.vm.onTaskCreate(item);
 
             sinonExpect.calledOnceWithExactly(createItemStub, item);
-            sinonExpect.notCalled(loadSummariesStub);
+            sinonExpect.notCalled(loadSummariesSpy);
         });
 
         test('should reload summaries when successfully created task item', async() => {
             const item = new TaskItem(-1);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
             const createItemStub = stub(taskStore, 'createItem').resolves(true);
-            const loadSummariesStub = stub(taskStore, 'loadSummaries');
-            await flushPromises();
+            const loadSummariesSpy = spy(taskStore, 'loadSummaries');
+            taskStore.$reset();
 
             await component.vm.onTaskCreate(item);
 
             sinonExpect.calledOnceWithExactly(createItemStub, item);
-            sinonExpect.calledOnce(loadSummariesStub);
+            sinonExpect.calledOnce(loadSummariesSpy);
         });
     });
 
     describe('onTaskUpdate', () => {
         test('should not reload summaries when failed to update task item', async() => {
             const item = new TaskItem(1);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
             const updateItemStub = stub(taskStore, 'updateItem').resolves(false);
-            const loadSummariesStub = stub(taskStore, 'loadSummaries');
-            await flushPromises();
+            const loadSummariesSpy = spy(taskStore, 'loadSummaries');
+            taskStore.$reset();
 
             await component.vm.onTaskUpdate(item);
 
             sinonExpect.calledOnceWithExactly(updateItemStub, item);
-            sinonExpect.notCalled(loadSummariesStub);
+            sinonExpect.notCalled(loadSummariesSpy);
         });
 
         test('should reload summaries when successfully updated task item', async() => {
             const item = new TaskItem(1);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            taskStore = useTaskStore();
             const updateItemStub = stub(taskStore, 'updateItem').resolves(true);
-            const loadSummariesStub = stub(taskStore, 'loadSummaries');
-            await flushPromises();
+            const loadSummariesSpy = spy(taskStore, 'loadSummaries');
+            taskStore.$reset();
 
             await component.vm.onTaskUpdate(item);
 
             sinonExpect.calledOnceWithExactly(updateItemStub, item);
-            sinonExpect.calledOnce(loadSummariesStub);
+            sinonExpect.calledOnce(loadSummariesSpy);
         });
     });
 
     describe('onTaskDeleteStart', () => {
-        test('should delete new task item without prompting for confirmation', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            taskStore = useTaskStore();
-            const stopItemEditStub = stub(taskStore, 'stopItemEdit');
-            await flushPromises();
+        test('should delete new task item without prompting for confirmation', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const stopItemEditSpy = spy(taskStore, 'stopItemEdit');
 
             component.vm.onTaskDeleteStart(new TaskItem(-1));
 
-            sinonExpect.calledOnce(stopItemEditStub);
-            expect(dialogStore.open).not.toHaveBeenCalled();
+            sinonExpect.notCalled(openSpy);
+            sinonExpect.calledOnce(stopItemEditSpy);
         });
 
-        test('should prompt for confirmation before deleting existing task item', async() => {
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            taskStore = useTaskStore();
-            const stopItemEditStub = stub(taskStore, 'stopItemEdit');
-            await flushPromises();
+        test('should prompt for confirmation before deleting existing task item', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const stopItemEditSpy = spy(taskStore, 'stopItemEdit');
 
             component.vm.onTaskDeleteStart(new TaskItem(1));
 
-            sinonExpect.notCalled(stopItemEditStub);
-            expect(dialogStore.open).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(openSpy);
+            sinonExpect.notCalled(stopItemEditSpy);
         });
 
         test('should delete task item on confirmation', async() => {
             const item = new TaskItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            taskStore = useTaskStore();
-            const deleteItemStub = stub(taskStore, 'deleteItem');
-            await flushPromises();
+            const openSpy = spy(dialogStore, 'open');
+            const deleteItemSpy = spy(taskStore, 'deleteItem');
             component.vm.onTaskDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
-            sinonExpect.calledOnceWithExactly(deleteItemStub, 5);
+            sinonExpect.calledOnceWithExactly(deleteItemSpy, 5);
         });
 
         test('should not start idling session when failed to delete task item', async() => {
             const item = new TaskItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            eventStore = useEventStore();
-            dialogStore = useDialogStore();
-            taskStore = useTaskStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             stub(eventStore, 'isActiveWorkItem').get(() => () => true);
             stub(taskStore, 'deleteItem').resolves(false);
-            await flushPromises();
+            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
-            expect(eventStore.startIdling).not.toHaveBeenCalled();
+            sinonExpect.notCalled(startIdlingSpy);
         });
 
         test('should not start idling session when deleted task item is not active', async() => {
             const item = new TaskItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             const isActiveWorkItemStub = stub().returns(false);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(taskStore, 'deleteItem').resolves(true);
-            await flushPromises();
+            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
             sinonExpect.calledOnce(isActiveWorkItemStub);
-            expect(eventStore.startIdling).not.toHaveBeenCalled();
+            sinonExpect.notCalled(startIdlingSpy);
         });
 
         test('should start idling session when deleted task item is active', async() => {
             const item = new TaskItem(5);
-            component = shallowMount(WorkItems, { global: { plugins: [createTestingPinia()] } });
-            dialogStore = useDialogStore();
-            eventStore = useEventStore();
-            taskStore = useTaskStore();
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
             stub(taskStore, 'deleteItem').resolves(true);
-            await flushPromises();
+            taskStore.$reset();
             component.vm.onTaskDeleteStart(item);
 
-            const { mock } = dialogStore.open as jest.Mock;
-            await mock.calls[0][0].options.preConfirm(item);
+            await openSpy.getCall(0).args[0].options.preConfirm!(item);
 
             sinonExpect.calledOnce(isActiveWorkItemStub);
-            expect(eventStore.startIdling).toHaveBeenCalledTimes(1);
+            sinonExpect.calledOnce(startIdlingSpy);
         });
     });
 });
