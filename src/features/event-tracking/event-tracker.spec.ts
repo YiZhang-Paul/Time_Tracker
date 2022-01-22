@@ -28,9 +28,10 @@ describe('event tracker unit test', () => {
     });
 
     describe('created', () => {
-        test('should update progress every second', () => {
+        test('should update progress every second when break session is not active', () => {
             const getWorkingDurationStub = stub(eventStore, 'getWorkingDuration').returns(3000000);
             const getNonWorkingDurationStub = stub(eventStore, 'getNonWorkingDuration').returns(601000);
+            stub(eventStore, 'isBreaking').get(() => false);
             jest.advanceTimersByTime(1000);
 
             expect(component.vm.workingDuration).toEqual('00:50:00');
@@ -44,8 +45,9 @@ describe('event tracker unit test', () => {
             expect(component.vm.nonWorkingDuration).toEqual('00:10:01');
         });
 
-        test('should prompt for break when applicable', () => {
+        test('should prompt for break start when applicable', () => {
             const openSpy = spy(dialogStore, 'open');
+            stub(eventStore, 'isBreaking').get(() => false);
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2000);
             // there will be 1.5 seconds delay before opening dialog
@@ -60,8 +62,9 @@ describe('event tracker unit test', () => {
             sinonExpect.calledOnce(openSpy);
         });
 
-        test('should not prompt for break when not applicable', () => {
+        test('should not prompt for break start when not applicable', () => {
             const openSpy = spy(dialogStore, 'open');
+            stub(eventStore, 'isBreaking').get(() => false);
             stub(eventStore, 'hasScheduledBreak').returns(false);
             jest.advanceTimersByTime(60000);
 
@@ -71,6 +74,7 @@ describe('event tracker unit test', () => {
         test('should properly start break session on confirmation', async() => {
             const openSpy = spy(dialogStore, 'open');
             const startBreakSpy = spy(eventStore, 'startBreak');
+            stub(eventStore, 'isBreaking').get(() => false);
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
@@ -82,12 +86,66 @@ describe('event tracker unit test', () => {
         test('should properly skip break session on cancellation', async() => {
             const openSpy = spy(dialogStore, 'open');
             const skipBreakSpy = spy(eventStore, 'skipBreak');
+            stub(eventStore, 'isBreaking').get(() => false);
             stub(eventStore, 'hasScheduledBreak').returns(true);
             jest.advanceTimersByTime(2500);
 
             await openSpy.getCall(0).args[0].options.preCancel!(null);
 
             sinonExpect.calledOnce(skipBreakSpy);
+        });
+
+        test('should update remaining break time every second when break session is active', () => {
+            const getRemainingBreakStub = stub(eventStore, 'getRemainingBreak').returns(300000);
+            stub(eventStore, 'isBreaking').get(() => true);
+            jest.advanceTimersByTime(1000);
+
+            expect(component.vm.remainingBreak).toEqual('00:05:00');
+
+            getRemainingBreakStub.returns(299000);
+            jest.advanceTimersByTime(1000);
+
+            expect(component.vm.remainingBreak).toEqual('00:04:59');
+        });
+
+        test('should update remaining break time every second when break session is active', () => {
+            const getRemainingBreakStub = stub(eventStore, 'getRemainingBreak').returns(300000);
+            stub(eventStore, 'isBreaking').get(() => true);
+            jest.advanceTimersByTime(1000);
+
+            expect(component.vm.remainingBreak).toEqual('00:05:00');
+
+            getRemainingBreakStub.returns(299000);
+            jest.advanceTimersByTime(1000);
+
+            expect(component.vm.remainingBreak).toEqual('00:04:59');
+        });
+
+        test('should prompt for break end and start idling when applicable', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
+            stub(eventStore, 'isBreaking').get(() => true);
+            stub(eventStore, 'getRemainingBreak').returns(0);
+            jest.advanceTimersByTime(1000);
+
+            sinonExpect.calledOnce(openSpy);
+            sinonExpect.calledOnce(startIdlingSpy);
+
+            jest.advanceTimersByTime(60000);
+            // only one dialog will be opened
+            sinonExpect.calledOnce(openSpy);
+            sinonExpect.calledOnce(startIdlingSpy);
+        });
+
+        test('should not prompt for break end when not applicable', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startIdlingSpy = spy(eventStore, 'startIdling');
+            stub(eventStore, 'isBreaking').get(() => true);
+            stub(eventStore, 'getRemainingBreak').returns(30000);
+            jest.advanceTimersByTime(60000);
+
+            sinonExpect.notCalled(openSpy);
+            sinonExpect.notCalled(startIdlingSpy);
         });
     });
 });
