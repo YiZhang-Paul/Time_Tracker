@@ -102,6 +102,27 @@ describe('event store unit test', () => {
         });
     });
 
+    describe('isBreaking', () => {
+        test('should return false when event summary is not available', () => {
+            expect(store.ongoingEventSummary).toBeNull();
+            expect(store.isBreaking).toEqual(false);
+        });
+
+        test('should return false when break session is not active', async() => {
+            summary.unconcludedSinceStart.eventType = EventType.Idling;
+            await store.loadOngoingEventSummary();
+
+            expect(store.isBreaking).toEqual(false);
+        });
+
+        test('should return true when break session is active', async() => {
+            summary.unconcludedSinceStart.eventType = EventType.Break;
+            await store.loadOngoingEventSummary();
+
+            expect(store.isBreaking).toEqual(true);
+        });
+    });
+
     describe('isActiveWorkItem', () => {
         test('should return false when event summary is not available', () => {
             expect(store.ongoingEventSummary).toBeNull();
@@ -247,6 +268,40 @@ describe('event store unit test', () => {
             await store.loadOngoingEventSummary();
 
             expect(Math.abs(store.getNonWorkingDuration() - 5000)).toBeLessThan(100);
+        });
+    });
+
+    describe('getRemainingBreak', () => {
+        test('should return zero when event summary is not available', () => {
+            const result = store.getRemainingBreak();
+
+            expect(store.ongoingEventSummary).toBeNull();
+            expect(result).toEqual(0);
+        });
+
+        test('should return zero when break session is not active', async() => {
+            summary.unconcludedSinceStart.eventType = EventType.Idling;
+            await store.loadOngoingEventSummary();
+
+            expect(store.getRemainingBreak()).toEqual(0);
+        });
+
+        test('should return zero when break session has ended', async() => {
+            summary.unconcludedSinceStart.eventType = EventType.Break;
+            summary.unconcludedSinceStart.targetDuration = 3000;
+            summary.unconcludedSinceStart.timestamp = new Date(Date.now() - 9000).toISOString();
+            await store.loadOngoingEventSummary();
+
+            expect(store.getRemainingBreak()).toEqual(0);
+        });
+
+        test('should return remaining break time', async() => {
+            summary.unconcludedSinceStart.eventType = EventType.Break;
+            summary.unconcludedSinceStart.targetDuration = 6000;
+            summary.unconcludedSinceStart.timestamp = new Date(Date.now() - 4000).toISOString();
+            await store.loadOngoingEventSummary();
+
+            expect(Math.abs(store.getRemainingBreak() - 2000)).toBeLessThan(100);
         });
     });
 
