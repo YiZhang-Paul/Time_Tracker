@@ -282,6 +282,39 @@ describe('work items unit test', () => {
         });
     });
 
+    describe('onInterruptionStart', () => {
+        test('should start interruption item when break session is not active', () => {
+            const startInterruptionSpy = spy(eventStore, 'startInterruption');
+            stub(eventStore, 'isBreaking').get(() => false);
+
+            component.vm.onInterruptionStart(5);
+
+            sinonExpect.calledOnceWithExactly(startInterruptionSpy, 5);
+        });
+
+        test('should prompt for confirmation when break session is active', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startInterruptionSpy = spy(eventStore, 'startInterruption');
+            stub(eventStore, 'isBreaking').get(() => true);
+
+            component.vm.onInterruptionStart(5);
+
+            sinonExpect.calledOnce(openSpy);
+            sinonExpect.notCalled(startInterruptionSpy);
+        });
+
+        test('should start interruption item on confirmation', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startInterruptionSpy = spy(eventStore, 'startInterruption');
+            stub(eventStore, 'isBreaking').get(() => true);
+            component.vm.onInterruptionStart(5);
+
+            openSpy.getCall(0).args[0].options.preConfirm!(null);
+
+            sinonExpect.calledOnceWithExactly(startInterruptionSpy, 5);
+        });
+    });
+
     describe('onTaskSelect', () => {
         test('should do nothing when item is already selected', () => {
             const stopInterruptionItemEditSpy = spy(interruptionStore, 'stopItemEdit');
@@ -438,6 +471,39 @@ describe('work items unit test', () => {
 
             sinonExpect.calledOnce(isActiveWorkItemStub);
             sinonExpect.calledOnce(startIdlingSpy);
+        });
+    });
+
+    describe('onTaskStart', () => {
+        test('should start task item when break session is not active', () => {
+            const startTaskSpy = spy(eventStore, 'startTask');
+            stub(eventStore, 'isBreaking').get(() => false);
+
+            component.vm.onTaskStart(5);
+
+            sinonExpect.calledOnceWithExactly(startTaskSpy, 5);
+        });
+
+        test('should prompt for confirmation when break session is active', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startTaskSpy = spy(eventStore, 'startTask');
+            stub(eventStore, 'isBreaking').get(() => true);
+
+            component.vm.onTaskStart(5);
+
+            sinonExpect.calledOnce(openSpy);
+            sinonExpect.notCalled(startTaskSpy);
+        });
+
+        test('should start task item on confirmation', () => {
+            const openSpy = spy(dialogStore, 'open');
+            const startTaskSpy = spy(eventStore, 'startTask');
+            stub(eventStore, 'isBreaking').get(() => true);
+            component.vm.onTaskStart(5);
+
+            openSpy.getCall(0).args[0].options.preConfirm!(null);
+
+            sinonExpect.calledOnceWithExactly(startTaskSpy, 5);
         });
     });
 });
