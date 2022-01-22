@@ -6,7 +6,7 @@
         </div>
 
         <div class="actions">
-            <flat-button class="cancel-button" @click="$emit('cancel')">
+            <flat-button v-if="data.cancelText" class="cancel-button" @click="$emit('cancel')">
                 {{ data.cancelText }}
             </flat-button>
 

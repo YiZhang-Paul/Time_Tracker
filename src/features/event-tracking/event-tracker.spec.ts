@@ -50,17 +50,14 @@ describe('event tracker unit test', () => {
             jest.advanceTimersByTime(2000);
             // there will be 1.5 seconds delay before opening dialog
             sinonExpect.notCalled(openSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(500);
 
             sinonExpect.calledOnce(openSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(true);
 
             jest.advanceTimersByTime(60000);
             // only one dialog will be opened
             sinonExpect.calledOnce(openSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(true);
         });
 
         test('should not prompt for break when not applicable', () => {
@@ -69,7 +66,6 @@ describe('event tracker unit test', () => {
             jest.advanceTimersByTime(60000);
 
             sinonExpect.notCalled(openSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(false);
         });
 
         test('should properly start break session on confirmation', async() => {
@@ -81,7 +77,6 @@ describe('event tracker unit test', () => {
             await openSpy.getCall(0).args[0].options.preConfirm!(null);
 
             sinonExpect.calledOnce(startBreakSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(false);
         });
 
         test('should properly skip break session on cancellation', async() => {
@@ -93,7 +88,6 @@ describe('event tracker unit test', () => {
             await openSpy.getCall(0).args[0].options.preCancel!(null);
 
             sinonExpect.calledOnce(skipBreakSpy);
-            expect(component.vm.isBreakPromptActive).toEqual(false);
         });
     });
 });

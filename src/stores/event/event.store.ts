@@ -16,7 +16,8 @@ export const setServices = (eventHttp: EventHttpService): void => {
 export const useEventStore = defineStore('event', {
     state: () => ({
         ongoingEventSummary: null as OngoingEventTimeSummary | null,
-        workDurationLimit: oneMinute * 50
+        workDurationLimit: oneMinute * 50,
+        breakDuration: oneMinute * 10
     }),
     getters: {
         isWorking(): boolean {
@@ -25,9 +26,10 @@ export const useEventStore = defineStore('event', {
             return type === EventType.Interruption || type === EventType.Task;
         },
         isNotWorking(): boolean {
-            const type = this.ongoingEventSummary?.unconcludedSinceStart.eventType;
-
-            return type === EventType.Idling || type === EventType.Break;
+            return this.isBreaking || this.ongoingEventSummary?.unconcludedSinceStart.eventType === EventType.Idling;
+        },
+        isBreaking(): boolean {
+            return this.ongoingEventSummary?.unconcludedSinceStart.eventType === EventType.Break;
         },
         isActiveWorkItem() {
             return (type: EventType, id: number) => {
@@ -73,6 +75,16 @@ export const useEventStore = defineStore('event', {
 
             return concludedSinceStart.notWorking + unconcluded;
         },
+        getRemainingBreak(): number {
+            if (!this.isBreaking) {
+                return 0;
+            }
+
+            const { unconcludedSinceStart } = this.ongoingEventSummary!;
+            const elapsed = Date.now() - new Date(unconcludedSinceStart.timestamp).getTime();
+
+            return Math.max(unconcludedSinceStart.targetDuration - elapsed, 0);
+        },
         async loadOngoingEventSummary(): Promise<void> {
             const start = new Date(new Date().setHours(0, 0, 0, 0));
             this.ongoingEventSummary = await eventHttpService.getOngoingEventSummary(start);
@@ -105,7 +117,7 @@ export const useEventStore = defineStore('event', {
             return isStarted;
         },
         async startBreak(): Promise<boolean> {
-            const isStarted = await eventHttpService.startBreak();
+            const isStarted = await eventHttpService.startBreak(this.breakDuration);
 
             if (isStarted) {
                 await this.loadOngoingEventSummary();

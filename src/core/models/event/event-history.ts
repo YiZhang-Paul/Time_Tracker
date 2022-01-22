@@ -5,4 +5,5 @@ export class EventHistory {
     public resourceId!: number;
     public eventType!: EventType;
     public timestamp!: string;
+    public targetDuration!: number;
 }
