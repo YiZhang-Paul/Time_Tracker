@@ -9,7 +9,7 @@
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
-            @start="eventStore.startInterruption($event.id)"
+            @start="onInterruptionStart($event.id)"
             @stop="eventStore.startIdling()">
         </interruption-item-editor>
 
@@ -19,7 +19,7 @@
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
-            @start="eventStore.startTask($event.id)"
+            @start="onTaskStart($event.id)"
             @stop="eventStore.startIdling()">
         </task-item-editor>
 
@@ -132,6 +132,19 @@ export default class WorkItems extends Vue {
         }
     }
 
+    public onInterruptionStart(id: number): void {
+        if (!this.eventStore.isBreaking) {
+            this.eventStore.startInterruption(id);
+        }
+        else {
+            const title = 'You are still taking rest now. Ready to start working right away?';
+            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
+            const preConfirm = () => this.eventStore.startInterruption(id);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm });
+            this.dialogStore.open(config);
+        }
+    }
+
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
             this.interruptionStore.stopItemEdit();
@@ -160,6 +173,19 @@ export default class WorkItems extends Vue {
             const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
             const preConfirm = this.onTaskDelete.bind(this);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
+            this.dialogStore.open(config);
+        }
+    }
+
+    public onTaskStart(id: number): void {
+        if (!this.eventStore.isBreaking) {
+            this.eventStore.startTask(id);
+        }
+        else {
+            const title = 'You are still taking rest now. Ready to start working right away?';
+            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
+            const preConfirm = () => this.eventStore.startTask(id);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm });
             this.dialogStore.open(config);
         }
     }
