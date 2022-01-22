@@ -344,7 +344,7 @@ describe('event store unit test', () => {
 
             const result = await store.startBreak();
 
-            sinonExpect.calledOnce(eventHttpStub.startBreak);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startBreak, store.breakDuration);
             expect(store.ongoingEventSummary).toEqual(summary);
             expect(result).toEqual(true);
         });

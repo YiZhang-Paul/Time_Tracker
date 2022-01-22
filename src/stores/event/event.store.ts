@@ -16,7 +16,8 @@ export const setServices = (eventHttp: EventHttpService): void => {
 export const useEventStore = defineStore('event', {
     state: () => ({
         ongoingEventSummary: null as OngoingEventTimeSummary | null,
-        workDurationLimit: oneMinute * 50
+        workDurationLimit: oneMinute * 50,
+        breakDuration: oneMinute * 10
     }),
     getters: {
         isWorking(): boolean {
@@ -105,7 +106,7 @@ export const useEventStore = defineStore('event', {
             return isStarted;
         },
         async startBreak(): Promise<boolean> {
-            const isStarted = await eventHttpService.startBreak(600000);
+            const isStarted = await eventHttpService.startBreak(this.breakDuration);
 
             if (isStarted) {
                 await this.loadOngoingEventSummary();
