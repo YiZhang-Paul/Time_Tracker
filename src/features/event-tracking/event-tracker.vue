@@ -1,14 +1,20 @@
 <template>
     <div class="event-tracker-container">
-        <div class="working-duration" :class="{ active: eventStore.isWorking }">
-            <briefcase class="icon" />
-            <span>{{ workingDuration }}</span>
+        <div v-if="eventStore.isBreaking && remainingBreak" class="remaining-break">
+            <span>break left: {{ remainingBreak }}</span>
         </div>
 
-        <div class="not-working-duration" :class="{ active: eventStore.isNotWorking }">
-            <palm-tree class="icon" />
-            <span>{{ nonWorkingDuration }}</span>
-        </div>
+        <template v-if="!eventStore.isBreaking">
+            <div class="working-duration" :class="{ active: eventStore.isWorking }">
+                <briefcase class="icon" />
+                <span>{{ workingDuration }}</span>
+            </div>
+
+            <div class="not-working-duration" :class="{ active: eventStore.isNotWorking }">
+                <palm-tree class="icon" />
+                <span>{{ nonWorkingDuration }}</span>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -36,11 +42,13 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
     }
 })
 export default class EventTracker extends Vue {
-    public isBreakPromptActive = false;
+    public remainingBreak = '';
     public workingDuration = '';
     public nonWorkingDuration = '';
     public eventStore!: ReturnType<typeof useEventStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
+    private isBreakStartPromptActive = false;
+    private isBreakEndPromptActive = false;
     private updateTimeout!: number;
 
     public created(): void {
@@ -52,18 +60,26 @@ export default class EventTracker extends Vue {
     }
 
     private updateProgress(): void {
-        this.updateDurations();
-        this.updateBreakCheck();
+        if (!this.eventStore.isBreaking) {
+            this.updateDurations();
+            this.checkBreakStart();
+        }
+        else {
+            this.checkBreakEnd();
+        }
+
         this.updateTimeout = setTimeout(() => this.updateProgress(), 1000);
     }
 
     private updateDurations(): void {
-        this.workingDuration = TimeUtility.getDurationString(this.eventStore.getWorkingDuration());
-        this.nonWorkingDuration = TimeUtility.getDurationString(this.eventStore.getNonWorkingDuration());
+        const workingDuration = this.eventStore.getWorkingDuration();
+        const nonWorkingDuration = this.eventStore.getNonWorkingDuration();
+        this.workingDuration = TimeUtility.getDurationString(workingDuration);
+        this.nonWorkingDuration = TimeUtility.getDurationString(nonWorkingDuration);
     }
 
-    private updateBreakCheck(): void {
-        if (this.isBreakPromptActive || !this.eventStore.hasScheduledBreak()) {
+    private checkBreakStart(): void {
+        if (this.isBreakStartPromptActive || !this.eventStore.hasScheduledBreak()) {
             return;
         }
 
@@ -74,17 +90,34 @@ export default class EventTracker extends Vue {
         const preConfirm = this.startBreak.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
         setTimeout(() => this.dialogStore.open(config), 1500);
-        this.isBreakPromptActive = true;
+        this.isBreakStartPromptActive = true;
+    }
+
+    private async checkBreakEnd(): Promise<void> {
+        const remainingBreak = this.eventStore.getRemainingBreak();
+        this.remainingBreak = TimeUtility.getDurationString(remainingBreak);
+
+        if (remainingBreak || this.isBreakEndPromptActive) {
+            return;
+        }
+
+        const title = 'The break has ended. Time to get back to work.';
+        const data = new ConfirmationDialogOption(title, 'Alright', '', ButtonType.Confirm);
+        const postConfirm = () => this.isBreakEndPromptActive = false;
+        const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', postConfirm });
+        this.dialogStore.open(config);
+        this.isBreakEndPromptActive = true;
+        await this.eventStore.startIdling();
     }
 
     private async startBreak(): Promise<void> {
         await this.eventStore.startBreak();
-        this.isBreakPromptActive = false;
+        this.isBreakStartPromptActive = false;
     }
 
     private async skipBreak(): Promise<void> {
         await this.eventStore.skipBreak();
-        this.isBreakPromptActive = false;
+        this.isBreakStartPromptActive = false;
     }
 }
 </script>
@@ -92,15 +125,23 @@ export default class EventTracker extends Vue {
 <style lang="scss" scoped>
 .event-tracker-container {
     @import '../../styles/presets.scss';
+    @import '../../styles/animations.scss';
 
     @include flex-row(center, center);
     color: var(--font-colors-3-00);
     font-size: var(--font-sizes-500);
 
+    .remaining-break {
+        @include flex-row(center);
+        width: 50%;
+        color: var(--event-type-colors-not-working-0-00);
+        @include animate-opacity(0, 1, 0.4s);
+    }
+
     .working-duration, .not-working-duration {
         @include flex-row(center);
-        transition: color 0.5s;
         width: 40%;
+        transition: color 0.5s;
 
         &.active {
             color: var(--font-colors-1-00);

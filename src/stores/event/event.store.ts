@@ -26,9 +26,10 @@ export const useEventStore = defineStore('event', {
             return type === EventType.Interruption || type === EventType.Task;
         },
         isNotWorking(): boolean {
-            const type = this.ongoingEventSummary?.unconcludedSinceStart.eventType;
-
-            return type === EventType.Idling || type === EventType.Break;
+            return this.isBreaking || this.ongoingEventSummary?.unconcludedSinceStart.eventType === EventType.Idling;
+        },
+        isBreaking(): boolean {
+            return this.ongoingEventSummary?.unconcludedSinceStart.eventType === EventType.Break;
         },
         isActiveWorkItem() {
             return (type: EventType, id: number) => {
@@ -73,6 +74,16 @@ export const useEventStore = defineStore('event', {
             const unconcluded = this.isWorking ? 0 : Date.now() - new Date(unconcludedSinceStart.timestamp).getTime();
 
             return concludedSinceStart.notWorking + unconcluded;
+        },
+        getRemainingBreak(): number {
+            if (!this.isBreaking) {
+                return 0;
+            }
+
+            const { unconcludedSinceStart } = this.ongoingEventSummary!;
+            const elapsed = Date.now() - new Date(unconcludedSinceStart.timestamp).getTime();
+
+            return Math.max(unconcludedSinceStart.targetDuration - elapsed, 0);
         },
         async loadOngoingEventSummary(): Promise<void> {
             const start = new Date(new Date().setHours(0, 0, 0, 0));
