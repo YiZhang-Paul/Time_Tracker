@@ -1,9 +1,9 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 'sinon';
 
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventHistory } from '../../core/models/event/event-history';
 import { EventTimeSummary } from '../../core/models/event/event-time-summary';
-import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { EventType } from '../../core/enums/event-type.enum';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
@@ -12,7 +12,7 @@ import { setServices, useEventStore } from './event.store';
 describe('event store unit test', () => {
     let store: ReturnType<typeof useEventStore>;
     let eventHttpStub: SinonStubbedInstance<EventHttpService>;
-    let summary: OngoingEventTimeSummary;
+    let summary: OngoingEventTimeSummaryDto;
 
     beforeEach(() => {
         eventHttpStub = createStubInstance(EventHttpService);

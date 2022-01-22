@@ -3,8 +3,8 @@ import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 
 
 import { setServices as setEventStoreServices, useEventStore } from '../event/event.store';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventHistory } from '../../core/models/event/event-history';
-import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { TaskItem } from '../../core/models/task/task-item';
 import { EventType } from '../../core/enums/event-type.enum';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
@@ -59,12 +59,12 @@ describe('task store unit test', () => {
     });
 
     describe('activeSummary', () => {
-        let eventSummary: OngoingEventTimeSummary;
+        let eventSummary: OngoingEventTimeSummaryDto;
         let eventStore: ReturnType<typeof useEventStore>;
 
         beforeEach(() => {
             const eventHttpStub = createStubInstance(EventHttpService);
-            eventSummary = new OngoingEventTimeSummary();
+            eventSummary = new OngoingEventTimeSummaryDto();
             eventSummary.unconcludedSinceStart = new EventHistory();
             eventHttpStub.getOngoingEventSummary.resolves(eventSummary);
             eventStore = useEventStore();

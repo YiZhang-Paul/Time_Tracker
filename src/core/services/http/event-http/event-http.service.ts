@@ -2,18 +2,18 @@ import axios from 'axios';
 import { injectable } from 'inversify';
 
 import { BreakSessionConfirmationDto } from '../../../dtos/break-session-confirmation-dto';
-import { OngoingEventTimeSummary } from '../../../models/event/ongoing-event-time-summary';
+import { OngoingEventTimeSummaryDto } from '../../../dtos/ongoing-event-time-summary-dto';
 
 @injectable()
 export class EventHttpService {
     private readonly _api = `${process.env.VUE_APP_BASE_API_URL}/events`;
 
-    public async getOngoingEventSummary(start: Date): Promise<OngoingEventTimeSummary> {
+    public async getOngoingEventSummary(start: Date): Promise<OngoingEventTimeSummaryDto> {
         try {
             return (await axios.get(`${this._api}/time-summary/${start.toISOString()}`)).data;
         }
         catch {
-            return new OngoingEventTimeSummary();
+            return new OngoingEventTimeSummaryDto();
         }
     }
 

@@ -3,8 +3,8 @@ import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 
 
 import { setServices as setEventStoreServices, useEventStore } from '../event/event.store';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventHistory } from '../../core/models/event/event-history';
-import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { EventType } from '../../core/enums/event-type.enum';
 import { Priority } from '../../core/enums/priority.enum';
@@ -60,12 +60,12 @@ describe('interruption store unit test', () => {
     });
 
     describe('activeSummary', () => {
-        let eventSummary: OngoingEventTimeSummary;
+        let eventSummary: OngoingEventTimeSummaryDto;
         let eventStore: ReturnType<typeof useEventStore>;
 
         beforeEach(() => {
             const eventHttpStub = createStubInstance(EventHttpService);
-            eventSummary = new OngoingEventTimeSummary();
+            eventSummary = new OngoingEventTimeSummaryDto();
             eventSummary.unconcludedSinceStart = new EventHistory();
             eventHttpStub.getOngoingEventSummary.resolves(eventSummary);
             eventStore = useEventStore();
