@@ -44,13 +44,14 @@ class InterruptionItemListProp {
         ...mapStores(useEventStore, useInterruptionStore)
     }
 })
+/* istanbul ignore next */
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animated = new Set<number>();
 
     get items(): InterruptionItemSummaryDto[] {
-        const text = this.searchText?.toLowerCase()?.trim() ?? '';
+        const text = this.searchText?.toLowerCase().trim() ?? '';
         const items = this.interruptionStore.filteredSummaries(text);
         const active = this.interruptionStore.activeSummary;
 

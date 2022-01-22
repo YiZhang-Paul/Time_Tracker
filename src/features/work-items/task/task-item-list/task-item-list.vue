@@ -44,13 +44,14 @@ class TaskItemListProp {
         ...mapStores(useEventStore, useTaskStore)
     }
 })
+/* istanbul ignore next */
 export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
 
     get items(): TaskItemSummaryDto[] {
-        const text = this.searchText?.toLowerCase()?.trim() ?? '';
+        const text = this.searchText?.toLowerCase().trim() ?? '';
         const items = this.taskStore.filteredSummaries(text);
         const active = this.taskStore.activeSummary;
 

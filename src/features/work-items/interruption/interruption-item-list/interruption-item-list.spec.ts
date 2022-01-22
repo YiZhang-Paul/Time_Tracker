@@ -31,6 +31,22 @@ describe('interruption item list unit test', () => {
     });
 
     describe('items', () => {
+        test('should properly transform search text', async() => {
+            const filteredSummariesStub = stub().returns([]);
+            stub(interruptionStore, 'filteredSummaries').get(() => filteredSummariesStub);
+            await component.setProps({ searchText: ' SEARCH_TEXT ' });
+
+            sinonExpect.calledOnceWithExactly(filteredSummariesStub, 'search_text');
+        });
+
+        test('should properly handle invalid search text', async() => {
+            const filteredSummariesStub = stub().returns([]);
+            stub(interruptionStore, 'filteredSummaries').get(() => filteredSummariesStub);
+            await component.setProps({ searchText: null });
+
+            sinonExpect.calledOnceWithExactly(filteredSummariesStub, '');
+        });
+
         test('should return empty collection when no items available', () => {
             stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(interruptionStore, 'activeSummary').get(() => null);
@@ -97,7 +113,7 @@ describe('interruption item list unit test', () => {
     });
 
     describe('getItemCardClasses', () => {
-        test('should return correct classes', async() => {
+        test('should return correct classes', () => {
             const summaries = [
                 { id: 1 } as InterruptionItemSummaryDto,
                 { id: 2 } as InterruptionItemSummaryDto,
@@ -106,8 +122,8 @@ describe('interruption item list unit test', () => {
 
             stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             interruptionStore.editingItem = new InterruptionItem(summaries[1].id);
-            jest.useRealTimers();
-            await new Promise(resolve => setTimeout(resolve, 300));
+            component.vm.$options.watch.items.call(component.vm);
+            jest.advanceTimersByTime(300);
 
             expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
             expect(component.vm.getItemCardClasses(summaries[0]).selected).toEqual(false);
@@ -115,6 +131,20 @@ describe('interruption item list unit test', () => {
             expect(component.vm.getItemCardClasses(summaries[1]).selected).toEqual(true);
             expect(component.vm.getItemCardClasses(summaries[2]).animated).toEqual(true);
             expect(component.vm.getItemCardClasses(summaries[2]).selected).toEqual(false);
+
+            summaries.push({ id: 4 } as InterruptionItemSummaryDto);
+            interruptionStore.editingItem = new InterruptionItem(summaries[3].id);
+            component.vm.$options.watch.items.call(component.vm);
+            jest.advanceTimersByTime(300);
+
+            expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
+            expect(component.vm.getItemCardClasses(summaries[0]).selected).toEqual(false);
+            expect(component.vm.getItemCardClasses(summaries[1]).animated).toEqual(true);
+            expect(component.vm.getItemCardClasses(summaries[1]).selected).toEqual(false);
+            expect(component.vm.getItemCardClasses(summaries[2]).animated).toEqual(true);
+            expect(component.vm.getItemCardClasses(summaries[2]).selected).toEqual(false);
+            expect(component.vm.getItemCardClasses(summaries[3]).animated).toEqual(true);
+            expect(component.vm.getItemCardClasses(summaries[3]).selected).toEqual(true);
         });
     });
 
