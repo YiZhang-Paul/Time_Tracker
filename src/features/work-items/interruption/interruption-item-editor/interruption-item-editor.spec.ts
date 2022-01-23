@@ -28,21 +28,34 @@ describe('interruption item editor unit test', () => {
     });
 
     describe('isActiveWorkItem', () => {
-        test('should check correct item type', async() => {
+        test('should show start button when item is not active', async() => {
+            const isActiveWorkItemStub = stub().returns(false);
+            stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
+            await component.setProps({ item: new InterruptionItem(5) });
+
+            sinonExpect.calledWithExactly(isActiveWorkItemStub, EventType.Interruption, 5);
+            expect(component.find('.start-button').exists()).toEqual(true);
+            expect(component.find('.stop-button').exists()).toEqual(false);
+        });
+
+        test('should show stop button when item is active', async() => {
             const isActiveWorkItemStub = stub().returns(true);
             stub(eventStore, 'isActiveWorkItem').get(() => isActiveWorkItemStub);
-            await component.setProps({ item: new InterruptionItem(1) });
+            await component.setProps({ item: new InterruptionItem(5) });
 
-            sinonExpect.calledWithExactly(isActiveWorkItemStub, EventType.Interruption, 1);
-            expect(component.vm.isActiveWorkItem).toEqual(true);
+            sinonExpect.calledWithExactly(isActiveWorkItemStub, EventType.Interruption, 5);
+            expect(component.find('.start-button').exists()).toEqual(false);
+            expect(component.find('.stop-button').exists()).toEqual(true);
         });
     });
 
     describe('creationTime', () => {
-        test('should return correct creation time', () => {
-            component.vm.item.creationTime = new Date(2022, 1, 15, 5, 35, 20).toISOString();
+        test('should return correct creation time', async() => {
+            const item = new InterruptionItem(-1);
+            item.creationTime = new Date(2022, 1, 15, 5, 35, 20).toISOString();
+            await component.setProps({ item });
 
-            expect(component.vm.creationTime).toEqual('5:35 AM, 2/15/2022');
+            expect(component.find('.footer > span').text()).toEqual('Created 5:35 AM, 2/15/2022');
         });
     });
 
@@ -62,44 +75,35 @@ describe('interruption item editor unit test', () => {
     });
 
     describe('onSave', () => {
-        test('should do nothing when name does not exist', () => {
-            component.vm.item.name = null;
+        test('should do nothing when name is whitespace', async() => {
+            await component.setProps({ item: new InterruptionItem(-1, ' ') });
 
-            component.vm.onSave();
-
-            expect(component.emitted().create).toBeFalsy();
-            expect(component.emitted().update).toBeFalsy();
-        });
-
-        test('should do nothing when name is whitespace', () => {
-            component.vm.item.name = ' ';
-
-            component.vm.onSave();
+            await component.find('.save-button').trigger('click');
 
             expect(component.emitted().create).toBeFalsy();
             expect(component.emitted().update).toBeFalsy();
         });
 
-        test('should create new item', () => {
-            component.vm.item.id = -1;
-            component.vm.item.name = 'item_name';
+        test('should create new item', async() => {
+            const item = new InterruptionItem(-1, 'item_name');
+            await component.setProps({ item });
 
-            component.vm.onSave();
+            await component.find('.save-button').trigger('click');
 
             expect(component.emitted().create.length).toEqual(1);
-            expect(component.emitted().create[0]).toEqual([component.vm.item]);
+            expect(component.emitted().create[0]).toEqual([item]);
             expect(component.emitted().update).toBeFalsy();
         });
 
-        test('should save existing item', () => {
-            component.vm.item.id = 1;
-            component.vm.item.name = 'item_name';
+        test('should save existing item', async() => {
+            const item = new InterruptionItem(1, 'item_name');
+            await component.setProps({ item });
 
-            component.vm.onSave();
+            await component.find('.save-button').trigger('click');
 
             expect(component.emitted().create).toBeFalsy();
             expect(component.emitted().update.length).toEqual(1);
-            expect(component.emitted().update[0]).toEqual([component.vm.item]);
+            expect(component.emitted().update[0]).toEqual([item]);
         });
     });
 });

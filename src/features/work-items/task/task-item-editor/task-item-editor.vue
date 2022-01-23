@@ -89,7 +89,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
     }
 
     public onSave(): void {
-        if (this.item.name?.trim()) {
+        if (this.item.name.trim()) {
             const event = this.item.id === -1 ? 'create' : 'update';
             this.$emit(event, this.item);
         }
