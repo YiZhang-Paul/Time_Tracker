@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, spy, stub } from 'sinon';
@@ -28,21 +29,23 @@ describe('event tracker unit test', () => {
     });
 
     describe('created', () => {
-        test('should update progress every second when break session is not active', () => {
+        test('should update progress every second when break session is not active', async() => {
             const getWorkingDurationStub = stub(eventStore, 'getWorkingDuration').returns(3000000);
             const getNonWorkingDurationStub = stub(eventStore, 'getNonWorkingDuration').returns(601000);
             stub(eventStore, 'isBreaking').get(() => false);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.workingDuration).toEqual('00:50:00');
-            expect(component.vm.nonWorkingDuration).toEqual('00:10:01');
+            expect(component.find('.working-duration').text()).toEqual('00:50:00');
+            expect(component.find('.non-working-duration').text()).toEqual('00:10:01');
 
             getWorkingDurationStub.returns(3001000);
             getNonWorkingDurationStub.returns(601000);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.workingDuration).toEqual('00:50:01');
-            expect(component.vm.nonWorkingDuration).toEqual('00:10:01');
+            expect(component.find('.working-duration').text()).toEqual('00:50:01');
+            expect(component.find('.non-working-duration').text()).toEqual('00:10:01');
         });
 
         test('should prompt for break start when applicable', () => {
@@ -95,30 +98,34 @@ describe('event tracker unit test', () => {
             sinonExpect.calledOnce(skipBreakSpy);
         });
 
-        test('should update remaining break time every second when break session is active', () => {
+        test('should update remaining break time every second when break session is active', async() => {
             const getRemainingBreakStub = stub(eventStore, 'getRemainingBreak').returns(300000);
             stub(eventStore, 'isBreaking').get(() => true);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.remainingBreak).toEqual('00:05:00');
+            expect(component.find('.remaining-break').text()).toEqual('break left: 00:05:00');
 
             getRemainingBreakStub.returns(299000);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.remainingBreak).toEqual('00:04:59');
+            expect(component.find('.remaining-break').text()).toEqual('break left: 00:04:59');
         });
 
-        test('should update remaining break time every second when break session is active', () => {
+        test('should update remaining break time every second when break session is active', async() => {
             const getRemainingBreakStub = stub(eventStore, 'getRemainingBreak').returns(300000);
             stub(eventStore, 'isBreaking').get(() => true);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.remainingBreak).toEqual('00:05:00');
+            expect(component.find('.remaining-break').text()).toEqual('break left: 00:05:00');
 
             getRemainingBreakStub.returns(299000);
             jest.advanceTimersByTime(1000);
+            await nextTick();
 
-            expect(component.vm.remainingBreak).toEqual('00:04:59');
+            expect(component.find('.remaining-break').text()).toEqual('break left: 00:04:59');
         });
 
         test('should prompt for break end and start idling when applicable', () => {

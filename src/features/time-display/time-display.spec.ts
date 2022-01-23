@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
 import TimeDisplay from './time-display.vue';
@@ -18,27 +19,17 @@ describe('time display unit test', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('time', () => {
-        test('should return correct time', () => {
+    describe('time display', () => {
+        test('should display correct date and time', async() => {
             component.vm.current = new Date(2022, 1, 2, 15, 30, 55);
+            await nextTick();
 
-            expect(component.vm.time).toEqual('3:30 PM');
-        });
-    });
+            expect(component.find('.time-display-container').text()).toEqual('3:30 PMFeb 2nd, 2022');
 
-    describe('month', () => {
-        test('should return correct month', () => {
-            component.vm.current = new Date(2022, 1, 2, 15, 30, 55);
+            component.vm.current = new Date(2023, 11, 25, 9, 15, 5);
+            await nextTick();
 
-            expect(component.vm.month).toEqual('Feb');
-        });
-    });
-
-    describe('dateSuffix', () => {
-        test('should return correct date suffix', () => {
-            component.vm.current = new Date(2022, 1, 2, 15, 30, 55);
-
-            expect(component.vm.dateSuffix).toEqual('nd');
+            expect(component.find('.time-display-container').text()).toEqual('9:15 AMDec 25th, 2023');
         });
     });
 });
