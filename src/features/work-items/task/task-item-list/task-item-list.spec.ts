@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub } from 'sinon';
@@ -113,7 +114,7 @@ describe('task item list unit test', () => {
     });
 
     describe('getItemCardClasses', () => {
-        test('should return correct classes', () => {
+        test('should return correct classes', async() => {
             const summaries = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
@@ -124,27 +125,35 @@ describe('task item list unit test', () => {
             taskStore.editingItem = new TaskItem(summaries[1].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
+            await nextTick();
 
-            expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[0]).selected).toEqual(false);
-            expect(component.vm.getItemCardClasses(summaries[1]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[1]).selected).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[2]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[2]).selected).toEqual(false);
+            let elements = component.findAll('.task-item-card');
+
+            expect(elements.length).toEqual(3);
+            expect(elements[0].classes()).toContain('animated');
+            expect(elements[0].classes()).not.toContain('selected');
+            expect(elements[1].classes()).toContain('animated');
+            expect(elements[1].classes()).toContain('selected');
+            expect(elements[2].classes()).toContain('animated');
+            expect(elements[2].classes()).not.toContain('selected');
 
             summaries.push({ id: 4 } as TaskItemSummaryDto);
             taskStore.editingItem = new TaskItem(summaries[3].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
+            await nextTick();
 
-            expect(component.vm.getItemCardClasses(summaries[0]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[0]).selected).toEqual(false);
-            expect(component.vm.getItemCardClasses(summaries[1]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[1]).selected).toEqual(false);
-            expect(component.vm.getItemCardClasses(summaries[2]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[2]).selected).toEqual(false);
-            expect(component.vm.getItemCardClasses(summaries[3]).animated).toEqual(true);
-            expect(component.vm.getItemCardClasses(summaries[3]).selected).toEqual(true);
+            elements = component.findAll('.task-item-card');
+
+            expect(elements.length).toEqual(4);
+            expect(elements[0].classes()).toContain('animated');
+            expect(elements[0].classes()).not.toContain('selected');
+            expect(elements[1].classes()).toContain('animated');
+            expect(elements[1].classes()).not.toContain('selected');
+            expect(elements[2].classes()).toContain('animated');
+            expect(elements[2].classes()).not.toContain('selected');
+            expect(elements[3].classes()).toContain('animated');
+            expect(elements[3].classes()).toContain('selected');
         });
     });
 

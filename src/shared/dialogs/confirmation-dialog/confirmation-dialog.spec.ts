@@ -26,16 +26,20 @@ describe('confirmation dialog unit test', () => {
             const data: ConfirmationDialogOption = { ...new ConfirmationDialogOption(), type: ButtonType.Confirm };
             await component.setProps({ data });
 
-            expect(component.vm.confirmButtonClasses.confirm).toEqual(true);
-            expect(component.vm.confirmButtonClasses.warning).toEqual(false);
+            const classes = component.find('.confirm-button').classes();
+
+            expect(classes).toContain('confirm');
+            expect(classes).not.toContain('warning');
         });
 
         test('should return correct classes for warning type', async() => {
             const data: ConfirmationDialogOption = { ...new ConfirmationDialogOption(), type: ButtonType.Warning };
             await component.setProps({ data });
 
-            expect(component.vm.confirmButtonClasses.confirm).toEqual(false);
-            expect(component.vm.confirmButtonClasses.warning).toEqual(true);
+            const classes = component.find('.confirm-button').classes();
+
+            expect(classes).not.toContain('confirm');
+            expect(classes).toContain('warning');
         });
     });
 });
