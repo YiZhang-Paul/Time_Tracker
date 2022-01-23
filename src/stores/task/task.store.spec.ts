@@ -1,11 +1,16 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 'sinon';
 
+import { setServices as setEventStoreServices, useEventStore } from '../event/event.store';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
+import { EventHistory } from '../../core/models/event/event-history';
 import { TaskItem } from '../../core/models/task/task-item';
+import { EventType } from '../../core/enums/event-type.enum';
+import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 import { TaskItemHttpService } from '../../core/services/http/task-item-http/task-item-http.service';
 
-import { setServices, useTaskStore } from './task.store';
+import { setServices as setTaskStoreServices, useTaskStore } from './task.store';
 
 describe('task store unit test', () => {
     let store: ReturnType<typeof useTaskStore>;
@@ -14,7 +19,7 @@ describe('task store unit test', () => {
 
     beforeEach(() => {
         taskItemHttpStub = createStubInstance(TaskItemHttpService);
-        setServices(taskItemHttpStub);
+        setTaskStoreServices(taskItemHttpStub);
         setActivePinia(createPinia());
         store = useTaskStore();
     });
@@ -54,10 +59,39 @@ describe('task store unit test', () => {
     });
 
     describe('activeSummary', () => {
+        let eventSummary: OngoingEventTimeSummaryDto;
+        let eventStore: ReturnType<typeof useEventStore>;
+
+        beforeEach(() => {
+            const eventHttpStub = createStubInstance(EventHttpService);
+            eventSummary = new OngoingEventTimeSummaryDto();
+            eventSummary.unconcludedSinceStart = new EventHistory();
+            eventHttpStub.getOngoingEventSummary.resolves(eventSummary);
+            eventStore = useEventStore();
+            setEventStoreServices(eventHttpStub);
+        });
+
         test('should return null when not working', async() => {
             await store.loadSummaries();
 
             expect(store.activeSummary).toBeNull();
+        });
+
+        test('should return null when no task item is active', async() => {
+            eventSummary.unconcludedSinceStart.eventType = EventType.Interruption;
+            await eventStore.loadOngoingEventSummary();
+            await store.loadSummaries();
+
+            expect(store.activeSummary).toBeNull();
+        });
+
+        test('should return active task item', async() => {
+            eventSummary.unconcludedSinceStart.resourceId = summaries[1].id;
+            eventSummary.unconcludedSinceStart.eventType = EventType.Task;
+            await eventStore.loadOngoingEventSummary();
+            await store.loadSummaries();
+
+            expect(store.activeSummary).toEqual(summaries[1]);
         });
     });
 

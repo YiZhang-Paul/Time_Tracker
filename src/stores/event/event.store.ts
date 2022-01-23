@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
-import { OngoingEventTimeSummary } from '../../core/models/event/ongoing-event-time-summary';
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventType } from '../../core/enums/event-type.enum';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
@@ -15,7 +15,7 @@ export const setServices = (eventHttp: EventHttpService): void => {
 
 export const useEventStore = defineStore('event', {
     state: () => ({
-        ongoingEventSummary: null as OngoingEventTimeSummary | null,
+        ongoingEventSummary: null as OngoingEventTimeSummaryDto | null,
         workDurationLimit: oneMinute * 50,
         breakDuration: oneMinute * 10
     }),

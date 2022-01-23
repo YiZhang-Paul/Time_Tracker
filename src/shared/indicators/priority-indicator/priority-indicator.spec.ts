@@ -36,13 +36,13 @@ describe('priority indicator unit test', () => {
     describe('icons', () => {
         test('should return correct icons count', async() => {
             await component.setProps({ priority: Priority.Low });
-            expect(component.vm.icons).toEqual(1);
+            expect(component.findAll('.icon').length).toEqual(1);
 
             await component.setProps({ priority: Priority.Medium });
-            expect(component.vm.icons).toEqual(2);
+            expect(component.findAll('.icon').length).toEqual(2);
 
             await component.setProps({ priority: Priority.High });
-            expect(component.vm.icons).toEqual(3);
+            expect(component.findAll('.icon').length).toEqual(3);
         });
     });
 });

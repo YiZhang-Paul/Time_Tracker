@@ -133,16 +133,7 @@ export default class WorkItems extends Vue {
     }
 
     public onInterruptionStart(id: number): void {
-        if (!this.eventStore.isBreaking) {
-            this.eventStore.startInterruption(id);
-        }
-        else {
-            const title = 'You are still taking rest now. Ready to start working right away?';
-            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
-            const preConfirm = () => this.eventStore.startInterruption(id);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm });
-            this.dialogStore.open(config);
-        }
+        this.onWorkItemStart(() => this.eventStore.startInterruption(id));
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
@@ -178,14 +169,17 @@ export default class WorkItems extends Vue {
     }
 
     public onTaskStart(id: number): void {
+        this.onWorkItemStart(() => this.eventStore.startTask(id));
+    }
+
+    private onWorkItemStart(callback: () => void): void {
         if (!this.eventStore.isBreaking) {
-            this.eventStore.startTask(id);
+            callback();
         }
         else {
             const title = 'You are still taking rest now. Ready to start working right away?';
             const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
-            const preConfirm = () => this.eventStore.startTask(id);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm });
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
             this.dialogStore.open(config);
         }
     }

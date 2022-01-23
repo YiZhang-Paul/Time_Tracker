@@ -1,12 +1,17 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 'sinon';
 
+import { setServices as setEventStoreServices, useEventStore } from '../event/event.store';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
+import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
+import { EventHistory } from '../../core/models/event/event-history';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
+import { EventType } from '../../core/enums/event-type.enum';
 import { Priority } from '../../core/enums/priority.enum';
+import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 import { InterruptionItemHttpService } from '../../core/services/http/interruption-item-http/interruption-item-http.service';
 
-import { setServices, useInterruptionStore } from './interruption.store';
+import { setServices as setInterruptionStoreServices, useInterruptionStore } from './interruption.store';
 
 describe('interruption store unit test', () => {
     let store: ReturnType<typeof useInterruptionStore>;
@@ -15,7 +20,7 @@ describe('interruption store unit test', () => {
 
     beforeEach(() => {
         interruptionItemHttpStub = createStubInstance(InterruptionItemHttpService);
-        setServices(interruptionItemHttpStub);
+        setInterruptionStoreServices(interruptionItemHttpStub);
         setActivePinia(createPinia());
         store = useInterruptionStore();
     });
@@ -55,10 +60,39 @@ describe('interruption store unit test', () => {
     });
 
     describe('activeSummary', () => {
+        let eventSummary: OngoingEventTimeSummaryDto;
+        let eventStore: ReturnType<typeof useEventStore>;
+
+        beforeEach(() => {
+            const eventHttpStub = createStubInstance(EventHttpService);
+            eventSummary = new OngoingEventTimeSummaryDto();
+            eventSummary.unconcludedSinceStart = new EventHistory();
+            eventHttpStub.getOngoingEventSummary.resolves(eventSummary);
+            eventStore = useEventStore();
+            setEventStoreServices(eventHttpStub);
+        });
+
         test('should return null when not working', async() => {
             await store.loadSummaries();
 
             expect(store.activeSummary).toBeNull();
+        });
+
+        test('should return null when no interruption item is active', async() => {
+            eventSummary.unconcludedSinceStart.eventType = EventType.Task;
+            await eventStore.loadOngoingEventSummary();
+            await store.loadSummaries();
+
+            expect(store.activeSummary).toBeNull();
+        });
+
+        test('should return active interruption item', async() => {
+            eventSummary.unconcludedSinceStart.resourceId = summaries[1].id;
+            eventSummary.unconcludedSinceStart.eventType = EventType.Interruption;
+            await eventStore.loadOngoingEventSummary();
+            await store.loadSummaries();
+
+            expect(store.activeSummary).toEqual(summaries[1]);
         });
     });
 

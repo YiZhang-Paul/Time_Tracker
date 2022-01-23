@@ -10,7 +10,7 @@
                 <span>{{ workingDuration }}</span>
             </div>
 
-            <div class="not-working-duration" :class="{ active: eventStore.isNotWorking }">
+            <div class="non-working-duration" :class="{ active: eventStore.isNotWorking }">
                 <palm-tree class="icon" />
                 <span>{{ nonWorkingDuration }}</span>
             </div>
@@ -138,7 +138,7 @@ export default class EventTracker extends Vue {
         @include animate-opacity(0, 1, 0.4s);
     }
 
-    .working-duration, .not-working-duration {
+    .working-duration, .non-working-duration {
         @include flex-row(center);
         width: 40%;
         transition: color 0.5s;
@@ -157,7 +157,7 @@ export default class EventTracker extends Vue {
         color: var(--event-type-colors-working-0-00);
     }
 
-    .not-working-duration .icon {
+    .non-working-duration .icon {
         color: var(--event-type-colors-not-working-0-00);
     }
 }

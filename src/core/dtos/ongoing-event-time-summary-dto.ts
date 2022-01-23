@@ -1,7 +1,7 @@
-import { EventTimeSummary } from './event-time-summary';
-import { EventHistory } from './event-history';
+import { EventTimeSummary } from '../models/event/event-time-summary';
+import { EventHistory } from '../models/event/event-history';
 
-export class OngoingEventTimeSummary {
+export class OngoingEventTimeSummaryDto {
     public concludedSinceStart!: EventTimeSummary;
     public concludedSinceLastBreakPrompt!: EventTimeSummary;
     public unconcludedSinceStart!: EventHistory;
