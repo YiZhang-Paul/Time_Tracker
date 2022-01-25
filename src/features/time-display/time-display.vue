@@ -58,11 +58,11 @@ export default class TimeDisplay extends Vue {
         @include flex-row(center, center);
         box-sizing: border-box;
         margin-left: 8px;
-        padding: 4px 12px;
+        padding: 5px 12px;
         border-radius: 15px;
         background-color: var(--primary-colors-8-00);
         box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-        font-size: var(--font-sizes-200);
+        font-size: var(--font-sizes-300);
     }
 }
 </style>
