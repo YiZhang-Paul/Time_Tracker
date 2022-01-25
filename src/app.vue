@@ -3,6 +3,11 @@
     <event-tracker class="event-tracker"></event-tracker>
     <time-display class="time-display"></time-display>
     <dialogs-base></dialogs-base>
+
+    <div class="build-versions">
+        <span>{{ uiBuildVersion }}</span>
+        <span>{{ apiBuildVersion }}</span>
+    </div>
 </template>
 
 <script lang="ts">
@@ -21,7 +26,17 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
         DialogsBase
     }
 })
-export default class App extends Vue { }
+export default class App extends Vue {
+    /* istanbul ignore next */
+    get uiBuildVersion(): string {
+        return `UI_BUILD ${process.env.VUE_APP_UI_BUILD_VERSION}`;
+    }
+
+    /* istanbul ignore next */
+    get apiBuildVersion(): string {
+        return `API_BUILD ${process.env.VUE_APP_API_BUILD_VERSION}`;
+    }
+}
 </script>
 
 <style lang="scss">
@@ -73,5 +88,14 @@ html, body, #app {
     position: absolute;
     top: $border-gap;
     right: $border-gap;
+}
+
+.build-versions {
+    @include flex-column(flex-end, center);
+    position: absolute;
+    bottom: 0.5vh;
+    right: 0.5vh;
+    color: var(--font-colors-4-00);
+    font-size: var(--font-sizes-100);
 }
 </style>
