@@ -105,6 +105,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     @import '../../../../styles/animations.scss';
 
     @include flex-column();
+    overflow-x: auto;
 
     .list-counter {
         color: var(--font-colors-4-00);
@@ -112,9 +113,10 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     .card-wrapper {
         box-sizing: border-box;
-        margin-bottom: 2vh;
+        margin-bottom: 1rem;
         padding: 0.5vh 1vh 0.5vh 0;
         width: 100%;
+        min-height: 5.25rem;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
         direction: rtl;

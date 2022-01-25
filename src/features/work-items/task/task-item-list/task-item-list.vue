@@ -105,6 +105,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     @import '../../../../styles/animations.scss';
 
     @include flex-column(flex-end);
+    overflow-x: auto;
 
     .list-counter {
         color: var(--font-colors-4-00);
@@ -112,9 +113,10 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     .card-wrapper {
         box-sizing: border-box;
-        margin-bottom: 2vh;
+        margin-bottom: 1rem;
         padding: 0.5vh 0 0.5vh 1vh;
         width: 100%;
+        min-height: 5.25rem;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
     }
