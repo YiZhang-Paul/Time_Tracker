@@ -31,10 +31,10 @@ export default class CreationButton extends Vue.with(CreationButtonProp) { }
 
     &.disabled {
         pointer-events: none;
-        background: linear-gradient(155deg, var(--creation-button-color-start) -12.5%, var(--creation-button-color-end) 75%);
+        box-shadow: none;
+        background: linear-gradient(155deg, var(--context-colors-disabled-0-00) -12.5%, var(--context-colors-disabled-1-00) 75%);
 
         .icon {
-            box-shadow: none;
             color: var(--font-colors-3-00);
         }
     }
