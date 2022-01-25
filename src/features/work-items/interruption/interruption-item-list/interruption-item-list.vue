@@ -2,14 +2,16 @@
     <div class="interruption-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
-        <div class="card-wrapper" v-for="(item, index) of items" :key="index">
-            <interruption-item-card class="interruption-item-card"
-                :class="getItemCardClasses(item)"
-                :item="item"
-                :isSelected="selectedItemId === item.id"
-                :isActive="isActive(item)"
-                @click="$emit('select', item)">
-            </interruption-item-card>
+        <div class="card-wrappers">
+            <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+                <interruption-item-card class="interruption-item-card"
+                    :class="getItemCardClasses(item)"
+                    :item="item"
+                    :isSelected="selectedItemId === item.id"
+                    :isActive="isActive(item)"
+                    @click="$emit('select', item)">
+                </interruption-item-card>
+            </div>
         </div>
     </div>
 </template>
@@ -105,34 +107,40 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     @import '../../../../styles/animations.scss';
 
     @include flex-column();
-    overflow-x: auto;
 
     .list-counter {
+        margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
     }
 
-    .card-wrapper {
-        box-sizing: border-box;
-        margin-bottom: 1rem;
-        padding: 0.5vh 1vh 0.5vh 0;
+    .card-wrappers {
+        @include flex-column();
         width: 100%;
-        min-height: 5.25rem;
-        overflow-x: hidden;
-        @include animate-opacity(0, 1, 0.3s);
-        direction: rtl;
-    }
+        overflow-x: auto;
 
-    .interruption-item-card {
-        margin-right: 110%;
-        transition: margin-right 0.3s, color 0.3s;
-        direction: ltr;
-
-        &.animated {
-            margin-right: 17.5%;
+        .card-wrapper {
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            padding: 0.5vh 1vh 0.5vh 0;
+            width: 100%;
+            min-height: 5.25rem;
+            overflow-x: hidden;
+            @include animate-opacity(0, 1, 0.3s);
+            direction: rtl;
         }
 
-        &.animated.selected {
-            margin-right: 0;
+        .interruption-item-card {
+            margin-right: 110%;
+            transition: margin-right 0.3s, color 0.3s;
+            direction: ltr;
+
+            &.animated {
+                margin-right: 17.5%;
+            }
+
+            &.animated.selected {
+                margin-right: 0;
+            }
         }
     }
 }

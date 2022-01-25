@@ -2,14 +2,16 @@
     <div class="task-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
-        <div class="card-wrapper" v-for="(item, index) of items" :key="index">
-            <task-item-card class="task-item-card"
-                :class="getItemCardClasses(item)"
-                :item="item"
-                :isSelected="selectedItemId === item.id"
-                :isActive="isActive(item)"
-                @click="$emit('select', item)">
-            </task-item-card>
+        <div class="card-wrappers">
+            <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+                <task-item-card class="task-item-card"
+                    :class="getItemCardClasses(item)"
+                    :item="item"
+                    :isSelected="selectedItemId === item.id"
+                    :isActive="isActive(item)"
+                    @click="$emit('select', item)">
+                </task-item-card>
+            </div>
         </div>
     </div>
 </template>
@@ -105,32 +107,38 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     @import '../../../../styles/animations.scss';
 
     @include flex-column(flex-end);
-    overflow-x: auto;
 
     .list-counter {
+        margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
     }
 
-    .card-wrapper {
-        box-sizing: border-box;
-        margin-bottom: 1rem;
-        padding: 0.5vh 0 0.5vh 1vh;
+    .card-wrappers {
+        @include flex-column();
         width: 100%;
-        min-height: 5.25rem;
-        overflow-x: hidden;
-        @include animate-opacity(0, 1, 0.3s);
-    }
+        overflow-x: auto;
 
-    .task-item-card {
-        margin-left: 110%;
-        transition: margin-left 0.3s, color 0.3s;
-
-        &.animated {
-            margin-left: 17.5%;
+        .card-wrapper {
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            padding: 0.5vh 0 0.5vh 1vh;
+            width: 100%;
+            min-height: 5.25rem;
+            overflow-x: hidden;
+            @include animate-opacity(0, 1, 0.3s);
         }
 
-        &.animated.selected {
-            margin-left: 0;
+        .task-item-card {
+            margin-left: 110%;
+            transition: margin-left 0.3s, color 0.3s;
+
+            &.animated {
+                margin-left: 17.5%;
+            }
+
+            &.animated.selected {
+                margin-left: 0;
+            }
         }
     }
 }
