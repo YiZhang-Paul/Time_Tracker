@@ -1,5 +1,7 @@
 <template>
     <div class="task-item-list-container">
+        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+
         <div class="card-wrapper" v-for="(item, index) of items" :key="index">
             <task-item-card class="task-item-card"
                 :class="getItemCardClasses(item)"
@@ -50,6 +52,10 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
 
+    get totalItems(): string {
+        return `${this.items.length} task${this.items.length > 1 ? 's' : ''}`;
+    }
+
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase().trim() ?? '';
         const items = this.taskStore.filteredSummaries(text);
@@ -98,11 +104,17 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    @include flex-column();
+    @include flex-column(flex-end);
+
+    .list-counter {
+        color: var(--font-colors-4-00);
+    }
 
     .card-wrapper {
+        box-sizing: border-box;
         margin-bottom: 2vh;
         padding: 0.5vh 0 0.5vh 1vh;
+        width: 100%;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
     }
@@ -112,7 +124,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         transition: margin-left 0.3s, color 0.3s;
 
         &.animated {
-            margin-left: 20%;
+            margin-left: 17.5%;
         }
 
         &.animated.selected {

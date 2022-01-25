@@ -1,5 +1,7 @@
 <template>
     <div class="interruption-item-list-container">
+        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+
         <div class="card-wrapper" v-for="(item, index) of items" :key="index">
             <interruption-item-card class="interruption-item-card"
                 :class="getItemCardClasses(item)"
@@ -49,6 +51,10 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animated = new Set<number>();
+
+    get totalItems(): string {
+        return `${this.items.length} interruption${this.items.length > 1 ? 's' : ''}`;
+    }
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase().trim() ?? '';
@@ -100,9 +106,15 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     @include flex-column();
 
+    .list-counter {
+        color: var(--font-colors-4-00);
+    }
+
     .card-wrapper {
+        box-sizing: border-box;
         margin-bottom: 2vh;
         padding: 0.5vh 1vh 0.5vh 0;
+        width: 100%;
         overflow-x: hidden;
         @include animate-opacity(0, 1, 0.3s);
         direction: rtl;
@@ -114,7 +126,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         direction: ltr;
 
         &.animated {
-            margin-right: 20%;
+            margin-right: 17.5%;
         }
 
         &.animated.selected {
