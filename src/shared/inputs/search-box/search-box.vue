@@ -4,7 +4,7 @@
             <target v-if="!searchText" class="icon" />
 
             <close-circle-outline v-if="searchText"
-                class="icon clear-button"
+                class="icon reset-button"
                 @click="onReset()" />
 
             <input type="text"
@@ -104,7 +104,7 @@ export default class SearchBox extends Vue {
             @include animate-opacity(0, 1, 0.15s, 0.15s);
         }
 
-        .clear-button {
+        .reset-button {
             color: var(--context-colors-warning-1-00);
 
             &:hover {
