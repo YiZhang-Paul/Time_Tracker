@@ -277,6 +277,8 @@ export default class WorkItems extends Vue {
         position: absolute;
         top: 15%;
         width: 20%;
+        height: 38.5rem;
+        max-height: 77.5%;
     }
 
     .interruption-item-list {

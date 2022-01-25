@@ -1,13 +1,17 @@
 <template>
     <div class="task-item-list-container">
-        <div class="card-wrapper" v-for="(item, index) of items" :key="index">
-            <task-item-card class="task-item-card"
-                :class="getItemCardClasses(item)"
-                :item="item"
-                :isSelected="selectedItemId === item.id"
-                :isActive="isActive(item)"
-                @click="$emit('select', item)">
-            </task-item-card>
+        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+
+        <div class="card-wrappers">
+            <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+                <task-item-card class="task-item-card"
+                    :class="getItemCardClasses(item)"
+                    :item="item"
+                    :isSelected="selectedItemId === item.id"
+                    :isActive="isActive(item)"
+                    @click="$emit('select', item)">
+                </task-item-card>
+            </div>
         </div>
     </div>
 </template>
@@ -49,6 +53,10 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
+
+    get totalItems(): string {
+        return `${this.items.length} task${this.items.length > 1 ? 's' : ''}`;
+    }
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase().trim() ?? '';
@@ -98,25 +106,42 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    @include flex-column();
+    @include flex-column(flex-end);
 
-    .card-wrapper {
-        margin-bottom: 2vh;
-        padding: 0.5vh 0 0.5vh 1vh;
-        overflow-x: hidden;
-        @include animate-opacity(0, 1, 0.3s);
+    .list-counter {
+        margin-bottom: 0.25rem;
+        color: var(--font-colors-4-00);
     }
 
-    .task-item-card {
-        margin-left: 110%;
-        transition: margin-left 0.3s, color 0.3s;
+    .card-wrappers {
+        @include flex-column();
+        padding-right: 0.75vh;
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-color: rgba(195, 195, 195, 0.2) transparent;
+        scrollbar-width: thin;
 
-        &.animated {
-            margin-left: 20%;
+        .card-wrapper {
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            padding: 0.5vh 0 0.5vh 1vh;
+            width: 100%;
+            min-height: 5.25rem;
+            overflow-x: hidden;
+            @include animate-opacity(0, 1, 0.3s);
         }
 
-        &.animated.selected {
-            margin-left: 0;
+        .task-item-card {
+            margin-left: 110%;
+            transition: margin-left 0.3s, color 0.3s;
+
+            &.animated {
+                margin-left: 17.5%;
+            }
+
+            &.animated.selected {
+                margin-left: 0;
+            }
         }
     }
 }

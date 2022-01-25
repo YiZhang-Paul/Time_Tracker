@@ -1,13 +1,17 @@
 <template>
     <div class="interruption-item-list-container">
-        <div class="card-wrapper" v-for="(item, index) of items" :key="index">
-            <interruption-item-card class="interruption-item-card"
-                :class="getItemCardClasses(item)"
-                :item="item"
-                :isSelected="selectedItemId === item.id"
-                :isActive="isActive(item)"
-                @click="$emit('select', item)">
-            </interruption-item-card>
+        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+
+        <div class="card-wrappers">
+            <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+                <interruption-item-card class="interruption-item-card"
+                    :class="getItemCardClasses(item)"
+                    :item="item"
+                    :isSelected="selectedItemId === item.id"
+                    :isActive="isActive(item)"
+                    @click="$emit('select', item)">
+                </interruption-item-card>
+            </div>
         </div>
     </div>
 </template>
@@ -49,6 +53,10 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animated = new Set<number>();
+
+    get totalItems(): string {
+        return `${this.items.length} interruption${this.items.length > 1 ? 's' : ''}`;
+    }
 
     get items(): InterruptionItemSummaryDto[] {
         const text = this.searchText?.toLowerCase().trim() ?? '';
@@ -100,25 +108,43 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     @include flex-column();
 
-    .card-wrapper {
-        margin-bottom: 2vh;
-        padding: 0.5vh 1vh 0.5vh 0;
-        overflow-x: hidden;
-        @include animate-opacity(0, 1, 0.3s);
-        direction: rtl;
+    .list-counter {
+        margin-bottom: 0.25rem;
+        color: var(--font-colors-4-00);
     }
 
-    .interruption-item-card {
-        margin-right: 110%;
-        transition: margin-right 0.3s, color 0.3s;
-        direction: ltr;
+    .card-wrappers {
+        @include flex-column();
+        padding-left: 0.75vh;
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-color: rgba(195, 195, 195, 0.2) transparent;
+        scrollbar-width: thin;
+        direction: rtl;
 
-        &.animated {
-            margin-right: 20%;
+        .card-wrapper {
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            padding: 0.5vh 1vh 0.5vh 0;
+            width: 100%;
+            min-height: 5.25rem;
+            overflow-x: hidden;
+            @include animate-opacity(0, 1, 0.3s);
+            direction: rtl;
         }
 
-        &.animated.selected {
-            margin-right: 0;
+        .interruption-item-card {
+            margin-right: 110%;
+            transition: margin-right 0.3s, color 0.3s;
+            direction: ltr;
+
+            &.animated {
+                margin-right: 17.5%;
+            }
+
+            &.animated.selected {
+                margin-right: 0;
+            }
         }
     }
 }
