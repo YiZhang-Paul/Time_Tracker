@@ -98,6 +98,14 @@ describe('event tracker unit test', () => {
             sinonExpect.calledOnce(skipBreakSpy);
         });
 
+        test('should not show remaining break time when remaining break time is not yet available', async() => {
+            stub(eventStore, 'isBreaking').get(() => true);
+            stub(eventStore, 'getRemainingBreak').returns(0);
+            await nextTick();
+
+            expect(component.find('.remaining-break').exists()).toEqual(false);
+        });
+
         test('should update remaining break time every second when break session is active', async() => {
             const getRemainingBreakStub = stub(eventStore, 'getRemainingBreak').returns(300000);
             stub(eventStore, 'isBreaking').get(() => true);
