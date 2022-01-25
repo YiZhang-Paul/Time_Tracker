@@ -115,8 +115,11 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     .card-wrappers {
         @include flex-column();
+        padding-right: 0.75vh;
         width: 100%;
         overflow-x: auto;
+        scrollbar-color: rgba(195, 195, 195, 0.2) transparent;
+        scrollbar-width: thin;
 
         .card-wrapper {
             box-sizing: border-box;
