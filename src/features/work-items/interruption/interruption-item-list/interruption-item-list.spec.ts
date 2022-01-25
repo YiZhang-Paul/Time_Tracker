@@ -31,6 +31,37 @@ describe('interruption item list unit test', () => {
         expect(component).toBeTruthy();
     });
 
+    describe('totalItems', () => {
+        test('should be hidden when no interruption item exists', async() => {
+            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
+            await component.setProps({ searchText: null });
+
+            expect(component.find('.list-counter').exists()).toEqual(false);
+        });
+
+        test('should display total interruption items', async() => {
+            const summaries = [
+                { id: 3 } as InterruptionItemSummaryDto,
+                { id: 6 } as InterruptionItemSummaryDto,
+                { id: 7 } as InterruptionItemSummaryDto
+            ];
+
+            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
+            interruptionStore.$reset();
+            await nextTick();
+
+            expect(component.find('.list-counter').text()).toEqual('3 interruptions');
+        });
+
+        test('should handle singular form', async() => {
+            stub(interruptionStore, 'filteredSummaries').get(() => () => [{ id: 3 } as InterruptionItemSummaryDto]);
+            interruptionStore.$reset();
+            await nextTick();
+
+            expect(component.find('.list-counter').text()).toEqual('1 interruption');
+        });
+    });
+
     describe('items', () => {
         test('should properly transform search text', async() => {
             const filteredSummariesStub = stub().returns([]);

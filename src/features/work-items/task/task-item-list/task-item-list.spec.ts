@@ -31,6 +31,37 @@ describe('task item list unit test', () => {
         expect(component).toBeTruthy();
     });
 
+    describe('totalItems', () => {
+        test('should be hidden when no task item exists', async() => {
+            stub(taskStore, 'filteredSummaries').get(() => () => []);
+            await component.setProps({ searchText: null });
+
+            expect(component.find('.list-counter').exists()).toEqual(false);
+        });
+
+        test('should display total task items', async() => {
+            const summaries = [
+                { id: 1 } as TaskItemSummaryDto,
+                { id: 2 } as TaskItemSummaryDto,
+                { id: 3 } as TaskItemSummaryDto
+            ];
+
+            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
+            taskStore.$reset();
+            await nextTick();
+
+            expect(component.find('.list-counter').text()).toEqual('3 tasks');
+        });
+
+        test('should handle singular form', async() => {
+            stub(taskStore, 'filteredSummaries').get(() => () => [{ id: 1 } as TaskItemSummaryDto]);
+            taskStore.$reset();
+            await nextTick();
+
+            expect(component.find('.list-counter').text()).toEqual('1 task');
+        });
+    });
+
     describe('items', () => {
         test('should properly transform search text', async() => {
             const filteredSummariesStub = stub().returns([]);
