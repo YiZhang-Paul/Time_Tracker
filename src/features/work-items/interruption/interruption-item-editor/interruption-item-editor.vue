@@ -31,8 +31,8 @@
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <content-save class="action-button save-button" @click="onSave()" />
-            <delete class="action-button delete-button" @click="$emit('delete', item)" />
+            <cloud-upload class="action-button save-button" @click="onSave()" />
+            <delete-variant class="action-button delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
 </template>
@@ -40,7 +40,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ContentSave, Delete, PlayCircle, StopCircle } from 'mdue';
+import { CloudUpload, DeleteVariant, PlayCircle, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
@@ -55,8 +55,8 @@ class InterruptionItemEditorProp {
 
 @Options({
     components: {
-        ContentSave,
-        Delete,
+        CloudUpload,
+        DeleteVariant,
         PlayCircle,
         StopCircle,
         PriorityIndicator

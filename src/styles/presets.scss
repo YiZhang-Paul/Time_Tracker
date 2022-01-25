@@ -24,12 +24,14 @@
     --primary-colors-9-00: rgb(59, 54, 69);
     --primary-colors-10-00: rgb(49, 45, 60);
     // item type colors
-    --item-type-colors-task-0-00: rgb(23, 135, 141);
+    --item-type-colors-task-0-00: rgb(40, 207, 216);
+    --item-type-colors-task-1-00: rgb(23, 135, 141);
     --item-type-colors-task-2-02: rgba(25, 184, 247, 0.2);
-    --item-type-colors-interruption-0-00: rgb(157, 125, 42);
+    --item-type-colors-interruption-0-00: rgb(219, 177, 70);
+    --item-type-colors-interruption-1-00: rgb(157, 125, 42);
     --item-type-colors-interruption-2-02: rgba(228, 188, 87, 0.2);
     // event type colors
-    --event-type-colors-working-0-00: rgb(175, 139, 20);
+    --event-type-colors-working-0-00: rgb(255, 67, 67);
     --event-type-colors-not-working-0-00: rgb(28, 228, 128);
     // priority colors
     --priority-colors-low-0-00: rgb(86, 233, 28);
@@ -51,6 +53,8 @@
     --context-colors-warning-1-00: rgb(212, 32, 32);
     --context-colors-info-0-00: rgb(34, 198, 219);
     --context-colors-info-1-00: rgb(26, 168, 187);
+    --context-colors-disabled-0-00: rgb(145, 145, 145);
+    --context-colors-disabled-1-00: rgb(85, 85, 85);
 }
 
 @mixin flex-row($align: initial, $justify: initial) {

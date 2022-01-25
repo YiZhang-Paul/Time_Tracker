@@ -1,21 +1,29 @@
 <template>
     <div class="search-box-container">
-        <div class="box-border">
-            <target class="icon" />
+        <div class="inner-wrapper" :class="{ active: isFocused }">
+            <target v-if="!searchText" class="icon" />
+
+            <close-circle-outline v-if="searchText"
+                class="icon reset-button"
+                @click="onReset()" />
 
             <input type="text"
                 placeholder="search items here..."
-                @keyup="onSearch($event.target.value)" />
+                v-model="searchText"
+                @keyup="onSearch()"
+                @focus="isFocused = true"
+                @blur="isFocused = false" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { Target } from 'mdue';
+import { CloseCircleOutline, Target } from 'mdue';
 
 @Options({
     components: {
+        CloseCircleOutline,
         Target
     },
     emits: [
@@ -23,13 +31,18 @@ import { Target } from 'mdue';
     ]
 })
 export default class SearchBox extends Vue {
+    public isFocused = false;
+    public searchText = '';
     private debounce: number | null = null;
     private previous = '';
 
-    public onSearch(text: string): void {
-        const current = text?.trim() ?? '';
+    public onReset(): void {
+        this.searchText = '';
+        this.onSearch();
+    }
 
-        if (current === this.previous) {
+    public onSearch(): void {
+        if (this.searchText === this.previous) {
             return;
         }
 
@@ -38,8 +51,8 @@ export default class SearchBox extends Vue {
         }
 
         this.debounce = setTimeout(() => {
-            this.$emit('search', current);
-            this.previous = current;
+            this.$emit('search', this.searchText);
+            this.previous = this.searchText;
         }, 200);
     }
 }
@@ -66,7 +79,7 @@ export default class SearchBox extends Vue {
         0.6s
     );
 
-    .box-border {
+    .inner-wrapper{
         $padding: 1.5vh;
 
         @include flex-row(center, center);
@@ -78,8 +91,26 @@ export default class SearchBox extends Vue {
         border: 1px solid var(--primary-colors-5-00);
         @include animate-opacity(0, 1, 0.3s, 0.85s);
 
+        &.active {
+            color: var(--font-colors-2-00);
+        }
+
+        .icon, input {
+            transition: color 0.3s;
+        }
+
         .icon {
             margin-right: 4px;
+            @include animate-opacity(0, 1, 0.15s, 0.15s);
+        }
+
+        .reset-button {
+            color: var(--context-colors-warning-1-00);
+
+            &:hover {
+                cursor: pointer;
+                color: var(--context-colors-warning-0-00);
+            }
         }
 
         input {

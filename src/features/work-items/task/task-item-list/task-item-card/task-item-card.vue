@@ -57,7 +57,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         margin-left: $margin;
         width: calc(#{$height} - #{$margin} * 2);
         height: calc(#{$height} - #{$margin} * 2);
-        border: 2px dashed var(--item-type-colors-task-0-00);
+        border: 2px dashed var(--item-type-colors-task-1-00);
         border-radius: 50%;
         background-clip: padding-box;
         font-size: var(--font-sizes-500);
