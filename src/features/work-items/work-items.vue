@@ -1,7 +1,9 @@
 <template>
     <div class="work-items-container">
-        <search-box class="search-box" @search="searchText = $event"></search-box>
-        <work-item-creator class="work-item-creator"></work-item-creator>
+        <div class="actions-bar">
+            <search-box class="search-box" @search="searchText = $event"></search-box>
+            <work-item-creator class="work-item-creator"></work-item-creator>
+        </div>
 
         <interruption-item-editor v-if="interruptionStore.editingItem"
             class="interruption-item-editor"
@@ -229,49 +231,52 @@ export default class WorkItems extends Vue {
 
 <style lang="scss" scoped>
 .work-items-container {
+    @import '../../styles/presets.scss';
     @import '../../styles/animations.scss';
 
     $border-gap: 1.5vh;
-    $search-box-width: 35%;
-    $search-box-height: 9%;
-    $item-list-width: 20%;
-    $item-creator-dimension: 5.5vh;
 
     box-sizing: border-box;
     position: relative;
 
-    .search-box {
+    .actions-bar, .interruption-item-editor, .task-item-editor {
+        $width: 45%;
+
         position: absolute;
-        top: $border-gap;
-        left: calc(50% - #{$search-box-width} / 2);
-        width: $search-box-width;
-        height: $search-box-height;
+        left: calc(50% - #{$width} / 2);
+        width: $width;
     }
 
-    .work-item-creator {
-        z-index: 1;
-        position: absolute;
-        width: $item-creator-dimension;
-        height: $item-creator-dimension;
-        top: calc(#{$border-gap} + (#{$search-box-height} - #{$item-creator-dimension}) / 2);
-        left: calc(50% + #{$search-box-width} / 2 + 2.5vh);
-        @include animate-opacity(0, 1, 0.3s, 0.8s);
+    .actions-bar {
+        $creator-dimension: 5.5vh;
+
+        @include flex-row(center, space-between);
+        box-sizing: border-box;
+        padding: 0 1vh;
+        top: $border-gap;
+        height: 9%;
+
+        .search-box {
+            width: calc(100% - 2vh - #{$creator-dimension});
+            height: 100%;
+        }
+
+        .work-item-creator {
+            width: $creator-dimension;
+            height: $creator-dimension;
+            @include animate-opacity(0, 1, 0.3s, 0.8s);
+        }
     }
 
     .interruption-item-editor, .task-item-editor {
-        $editor-width: 45%;
-
-        position: absolute;
-        left: calc(50% - #{$editor-width} / 2);
-        bottom: calc(#{$item-creator-dimension} + 7.5%);
-        width: $editor-width;
+        bottom: 12.5vh;
         height: 67.5%;
     }
 
     .interruption-item-list, .task-item-list {
         position: absolute;
         top: 15%;
-        width: $item-list-width;
+        width: 20%;
     }
 
     .interruption-item-list {
