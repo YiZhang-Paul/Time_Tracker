@@ -67,7 +67,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         margin-right: $margin;
         width: calc(#{$height} - #{$margin} * 2);
         height: calc(#{$height} - #{$margin} * 2);
-        border: 2px dashed var(--item-type-colors-interruption-0-00);
+        border: 2px dashed var(--item-type-colors-interruption-1-00);
         border-radius: 50%;
         background-clip: padding-box;
         font-size: var(--font-sizes-600);

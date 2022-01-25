@@ -7,16 +7,16 @@
 
         <div class="options">
             <raised-button class="option" @click="$emit('confirm', true)">
-                <div class="option-content">
+                <div class="option-content interruption-content">
                     <span>Interruption</span>
-                    <car-brake-alert class="icon" />
+                    <flash-alert class="icon" />
                 </div>
             </raised-button>
 
             <raised-button class="option" @click="$emit('confirm', false)">
-                <div class="option-content">
+                <div class="option-content task-content">
                     <span>Task</span>
-                    <calendar-check class="icon" />
+                    <sitemap class="icon" />
                 </div>
             </raised-button>
         </div>
@@ -27,16 +27,16 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { CarBrakeAlert, CalendarCheck, LightbulbOn } from 'mdue';
+import { FlashAlert, LightbulbOn, Sitemap } from 'mdue';
 
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 import RaisedButton from '../../../shared/buttons/raised-button/raised-button.vue';
 
 @Options({
     components: {
-        CarBrakeAlert,
-        CalendarCheck,
+        FlashAlert,
         LightbulbOn,
+        Sitemap,
         FlatButton,
         RaisedButton
     },
@@ -79,15 +79,19 @@ export default class WorkItemTypeSelectionDialog extends Vue { }
             width: 45%;
             height: 20vh;
 
-            &:hover ::v-deep(.content-wrapper) {
-                background-color: var(--primary-colors-8-00);
-                color: var(--context-colors-suggestion-0-00);
+            &:hover .interruption-content {
+                color: var(--item-type-colors-interruption-0-00);
+            }
+
+            &:hover .task-content {
+                color: var(--item-type-colors-task-0-00);
             }
 
             .option-content {
                 @include flex-column(center, center);
                 width: 100%;
                 height: 100%;
+                transition: color 0.3s;
 
                 .icon {
                     margin-top: 2.5vh;

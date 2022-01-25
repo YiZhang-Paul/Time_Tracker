@@ -25,14 +25,14 @@
             </template>
 
             <div class="effort-selector" @click="onEffortSelect()">
-                <weight class="icon" />
+                <dumbbell class="icon" />
                 <span>{{ item.effort }}</span>
             </div>
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <content-save class="action-button save-button" @click="onSave()" />
-            <delete class="action-button delete-button" @click="$emit('delete', item)" />
+            <cloud-upload class="action-button save-button" @click="onSave()" />
+            <delete-variant class="action-button delete-button" @click="$emit('delete', item)" />
         </div>
     </div>
 </template>
@@ -40,7 +40,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ContentSave, Delete, Weight, PlayCircle, StopCircle } from 'mdue';
+import { CloudUpload, DeleteVariant, Dumbbell, PlayCircle, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { TaskItem } from '../../../../core/models/task/task-item';
@@ -53,9 +53,9 @@ class TaskItemEditorProp {
 
 @Options({
     components: {
-        ContentSave,
-        Delete,
-        Weight,
+        CloudUpload,
+        DeleteVariant,
+        Dumbbell,
         PlayCircle,
         StopCircle
     },

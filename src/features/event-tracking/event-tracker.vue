@@ -6,12 +6,12 @@
 
         <template v-if="!eventStore.isBreaking">
             <div class="working-duration" :class="{ active: eventStore.isWorking }">
-                <briefcase class="icon" />
+                <sword-cross class="icon" />
                 <span>{{ workingDuration }}</span>
             </div>
 
             <div class="non-working-duration" :class="{ active: eventStore.isNotWorking }">
-                <palm-tree class="icon" />
+                <shield-cross class="icon" />
                 <span>{{ nonWorkingDuration }}</span>
             </div>
         </template>
@@ -22,7 +22,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Briefcase, PalmTree } from 'mdue';
+import { ShieldCross, SwordCross } from 'mdue';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
@@ -34,8 +34,8 @@ import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirm
 
 @Options({
     components: {
-        Briefcase,
-        PalmTree
+        ShieldCross,
+        SwordCross
     },
     computed: {
         ...mapStores(useDialogStore, useEventStore)
