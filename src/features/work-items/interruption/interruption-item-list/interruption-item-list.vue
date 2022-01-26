@@ -2,7 +2,7 @@
     <div class="interruption-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
-        <div class="card-wrappers">
+        <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
                 <interruption-item-card class="interruption-item-card"
                     :class="getItemCardClasses(item)"
@@ -12,7 +12,7 @@
                     @click="$emit('select', item)">
                 </interruption-item-card>
             </div>
-        </div>
+        </overlay-scrollbar-panel>
     </div>
 </template>
 
@@ -25,6 +25,7 @@ import { useInterruptionStore } from '../../../../stores/interruption/interrupti
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
 
@@ -34,6 +35,7 @@ class InterruptionItemListProp {
 
 @Options({
     components: {
+        OverlayScrollbarPanel,
         InterruptionItemCard
     },
     watch: {
@@ -115,11 +117,8 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     .card-wrappers {
         @include flex-column();
-        padding-left: 0.75vh;
         width: 100%;
-        overflow-x: auto;
-        scrollbar-color: rgba(195, 195, 195, 0.2) transparent;
-        scrollbar-width: thin;
+        height: 100%;
         direction: rtl;
 
         .card-wrapper {

@@ -8,6 +8,7 @@ import { useTaskStore } from '../../../../stores/task/task.store';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import TaskItemList from './task-item-list.vue';
 
@@ -18,7 +19,13 @@ describe('task item list unit test', () => {
     let taskStore: ReturnType<typeof useTaskStore>;
 
     beforeEach(() => {
-        component = shallowMount(TaskItemList, { global: { plugins: [createTestingPinia()] } });
+        component = shallowMount(TaskItemList, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: { 'overlay-scrollbar-panel': OverlayScrollbarPanel }
+            }
+        });
+
         eventStore = useEventStore();
         taskStore = useTaskStore();
     });

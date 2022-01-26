@@ -8,6 +8,7 @@ import { useInterruptionStore } from '../../../../stores/interruption/interrupti
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import InterruptionItemList from './interruption-item-list.vue';
 
@@ -18,7 +19,13 @@ describe('interruption item list unit test', () => {
     let interruptionStore: ReturnType<typeof useInterruptionStore>;
 
     beforeEach(() => {
-        component = shallowMount(InterruptionItemList, { global: { plugins: [createTestingPinia()] } });
+        component = shallowMount(InterruptionItemList, {
+            global: {
+                plugins: [createTestingPinia()],
+                stubs: { 'overlay-scrollbar-panel': OverlayScrollbarPanel }
+            }
+        });
+
         eventStore = useEventStore();
         interruptionStore = useInterruptionStore();
     });
