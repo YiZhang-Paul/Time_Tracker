@@ -127,6 +127,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
             width: 100%;
             min-height: 5.25rem;
             overflow-x: hidden;
+            scroll-snap-align: start;
             @include animate-opacity(0, 1, 0.3s);
         }
 
