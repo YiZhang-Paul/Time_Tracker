@@ -2,7 +2,7 @@
     <div class="task-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
-        <div class="card-wrappers">
+        <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
                 <task-item-card class="task-item-card"
                     :class="getItemCardClasses(item)"
@@ -12,7 +12,7 @@
                     @click="$emit('select', item)">
                 </task-item-card>
             </div>
-        </div>
+        </overlay-scrollbar-panel>
     </div>
 </template>
 
@@ -25,6 +25,7 @@ import { useTaskStore } from '../../../../stores/task/task.store';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import TaskItemCard from './task-item-card/task-item-card.vue';
 
@@ -34,6 +35,7 @@ class TaskItemListProp {
 
 @Options({
     components: {
+        OverlayScrollbarPanel,
         TaskItemCard
     },
     watch: {
@@ -115,11 +117,8 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     .card-wrappers {
         @include flex-column();
-        padding-right: 0.75vh;
         width: 100%;
-        overflow-x: auto;
-        scrollbar-color: rgba(195, 195, 195, 0.2) transparent;
-        scrollbar-width: thin;
+        height: 100%;
 
         .card-wrapper {
             box-sizing: border-box;
