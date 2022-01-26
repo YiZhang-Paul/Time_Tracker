@@ -33,6 +33,9 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
     @import '../../../../../styles/presets.scss';
 
     $height: 7.5vh;
+    $name-margin: 1vh;
+    $indicator-margin: 0.75vh;
+    $indicator-dimension: calc(#{$height} - #{$indicator-margin} * 2);
 
     @include flex-row(center, flex-end);
     box-sizing: border-box;
@@ -56,17 +59,24 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         color: var(--context-colors-suggestion-0-00);
     }
 
+    &.selected .name {
+        max-width: calc(97.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+    }
+
     .name {
-        margin-right: 1vh;
+        @include line-clamp-vertical();
+        margin-right: $name-margin;
+        max-width: calc(80% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+        transition: max-width 0.3s;
     }
 
     .progress-indicator {
-        $margin: 0.75vh;
-
         @include flex-row(center, center);
-        margin-right: $margin;
-        width: calc(#{$height} - #{$margin} * 2);
-        height: calc(#{$height} - #{$margin} * 2);
+        margin-right: $indicator-margin;
+        width: $indicator-dimension;
+        min-width: $indicator-dimension;
+        height: $indicator-dimension;
+        min-height: $indicator-dimension;
         border: 2px dashed var(--item-type-colors-interruption-1-00);
         border-radius: 50%;
         background-clip: padding-box;
