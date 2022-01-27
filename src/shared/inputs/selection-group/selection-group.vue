@@ -1,5 +1,5 @@
 <template>
-    <div class="selection-group-container">
+    <div class="selection-group-container" ref="container">
         <span v-if="!isComponent(selected)" @click="showOptions = !showOptions">{{ selected }}</span>
 
         <div v-if="showOptions" class="options">
@@ -41,10 +41,15 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
 
     public mounted(): void {
         this.selected = this.selectedOption;
+        document.addEventListener('click', this.checkClickOutside);
 
         if (this.selected === '' && this.options.length) {
             this.selected = this.options[0];
         }
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('click', this.checkClickOutside);
     }
 
     public isComponent(option: string | DynamicComponentOption<unknown>): boolean {
@@ -57,6 +62,16 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
         if (option !== this.selected) {
             this.selected = option;
             this.$emit('select', option);
+        }
+    }
+
+    private checkClickOutside(event: Event): void {
+        const path = event.composedPath();
+        const container = this.$refs.container as HTMLElement;
+        const target = event.target as HTMLElement;
+
+        if (path && !path.includes(container) && !container.contains(target)) {
+            this.showOptions = false;
         }
     }
 }
