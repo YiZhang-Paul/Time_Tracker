@@ -5,7 +5,6 @@ import { assert as sinonExpect, stub } from 'sinon';
 import { useEventStore } from '../../../../stores/event/event.store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
-import { Priority } from '../../../../core/enums/priority.enum';
 
 import InterruptionItemEditor from './interruption-item-editor.vue';
 
@@ -56,21 +55,6 @@ describe('interruption item editor unit test', () => {
             await component.setProps({ item });
 
             expect(component.find('.footer > span').text()).toEqual('Created 5:35 AM, 2/15/2022');
-        });
-    });
-
-    describe('onPrioritySelect', () => {
-        test('should select next available priority', () => {
-            expect(component.vm.item.priority).toEqual(Priority.Low);
-
-            component.vm.onPrioritySelect();
-            expect(component.vm.item.priority).toEqual(Priority.Medium);
-
-            component.vm.onPrioritySelect();
-            expect(component.vm.item.priority).toEqual(Priority.High);
-
-            component.vm.onPrioritySelect();
-            expect(component.vm.item.priority).toEqual(Priority.Low);
         });
     });
 

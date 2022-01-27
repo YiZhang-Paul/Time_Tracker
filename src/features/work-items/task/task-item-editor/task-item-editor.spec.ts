@@ -58,30 +58,6 @@ describe('task item editor unit test', () => {
         });
     });
 
-    describe('onEffortSelect', () => {
-        test('should select next available effort value', () => {
-            expect(component.vm.item.effort).toEqual(1);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(2);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(3);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(5);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(8);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(13);
-
-            component.vm.onEffortSelect();
-            expect(component.vm.item.effort).toEqual(1);
-        });
-    });
-
     describe('onSave', () => {
         test('should do nothing when name is whitespace', async() => {
             await component.setProps({ item: new TaskItem(-1, ' ') });
