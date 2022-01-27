@@ -25,6 +25,11 @@
             @stop="eventStore.startIdling()">
         </task-item-editor>
 
+        <div v-if="!isEditing" class="editor-placeholder">
+            <span v-if="hasWorkItem">You still got things to do. Pick one and get it done.</span>
+            <span v-if="!hasWorkItem">You sure you have nothing to do, you dipshit?</span>
+        </div>
+
         <interruption-item-list class="interruption-item-list"
             :searchText="searchText"
             @select="onInterruptionSelect($event)">
@@ -82,6 +87,14 @@ export default class WorkItems extends Vue {
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
+
+    get isEditing(): boolean {
+        return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
+    }
+
+    get hasWorkItem(): boolean {
+        return Boolean(this.interruptionStore.summaries.length) || Boolean(this.taskStore.summaries.length);
+    }
 
     public created(): void {
         this.initialize();
@@ -239,7 +252,7 @@ export default class WorkItems extends Vue {
     box-sizing: border-box;
     position: relative;
 
-    .actions-bar, .interruption-item-editor, .task-item-editor {
+    .actions-bar, .interruption-item-editor, .task-item-editor, .editor-placeholder {
         $width: 45%;
 
         position: absolute;
@@ -268,9 +281,16 @@ export default class WorkItems extends Vue {
         }
     }
 
-    .interruption-item-editor, .task-item-editor {
+    .interruption-item-editor, .task-item-editor, .editor-placeholder {
         bottom: 12.5vh;
         height: 67.5%;
+    }
+
+    .editor-placeholder {
+        @include flex-row(center, center);
+        color: var(--font-colors-2-00);
+        font-size: var(--font-sizes-700);
+        @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 
     .interruption-item-list, .task-item-list {
