@@ -24,9 +24,13 @@
                     @click="$emit('stop', item)" />
             </template>
 
-            <div class="effort-selector" @click="onEffortSelect()">
+            <div class="effort-selector">
                 <dumbbell class="icon" />
-                <span>{{ item.effort }}</span>
+
+                <selection-group :options="effortOptions"
+                    :selectedOption="item.effort"
+                    @select="item.effort = $event">
+                </selection-group>
             </div>
 
             <div class="filler"></div>
@@ -46,6 +50,7 @@ import { useEventStore } from '../../../../stores/event/event.store';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
@@ -57,7 +62,8 @@ class TaskItemEditorProp {
         DeleteVariant,
         Dumbbell,
         PlayCircle,
-        StopCircle
+        StopCircle,
+        SelectionGroup
     },
     emits: [
         'create',
@@ -72,6 +78,7 @@ class TaskItemEditorProp {
 })
 /* istanbul ignore next */
 export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
+    public readonly effortOptions = [1, 2, 3, 5, 8, 13];
     private eventStore!: ReturnType<typeof useEventStore>;
 
     get isActiveWorkItem(): boolean {
@@ -80,12 +87,6 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
-    }
-
-    public onEffortSelect(): void {
-        const options = [1, 2, 3, 5, 8, 13];
-        const index = options.indexOf(this.item.effort) + 1;
-        this.item.effort = options[index % options.length];
     }
 
     public onSave(): void {
