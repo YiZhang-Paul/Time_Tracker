@@ -1,15 +1,17 @@
 <template>
     <div class="selection-group-container" ref="container" @click="showOptions = !showOptions">
         <slot></slot>
+        <component v-if="isComponent(selected)" :is="selected.component" v-bind="selected.properties"></component>
         <span v-if="!isComponent(selected)">{{ selected }}</span>
 
         <div v-if="showOptions" class="options">
             <div v-for="(option, index) in options"
                 class="option"
-                :class="{ selected: selected === option }"
+                :class="{ selected: !isComponent(selected) && selected === option }"
                 :key="index"
                 @click.stop="onSelect(option)">
 
+                <component v-if="isComponent(option)" :is="option.component" v-bind="option.properties"></component>
                 <span v-if="!isComponent(option)">{{ option }}</span>
             </div>
         </div>
@@ -90,11 +92,11 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
     .options {
         @include flex-row(center, center);
         position: absolute;
-        bottom: calc(100% + 0.75vh);
+        bottom: calc(100% + 1vh);
         @include animate-opacity(0, 1, 0.2s);
 
         .option {
-            $dimension: 3vh;
+            $dimension: 3.5vh;
 
             @include flex-row(center, center);
             min-width: $dimension;

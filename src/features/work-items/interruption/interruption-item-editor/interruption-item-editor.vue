@@ -24,10 +24,11 @@
                     @click="$emit('stop', item)" />
             </template>
 
-            <priority-indicator class="priority-selector"
-                :priority="item.priority"
-                @click="onPrioritySelect()">
-            </priority-indicator>
+            <selection-group class="priority-selector"
+                :options="priorityOptions"
+                :selectedOption="priority"
+                @select="item.priority = $event.properties.priority">
+            </selection-group>
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
@@ -38,16 +39,19 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
 import { CloudUpload, DeleteVariant, PlayCircle, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
+import { DynamicComponentOption } from '../../../../core/models/options/dynamic-component-option';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
+import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
 
 class InterruptionItemEditorProp {
     public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });
@@ -59,7 +63,8 @@ class InterruptionItemEditorProp {
         DeleteVariant,
         PlayCircle,
         StopCircle,
-        PriorityIndicator
+        PriorityIndicator,
+        SelectionGroup
     },
     emits: [
         'create',
@@ -74,7 +79,18 @@ class InterruptionItemEditorProp {
 })
 /* istanbul ignore next */
 export default class InterruptionItemEditor extends Vue.with(InterruptionItemEditorProp) {
+    public readonly priorityOptions = [Priority.Low, Priority.Medium, Priority.High].map(_ => {
+        const component = markRaw(PriorityIndicator);
+        const properties = { priority: _ };
+
+        return new DynamicComponentOption(component, properties);
+    });
+
     private eventStore!: ReturnType<typeof useEventStore>;
+
+    get priority(): DynamicComponentOption<typeof PriorityIndicator> {
+        return this.priorityOptions.find(_ => _.properties.priority === this.item.priority)!;
+    }
 
     get isActiveWorkItem(): boolean {
         return this.eventStore.isActiveWorkItem(EventType.Interruption, this.item.id);
@@ -82,12 +98,6 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
 
     get creationTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
-    }
-
-    public onPrioritySelect(): void {
-        const options = [Priority.Low, Priority.Medium, Priority.High];
-        const index = options.indexOf(this.item.priority) + 1;
-        this.item.priority = options[index % options.length];
     }
 
     public onSave(): void {
@@ -177,14 +187,7 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
         @include animate-opacity(0, 1, 0.3s, 0.6s);
 
         .priority-selector {
-            min-width: 2.5vh;
             font-size: var(--font-sizes-400);
-            transition: filter 0.3s;
-
-            &:hover {
-                cursor: pointer;
-                filter: brightness(1.25);
-            }
         }
 
         .filler {
