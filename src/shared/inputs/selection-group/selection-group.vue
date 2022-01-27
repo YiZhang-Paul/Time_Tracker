@@ -3,7 +3,12 @@
         <span v-if="!isComponent(selected)" @click="showOptions = !showOptions">{{ selected }}</span>
 
         <div v-if="showOptions" class="options">
-            <div v-for="(option, index) in options" class="option" :key="index" @click="onSelect(option)">
+            <div v-for="(option, index) in options"
+                class="option"
+                :class="{ selected: selected === option }"
+                :key="index"
+                @click="onSelect(option)">
+
                 <span v-if="!isComponent(option)">{{ option }}</span>
             </div>
         </div>
@@ -60,14 +65,16 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
 <style lang="scss" scoped>
 .selection-group-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-row(center, center);
     position: relative;
 
     .options {
-        @include flex-column(center, center);
+        @include flex-row(center, center);
         position: absolute;
-        left: calc(100% + 0.75vh);
+        bottom: calc(100% + 0.75vh);
+        @include animate-opacity(0, 1, 0.2s);
 
         .option {
             $dimension: 3vh;
@@ -75,10 +82,22 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
             @include flex-row(center, center);
             min-width: $dimension;
             min-height: $dimension;
-            border: 1px solid red;
+            border-radius: 5px;
+            border: 2px solid var(--context-colors-info-1-00);
+            background-color: var(--primary-colors-9-00);
+            transition: all 0.2s;
+
+            &.selected {
+                color: var(--context-colors-info-1-00);
+            }
 
             &:not(:last-of-type) {
-                margin-bottom: 0.5vh;
+                margin-right: 0.5vh;
+            }
+
+            &:hover {
+                color: var(--context-colors-suggestion-0-00);
+                background-color: var(--primary-colors-6-00);
             }
         }
     }
