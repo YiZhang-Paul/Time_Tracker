@@ -24,14 +24,13 @@
                     @click="$emit('stop', item)" />
             </template>
 
-            <div class="effort-selector">
-                <dumbbell class="icon" />
+            <selection-group class="effort-selector"
+                :options="effortOptions"
+                :selectedOption="item.effort"
+                @select="item.effort = $event">
 
-                <selection-group :options="effortOptions"
-                    :selectedOption="item.effort"
-                    @select="item.effort = $event">
-                </selection-group>
-            </div>
+                <dumbbell class="icon" />
+            </selection-group>
 
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
@@ -176,16 +175,14 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         @include animate-opacity(0, 1, 0.3s, 0.6s);
 
         .effort-selector {
-            @include flex-row(center, center);
             transition: color 0.3s;
 
             &:hover {
-                cursor: pointer;
                 color: var(--font-colors-0-00);
             }
 
             .icon {
-                margin-right: 4px;
+                margin-right: 2px;
             }
         }
 

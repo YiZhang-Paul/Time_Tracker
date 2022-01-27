@@ -1,13 +1,14 @@
 <template>
-    <div class="selection-group-container" ref="container">
-        <span v-if="!isComponent(selected)" @click="showOptions = !showOptions">{{ selected }}</span>
+    <div class="selection-group-container" ref="container" @click="showOptions = !showOptions">
+        <slot></slot>
+        <span v-if="!isComponent(selected)">{{ selected }}</span>
 
         <div v-if="showOptions" class="options">
             <div v-for="(option, index) in options"
                 class="option"
                 :class="{ selected: selected === option }"
                 :key="index"
-                @click="onSelect(option)">
+                @click.stop="onSelect(option)">
 
                 <span v-if="!isComponent(option)">{{ option }}</span>
             </div>
@@ -84,6 +85,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
 
     @include flex-row(center, center);
     position: relative;
+    cursor: pointer;
 
     .options {
         @include flex-row(center, center);
