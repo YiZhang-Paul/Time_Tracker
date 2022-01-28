@@ -108,32 +108,18 @@ describe('task item list unit test', () => {
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
         });
 
-        test('should include active summary item when available', () => {
+        test('should exclude active summary item', () => {
             const summaries = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
                 { id: 3 } as TaskItemSummaryDto
             ];
 
-            stub(taskStore, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
+            stub(taskStore, 'activeSummary').get(() => ({ id: 2 } as TaskItemSummaryDto));
             stub(taskStore, 'filteredSummaries').get(() => () => summaries);
             taskStore.$reset();
 
-            expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 2, 3]);
-        });
-
-        test('should avoid including duplicate active summary item and ensure it is always on top', () => {
-            const summaries = [
-                { id: 1 } as TaskItemSummaryDto,
-                { id: 9 } as TaskItemSummaryDto,
-                { id: 3 } as TaskItemSummaryDto
-            ];
-
-            stub(taskStore, 'activeSummary').get(() => ({ id: 9 } as TaskItemSummaryDto));
-            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
-            taskStore.$reset();
-
-            expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([9, 1, 3]);
+            expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 3]);
         });
     });
 
