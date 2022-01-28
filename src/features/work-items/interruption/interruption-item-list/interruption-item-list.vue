@@ -2,6 +2,16 @@
     <div class="interruption-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
+        <div class="card-wrapper" v-if="interruptionStore.activeSummary">
+            <interruption-item-card class="interruption-item-card"
+                :class="getItemCardClasses(interruptionStore.activeSummary)"
+                :item="interruptionStore.activeSummary"
+                :isSelected="selectedItemId === interruptionStore.activeSummary.id"
+                :isActive="true"
+                @click="$emit('select', interruptionStore.activeSummary)">
+            </interruption-item-card>
+        </div>
+
         <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
                 <interruption-item-card class="interruption-item-card"
@@ -57,7 +67,9 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     private animated = new Set<number>();
 
     get totalItems(): string {
-        return `${this.items.length} interruption${this.items.length > 1 ? 's' : ''}`;
+        const total = (this.interruptionStore.activeSummary ? 1 : 0) + this.items.length;
+
+        return `${total} interruption${total > 1 ? 's' : ''}`;
     }
 
     get items(): InterruptionItemSummaryDto[] {
@@ -65,11 +77,7 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         const items = this.interruptionStore.filteredSummaries(text);
         const active = this.interruptionStore.activeSummary;
 
-        if (!active) {
-            return items;
-        }
-
-        return [active, ...items.filter(_ => _.id !== active.id)];
+        return active ? items.filter(_ => _.id !== active.id) : items;
     }
 
     get selectedItemId(): number {
@@ -93,6 +101,12 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     private animateItemCards(): void {
         let total = 0;
+
+        if (this.interruptionStore.activeSummary) {
+            const { id } = this.interruptionStore.activeSummary;
+            this.animated.delete(id);
+            setTimeout(() => this.animated.add(id));
+        }
 
         for (const { id } of this.items) {
             if (!this.animated.has(id)) {
@@ -120,22 +134,22 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         width: 100%;
         height: 100%;
         direction: rtl;
+    }
 
-        .card-wrapper {
-            box-sizing: border-box;
-            margin-bottom: 1rem;
-            padding: 0.5vh 1vh 0.5vh 0;
-            width: 100%;
-            min-height: 5.25rem;
-            overflow-x: hidden;
-            scroll-snap-align: start;
-            @include animate-opacity(0, 1, 0.3s);
-            direction: rtl;
-        }
+    .card-wrapper {
+        box-sizing: border-box;
+        margin-bottom: 1rem;
+        padding: 0.5vh 1vh 0.5vh 0;
+        width: 100%;
+        min-height: 5.25rem;
+        overflow-x: hidden;
+        scroll-snap-align: start;
+        direction: rtl;
 
         .interruption-item-card {
             margin-right: 110%;
             transition: margin-right 0.3s, color 0.3s;
+            @include animate-opacity(0, 1, 0.3s);
             direction: ltr;
 
             &.animated {

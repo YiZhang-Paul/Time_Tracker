@@ -2,6 +2,16 @@
     <div class="task-item-list-container">
         <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
 
+        <div class="card-wrapper" v-if="taskStore.activeSummary">
+            <task-item-card class="task-item-card"
+                :class="getItemCardClasses(taskStore.activeSummary)"
+                :item="taskStore.activeSummary"
+                :isSelected="selectedItemId === taskStore.activeSummary.id"
+                :isActive="true"
+                @click="$emit('select', taskStore.activeSummary)">
+            </task-item-card>
+        </div>
+
         <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
                 <task-item-card class="task-item-card"
@@ -57,7 +67,9 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private animated = new Set<number>();
 
     get totalItems(): string {
-        return `${this.items.length} task${this.items.length > 1 ? 's' : ''}`;
+        const total = (this.taskStore.activeSummary ? 1 : 0) + this.items.length;
+
+        return `${total} task${total > 1 ? 's' : ''}`;
     }
 
     get items(): TaskItemSummaryDto[] {
@@ -65,11 +77,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         const items = this.taskStore.filteredSummaries(text);
         const active = this.taskStore.activeSummary;
 
-        if (!active) {
-            return items;
-        }
-
-        return [active, ...items.filter(_ => _.id !== active.id)];
+        return active ? items.filter(_ => _.id !== active.id) : items;
     }
 
     get selectedItemId(): number {
@@ -93,6 +101,12 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     private animateItemCards(): void {
         let total = 0;
+
+        if (this.taskStore.activeSummary) {
+            const { id } = this.taskStore.activeSummary;
+            this.animated.delete(id);
+            setTimeout(() => this.animated.add(id));
+        }
 
         for (const { id } of this.items) {
             if (!this.animated.has(id)) {
@@ -119,21 +133,21 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         @include flex-column();
         width: 100%;
         height: 100%;
+    }
 
-        .card-wrapper {
-            box-sizing: border-box;
-            margin-bottom: 1rem;
-            padding: 0.5vh 0 0.5vh 1vh;
-            width: 100%;
-            min-height: 5.25rem;
-            overflow-x: hidden;
-            scroll-snap-align: start;
-            @include animate-opacity(0, 1, 0.3s);
-        }
+    .card-wrapper {
+        box-sizing: border-box;
+        margin-bottom: 1rem;
+        padding: 0.5vh 0 0.5vh 1vh;
+        width: 100%;
+        min-height: 5.25rem;
+        overflow-x: hidden;
+        scroll-snap-align: start;
 
         .task-item-card {
             margin-left: 110%;
             transition: margin-left 0.3s, color 0.3s;
+            @include animate-opacity(0, 1, 0.3s);
 
             &.animated {
                 margin-left: 17.5%;
