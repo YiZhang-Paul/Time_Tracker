@@ -86,6 +86,19 @@ export const useInterruptionStore = defineStore('interruption', {
 
             return true;
         },
+        async resolveItem(item: InterruptionItem): Promise<boolean> {
+            const isResolved = await interruptionItemHttpService.resolveItem(item);
+
+            if (!isResolved) {
+                return false;
+            }
+
+            const summary = this.summaries.unresolved.find(_ => _.id === item.id)!;
+            this.summaries.resolved = [...this.summaries.resolved, summary];
+            this.summaries.unresolved = this.summaries.unresolved.filter(_ => _.id !== item.id);
+
+            return true;
+        },
         startItemCreate(): void {
             this.stopItemEdit();
             setTimeout(() => this.editingItem = new InterruptionItem(-1));

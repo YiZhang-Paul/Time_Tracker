@@ -12,7 +12,8 @@
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
             @start="onInterruptionStart($event.id)"
-            @stop="eventStore.startIdling()">
+            @stop="eventStore.startIdling()"
+            @resolve="onInterruptionResolve($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="taskStore.editingItem"
@@ -152,6 +153,18 @@ export default class WorkItems extends Vue {
 
     public onInterruptionStart(id: number): void {
         this.onWorkItemStart(() => this.eventStore.startInterruption(id));
+    }
+
+    public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
+        if (!await this.interruptionStore.resolveItem(item)) {
+            return;
+        }
+
+        await this.interruptionStore.loadSummaries();
+
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
+        }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
