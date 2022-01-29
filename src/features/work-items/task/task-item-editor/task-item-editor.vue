@@ -22,11 +22,11 @@
                 <stop-circle v-if="isActiveWorkItem"
                     class="action-button stop-button"
                     @click="$emit('stop', item)" />
-            </template>
 
-            <check-bold v-if="!item.resolvedTime"
-                class="action-button resolve-button"
-                @click="$emit('resolve', item)" />
+                <check-bold v-if="!item.resolvedTime"
+                    class="action-button resolve-button"
+                    @click="$emit('resolve', item)" />
+            </template>
 
             <selection-group class="effort-selector"
                 :options="effortOptions"
