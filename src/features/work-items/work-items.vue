@@ -23,7 +23,8 @@
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
             @start="onTaskStart($event.id)"
-            @stop="eventStore.startIdling()">
+            @stop="eventStore.startIdling()"
+            @resolve="onTaskResolve($event)">
         </task-item-editor>
 
         <div v-if="!isEditing" class="editor-placeholder">
@@ -201,6 +202,18 @@ export default class WorkItems extends Vue {
 
     public onTaskStart(id: number): void {
         this.onWorkItemStart(() => this.eventStore.startTask(id));
+    }
+
+    public async onTaskResolve(item: TaskItem): Promise<void> {
+        if (!await this.taskStore.resolveItem(item)) {
+            return;
+        }
+
+        await this.taskStore.loadSummaries();
+
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
+        }
     }
 
     private onWorkItemStart(callback: () => void): void {
