@@ -1,9 +1,15 @@
 <template>
     <div class="task-item-list-container">
-        <span v-if="totalUnresolved || totalResolved" class="list-counter">
-            <span>{{ totalUnresolved }} unresolved</span>
-            <span> / </span>
-            <span>{{ totalResolved }} resolved</span>
+        <span v-if="totalUnresolved || totalResolved" class="list-types">
+            <span class="unresolved-list" :class="{ active: showUnresolved }" @click="selectUnresolved()">
+                {{ totalUnresolved }} unresolved
+            </span>
+
+            <span> | </span>
+
+            <span class="resolved-list" :class="{ active: !showUnresolved }" @click="selectResolved()">
+                {{ totalResolved }} resolved
+            </span>
         </span>
 
         <div class="card-wrapper" v-if="taskStore.activeSummary">
@@ -71,6 +77,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     public showUnresolved = true;
     private eventStore!: ReturnType<typeof useEventStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
+    private animateTimeouts: number[] = [];
     private animated = new Set<number>();
 
     get totalUnresolved(): number {
@@ -104,6 +111,20 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
         this.animateItemCards();
     }
 
+    public selectUnresolved(): void {
+        if (!this.showUnresolved) {
+            this.resetAnimation();
+            setTimeout(() => this.showUnresolved = true, 150);
+        }
+    }
+
+    public selectResolved(): void {
+        if (this.showUnresolved) {
+            this.resetAnimation();
+            setTimeout(() => this.showUnresolved = false, 150);
+        }
+    }
+
     public getItemCardClasses(item: TaskItemSummaryDto): ClassConfigs {
         return {
             animated: this.animated.has(item.id),
@@ -126,8 +147,21 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
         for (const { id } of this.items) {
             if (!this.animated.has(id)) {
-                setTimeout(() => this.animated.add(id), 200 + total++ * 25);
+                const timeout = setTimeout(() => this.animated.add(id), 200 + total++ * 25);
+                this.animateTimeouts.push(timeout);
             }
+        }
+    }
+
+    private resetAnimation(): void {
+        this.animated.clear();
+
+        if (this.taskStore.activeSummary) {
+            this.animated.add(this.taskStore.activeSummary.id);
+        }
+
+        while (this.animateTimeouts.length) {
+            clearTimeout(this.animateTimeouts.pop());
         }
     }
 }
@@ -140,16 +174,37 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     @include flex-column(flex-end);
 
-    .list-counter {
+    .list-types {
         margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
 
-        & > span:first-of-type {
-            color: var(--context-colors-suggestion-0-00);
+        .unresolved-list, .resolved-list {
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        & > span:last-of-type {
-            color: var(--context-colors-success-0-00);
+        .unresolved-list {
+            color: var(--context-colors-suggestion-8-00);
+
+            &:hover, &.active {
+                color: var(--context-colors-suggestion-0-00);
+            }
+
+            &.active {
+                text-shadow: 0 0 4px var(--context-colors-suggestion-0-00);
+            }
+        }
+
+        .resolved-list {
+            color: var(--context-colors-success-8-00);
+
+            &:hover, &.active {
+                color: var(--context-colors-success-0-00);
+            }
+
+            &.active {
+                text-shadow: 0 0 4px var(--context-colors-success-0-00);
+            }
         }
     }
 
