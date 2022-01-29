@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
+import { ItemSummariesDto } from '../../../dtos/item-summaries-dto';
 import { TaskItemSummaryDto } from '../../../dtos/task-item-summary-dto';
 import { TaskItem } from '../../../models/task/task-item';
 
@@ -17,12 +18,12 @@ export class TaskItemHttpService {
         }
     }
 
-    public async getSummaries(): Promise<TaskItemSummaryDto[]> {
+    public async getSummaries(start: Date): Promise<ItemSummariesDto<TaskItemSummaryDto>> {
         try {
-            return (await axios.get(`${this._api}/summaries`)).data;
+            return (await axios.get(`${this._api}/summaries/${start.toISOString()}`)).data;
         }
         catch {
-            return [];
+            return new ItemSummariesDto<TaskItemSummaryDto>();
         }
     }
 

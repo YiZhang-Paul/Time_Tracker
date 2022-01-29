@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { useEventStore } from '../event/event.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
+import { ItemSummariesDto } from '../../core/dtos/item-summaries-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
 import { TaskItem } from '../../core/models/task/task-item';
 import { EventType } from '../../core/enums/event-type.enum';
@@ -16,16 +17,18 @@ export const setServices = (taskItemHttp: TaskItemHttpService): void => {
 
 export const useTaskStore = defineStore('task', {
     state: () => ({
-        summaries: [] as TaskItemSummaryDto[],
+        summaries: new ItemSummariesDto<TaskItemSummaryDto>(),
         editingItem: null as TaskItem | null
     }),
     getters: {
-        filteredSummaries() {
+        filteredSummaries(): (_: string) => ItemSummariesDto<TaskItemSummaryDto> {
             return (searchText: string) => {
                 const text = searchText.toLowerCase();
-                const summaries = this.summaries.filter(_ => _.name.toLowerCase().includes(text));
 
-                return summaries.sort((a, b) => a.id - b.id);
+                return {
+                    resolved: filterSummaries(this.summaries.resolved, text),
+                    unresolved: filterSummaries(this.summaries.unresolved, text)
+                };
             };
         },
         activeSummary(): TaskItemSummaryDto | null {
@@ -41,12 +44,13 @@ export const useTaskStore = defineStore('task', {
                 return null;
             }
 
-            return this.summaries.find(_ => _.id === unconcludedSinceStart.resourceId)!;
+            return this.summaries.unresolved.find(_ => _.id === unconcludedSinceStart.resourceId)!;
         }
     },
     actions: {
         async loadSummaries(): Promise<void> {
-            this.summaries = await taskItemHttpService.getSummaries();
+            const start = new Date(new Date().setHours(0, 0, 0, 0));
+            this.summaries = await taskItemHttpService.getSummaries(start);
         },
         async createItem(item: TaskItem): Promise<boolean> {
             const created = await taskItemHttpService.createItem(item);
@@ -77,7 +81,8 @@ export const useTaskStore = defineStore('task', {
                 this.stopItemEdit();
             }
 
-            this.summaries = this.summaries.filter(_ => _.id !== id);
+            this.summaries.resolved = this.summaries.resolved.filter(_ => _.id !== id);
+            this.summaries.unresolved = this.summaries.unresolved.filter(_ => _.id !== id);
 
             return true;
         },
@@ -100,3 +105,9 @@ export const useTaskStore = defineStore('task', {
         }
     }
 });
+
+function filterSummaries(summaries: TaskItemSummaryDto[], text: string): TaskItemSummaryDto[] {
+    const filtered = summaries.filter(_ => _.name.toLowerCase().includes(text));
+
+    return filtered.sort((a, b) => a.id - b.id);
+}

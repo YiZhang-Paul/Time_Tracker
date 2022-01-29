@@ -74,7 +74,7 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
 
     get items(): TaskItemSummaryDto[] {
         const text = this.searchText?.toLowerCase().trim() ?? '';
-        const items = this.taskStore.filteredSummaries(text);
+        const items = this.taskStore.filteredSummaries(text).unresolved;
         const active = this.taskStore.activeSummary;
 
         return active ? items.filter(_ => _.id !== active.id) : items;

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
+import { ItemSummariesDto } from '../../../dtos/item-summaries-dto';
 import { InterruptionItemSummaryDto } from '../../../dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../../models/interruption/interruption-item';
 
@@ -17,12 +18,12 @@ export class InterruptionItemHttpService {
         }
     }
 
-    public async getSummaries(): Promise<InterruptionItemSummaryDto[]> {
+    public async getSummaries(start: Date): Promise<ItemSummariesDto<InterruptionItemSummaryDto>> {
         try {
-            return (await axios.get(`${this._api}/summaries`)).data;
+            return (await axios.get(`${this._api}/summaries/${start.toISOString()}`)).data;
         }
         catch {
-            return [];
+            return new ItemSummariesDto<InterruptionItemSummaryDto>();
         }
     }
 

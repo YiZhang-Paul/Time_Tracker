@@ -26,8 +26,8 @@
         </task-item-editor>
 
         <div v-if="!isEditing" class="editor-placeholder">
-            <span v-if="hasWorkItem">You still got things to do. Pick one and get it done.</span>
-            <span v-if="!hasWorkItem">You sure you have nothing to do, you dipshit?</span>
+            <span v-if="hasUnresolvedWorkItem">You still got things to do. Pick one and get it done.</span>
+            <span v-if="!hasUnresolvedWorkItem">You sure you have nothing to do, you dipshit?</span>
         </div>
 
         <interruption-item-list class="interruption-item-list"
@@ -92,8 +92,11 @@ export default class WorkItems extends Vue {
         return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
     }
 
-    get hasWorkItem(): boolean {
-        return Boolean(this.interruptionStore.summaries.length) || Boolean(this.taskStore.summaries.length);
+    get hasUnresolvedWorkItem(): boolean {
+        const interruptions = this.interruptionStore.summaries.unresolved;
+        const tasks = this.taskStore.summaries.unresolved;
+
+        return Boolean(interruptions.length) || Boolean(tasks.length);
     }
 
     public created(): void {
@@ -209,8 +212,8 @@ export default class WorkItems extends Vue {
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = this.interruptionStore.filteredSummaries(this.searchText);
-        const tasks = this.taskStore.filteredSummaries(this.searchText);
+        const interruptions = this.interruptionStore.filteredSummaries(this.searchText).unresolved;
+        const tasks = this.taskStore.filteredSummaries(this.searchText).unresolved;
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);

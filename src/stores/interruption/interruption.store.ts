@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { useEventStore } from '../event/event.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
+import { ItemSummariesDto } from '../../core/dtos/item-summaries-dto';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { EventType } from '../../core/enums/event-type.enum';
@@ -16,16 +17,18 @@ export const setServices = (interruptionItemHttp: InterruptionItemHttpService): 
 
 export const useInterruptionStore = defineStore('interruption', {
     state: () => ({
-        summaries: [] as InterruptionItemSummaryDto[],
+        summaries: new ItemSummariesDto<InterruptionItemSummaryDto>(),
         editingItem: null as InterruptionItem | null
     }),
     getters: {
-        filteredSummaries() {
+        filteredSummaries(): (_: string) => ItemSummariesDto<InterruptionItemSummaryDto> {
             return (searchText: string) => {
                 const text = searchText.toLowerCase();
-                const summaries = this.summaries.filter(_ => _.name.toLowerCase().includes(text));
 
-                return summaries.sort((a, b) => a.priority === b.priority ? a.id - b.id : b.priority - a.priority);
+                return {
+                    resolved: filterSummaries(this.summaries.resolved, text),
+                    unresolved: filterSummaries(this.summaries.unresolved, text)
+                };
             };
         },
         activeSummary(): InterruptionItemSummaryDto | null {
@@ -41,12 +44,13 @@ export const useInterruptionStore = defineStore('interruption', {
                 return null;
             }
 
-            return this.summaries.find(_ => _.id === unconcludedSinceStart.resourceId)!;
+            return this.summaries.unresolved.find(_ => _.id === unconcludedSinceStart.resourceId)!;
         }
     },
     actions: {
         async loadSummaries(): Promise<void> {
-            this.summaries = await interruptionItemHttpService.getSummaries();
+            const start = new Date(new Date().setHours(0, 0, 0, 0));
+            this.summaries = await interruptionItemHttpService.getSummaries(start);
         },
         async createItem(item: InterruptionItem): Promise<boolean> {
             const created = await interruptionItemHttpService.createItem(item);
@@ -77,7 +81,8 @@ export const useInterruptionStore = defineStore('interruption', {
                 this.stopItemEdit();
             }
 
-            this.summaries = this.summaries.filter(_ => _.id !== id);
+            this.summaries.resolved = this.summaries.resolved.filter(_ => _.id !== id);
+            this.summaries.unresolved = this.summaries.unresolved.filter(_ => _.id !== id);
 
             return true;
         },
@@ -100,3 +105,9 @@ export const useInterruptionStore = defineStore('interruption', {
         }
     }
 });
+
+function filterSummaries(summaries: InterruptionItemSummaryDto[], text: string): InterruptionItemSummaryDto[] {
+    const filtered = summaries.filter(_ => _.name.toLowerCase().includes(text));
+
+    return filtered.sort((a, b) => a.priority === b.priority ? a.id - b.id : b.priority - a.priority);
+}
