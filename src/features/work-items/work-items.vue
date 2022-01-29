@@ -13,7 +13,8 @@
             @delete="onInterruptionDeleteStart($event)"
             @start="onInterruptionStart($event.id)"
             @stop="eventStore.startIdling()"
-            @resolve="onInterruptionResolve($event)">
+            @resolve="onInterruptionResolve($event)"
+            @unresolve="onInterruptionUnresolve($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="taskStore.editingItem"
@@ -24,7 +25,8 @@
             @delete="onTaskDeleteStart($event)"
             @start="onTaskStart($event.id)"
             @stop="eventStore.startIdling()"
-            @resolve="onTaskResolve($event)">
+            @resolve="onTaskResolve($event)"
+            @unresolve="onTaskUnresolve($event)">
         </task-item-editor>
 
         <div v-if="!isEditing" class="editor-placeholder">
@@ -168,6 +170,12 @@ export default class WorkItems extends Vue {
         }
     }
 
+    public async onInterruptionUnresolve(item: InterruptionItem): Promise<void> {
+        if (await this.interruptionStore.unresolveItem(item)) {
+            await this.interruptionStore.loadSummaries();
+        }
+    }
+
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
             this.interruptionStore.stopItemEdit();
@@ -213,6 +221,12 @@ export default class WorkItems extends Vue {
 
         if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
             await this.eventStore.startIdling();
+        }
+    }
+
+    public async onTaskUnresolve(item: TaskItem): Promise<void> {
+        if (await this.taskStore.unresolveItem(item)) {
+            await this.taskStore.loadSummaries();
         }
     }
 

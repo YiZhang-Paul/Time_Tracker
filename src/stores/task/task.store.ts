@@ -99,6 +99,19 @@ export const useTaskStore = defineStore('task', {
 
             return true;
         },
+        async unresolveItem(item: TaskItem): Promise<boolean> {
+            const isUnresolved = await taskItemHttpService.unresolveItem(item);
+
+            if (!isUnresolved) {
+                return false;
+            }
+
+            const summary = this.summaries.resolved.find(_ => _.id === item.id)!;
+            this.summaries.resolved = this.summaries.resolved.filter(_ => _.id !== item.id);
+            this.summaries.unresolved = [...this.summaries.unresolved, summary];
+
+            return true;
+        },
         startItemCreate(): void {
             this.stopItemEdit();
             setTimeout(() => this.editingItem = new TaskItem(-1));

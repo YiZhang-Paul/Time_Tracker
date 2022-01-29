@@ -26,6 +26,10 @@
                 <check-bold v-if="!item.resolvedTime"
                     class="action-button resolve-button"
                     @click="$emit('resolve', item)" />
+
+                <progress-question v-if="item.resolvedTime"
+                    class="action-button unresolve-button"
+                    @click="$emit('unresolve', item)" />
             </template>
 
             <selection-group class="effort-selector"
@@ -47,7 +51,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { CheckBold, CloudUpload, DeleteVariant, Dumbbell, PlayCircle, StopCircle } from 'mdue';
+import { CheckBold, CloudUpload, DeleteVariant, Dumbbell, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { TaskItem } from '../../../../core/models/task/task-item';
@@ -66,6 +70,7 @@ class TaskItemEditorProp {
         DeleteVariant,
         Dumbbell,
         PlayCircle,
+        ProgressQuestion,
         StopCircle,
         SelectionGroup
     },
@@ -75,7 +80,8 @@ class TaskItemEditorProp {
         'delete',
         'start',
         'stop',
-        'resolve'
+        'resolve',
+        'unresolve'
     ],
     computed: {
         ...mapStores(useEventStore)
@@ -202,7 +208,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             transition: color 0.3s;
         }
 
-        .start-button, .stop-button, .resolve-button {
+        .start-button, .stop-button, .resolve-button, .unresolve-button {
             margin-right: 1vh;
         }
 
@@ -231,6 +237,14 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
             &:hover {
                 color: var(--context-colors-success-0-00);
+            }
+        }
+
+        .unresolve-button {
+            color: var(--context-colors-suggestion-1-00);
+
+            &:hover {
+                color: var(--context-colors-suggestion-0-00);
             }
         }
 

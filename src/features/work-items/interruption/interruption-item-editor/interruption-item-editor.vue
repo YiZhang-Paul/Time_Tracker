@@ -26,6 +26,10 @@
                 <check-bold v-if="!item.resolvedTime"
                     class="action-button resolve-button"
                     @click="$emit('resolve', item)" />
+
+                <progress-question v-if="item.resolvedTime"
+                    class="action-button unresolve-button"
+                    @click="$emit('unresolve', item)" />
             </template>
 
             <selection-group class="priority-selector"
@@ -46,7 +50,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, StopCircle } from 'mdue';
+import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { DynamicComponentOption } from '../../../../core/models/options/dynamic-component-option';
@@ -67,6 +71,7 @@ class InterruptionItemEditorProp {
         CloudUpload,
         DeleteVariant,
         PlayCircle,
+        ProgressQuestion,
         StopCircle,
         PriorityIndicator,
         SelectionGroup
@@ -77,7 +82,8 @@ class InterruptionItemEditorProp {
         'delete',
         'start',
         'stop',
-        'resolve'
+        'resolve',
+        'unresolve'
     ],
     computed: {
         ...mapStores(useEventStore)
@@ -206,7 +212,7 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
             transition: color 0.3s;
         }
 
-        .start-button, .stop-button, .resolve-button {
+        .start-button, .stop-button, .resolve-button, .unresolve-button {
             margin-right: 1vh;
         }
 
@@ -235,6 +241,14 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
 
             &:hover {
                 color: var(--context-colors-success-0-00);
+            }
+        }
+
+        .unresolve-button {
+            color: var(--context-colors-suggestion-1-00);
+
+            &:hover {
+                color: var(--context-colors-suggestion-0-00);
             }
         }
 

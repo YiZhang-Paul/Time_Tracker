@@ -66,4 +66,16 @@ export class TaskItemHttpService {
             return false;
         }
     }
+
+    public async unresolveItem(item: TaskItem): Promise<boolean> {
+        try {
+            const endpoint = `${this._api}?resolve=${ResolveAction.Unresolve}`;
+            const { data } = await axios.put(endpoint, item);
+
+            return Boolean(data);
+        }
+        catch {
+            return false;
+        }
+    }
 }
