@@ -21,9 +21,9 @@ export const useInterruptionStore = defineStore('interruption', {
         editingItem: null as InterruptionItem | null
     }),
     getters: {
-        filteredSummaries(): (_: string) => ItemSummariesDto<InterruptionItemSummaryDto> {
-            return (searchText: string) => {
-                const text = searchText.toLowerCase();
+        filteredSummaries(): (_: string | null) => ItemSummariesDto<InterruptionItemSummaryDto> {
+            return (searchText: string | null) => {
+                const text = searchText?.toLowerCase().trim() ?? '';
 
                 return {
                     resolved: filterSummaries(this.summaries.resolved, text),

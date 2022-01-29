@@ -1,6 +1,10 @@
 <template>
     <div class="task-item-list-container">
-        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+        <span v-if="totalUnresolved || totalResolved" class="list-counter">
+            <span>{{ totalUnresolved }} unresolved</span>
+            <span> / </span>
+            <span>{{ totalResolved }} resolved</span>
+        </span>
 
         <div class="card-wrapper" v-if="taskStore.activeSummary">
             <task-item-card class="task-item-card"
@@ -32,6 +36,7 @@ import { mapStores } from 'pinia';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { useTaskStore } from '../../../../stores/task/task.store';
+import { ItemSummariesDto } from '../../../../core/dtos/item-summaries-dto';
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -65,19 +70,29 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
+    private showUnresolved = true;
 
-    get totalItems(): string {
-        const total = (this.taskStore.activeSummary ? 1 : 0) + this.items.length;
+    get totalUnresolved(): number {
+        return this.filteredSummaries.unresolved.length;
+    }
 
-        return `${total} task${total > 1 ? 's' : ''}`;
+    get totalResolved(): number {
+        return this.filteredSummaries.resolved.length;
     }
 
     get items(): TaskItemSummaryDto[] {
-        const text = this.searchText?.toLowerCase().trim() ?? '';
-        const items = this.taskStore.filteredSummaries(text).unresolved;
+        if (!this.showUnresolved) {
+            return this.filteredSummaries.resolved;
+        }
+
+        const { unresolved } = this.filteredSummaries;
         const active = this.taskStore.activeSummary;
 
-        return active ? items.filter(_ => _.id !== active.id) : items;
+        return active ? unresolved.filter(_ => _.id !== active.id) : unresolved;
+    }
+
+    get filteredSummaries(): ItemSummariesDto<TaskItemSummaryDto> {
+        return this.taskStore.filteredSummaries(this.searchText);
     }
 
     get selectedItemId(): number {
@@ -127,6 +142,14 @@ export default class TaskItemList extends Vue.with(TaskItemListProp) {
     .list-counter {
         margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
+
+        & > span:first-of-type {
+            color: var(--context-colors-suggestion-0-00);
+        }
+
+        & > span:last-of-type {
+            color: var(--context-colors-success-0-00);
+        }
     }
 
     .card-wrappers {

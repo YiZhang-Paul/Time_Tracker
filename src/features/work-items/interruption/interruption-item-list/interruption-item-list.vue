@@ -1,6 +1,10 @@
 <template>
     <div class="interruption-item-list-container">
-        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+        <span v-if="totalUnresolved || totalResolved" class="list-counter">
+            <span>{{ totalUnresolved }} unresolved</span>
+            <span> / </span>
+            <span>{{ totalResolved }} resolved</span>
+        </span>
 
         <div class="card-wrapper" v-if="interruptionStore.activeSummary">
             <interruption-item-card class="interruption-item-card"
@@ -32,6 +36,7 @@ import { mapStores } from 'pinia';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { useInterruptionStore } from '../../../../stores/interruption/interruption.store';
+import { ItemSummariesDto } from '../../../../core/dtos/item-summaries-dto';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -65,19 +70,29 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animated = new Set<number>();
+    private showUnresolved = true;
 
-    get totalItems(): string {
-        const total = (this.interruptionStore.activeSummary ? 1 : 0) + this.items.length;
+    get totalUnresolved(): number {
+        return this.filteredSummaries.unresolved.length;
+    }
 
-        return `${total} interruption${total > 1 ? 's' : ''}`;
+    get totalResolved(): number {
+        return this.filteredSummaries.resolved.length;
     }
 
     get items(): InterruptionItemSummaryDto[] {
-        const text = this.searchText?.toLowerCase().trim() ?? '';
-        const items = this.interruptionStore.filteredSummaries(text).unresolved;
+        if (!this.showUnresolved) {
+            return this.filteredSummaries.resolved;
+        }
+
+        const { unresolved } = this.filteredSummaries;
         const active = this.interruptionStore.activeSummary;
 
-        return active ? items.filter(_ => _.id !== active.id) : items;
+        return active ? unresolved.filter(_ => _.id !== active.id) : unresolved;
+    }
+
+    get filteredSummaries(): ItemSummariesDto<InterruptionItemSummaryDto> {
+        return this.interruptionStore.filteredSummaries(this.searchText);
     }
 
     get selectedItemId(): number {
@@ -127,6 +142,14 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     .list-counter {
         margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
+
+        & > span:first-of-type {
+            color: var(--context-colors-suggestion-0-00);
+        }
+
+        & > span:last-of-type {
+            color: var(--context-colors-success-0-00);
+        }
     }
 
     .card-wrappers {

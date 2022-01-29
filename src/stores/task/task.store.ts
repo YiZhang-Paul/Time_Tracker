@@ -21,9 +21,9 @@ export const useTaskStore = defineStore('task', {
         editingItem: null as TaskItem | null
     }),
     getters: {
-        filteredSummaries(): (_: string) => ItemSummariesDto<TaskItemSummaryDto> {
-            return (searchText: string) => {
-                const text = searchText.toLowerCase();
+        filteredSummaries(): (_: string | null) => ItemSummariesDto<TaskItemSummaryDto> {
+            return (searchText: string | null) => {
+                const text = searchText?.toLowerCase().trim() ?? '';
 
                 return {
                     resolved: filterSummaries(this.summaries.resolved, text),
