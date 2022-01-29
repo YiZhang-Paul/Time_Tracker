@@ -1,7 +1,8 @@
 <template>
     <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <div class="progress-indicator">
-            <span>{{ item.effort }}</span>
+            <span v-if="!isResolved">{{ item.effort }}</span>
+            <check-bold v-if="isResolved" class="resolved-icon" />
         </div>
 
         <span class="name">{{ item.name }}</span>
@@ -9,16 +10,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
+import { CheckBold } from 'mdue';
 
 import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
 
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
     public isSelected = prop<boolean>({ default: false });
+    public isResolved = prop<boolean>({ default: false });
     public isActive = prop<boolean>({ default: false });
 }
 
+@Options({
+    components: {
+        CheckBold
+    }
+})
 export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
 </script>
 
@@ -70,6 +78,11 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         background-clip: padding-box;
         font-size: var(--font-sizes-500);
         transition: background-color 0.4s;
+
+        .resolved-icon {
+            color: var(--context-colors-success-0-00);
+            font-size: var(--font-sizes-600);
+        }
     }
 
     .name {

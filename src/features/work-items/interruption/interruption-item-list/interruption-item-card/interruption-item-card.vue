@@ -3,13 +3,15 @@
         <span class="name">{{ item.name }}</span>
 
         <div class="progress-indicator">
-            <priority-indicator :priority="item.priority"></priority-indicator>
+            <priority-indicator v-if="!isResolved" :priority="item.priority"></priority-indicator>
+            <check-bold v-if="isResolved" class="resolved-icon" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { CheckBold } from 'mdue';
 
 import { InterruptionItemSummaryDto } from '../../../../../core/dtos/interruption-item-summary-dto';
 import PriorityIndicator from '../../../../../shared/indicators/priority-indicator/priority-indicator.vue';
@@ -17,11 +19,13 @@ import PriorityIndicator from '../../../../../shared/indicators/priority-indicat
 class InterruptionItemCardProp {
     public item = prop<InterruptionItemSummaryDto>({ default: null });
     public isSelected = prop<boolean>({ default: false });
+    public isResolved = prop<boolean>({ default: false });
     public isActive = prop<boolean>({ default: false });
 }
 
 @Options({
     components: {
+        CheckBold,
         PriorityIndicator
     }
 })
@@ -82,6 +86,11 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         background-clip: padding-box;
         font-size: var(--font-sizes-600);
         transition: background-color 0.4s;
+
+        .resolved-icon {
+            color: var(--context-colors-success-0-00);
+            font-size: var(--font-sizes-600);
+        }
     }
 }
 </style>

@@ -22,6 +22,7 @@
                     :class="getItemCardClasses(item)"
                     :item="item"
                     :isSelected="selectedItemId === item.id"
+                    :isResolved="!showUnresolved"
                     :isActive="isActive(item)"
                     @click="$emit('select', item)">
                 </task-item-card>
@@ -67,10 +68,10 @@ class TaskItemListProp {
 })
 /* istanbul ignore next */
 export default class TaskItemList extends Vue.with(TaskItemListProp) {
+    public showUnresolved = true;
     private eventStore!: ReturnType<typeof useEventStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
     private animated = new Set<number>();
-    private showUnresolved = true;
 
     get totalUnresolved(): number {
         return this.filteredSummaries.unresolved.length;

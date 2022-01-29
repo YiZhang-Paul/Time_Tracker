@@ -22,6 +22,7 @@
                     :class="getItemCardClasses(item)"
                     :item="item"
                     :isSelected="selectedItemId === item.id"
+                    :isResolved="!showUnresolved"
                     :isActive="isActive(item)"
                     @click="$emit('select', item)">
                 </interruption-item-card>
@@ -67,10 +68,10 @@ class InterruptionItemListProp {
 })
 /* istanbul ignore next */
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
+    public showUnresolved = true;
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animated = new Set<number>();
-    private showUnresolved = true;
 
     get totalUnresolved(): number {
         return this.filteredSummaries.unresolved.length;
