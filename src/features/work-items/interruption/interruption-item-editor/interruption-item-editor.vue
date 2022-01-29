@@ -15,11 +15,11 @@
 
         <div class="footer">
             <template v-if="item.id !== -1">
-                <play-circle v-if="!isActiveWorkItem"
+                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
                     class="action-button start-button"
                     @click="$emit('start', item)" />
 
-                <stop-circle v-if="isActiveWorkItem"
+                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
                     class="action-button stop-button"
                     @click="$emit('stop', item)" />
 
