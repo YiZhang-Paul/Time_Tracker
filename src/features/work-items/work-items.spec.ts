@@ -85,8 +85,8 @@ describe('work items unit test', () => {
 
             const startItemEditSpy = spy(interruptionStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
-            stub(interruptionStore, 'filteredSummaries').get(() => () => interruptions);
-            stub(taskStore, 'filteredSummaries').get(() => () => tasks);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved: interruptions }));
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved: tasks }));
 
             await component.vm.initialize();
 
@@ -101,8 +101,8 @@ describe('work items unit test', () => {
 
             const startItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
-            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
-            stub(taskStore, 'filteredSummaries').get(() => () => tasks);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved: [] }));
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved: tasks }));
 
             await component.vm.initialize();
 
@@ -113,8 +113,8 @@ describe('work items unit test', () => {
             const startInterruptionItemEditSpy = spy(interruptionStore, 'startItemEdit');
             const startTaskItemEditSpy = spy(taskStore, 'startItemEdit');
             stub(eventStore, 'isWorking').get(() => false);
-            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
-            stub(taskStore, 'filteredSummaries').get(() => () => []);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved: [] }));
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved: [] }));
 
             await component.vm.initialize();
 

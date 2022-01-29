@@ -38,85 +38,66 @@ describe('task item list unit test', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('totalItems', () => {
-        test('should be hidden when no task item exists', async() => {
-            stub(taskStore, 'filteredSummaries').get(() => () => []);
+    describe('list types', () => {
+        test('should not show counters when no task item exists', async() => {
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved: [], resolved: [] }));
             await component.setProps({ searchText: null });
 
-            expect(component.find('.list-counter').exists()).toEqual(false);
+            expect(component.find('.list-types').exists()).toEqual(false);
         });
 
         test('should display total task items', async() => {
-            const summaries = [
+            const unresolved = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
                 { id: 3 } as TaskItemSummaryDto
             ];
 
-            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
+            const resolved = [
+                { id: 4 } as TaskItemSummaryDto,
+                { id: 5 } as TaskItemSummaryDto
+            ];
+
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved }));
             taskStore.$reset();
             await nextTick();
 
-            expect(component.find('.list-counter').text()).toEqual('3 tasks');
-        });
-
-        test('should handle singular form', async() => {
-            stub(taskStore, 'filteredSummaries').get(() => () => [{ id: 1 } as TaskItemSummaryDto]);
-            taskStore.$reset();
-            await nextTick();
-
-            expect(component.find('.list-counter').text()).toEqual('1 task');
+            expect(component.find('.list-types').text()).toEqual('3 unresolved | 2 resolved');
         });
     });
 
     describe('items', () => {
-        test('should properly transform search text', async() => {
-            const filteredSummariesStub = stub().returns([]);
-            stub(taskStore, 'filteredSummaries').get(() => filteredSummariesStub);
-            await component.setProps({ searchText: ' SEARCH_TEXT ' });
-
-            sinonExpect.calledOnceWithExactly(filteredSummariesStub, 'search_text');
-        });
-
-        test('should properly handle invalid search text', async() => {
-            const filteredSummariesStub = stub().returns([]);
-            stub(taskStore, 'filteredSummaries').get(() => filteredSummariesStub);
-            await component.setProps({ searchText: null });
-
-            sinonExpect.calledOnceWithExactly(filteredSummariesStub, '');
-        });
-
         test('should return empty collection when no items available', () => {
             stub(taskStore, 'activeSummary').get(() => null);
-            stub(taskStore, 'filteredSummaries').get(() => () => []);
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved: [], resolved: [] }));
             taskStore.$reset();
 
             expect(component.vm.items).toEqual([]);
         });
 
         test('should return items matching filter criteria', () => {
-            const summaries = [
+            const unresolved = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
                 { id: 3 } as TaskItemSummaryDto
             ];
 
             stub(taskStore, 'activeSummary').get(() => null);
-            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
             taskStore.$reset();
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 2, 3]);
         });
 
         test('should exclude active summary item', () => {
-            const summaries = [
+            const unresolved = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
                 { id: 3 } as TaskItemSummaryDto
             ];
 
             stub(taskStore, 'activeSummary').get(() => ({ id: 2 } as TaskItemSummaryDto));
-            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
             taskStore.$reset();
 
             expect(component.vm.items.map((_: TaskItemSummaryDto) => _.id)).toEqual([1, 3]);
@@ -139,14 +120,14 @@ describe('task item list unit test', () => {
 
     describe('getItemCardClasses', () => {
         test('should return correct classes', async() => {
-            const summaries = [
+            const unresolved = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
                 { id: 3 } as TaskItemSummaryDto
             ];
 
-            stub(taskStore, 'filteredSummaries').get(() => () => summaries);
-            taskStore.editingItem = new TaskItem(summaries[1].id);
+            stub(taskStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
+            taskStore.editingItem = new TaskItem(unresolved[1].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
             await nextTick();
@@ -161,8 +142,8 @@ describe('task item list unit test', () => {
             expect(elements[2].classes()).toContain('animated');
             expect(elements[2].classes()).not.toContain('selected');
 
-            summaries.push({ id: 4 } as TaskItemSummaryDto);
-            taskStore.editingItem = new TaskItem(summaries[3].id);
+            unresolved.push({ id: 4 } as TaskItemSummaryDto);
+            taskStore.editingItem = new TaskItem(unresolved[3].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
             await nextTick();

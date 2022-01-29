@@ -5,7 +5,7 @@
                 {{ totalUnresolved }} unresolved
             </span>
 
-            <span> | </span>
+            <span>| </span>
 
             <span class="resolved-list" :class="{ active: !showUnresolved }" @click="selectResolved()">
                 {{ totalResolved }} resolved
