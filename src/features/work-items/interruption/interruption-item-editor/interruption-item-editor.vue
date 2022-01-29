@@ -24,6 +24,10 @@
                     @click="$emit('stop', item)" />
             </template>
 
+            <check-bold v-if="!item.resolvedTime"
+                class="action-button resolve-button"
+                @click="$emit('resolve', item)" />
+
             <selection-group class="priority-selector"
                 :options="priorityOptions"
                 :selectedOption="priority"
@@ -42,7 +46,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { CloudUpload, DeleteVariant, PlayCircle, StopCircle } from 'mdue';
+import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { DynamicComponentOption } from '../../../../core/models/options/dynamic-component-option';
@@ -59,6 +63,7 @@ class InterruptionItemEditorProp {
 
 @Options({
     components: {
+        CheckBold,
         CloudUpload,
         DeleteVariant,
         PlayCircle,
@@ -71,7 +76,8 @@ class InterruptionItemEditorProp {
         'update',
         'delete',
         'start',
-        'stop'
+        'stop',
+        'resolve'
     ],
     computed: {
         ...mapStores(useEventStore)
@@ -200,7 +206,7 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
             transition: color 0.3s;
         }
 
-        .start-button, .stop-button {
+        .start-button, .stop-button, .resolve-button {
             margin-right: 1vh;
         }
 
@@ -221,6 +227,14 @@ export default class InterruptionItemEditor extends Vue.with(InterruptionItemEdi
 
             &:hover {
                 color: var(--stop-button-color-active);
+            }
+        }
+
+        .resolve-button {
+            color: var(--context-colors-success-1-00);
+
+            &:hover {
+                color: var(--context-colors-success-0-00);
             }
         }
 

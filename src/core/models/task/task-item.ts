@@ -5,6 +5,7 @@ export class TaskItem {
     public effort = 1;
     public creationTime = '';
     public modifiedTime = '';
+    public resolvedTime?: string;
 
     constructor(id: number, name = '') {
         this.id = id;

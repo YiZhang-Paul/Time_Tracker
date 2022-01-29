@@ -24,6 +24,10 @@
                     @click="$emit('stop', item)" />
             </template>
 
+            <check-bold v-if="!item.resolvedTime"
+                class="action-button resolve-button"
+                @click="$emit('resolve', item)" />
+
             <selection-group class="effort-selector"
                 :options="effortOptions"
                 :selectedOption="item.effort"
@@ -43,7 +47,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { CloudUpload, DeleteVariant, Dumbbell, PlayCircle, StopCircle } from 'mdue';
+import { CheckBold, CloudUpload, DeleteVariant, Dumbbell, PlayCircle, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { TaskItem } from '../../../../core/models/task/task-item';
@@ -57,6 +61,7 @@ class TaskItemEditorProp {
 
 @Options({
     components: {
+        CheckBold,
         CloudUpload,
         DeleteVariant,
         Dumbbell,
@@ -69,7 +74,8 @@ class TaskItemEditorProp {
         'update',
         'delete',
         'start',
-        'stop'
+        'stop',
+        'resolve'
     ],
     computed: {
         ...mapStores(useEventStore)
@@ -196,7 +202,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             transition: color 0.3s;
         }
 
-        .start-button, .stop-button {
+        .start-button, .stop-button, .resolve-button {
             margin-right: 1vh;
         }
 
@@ -217,6 +223,14 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
             &:hover {
                 color: var(--stop-button-color-active);
+            }
+        }
+
+        .resolve-button {
+            color: var(--context-colors-success-1-00);
+
+            &:hover {
+                color: var(--context-colors-success-0-00);
             }
         }
 
