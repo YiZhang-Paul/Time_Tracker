@@ -15,7 +15,8 @@ import { setServices as setTaskStoreServices, useTaskStore } from './task.store'
 describe('task store unit test', () => {
     let store: ReturnType<typeof useTaskStore>;
     let taskItemHttpStub: SinonStubbedInstance<TaskItemHttpService>;
-    let summaries: TaskItemSummaryDto[];
+    let unresolved: TaskItemSummaryDto[];
+    let resolved: TaskItemSummaryDto[];
 
     beforeEach(() => {
         taskItemHttpStub = createStubInstance(TaskItemHttpService);
@@ -25,14 +26,19 @@ describe('task store unit test', () => {
     });
 
     beforeEach(() => {
-        summaries = [
+        unresolved = [
             { id: 1, name: 'name_1', effort: 1 },
             { id: 4, name: 'name_4', effort: 1 },
             { id: 3, name: 'name_3', effort: 5 },
             { id: 2, name: 'name_2', effort: 13 }
         ];
 
-        taskItemHttpStub.getSummaries.resolves(summaries);
+        resolved = [
+            { id: 41, name: 'name_41', effort: 5 },
+            { id: 60, name: 'name_60', effort: 13 }
+        ];
+
+        taskItemHttpStub.getSummaries.resolves({ unresolved: unresolved.slice(), resolved: resolved.slice() });
     });
 
     describe('filteredSummaries', () => {
@@ -42,19 +48,30 @@ describe('task store unit test', () => {
 
         test('should return filtered summaries', () => {
             let result = store.filteredSummaries('me_5');
-            expect(result.map(_ => _.name)).toEqual([]);
+            expect(result.unresolved).toEqual([]);
+            expect(result.resolved).toEqual([]);
 
-            result = store.filteredSummaries('me_3');
-            expect(result.map(_ => _.name)).toEqual(['name_3']);
+            result = store.filteredSummaries(' me_3 ');
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_3']);
+            expect(result.resolved).toEqual([]);
 
-            result = store.filteredSummaries('ME_4');
-            expect(result.map(_ => _.name)).toEqual(['name_4']);
+            result = store.filteredSummaries(' ME_4 ');
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_4']);
+            expect(result.resolved.map(_ => _.name)).toEqual(['name_41']);
+        });
+
+        test('should properly handle invalid search text', () => {
+            const result = store.filteredSummaries(null);
+
+            expect(result.unresolved.length).toEqual(unresolved.length);
+            expect(result.resolved.length).toEqual(resolved.length);
         });
 
         test('should return sorted summaries', () => {
             const result = store.filteredSummaries('');
 
-            expect(result.map(_ => _.name)).toEqual(['name_1', 'name_2', 'name_3', 'name_4']);
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_1', 'name_2', 'name_3', 'name_4']);
+            expect(result.resolved.map(_ => _.name)).toEqual(['name_41', 'name_60']);
         });
     });
 
@@ -86,12 +103,12 @@ describe('task store unit test', () => {
         });
 
         test('should return active task item', async() => {
-            eventSummary.unconcludedSinceStart.resourceId = summaries[1].id;
+            eventSummary.unconcludedSinceStart.resourceId = unresolved[1].id;
             eventSummary.unconcludedSinceStart.eventType = EventType.Task;
             await eventStore.loadOngoingEventSummary();
             await store.loadSummaries();
 
-            expect(store.activeSummary).toEqual(summaries[1]);
+            expect(store.activeSummary).toEqual(unresolved[1]);
         });
     });
 
@@ -100,7 +117,8 @@ describe('task store unit test', () => {
             await store.loadSummaries();
 
             sinonExpect.calledOnce(taskItemHttpStub.getSummaries);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
         });
     });
 
@@ -195,18 +213,19 @@ describe('task store unit test', () => {
         });
 
         test('should do nothing on failure', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             taskItemHttpStub.deleteItem.resolves(false);
 
             const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(taskItemHttpStub.deleteItem, id);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(false);
         });
 
         test('should remove item on success', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             taskItemHttpStub.deleteItem.resolves(true);
             expect(store.editingItem).toBeFalsy();
 
@@ -214,13 +233,14 @@ describe('task store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(taskItemHttpStub.deleteItem, id);
             expect(store.editingItem).toBeFalsy();
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
 
         test('should not close editing item when another item is opened', async() => {
-            const { id } = summaries[1];
-            const other = new TaskItem(summaries[2].id);
+            const { id } = unresolved[1];
+            const other = new TaskItem(unresolved[2].id);
             taskItemHttpStub.getItem.resolves(other);
             taskItemHttpStub.deleteItem.resolves(true);
             await store.startItemEdit(other.id);
@@ -230,12 +250,13 @@ describe('task store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(taskItemHttpStub.deleteItem, id);
             expect(store.editingItem).toEqual(other);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
 
         test('should close editing item when it is deleted', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             taskItemHttpStub.getItem.resolves(new TaskItem(id));
             taskItemHttpStub.deleteItem.resolves(true);
             await store.startItemEdit(id);
@@ -245,7 +266,8 @@ describe('task store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(taskItemHttpStub.deleteItem, id);
             expect(store.editingItem).toBeFalsy();
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
     });

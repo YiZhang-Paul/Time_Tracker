@@ -38,102 +38,69 @@ describe('interruption item list unit test', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('totalItems', () => {
-        test('should be hidden when no interruption item exists', async() => {
-            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
+    describe('list types', () => {
+        test('should not show counters when no interruption item exists', async() => {
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved: [], resolved: [] }));
             await component.setProps({ searchText: null });
 
-            expect(component.find('.list-counter').exists()).toEqual(false);
+            expect(component.find('.list-types').exists()).toEqual(false);
         });
 
         test('should display total interruption items', async() => {
-            const summaries = [
+            const unresolved = [
                 { id: 3 } as InterruptionItemSummaryDto,
                 { id: 6 } as InterruptionItemSummaryDto,
                 { id: 7 } as InterruptionItemSummaryDto
             ];
 
-            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
+            const resolved = [
+                { id: 8 } as InterruptionItemSummaryDto,
+                { id: 9 } as InterruptionItemSummaryDto
+            ];
+
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved }));
             interruptionStore.$reset();
             await nextTick();
 
-            expect(component.find('.list-counter').text()).toEqual('3 interruptions');
-        });
-
-        test('should handle singular form', async() => {
-            stub(interruptionStore, 'filteredSummaries').get(() => () => [{ id: 3 } as InterruptionItemSummaryDto]);
-            interruptionStore.$reset();
-            await nextTick();
-
-            expect(component.find('.list-counter').text()).toEqual('1 interruption');
+            expect(component.find('.list-types').text()).toEqual('3 unresolved | 2 resolved');
         });
     });
 
     describe('items', () => {
-        test('should properly transform search text', async() => {
-            const filteredSummariesStub = stub().returns([]);
-            stub(interruptionStore, 'filteredSummaries').get(() => filteredSummariesStub);
-            await component.setProps({ searchText: ' SEARCH_TEXT ' });
-
-            sinonExpect.calledOnceWithExactly(filteredSummariesStub, 'search_text');
-        });
-
-        test('should properly handle invalid search text', async() => {
-            const filteredSummariesStub = stub().returns([]);
-            stub(interruptionStore, 'filteredSummaries').get(() => filteredSummariesStub);
-            await component.setProps({ searchText: null });
-
-            sinonExpect.calledOnceWithExactly(filteredSummariesStub, '');
-        });
-
         test('should return empty collection when no items available', () => {
-            stub(interruptionStore, 'filteredSummaries').get(() => () => []);
             stub(interruptionStore, 'activeSummary').get(() => null);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved: [], resolved: [] }));
             interruptionStore.$reset();
 
             expect(component.vm.items).toEqual([]);
         });
 
         test('should return items matching filter criteria', () => {
-            const summaries = [
+            const unresolved = [
                 { id: 3 } as InterruptionItemSummaryDto,
                 { id: 6 } as InterruptionItemSummaryDto,
                 { id: 7 } as InterruptionItemSummaryDto
             ];
 
-            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             stub(interruptionStore, 'activeSummary').get(() => null);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
             interruptionStore.$reset();
 
             expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([3, 6, 7]);
         });
 
-        test('should include active summary item when available', () => {
-            const summaries = [
+        test('should exclude active summary item', () => {
+            const unresolved = [
                 { id: 3 } as InterruptionItemSummaryDto,
-                { id: 6 } as InterruptionItemSummaryDto,
+                { id: 9 } as InterruptionItemSummaryDto,
                 { id: 7 } as InterruptionItemSummaryDto
             ];
 
-            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
             stub(interruptionStore, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
             interruptionStore.$reset();
 
-            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 3, 6, 7]);
-        });
-
-        test('should avoid including duplicate active summary item and ensure it is always on top', () => {
-            const summaries = [
-                { id: 2 } as InterruptionItemSummaryDto,
-                { id: 9 } as InterruptionItemSummaryDto,
-                { id: 5 } as InterruptionItemSummaryDto
-            ];
-
-            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
-            stub(interruptionStore, 'activeSummary').get(() => ({ id: 9 } as InterruptionItemSummaryDto));
-            interruptionStore.$reset();
-
-            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([9, 2, 5]);
+            expect(component.vm.items.map((_: InterruptionItemSummaryDto) => _.id)).toEqual([3, 7]);
         });
     });
 
@@ -153,14 +120,14 @@ describe('interruption item list unit test', () => {
 
     describe('getItemCardClasses', () => {
         test('should return correct classes', async() => {
-            const summaries = [
+            const unresolved = [
                 { id: 1 } as InterruptionItemSummaryDto,
                 { id: 2 } as InterruptionItemSummaryDto,
                 { id: 3 } as InterruptionItemSummaryDto
             ];
 
-            stub(interruptionStore, 'filteredSummaries').get(() => () => summaries);
-            interruptionStore.editingItem = new InterruptionItem(summaries[1].id);
+            stub(interruptionStore, 'filteredSummaries').get(() => () => ({ unresolved, resolved: [] }));
+            interruptionStore.editingItem = new InterruptionItem(unresolved[1].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
             await nextTick();
@@ -175,8 +142,8 @@ describe('interruption item list unit test', () => {
             expect(elements[2].classes()).toContain('animated');
             expect(elements[2].classes()).not.toContain('selected');
 
-            summaries.push({ id: 4 } as InterruptionItemSummaryDto);
-            interruptionStore.editingItem = new InterruptionItem(summaries[3].id);
+            unresolved.push({ id: 4 } as InterruptionItemSummaryDto);
+            interruptionStore.editingItem = new InterruptionItem(unresolved[3].id);
             component.vm.$options.watch.items.call(component.vm);
             jest.advanceTimersByTime(300);
             await nextTick();

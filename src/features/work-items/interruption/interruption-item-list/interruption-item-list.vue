@@ -1,6 +1,26 @@
 <template>
     <div class="interruption-item-list-container">
-        <span v-if="items.length" class="list-counter">{{ totalItems }}</span>
+        <span v-if="totalUnresolved || totalResolved" class="list-types">
+            <span class="unresolved-list" :class="{ active: showUnresolved }" @click="selectUnresolved()">
+                {{ totalUnresolved }} unresolved
+            </span>
+
+            <span>| </span>
+
+            <span class="resolved-list" :class="{ active: !showUnresolved }" @click="selectResolved()">
+                {{ totalResolved }} resolved
+            </span>
+        </span>
+
+        <div class="card-wrapper" v-if="interruptionStore.activeSummary">
+            <interruption-item-card class="interruption-item-card"
+                :class="getItemCardClasses(interruptionStore.activeSummary)"
+                :item="interruptionStore.activeSummary"
+                :isSelected="selectedItemId === interruptionStore.activeSummary.id"
+                :isActive="true"
+                @click="$emit('select', interruptionStore.activeSummary)">
+            </interruption-item-card>
+        </div>
 
         <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
@@ -8,6 +28,7 @@
                     :class="getItemCardClasses(item)"
                     :item="item"
                     :isSelected="selectedItemId === item.id"
+                    :isResolved="!showUnresolved"
                     :isActive="isActive(item)"
                     @click="$emit('select', item)">
                 </interruption-item-card>
@@ -22,6 +43,7 @@ import { mapStores } from 'pinia';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { useInterruptionStore } from '../../../../stores/interruption/interruption.store';
+import { ItemSummariesDto } from '../../../../core/dtos/item-summaries-dto';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -52,24 +74,33 @@ class InterruptionItemListProp {
 })
 /* istanbul ignore next */
 export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
+    public showUnresolved = true;
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    private animateTimeouts: number[] = [];
     private animated = new Set<number>();
 
-    get totalItems(): string {
-        return `${this.items.length} interruption${this.items.length > 1 ? 's' : ''}`;
+    get totalUnresolved(): number {
+        return this.filteredSummaries.unresolved.length;
+    }
+
+    get totalResolved(): number {
+        return this.filteredSummaries.resolved.length;
     }
 
     get items(): InterruptionItemSummaryDto[] {
-        const text = this.searchText?.toLowerCase().trim() ?? '';
-        const items = this.interruptionStore.filteredSummaries(text);
-        const active = this.interruptionStore.activeSummary;
-
-        if (!active) {
-            return items;
+        if (!this.showUnresolved) {
+            return this.filteredSummaries.resolved;
         }
 
-        return [active, ...items.filter(_ => _.id !== active.id)];
+        const { unresolved } = this.filteredSummaries;
+        const active = this.interruptionStore.activeSummary;
+
+        return active ? unresolved.filter(_ => _.id !== active.id) : unresolved;
+    }
+
+    get filteredSummaries(): ItemSummariesDto<InterruptionItemSummaryDto> {
+        return this.interruptionStore.filteredSummaries(this.searchText);
     }
 
     get selectedItemId(): number {
@@ -78,6 +109,20 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     public mounted(): void {
         this.animateItemCards();
+    }
+
+    public selectUnresolved(): void {
+        if (!this.showUnresolved) {
+            this.resetAnimation();
+            setTimeout(() => this.showUnresolved = true, 150);
+        }
+    }
+
+    public selectResolved(): void {
+        if (this.showUnresolved) {
+            this.resetAnimation();
+            setTimeout(() => this.showUnresolved = false, 150);
+        }
     }
 
     public getItemCardClasses(item: InterruptionItemSummaryDto): ClassConfigs {
@@ -94,10 +139,29 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
     private animateItemCards(): void {
         let total = 0;
 
+        if (this.interruptionStore.activeSummary) {
+            const { id } = this.interruptionStore.activeSummary;
+            this.animated.delete(id);
+            setTimeout(() => this.animated.add(id));
+        }
+
         for (const { id } of this.items) {
             if (!this.animated.has(id)) {
-                setTimeout(() => this.animated.add(id), 200 + total++ * 25);
+                const timeout = setTimeout(() => this.animated.add(id), 200 + total++ * 25);
+                this.animateTimeouts.push(timeout);
             }
+        }
+    }
+
+    private resetAnimation(): void {
+        this.animated.clear();
+
+        if (this.interruptionStore.activeSummary) {
+            this.animated.add(this.interruptionStore.activeSummary.id);
+        }
+
+        while (this.animateTimeouts.length) {
+            clearTimeout(this.animateTimeouts.pop());
         }
     }
 }
@@ -110,9 +174,38 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
 
     @include flex-column();
 
-    .list-counter {
+    .list-types {
         margin-bottom: 0.25rem;
         color: var(--font-colors-4-00);
+
+        .unresolved-list, .resolved-list {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unresolved-list {
+            color: var(--context-colors-suggestion-8-00);
+
+            &:hover, &.active {
+                color: var(--context-colors-suggestion-0-00);
+            }
+
+            &.active {
+                text-shadow: 0 0 4px var(--context-colors-suggestion-0-00);
+            }
+        }
+
+        .resolved-list {
+            color: var(--context-colors-success-8-00);
+
+            &:hover, &.active {
+                color: var(--context-colors-success-0-00);
+            }
+
+            &.active {
+                text-shadow: 0 0 4px var(--context-colors-success-0-00);
+            }
+        }
     }
 
     .card-wrappers {
@@ -120,22 +213,22 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         width: 100%;
         height: 100%;
         direction: rtl;
+    }
 
-        .card-wrapper {
-            box-sizing: border-box;
-            margin-bottom: 1rem;
-            padding: 0.5vh 1vh 0.5vh 0;
-            width: 100%;
-            min-height: 5.25rem;
-            overflow-x: hidden;
-            scroll-snap-align: start;
-            @include animate-opacity(0, 1, 0.3s);
-            direction: rtl;
-        }
+    .card-wrapper {
+        box-sizing: border-box;
+        margin-bottom: 1rem;
+        padding: 0.5vh 1vh 0.5vh 0;
+        width: 100%;
+        min-height: 5.25rem;
+        overflow-x: hidden;
+        scroll-snap-align: start;
+        direction: rtl;
 
         .interruption-item-card {
             margin-right: 110%;
             transition: margin-right 0.3s, color 0.3s;
+            @include animate-opacity(0, 1, 0.3s);
             direction: ltr;
 
             &.animated {

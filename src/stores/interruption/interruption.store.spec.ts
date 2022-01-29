@@ -16,7 +16,8 @@ import { setServices as setInterruptionStoreServices, useInterruptionStore } fro
 describe('interruption store unit test', () => {
     let store: ReturnType<typeof useInterruptionStore>;
     let interruptionItemHttpStub: SinonStubbedInstance<InterruptionItemHttpService>;
-    let summaries: InterruptionItemSummaryDto[];
+    let unresolved: InterruptionItemSummaryDto[];
+    let resolved: InterruptionItemSummaryDto[];
 
     beforeEach(() => {
         interruptionItemHttpStub = createStubInstance(InterruptionItemHttpService);
@@ -26,14 +27,19 @@ describe('interruption store unit test', () => {
     });
 
     beforeEach(() => {
-        summaries = [
+        unresolved = [
             { id: 1, name: 'name_1', priority: Priority.Low },
             { id: 2, name: 'name_2', priority: Priority.High },
             { id: 3, name: 'name_3', priority: Priority.Medium },
             { id: 4, name: 'name_4', priority: Priority.Low }
         ];
 
-        interruptionItemHttpStub.getSummaries.resolves(summaries);
+        resolved = [
+            { id: 41, name: 'name_41', priority: Priority.Low },
+            { id: 60, name: 'name_60', priority: Priority.High }
+        ];
+
+        interruptionItemHttpStub.getSummaries.resolves({ unresolved: unresolved.slice(), resolved: resolved.slice() });
     });
 
     describe('filteredSummaries', () => {
@@ -43,19 +49,30 @@ describe('interruption store unit test', () => {
 
         test('should return filtered summaries', () => {
             let result = store.filteredSummaries('me_5');
-            expect(result.map(_ => _.name)).toEqual([]);
+            expect(result.unresolved).toEqual([]);
+            expect(result.resolved).toEqual([]);
 
-            result = store.filteredSummaries('me_3');
-            expect(result.map(_ => _.name)).toEqual(['name_3']);
+            result = store.filteredSummaries(' me_3 ');
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_3']);
+            expect(result.resolved).toEqual([]);
 
-            result = store.filteredSummaries('ME_4');
-            expect(result.map(_ => _.name)).toEqual(['name_4']);
+            result = store.filteredSummaries(' ME_4 ');
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_4']);
+            expect(result.resolved.map(_ => _.name)).toEqual(['name_41']);
+        });
+
+        test('should properly handle invalid search text', () => {
+            const result = store.filteredSummaries(null);
+
+            expect(result.unresolved.length).toEqual(unresolved.length);
+            expect(result.resolved.length).toEqual(resolved.length);
         });
 
         test('should return sorted summaries', () => {
             const result = store.filteredSummaries('');
 
-            expect(result.map(_ => _.name)).toEqual(['name_2', 'name_3', 'name_1', 'name_4']);
+            expect(result.unresolved.map(_ => _.name)).toEqual(['name_2', 'name_3', 'name_1', 'name_4']);
+            expect(result.resolved.map(_ => _.name)).toEqual(['name_60', 'name_41']);
         });
     });
 
@@ -87,12 +104,12 @@ describe('interruption store unit test', () => {
         });
 
         test('should return active interruption item', async() => {
-            eventSummary.unconcludedSinceStart.resourceId = summaries[1].id;
+            eventSummary.unconcludedSinceStart.resourceId = unresolved[1].id;
             eventSummary.unconcludedSinceStart.eventType = EventType.Interruption;
             await eventStore.loadOngoingEventSummary();
             await store.loadSummaries();
 
-            expect(store.activeSummary).toEqual(summaries[1]);
+            expect(store.activeSummary).toEqual(unresolved[1]);
         });
     });
 
@@ -101,7 +118,8 @@ describe('interruption store unit test', () => {
             await store.loadSummaries();
 
             sinonExpect.calledOnce(interruptionItemHttpStub.getSummaries);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
         });
     });
 
@@ -196,18 +214,19 @@ describe('interruption store unit test', () => {
         });
 
         test('should do nothing on failure', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             interruptionItemHttpStub.deleteItem.resolves(false);
 
             const result = await store.deleteItem(id);
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(false);
         });
 
         test('should remove item on success', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             interruptionItemHttpStub.deleteItem.resolves(true);
             expect(store.editingItem).toBeFalsy();
 
@@ -215,13 +234,14 @@ describe('interruption store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.editingItem).toBeFalsy();
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
 
         test('should not close editing item when another item is opened', async() => {
-            const { id } = summaries[1];
-            const other = new InterruptionItem(summaries[2].id);
+            const { id } = unresolved[1];
+            const other = new InterruptionItem(unresolved[2].id);
             interruptionItemHttpStub.getItem.resolves(other);
             interruptionItemHttpStub.deleteItem.resolves(true);
             await store.startItemEdit(other.id);
@@ -231,12 +251,13 @@ describe('interruption store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.editingItem).toEqual(other);
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
 
         test('should close editing item when it is deleted', async() => {
-            const { id } = summaries[1];
+            const { id } = unresolved[1];
             interruptionItemHttpStub.getItem.resolves(new InterruptionItem(id));
             interruptionItemHttpStub.deleteItem.resolves(true);
             await store.startItemEdit(id);
@@ -246,7 +267,8 @@ describe('interruption store unit test', () => {
 
             sinonExpect.calledOnceWithExactly(interruptionItemHttpStub.deleteItem, id);
             expect(store.editingItem).toBeFalsy();
-            expect(store.filteredSummaries('').length).toEqual(summaries.length - 1);
+            expect(store.filteredSummaries('').unresolved.length).toEqual(unresolved.length - 1);
+            expect(store.filteredSummaries('').resolved.length).toEqual(resolved.length);
             expect(result).toEqual(true);
         });
     });

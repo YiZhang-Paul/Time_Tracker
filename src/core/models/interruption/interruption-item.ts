@@ -7,6 +7,7 @@ export class InterruptionItem {
     public priority = Priority.Low;
     public creationTime = '';
     public modifiedTime = '';
+    public resolvedTime?: string;
 
     constructor(id: number, name = '') {
         this.id = id;

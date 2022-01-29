@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { injectable } from 'inversify';
 
+import { ItemSummariesDto } from '../../../dtos/item-summaries-dto';
 import { TaskItemSummaryDto } from '../../../dtos/task-item-summary-dto';
 import { TaskItem } from '../../../models/task/task-item';
+import { ResolveAction } from '../../../enums/resolve-action.enum';
 
 @injectable()
 export class TaskItemHttpService {
@@ -17,12 +19,12 @@ export class TaskItemHttpService {
         }
     }
 
-    public async getSummaries(): Promise<TaskItemSummaryDto[]> {
+    public async getSummaries(start: Date): Promise<ItemSummariesDto<TaskItemSummaryDto>> {
         try {
-            return (await axios.get(`${this._api}/summaries`)).data;
+            return (await axios.get(`${this._api}/summaries/${start.toISOString()}`)).data;
         }
         catch {
-            return [];
+            return new ItemSummariesDto<TaskItemSummaryDto>();
         }
     }
 
@@ -47,6 +49,30 @@ export class TaskItemHttpService {
     public async deleteItem(id: number): Promise<boolean> {
         try {
             return (await axios.delete(`${this._api}/${id}`)).data;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    public async resolveItem(item: TaskItem): Promise<boolean> {
+        try {
+            const endpoint = `${this._api}?resolve=${ResolveAction.Resolve}`;
+            const { data } = await axios.put(endpoint, item);
+
+            return Boolean(data);
+        }
+        catch {
+            return false;
+        }
+    }
+
+    public async unresolveItem(item: TaskItem): Promise<boolean> {
+        try {
+            const endpoint = `${this._api}?resolve=${ResolveAction.Unresolve}`;
+            const { data } = await axios.put(endpoint, item);
+
+            return Boolean(data);
         }
         catch {
             return false;

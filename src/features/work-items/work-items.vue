@@ -12,7 +12,9 @@
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
             @start="onInterruptionStart($event.id)"
-            @stop="eventStore.startIdling()">
+            @stop="eventStore.startIdling()"
+            @resolve="onInterruptionResolve($event)"
+            @unresolve="onInterruptionUnresolve($event)">
         </interruption-item-editor>
 
         <task-item-editor v-if="taskStore.editingItem"
@@ -22,12 +24,14 @@
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
             @start="onTaskStart($event.id)"
-            @stop="eventStore.startIdling()">
+            @stop="eventStore.startIdling()"
+            @resolve="onTaskResolve($event)"
+            @unresolve="onTaskUnresolve($event)">
         </task-item-editor>
 
         <div v-if="!isEditing" class="editor-placeholder">
-            <span v-if="hasWorkItem">You still got things to do. Pick one and get it done.</span>
-            <span v-if="!hasWorkItem">You sure you have nothing to do, you dipshit?</span>
+            <span v-if="hasUnresolvedWorkItem">You still got things to do. Pick one and get it done.</span>
+            <span v-if="!hasUnresolvedWorkItem">You sure you have nothing to do, you dipshit?</span>
         </div>
 
         <interruption-item-list class="interruption-item-list"
@@ -92,8 +96,11 @@ export default class WorkItems extends Vue {
         return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
     }
 
-    get hasWorkItem(): boolean {
-        return Boolean(this.interruptionStore.summaries.length) || Boolean(this.taskStore.summaries.length);
+    get hasUnresolvedWorkItem(): boolean {
+        const interruptions = this.interruptionStore.summaries.unresolved;
+        const tasks = this.taskStore.summaries.unresolved;
+
+        return Boolean(interruptions.length) || Boolean(tasks.length);
     }
 
     public created(): void {
@@ -151,6 +158,34 @@ export default class WorkItems extends Vue {
         this.onWorkItemStart(() => this.eventStore.startInterruption(id));
     }
 
+    public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
+        if (!await this.interruptionStore.resolveItem(item)) {
+            return;
+        }
+
+        await this.interruptionStore.loadSummaries();
+
+        if (this.interruptionStore.editingItem?.id === item.id) {
+            this.interruptionStore.startItemEdit(item.id, false);
+        }
+
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
+        }
+    }
+
+    public async onInterruptionUnresolve(item: InterruptionItem): Promise<void> {
+        if (!await this.interruptionStore.unresolveItem(item)) {
+            return;
+        }
+
+        await this.interruptionStore.loadSummaries();
+
+        if (this.interruptionStore.editingItem?.id === item.id) {
+            this.interruptionStore.startItemEdit(item.id, false);
+        }
+    }
+
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
             this.interruptionStore.stopItemEdit();
@@ -187,6 +222,34 @@ export default class WorkItems extends Vue {
         this.onWorkItemStart(() => this.eventStore.startTask(id));
     }
 
+    public async onTaskResolve(item: TaskItem): Promise<void> {
+        if (!await this.taskStore.resolveItem(item)) {
+            return;
+        }
+
+        await this.taskStore.loadSummaries();
+
+        if (this.taskStore.editingItem?.id === item.id) {
+            this.taskStore.startItemEdit(item.id, false);
+        }
+
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
+        }
+    }
+
+    public async onTaskUnresolve(item: TaskItem): Promise<void> {
+        if (!await this.taskStore.unresolveItem(item)) {
+            return;
+        }
+
+        await this.taskStore.loadSummaries();
+
+        if (this.taskStore.editingItem?.id === item.id) {
+            this.taskStore.startItemEdit(item.id, false);
+        }
+    }
+
     private onWorkItemStart(callback: () => void): void {
         if (!this.eventStore.isBreaking) {
             callback();
@@ -209,8 +272,8 @@ export default class WorkItems extends Vue {
     }
 
     private openAvailableWorkItem(): void {
-        const interruptions = this.interruptionStore.filteredSummaries(this.searchText);
-        const tasks = this.taskStore.filteredSummaries(this.searchText);
+        const interruptions = this.interruptionStore.filteredSummaries(this.searchText).unresolved;
+        const tasks = this.taskStore.filteredSummaries(this.searchText).unresolved;
 
         if (interruptions.length) {
             this.onInterruptionSelect(interruptions[0]);
