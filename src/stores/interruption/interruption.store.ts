@@ -116,15 +116,22 @@ export const useInterruptionStore = defineStore('interruption', {
             this.stopItemEdit();
             setTimeout(() => this.editingItem = new InterruptionItem(-1));
         },
-        async startItemEdit(id: number): Promise<boolean> {
+        async startItemEdit(id: number, nextTick = true): Promise<boolean> {
             const item = await interruptionItemHttpService.getItem(id);
 
-            if (item) {
+            if (!item) {
+                return false;
+            }
+
+            if (nextTick) {
                 this.stopItemEdit();
                 setTimeout(() => this.editingItem = item);
             }
+            else {
+                this.editingItem = item;
+            }
 
-            return Boolean(item);
+            return true;
         },
         stopItemEdit(): void {
             this.editingItem = null;

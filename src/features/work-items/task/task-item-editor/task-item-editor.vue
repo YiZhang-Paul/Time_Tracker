@@ -15,14 +15,6 @@
 
         <div class="footer">
             <template v-if="item.id !== -1">
-                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
-                    class="action-button start-button"
-                    @click="$emit('start', item)" />
-
-                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
-                    class="action-button stop-button"
-                    @click="$emit('stop', item)" />
-
                 <check-bold v-if="!item.resolvedTime"
                     class="action-button resolve-button"
                     @click="$emit('resolve', item)" />
@@ -30,6 +22,14 @@
                 <progress-question v-if="item.resolvedTime"
                     class="action-button unresolve-button"
                     @click="$emit('unresolve', item)" />
+
+                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
+                    class="action-button start-button"
+                    @click="$emit('start', item)" />
+
+                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
+                    class="action-button stop-button"
+                    @click="$emit('stop', item)" />
             </template>
 
             <selection-group class="effort-selector"
@@ -208,28 +208,12 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             transition: color 0.3s;
         }
 
-        .start-button, .stop-button, .resolve-button, .unresolve-button {
+        .resolve-button, .unresolve-button, .start-button, .stop-button {
             margin-right: 1vh;
         }
 
         .save-button, .delete-button {
             margin-left: 1vh;
-        }
-
-        .start-button {
-            color: var(--start-button-color-inactive);
-
-            &:hover {
-                color: var(--start-button-color-active);
-            }
-        }
-
-        .stop-button {
-            color: var(--stop-button-color-inactive);
-
-            &:hover {
-                color: var(--stop-button-color-active);
-            }
         }
 
         .resolve-button {
@@ -245,6 +229,22 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 
             &:hover {
                 color: var(--context-colors-suggestion-0-00);
+            }
+        }
+
+        .start-button {
+            color: var(--start-button-color-inactive);
+
+            &:hover {
+                color: var(--start-button-color-active);
+            }
+        }
+
+        .stop-button {
+            color: var(--stop-button-color-inactive);
+
+            &:hover {
+                color: var(--stop-button-color-active);
             }
         }
 

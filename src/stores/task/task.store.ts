@@ -116,15 +116,22 @@ export const useTaskStore = defineStore('task', {
             this.stopItemEdit();
             setTimeout(() => this.editingItem = new TaskItem(-1));
         },
-        async startItemEdit(id: number): Promise<boolean> {
+        async startItemEdit(id: number, nextTick = true): Promise<boolean> {
             const item = await taskItemHttpService.getItem(id);
 
-            if (item) {
+            if (!item) {
+                return false;
+            }
+
+            if (nextTick) {
                 this.stopItemEdit();
                 setTimeout(() => this.editingItem = item);
             }
+            else {
+                this.editingItem = item;
+            }
 
-            return Boolean(item);
+            return true;
         },
         stopItemEdit(): void {
             this.editingItem = null;
