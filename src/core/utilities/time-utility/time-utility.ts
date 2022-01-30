@@ -14,11 +14,20 @@ export class TimeUtility {
         return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
     }
 
+    public static getDateString(date: Date, locale = 'en-US'): string {
+        const dayOfWeek = date.toLocaleDateString(locale, { weekday: 'long' });
+        const month = this.getShortMonthString(date);
+        const suffix = this.getDateSuffix(date.getDate());
+
+        return `${dayOfWeek}, ${month} ${date.getDate()}${suffix}, ${date.getFullYear()}`;
+    }
+
     public static getTimeString(date: Date): string {
         const hours = date.getHours();
-        const minutes = this.prependZero(date.getMinutes());
+        const hoursText = this.prependZero(hours > 12 ? hours % 12 : hours);
+        const minutesText = this.prependZero(date.getMinutes());
 
-        return `${hours > 12 ? hours % 12 : hours}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
+        return `${hoursText}:${minutesText} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getShortMonthString(date: Date): string {
