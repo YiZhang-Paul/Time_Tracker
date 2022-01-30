@@ -36,8 +36,9 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
         }
 
         const start = new Date(this.current.timestamp);
+        const end = Math.min(Date.now(), start.setHours(23, 59, 59, 999));
 
-        return TimeUtility.getTimeString(new Date(start.setHours(23, 59, 59, 999)));
+        return TimeUtility.getTimeString(new Date(end));
     }
 
     get name(): string {
