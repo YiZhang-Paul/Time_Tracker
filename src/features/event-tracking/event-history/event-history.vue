@@ -42,7 +42,12 @@ export default class EventHistory extends Vue {
         return TimeUtility.getDateString(this.day);
     }
 
-    public async created(): Promise<void> {
+    public created(): void {
+        this.initialize();
+    }
+
+    public async initialize(): Promise<void> {
+        this.eventStore.loadOngoingEventSummary();
         const [year, month, date] = [this.day.getFullYear(), this.day.getMonth(), this.day.getDate()];
         this.summaries = await this.eventStore.getEventHistorySummariesByDay(year, month + 1, date - 2);
     }
