@@ -1,7 +1,8 @@
 <template>
     <div class="event-history-card-summary-container">
         <div :style="{ color }">{{ start }} ~ {{ end }}</div>
-        <span>{{ name }}</span>
+        <span class="name">{{ name }}</span>
+        <span v-if="current.name && current.isDeleted" class="deleted-label">(DELETED)</span>
     </div>
 </template>
 
@@ -40,13 +41,13 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
     }
 
     get name(): string {
-        const { name, eventType, isDeleted } = this.current;
+        const { name, eventType } = this.current;
 
-        if (eventType === EventType.Idling || eventType === EventType.Break) {
-            return eventType === EventType.Idling ? 'Idling' : 'Break';
+        if (eventType !== EventType.Idling && eventType !== EventType.Break) {
+            return name;
         }
 
-        return name ? `${name} ${isDeleted ? '(DELETED)' : ''}` : '';
+        return eventType === EventType.Idling ? 'Idling' : 'Break';
     }
 }
 </script>
@@ -68,6 +69,17 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
         border-radius: 5px;
         box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
         background-color: var(--primary-colors-9-00);
+    }
+
+    .name {
+        @include line-overflow();
+    }
+
+    .deleted-label {
+        margin-top: 0.25rem;
+        margin-left: 0.5vh;
+        color: var(--context-colors-suggestion-0-00);
+        font-size: var(--font-sizes-100);
     }
 }
 </style>

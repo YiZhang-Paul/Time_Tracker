@@ -78,6 +78,12 @@
     justify-content: $justify;
 }
 
+@mixin line-overflow($type: ellipsis) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: $type;
+}
+
 @mixin line-clamp-vertical($lines: 2) {
     display: -webkit-box;
     -webkit-box-orient: vertical;
