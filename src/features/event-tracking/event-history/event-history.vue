@@ -15,8 +15,8 @@
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
-import { useEventStore } from '../../stores/event/event.store';
-import { EventHistorySummary } from '../../core/models/event/event-history-summary';
+import { useEventStore } from '../../../stores/event/event.store';
+import { EventHistorySummary } from '../../../core/models/event/event-history-summary';
 
 import EventHistorySummaryCard from './event-history-summary-card/event-history-summary-card.vue';
 
@@ -42,7 +42,7 @@ export default class EventHistory extends Vue {
 
 <style lang="scss" scoped>
 .event-history-container {
-    @import '../../styles/presets.scss';
+    @import '../../../styles/presets.scss';
 
     @include flex-column(center, center);
     color: var(--font-colors-3-00);

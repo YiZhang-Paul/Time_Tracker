@@ -11,7 +11,7 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { EventHistorySummary } from '../../../core/models/event/event-history-summary';
+import { EventHistorySummary } from '../../../../core/models/event/event-history-summary';
 
 class EventHistorySummaryCardProp {
     public current = prop<EventHistorySummary>({ default: new EventHistorySummary() });
@@ -23,7 +23,7 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
 
 <style lang="scss" scoped>
 .event-history-card-summary-container {
-    @import '../../../styles/presets.scss';
+    @import '../../../../styles/presets.scss';
 
     @include flex-row(center);
 }

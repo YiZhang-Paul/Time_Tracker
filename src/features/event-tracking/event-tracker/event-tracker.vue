@@ -24,13 +24,13 @@ import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 import { ShieldCross, SwordCross } from 'mdue';
 
-import { useDialogStore } from '../../stores/dialog/dialog.store';
-import { useEventStore } from '../../stores/event/event.store';
-import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
-import { DialogConfig } from '../../core/models/generic/dialog-config';
-import { ButtonType } from '../../core/enums/button-type.enum';
-import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
-import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
+import { useDialogStore } from '../../../stores/dialog/dialog.store';
+import { useEventStore } from '../../../stores/event/event.store';
+import { ConfirmationDialogOption } from '../../../core/models/options/confirmation-dialog-option';
+import { DialogConfig } from '../../../core/models/generic/dialog-config';
+import { ButtonType } from '../../../core/enums/button-type.enum';
+import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import ConfirmationDialog from '../../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 @Options({
     components: {
@@ -124,8 +124,8 @@ export default class EventTracker extends Vue {
 
 <style lang="scss" scoped>
 .event-tracker-container {
-    @import '../../styles/presets.scss';
-    @import '../../styles/animations.scss';
+    @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-row(center, center);
     color: var(--font-colors-3-00);
