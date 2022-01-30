@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 
 import { BreakSessionConfirmationDto } from '../../../dtos/break-session-confirmation-dto';
 import { OngoingEventTimeSummaryDto } from '../../../dtos/ongoing-event-time-summary-dto';
+import { EventTimeBreakdownDto } from '../../../dtos/event-time-breakdown-dto';
 import { EventHistorySummary } from '../../../models/event/event-history-summary';
 
 @injectable()
@@ -15,6 +16,15 @@ export class EventHttpService {
         }
         catch {
             return new OngoingEventTimeSummaryDto();
+        }
+    }
+
+    public async getTimeBreakdownByDay(start: Date): Promise<EventTimeBreakdownDto> {
+        try {
+            return (await axios.get(`${this._api}/time-breakdown/${start.toISOString()}`)).data;
+        }
+        catch {
+            return new EventTimeBreakdownDto();
         }
     }
 
