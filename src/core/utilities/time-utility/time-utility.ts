@@ -8,17 +8,18 @@ const months = [
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
+const defaultLocale = 'en-US';
 
 export class TimeUtility {
     public static isLeapYear(year: number): boolean {
         return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
     }
 
-    public static getDateTimeString(date: Date, locale = 'en-US'): string {
+    public static getDateTimeString(date: Date, locale = defaultLocale): string {
         return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
     }
 
-    public static getDateString(date: Date, locale = 'en-US'): string {
+    public static getDateString(date: Date, locale = defaultLocale): string {
         const dayOfWeek = date.toLocaleDateString(locale, { weekday: 'long' });
         const month = this.getShortMonthString(date);
         const suffix = this.getDateSuffix(date.getDate());
