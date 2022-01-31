@@ -9,20 +9,32 @@
             <div class="time-breakdown">
                 <div class="working-time-breakdown">
                     <sword-cross class="icon" />
-                    <span>Spent on working: {{ workingTime }}</span>
-                    <span>Interruptions: {{ interruptionTime }}</span>
-                    <span>Tasks: {{ taskTime }}</span>
+
+                    <template v-if="summaries.length">
+                        <span>Spent on working: {{ workingTime }}</span>
+                        <span>Interruptions: {{ interruptionTime }}</span>
+                        <span>Tasks: {{ taskTime }}</span>
+                    </template>
+
+                    <span v-if="!summaries.length">time information not available.</span>
                 </div>
 
                 <div class="not-working-time-breakdown">
                     <shield-cross class="icon" />
-                    <span>Not spent on working: {{ notWorkingTime }}</span>
-                    <span>Idling: {{ idlingTime }}</span>
-                    <span>Breaks: {{ breakTime }}</span>
+
+                    <template v-if="summaries.length">
+                        <span>Not spent on working: {{ notWorkingTime }}</span>
+                        <span>Idling: {{ idlingTime }}</span>
+                        <span>Breaks: {{ breakTime }}</span>
+                    </template>
+
+                    <span v-if="!summaries.length">time information not available.</span>
                 </div>
             </div>
 
-            <overlay-scrollbar-panel class="event-timeline">
+            <div v-if="!summaries.length" class="timeline-placeholder">no data available.</div>
+
+            <overlay-scrollbar-panel v-if="summaries.length" class="event-timeline">
                 <event-history-summary-card v-for="(summary, index) in summaries"
                     class="event-history-summary-card"
                     :current="summary"
@@ -115,6 +127,9 @@ export default class EventHistory extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
+    $timeline-width: 40%;
+    $timeline-height: 75%;
+
     @include flex-column(center);
     color: var(--font-colors-3-00);
     font-size: var(--font-sizes-500);
@@ -147,6 +162,10 @@ export default class EventHistory extends Vue {
 
             .working-time-breakdown, .not-working-time-breakdown {
                 @include flex-column(center, center);
+
+                & > span {
+                    @include animate-opacity(0, 1, 0.4s);
+                }
             }
 
             .working-time-breakdown {
@@ -164,12 +183,20 @@ export default class EventHistory extends Vue {
             }
         }
 
-        .event-timeline {
-            @include flex-column();
-            padding: 0 3.5vh;
+        .timeline-placeholder, .event-timeline {
+            @include flex-column(center, center);
             margin-top: 5vh;
-            max-width: 40%;
-            max-height: 75%;
+        }
+
+        .timeline-placeholder {
+            width: $timeline-width;
+            height: $timeline-height;
+        }
+
+        .event-timeline {
+            padding: 0 3.5vh;
+            max-width: $timeline-width;
+            max-height: $timeline-height;
 
             .event-history-summary-card {
                 margin: 1vh 0;
