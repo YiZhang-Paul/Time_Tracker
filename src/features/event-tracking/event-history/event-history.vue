@@ -1,6 +1,9 @@
 <template>
     <div class="event-history-container">
-        <div class="date">History of {{ date }}</div>
+        <div class="date">
+            <span>History of</span>
+            <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+        </div>
 
         <div class="content">
             <div class="time-breakdown">
@@ -43,6 +46,7 @@ import { useEventStore } from '../../../stores/event/event.store';
 import { EventTimeBreakdownDto } from '../../../core/dtos/event-time-breakdown-dto';
 import { EventHistorySummary } from '../../../core/models/event/event-history-summary';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import EventHistorySummaryCard from './event-history-summary-card/event-history-summary-card.vue';
@@ -52,6 +56,7 @@ import EventHistorySummaryCard from './event-history-summary-card/event-history-
         ShieldCross,
         SwordCross,
         EventHistorySummaryCard,
+        DateSelector,
         OverlayScrollbarPanel
     },
     computed: {
@@ -93,12 +98,12 @@ export default class EventHistory extends Vue {
     }
 
     public created(): void {
-        this.initialize();
+        this.eventStore.loadOngoingEventSummary();
+        this.onDaySelect();
     }
 
-    public async initialize(): Promise<void> {
-        this.eventStore.loadOngoingEventSummary();
-        const [year, month, date] = [this.day.getFullYear(), this.day.getMonth() + 1, this.day.getDate() - 1];
+    public async onDaySelect(): Promise<void> {
+        const [year, month, date] = [this.day.getFullYear(), this.day.getMonth() + 1, this.day.getDate()];
         this.breakdown = await this.eventStore.getTimeBreakdownByDay(year, month, date);
         this.summaries = await this.eventStore.getEventHistorySummariesByDay(year, month, date);
     }
@@ -116,11 +121,15 @@ export default class EventHistory extends Vue {
     @include animate-opacity(0, 1, 0.3s, 0.5s);
 
     .date {
-        @include flex-column(center, center);
+        @include flex-row(center, center);
         width: 100%;
         height: 7.5%;
         color: var(--font-colors-1-00);
-        font-size: var(--font-sizes-700);
+
+        & > span {
+            margin-right: 1.5vh;
+            font-size: var(--font-sizes-700);
+        }
     }
 
     .content {
