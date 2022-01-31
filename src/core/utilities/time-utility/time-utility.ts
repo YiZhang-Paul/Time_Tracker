@@ -10,6 +10,10 @@ const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
 
 export class TimeUtility {
+    public static isLeapYear(year: number): boolean {
+        return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
+    }
+
     public static getDateTimeString(date: Date, locale = 'en-US'): string {
         return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
     }
