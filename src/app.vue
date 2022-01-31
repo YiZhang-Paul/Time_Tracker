@@ -1,5 +1,5 @@
 <template>
-    <work-items class="work-items"></work-items>
+    <router-view class="main-view"></router-view>
     <event-tracker class="event-tracker"></event-tracker>
     <time-display class="time-display"></time-display>
     <dialogs-base></dialogs-base>
@@ -13,14 +13,12 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-import WorkItems from './features/work-items/work-items.vue';
-import EventTracker from './features/event-tracking/event-tracker.vue';
+import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
-        WorkItems,
         EventTracker,
         TimeDisplay,
         DialogsBase
@@ -66,7 +64,7 @@ html, body, #app {
     background-color: var(--primary-colors-10-00);
 }
 
-.work-items {
+.main-view {
     z-index: 1;
     position: absolute;
     top: $content-top;
