@@ -86,27 +86,27 @@ export default class EventHistory extends Vue {
     }
 
     get workingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.interruption + this.breakdown.task);
+        return TimeUtility.getDurationString(this.breakdown.interruption + this.breakdown.task, false);
     }
 
     get notWorkingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.idling + this.breakdown.break);
+        return TimeUtility.getDurationString(this.breakdown.idling + this.breakdown.break, false);
     }
 
     get interruptionTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.interruption);
+        return TimeUtility.getDurationString(this.breakdown.interruption, false);
     }
 
     get taskTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.task);
+        return TimeUtility.getDurationString(this.breakdown.task, false);
     }
 
     get idlingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.idling);
+        return TimeUtility.getDurationString(this.breakdown.idling, false);
     }
 
     get breakTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.break);
+        return TimeUtility.getDurationString(this.breakdown.break, false);
     }
 
     public created(): void {

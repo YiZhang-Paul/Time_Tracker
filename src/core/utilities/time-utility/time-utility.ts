@@ -39,10 +39,14 @@ export class TimeUtility {
         return months[date.getMonth()].slice(0, 3);
     }
 
-    public static getDurationString(milliseconds: number): string {
+    public static getDurationString(milliseconds: number, isStandard = true): string {
         const hours = Math.floor(milliseconds / oneHour);
         const minutes = Math.floor(milliseconds % oneHour / oneMinute);
         const seconds = Math.floor(milliseconds % oneMinute / oneSecond);
+
+        if (!isStandard) {
+            return `${hours}h ${minutes}m`;
+        }
 
         return `${this.prependZero(hours)}:${this.prependZero(minutes)}:${this.prependZero(seconds)}`;
     }
