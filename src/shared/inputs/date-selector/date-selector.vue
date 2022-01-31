@@ -17,6 +17,13 @@
                 <chevron-right class="page-arrow"
                     :class="{ 'disabled-arrow': !allowNextMonth }"
                     @click="showNextMonth()" />
+
+                <flat-button v-if="showTodayButton"
+                    class="today-button"
+                    @click="onTodaySelect()">
+
+                    TODAY
+                </flat-button>
             </div>
 
             <div class="day-headers">
@@ -49,6 +56,7 @@ import { ChevronLeft, ChevronRight } from 'mdue';
 
 import { ClassConfigs } from '../../../core/models/generic/class-configs';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 
 class DateSelectorProp {
     public modelValue = prop<Date>({ default: null });
@@ -57,9 +65,12 @@ class DateSelectorProp {
 @Options({
     components: {
         ChevronLeft,
-        ChevronRight
+        ChevronRight,
+        FlatButton
     },
-    emits: ['update:modelValue']
+    emits: [
+        'update:modelValue'
+    ]
 })
 export default class DateSelector extends Vue.with(DateSelectorProp) {
     public readonly letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -80,6 +91,12 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
 
     get selectedDateSuffix(): string {
         return this.selected ? TimeUtility.getDateSuffix(this.selected.getDate()) : '';
+    }
+
+    get showTodayButton(): boolean {
+        const now = new Date();
+
+        return this.panelDate.getFullYear() !== now.getFullYear() || this.panelDate.getMonth() !== now.getMonth();
     }
 
     get allowPreviousMonth(): boolean {
@@ -138,6 +155,13 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
             this.panelDate = new Date(year, month);
             this.setConstraints();
         }
+    }
+
+    public onTodaySelect(): void {
+        const today = new Date(new Date().setHours(0, 0, 0, 0));
+        this.panelDate = new Date(today.getFullYear(), today.getMonth());
+        this.setConstraints();
+        this.$emit('update:modelValue', today);
     }
 
     public onDateSelect(row: number, column: number): void {
@@ -261,14 +285,26 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
         @include animate-opacity(0, 1, 0.2s);
 
         .month-selection {
-            @include flex-row(center, space-around);
+            @include flex-row(center, center);
+            position: relative;
             padding: 0 2vh;
             margin-bottom: 0.75vh;
             width: 100%;
 
             & > span {
-                width: 50%;
+                width: 45%;
                 text-align: center;
+            }
+
+            .today-button {
+                position: absolute;
+                right: 5%;
+                font-size: var(--font-sizes-100);
+                color: var(--context-colors-suggestion-1-00);
+
+                &:hover {
+                    color: var(--context-colors-suggestion-0-00);
+                }
             }
 
             .page-arrow {
