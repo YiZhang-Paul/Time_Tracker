@@ -6,8 +6,8 @@ import EventHistory from './features/event-tracking/event-history/event-history.
 export const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: '/work-items' },
-        { path: '/work-items', component: WorkItems },
-        { path: '/histories', component: EventHistory }
+        { path: '/', redirect: '/works' },
+        { path: '/works', name: 'works', component: WorkItems },
+        { path: '/histories', name: 'histories', component: EventHistory }
     ]
 });
