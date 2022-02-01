@@ -6,33 +6,19 @@
         </div>
 
         <div class="content">
-            <div class="time-breakdown">
-                <div class="working-time-breakdown">
-                    <sword-cross class="icon" />
+            <div class="working-time-breakdown">
+                <sword-cross class="icon" />
 
-                    <template v-if="summaries.length">
-                        <span>Spent on working: {{ workingTime }}</span>
-                        <span>Interruptions: {{ interruptionTime }}</span>
-                        <span>Tasks: {{ taskTime }}</span>
-                    </template>
+                <template v-if="summaries.length">
+                    <span>Working: {{ workingTime }}</span>
+                    <span>Interruptions: {{ interruptionTime }}</span>
+                    <span>Tasks: {{ taskTime }}</span>
+                </template>
 
-                    <span v-if="!summaries.length">time information not available.</span>
-                </div>
-
-                <div class="not-working-time-breakdown">
-                    <shield-cross class="icon" />
-
-                    <template v-if="summaries.length">
-                        <span>Not spent on working: {{ notWorkingTime }}</span>
-                        <span>Idling: {{ idlingTime }}</span>
-                        <span>Breaks: {{ breakTime }}</span>
-                    </template>
-
-                    <span v-if="!summaries.length">time information not available.</span>
-                </div>
+                <span v-if="!summaries.length">time information not available.</span>
             </div>
 
-            <div v-if="!summaries.length" class="timeline-placeholder">no data available.</div>
+            <div v-if="!summaries.length" class="event-timeline-placeholder">no data available.</div>
 
             <overlay-scrollbar-panel v-if="summaries.length" class="event-timeline">
                 <event-history-summary-card v-for="(summary, index) in summaries"
@@ -43,7 +29,16 @@
                 </event-history-summary-card>
             </overlay-scrollbar-panel>
 
-            <div class="event-breakdown">
+            <div class="not-working-time-breakdown">
+                <shield-cross class="icon" />
+
+                <template v-if="summaries.length">
+                    <span>Not Working: {{ notWorkingTime }}</span>
+                    <span>Idling: {{ idlingTime }}</span>
+                    <span>Breaks: {{ breakTime }}</span>
+                </template>
+
+                <span v-if="!summaries.length">time information not available.</span>
             </div>
         </div>
     </div>
@@ -152,29 +147,13 @@ export default class EventHistory extends Vue {
         width: 100%;
         height: 92.5%;
 
-        .time-breakdown, .event-breakdown {
+        .working-time-breakdown, .not-working-time-breakdown {
+            @include flex-column(center, center);
             width: 30%;
             height: 80%;
-        }
 
-        .time-breakdown {
-            @include flex-column(center, center);
-
-            .working-time-breakdown, .not-working-time-breakdown {
-                @include flex-column(center, center);
-
-                & > span {
-                    @include animate-opacity(0, 1, 0.4s);
-                }
-            }
-
-            .working-time-breakdown {
-                margin-bottom: 5vh;
-                @include animate-opacity(0, 1, 0.4s, 0.5s);
-            }
-
-            .not-working-time-breakdown {
-                @include animate-opacity(0, 1, 0.4s, 0.7s);
+            & > span {
+                @include animate-opacity(0, 1, 0.4s);
             }
 
             .icon {
@@ -183,12 +162,21 @@ export default class EventHistory extends Vue {
             }
         }
 
-        .timeline-placeholder, .event-timeline {
+        .working-time-breakdown {
+            margin-bottom: 5vh;
+            @include animate-opacity(0, 1, 0.4s, 0.5s);
+        }
+
+        .not-working-time-breakdown {
+            @include animate-opacity(0, 1, 0.4s, 0.7s);
+        }
+
+        .event-timeline-placeholder, .event-timeline {
             @include flex-column(center, center);
             margin-top: 5vh;
         }
 
-        .timeline-placeholder {
+        .event-timeline-placeholder {
             width: $timeline-width;
             height: $timeline-height;
         }
