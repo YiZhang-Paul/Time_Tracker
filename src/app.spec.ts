@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import App from './app.vue';
 
@@ -7,7 +8,12 @@ describe('app unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(App);
+        const router = createRouter({
+            history: createWebHistory(),
+            routes: [{ path: '/', component: { template: '<span></span>' } }]
+        });
+
+        component = shallowMount(App, { global: { plugins: [router] } });
     });
 
     afterEach(() => {

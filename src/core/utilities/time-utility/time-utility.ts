@@ -29,10 +29,9 @@ export class TimeUtility {
 
     public static getTimeString(date: Date): string {
         const hours = date.getHours();
-        const hoursText = this.prependZero(hours > 12 ? hours % 12 : hours);
-        const minutesText = this.prependZero(date.getMinutes());
+        const minutes = this.prependZero(date.getMinutes());
 
-        return `${hoursText}:${minutesText} ${hours < 12 ? 'AM' : 'PM'}`;
+        return `${this.prependZero(hours)}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getShortMonthString(date: Date): string {

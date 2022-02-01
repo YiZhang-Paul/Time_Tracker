@@ -3,17 +3,17 @@ import { TimeUtility } from './time-utility';
 describe('time utility unit test', () => {
     describe('getDateTimeString', () => {
         test('should return correct time', () => {
-            expect(TimeUtility.getDateTimeString(new Date(2022, 1, 1, 0, 15))).toEqual('0:15 AM, 2/1/2022');
-            expect(TimeUtility.getDateTimeString(new Date(2022, 1, 1, 13, 5))).toEqual('1:05 PM, 2/1/2022');
+            expect(TimeUtility.getDateTimeString(new Date(2022, 1, 1, 0, 15))).toEqual('00:15 AM, 2/1/2022');
+            expect(TimeUtility.getDateTimeString(new Date(2022, 1, 1, 13, 5))).toEqual('13:05 PM, 2/1/2022');
         });
     });
 
     describe('getTimeString', () => {
         test('should return correct time', () => {
-            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 0, 15))).toEqual('0:15 AM');
-            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 9, 0))).toEqual('9:00 AM');
+            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 0, 15))).toEqual('00:15 AM');
+            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 9, 0))).toEqual('09:00 AM');
             expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 12, 5))).toEqual('12:05 PM');
-            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 13, 5))).toEqual('1:05 PM');
+            expect(TimeUtility.getTimeString(new Date(2022, 1, 1, 13, 5))).toEqual('13:05 PM');
         });
     });
 

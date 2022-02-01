@@ -1,9 +1,13 @@
 <template>
     <div class="date-selector-container" ref="container">
         <div class="current-date-wrapper" :class="{ active: showOptions }" @click="showOptions = !showOptions">
-            <span>{{ selectedMonthAndDate }}</span>
-            <span class="date-suffix">{{ selectedDateSuffix }}</span>
-            <span>, {{ selected.getFullYear() }}</span>
+            <template v-if="selected">
+                <span>{{ selectedMonthAndDate }}</span>
+                <span class="date-suffix">{{ selectedDateSuffix }}</span>
+                <span>, {{ selected.getFullYear() }}</span>
+            </template>
+
+            <span v-if="!selected">N/A</span>
         </div>
 
         <div v-if="showOptions" class="selection-panel">

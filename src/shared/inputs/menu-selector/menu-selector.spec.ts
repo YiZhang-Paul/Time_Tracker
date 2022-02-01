@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import MenuSelector from './menu-selector.vue';
 
@@ -7,7 +8,12 @@ describe('menu selector unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(MenuSelector);
+        const router = createRouter({
+            history: createWebHistory(),
+            routes: [{ path: '/', component: { template: '<span></span>' } }]
+        });
+
+        component = shallowMount(MenuSelector, { global: { plugins: [router] } });
     });
 
     afterEach(() => {
