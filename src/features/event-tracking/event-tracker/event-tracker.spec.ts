@@ -3,8 +3,8 @@ import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, spy, stub } from 'sinon';
 
-import { useDialogStore } from '../../stores/dialog/dialog.store';
-import { useEventStore } from '../../stores/event/event.store';
+import { useDialogStore } from '../../../stores/dialog/dialog.store';
+import { useEventStore } from '../../../stores/event/event.store';
 
 import EventTracker from './event-tracker.vue';
 

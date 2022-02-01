@@ -24,12 +24,12 @@ describe('time display unit test', () => {
             component.vm.current = new Date(2022, 1, 2, 15, 30, 55);
             await nextTick();
 
-            expect(component.find('.time-display-container').text()).toEqual('3:30 PMFeb 2nd, 2022');
+            expect(component.find('.time-display-container').text()).toEqual('15:30 PMFeb 2nd, 2022');
 
             component.vm.current = new Date(2023, 11, 25, 9, 15, 5);
             await nextTick();
 
-            expect(component.find('.time-display-container').text()).toEqual('9:15 AMDec 25th, 2023');
+            expect(component.find('.time-display-container').text()).toEqual('09:15 AMDec 25th, 2023');
         });
     });
 });

@@ -1,7 +1,8 @@
 <template>
-    <work-items class="work-items"></work-items>
-    <event-tracker class="event-tracker"></event-tracker>
+    <router-view class="main-view"></router-view>
     <time-display class="time-display"></time-display>
+    <event-tracker class="event-tracker"></event-tracker>
+    <menu-selector class="menu-selector" :options="menuOptions"></menu-selector>
     <dialogs-base></dialogs-base>
 
     <div class="build-versions">
@@ -11,22 +12,30 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { History, Sword } from 'mdue';
 
-import WorkItems from './features/work-items/work-items.vue';
-import EventTracker from './features/event-tracking/event-tracker.vue';
+import { MenuSelectionOption } from './core/models/options/menu-selection-option';
 import TimeDisplay from './features/time-display/time-display.vue';
+import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
+import MenuSelector from './shared/inputs/menu-selector/menu-selector.vue';
 import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
-        WorkItems,
-        EventTracker,
         TimeDisplay,
+        EventTracker,
+        MenuSelector,
         DialogsBase
     }
 })
 export default class App extends Vue {
+    public readonly menuOptions = [
+        new MenuSelectionOption('Work', 'works', markRaw(Sword)),
+        new MenuSelectionOption('History', 'histories', markRaw(History))
+    ];
+
     /* istanbul ignore next */
     get uiBuildVersion(): string {
         return `UI_BUILD ${process.env.VUE_APP_UI_BUILD_VERSION}`;
@@ -63,11 +72,11 @@ html, body, #app {
 }
 
 #app {
+    @include flex-column(center);
     background-color: var(--primary-colors-10-00);
 }
 
-.work-items {
-    z-index: 1;
+.main-view {
     position: absolute;
     top: $content-top;
     left: 0;
@@ -88,6 +97,11 @@ html, body, #app {
     position: absolute;
     top: $border-gap;
     right: $border-gap;
+}
+
+.menu-selector {
+    position: absolute;
+    bottom: $border-gap;
 }
 
 .build-versions {

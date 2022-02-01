@@ -17,6 +17,7 @@
     --font-colors-2-00: rgb(210, 210, 210);
     --font-colors-3-00: rgb(180, 180, 180);
     --font-colors-4-00: rgb(150, 150, 150);
+    --font-colors-9-00: rgb(25, 25, 25);
     // primary colors
     --primary-colors-5-00: rgb(106, 100, 121);
     --primary-colors-6-00: rgb(92, 87, 104);
@@ -76,6 +77,12 @@
     flex-direction: column;
     align-items: $align;
     justify-content: $justify;
+}
+
+@mixin line-overflow($type: ellipsis) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: $type;
 }
 
 @mixin line-clamp-vertical($lines: 2) {

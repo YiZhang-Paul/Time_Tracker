@@ -8,27 +8,44 @@ const months = [
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
+const defaultLocale = 'en-US';
 
 export class TimeUtility {
-    public static getDateTimeString(date: Date, locale = 'en-US'): string {
+    public static isLeapYear(year: number): boolean {
+        return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
+    }
+
+    public static getDateTimeString(date: Date, locale = defaultLocale): string {
         return `${this.getTimeString(date)}, ${date.toLocaleDateString(locale)}`;
+    }
+
+    public static getDateString(date: Date, locale = defaultLocale): string {
+        const dayOfWeek = date.toLocaleDateString(locale, { weekday: 'long' });
+        const month = this.getShortMonthString(date);
+        const suffix = this.getDateSuffix(date.getDate());
+
+        return `${dayOfWeek}, ${month} ${date.getDate()}${suffix}, ${date.getFullYear()}`;
     }
 
     public static getTimeString(date: Date): string {
         const hours = date.getHours();
         const minutes = this.prependZero(date.getMinutes());
 
-        return `${hours > 12 ? hours % 12 : hours}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
+        return `${this.prependZero(hours)}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getShortMonthString(date: Date): string {
         return months[date.getMonth()].slice(0, 3);
     }
 
-    public static getDurationString(milliseconds: number): string {
+    public static getDurationString(milliseconds: number, isStandard = true): string {
         const hours = Math.floor(milliseconds / oneHour);
         const minutes = Math.floor(milliseconds % oneHour / oneMinute);
         const seconds = Math.floor(milliseconds % oneMinute / oneSecond);
+
+        if (!isStandard) {
+            return `${hours}h ${minutes}m`;
+        }
 
         return `${this.prependZero(hours)}:${this.prependZero(minutes)}:${this.prependZero(seconds)}`;
     }

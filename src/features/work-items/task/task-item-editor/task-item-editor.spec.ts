@@ -54,7 +54,7 @@ describe('task item editor unit test', () => {
             item.creationTime = new Date(2022, 1, 15, 5, 35, 20).toISOString();
             await component.setProps({ item });
 
-            expect(component.find('.footer > span').text()).toEqual('Created 5:35 AM, 2/15/2022');
+            expect(component.find('.footer > span').text()).toEqual('Created 05:35 AM, 2/15/2022');
         });
     });
 
