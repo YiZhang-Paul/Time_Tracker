@@ -150,14 +150,15 @@ export default class EventTracker extends Vue {
         .icon {
             margin-right: 0.75vh;
             font-size: var(--font-sizes-700);
+            transition: color 0.5s;
         }
     }
 
-    .working-duration .icon {
+    .working-duration.active .icon {
         color: var(--event-type-colors-working-0-00);
     }
 
-    .non-working-duration .icon {
+    .non-working-duration.active .icon {
         color: var(--event-type-colors-not-working-0-00);
     }
 }
