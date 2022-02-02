@@ -9,13 +9,13 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { EventHistorySummary } from '../../../../core/models/event/event-history-summary';
+import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class EventHistorySummaryCardProp {
-    public current = prop<EventHistorySummary>({ default: new EventHistorySummary() });
-    public next = prop<EventHistorySummary | null>({ default: null });
+    public current = prop<EventTimelineDto>({ default: new EventTimelineDto() });
+    public next = prop<EventTimelineDto | null>({ default: null });
 }
 
 export default class EventHistorySummaryCard extends Vue.with(EventHistorySummaryCardProp) {
@@ -27,15 +27,15 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
     }
 
     get start(): string {
-        return TimeUtility.getTimeString(new Date(this.current.timestamp));
+        return TimeUtility.getTimeString(new Date(this.current.startTime));
     }
 
     get end(): string {
         if (this.next) {
-            return TimeUtility.getTimeString(new Date(this.next.timestamp));
+            return TimeUtility.getTimeString(new Date(this.next.startTime));
         }
 
-        const end = new Date(this.current.timestamp).setHours(23, 59, 59, 999);
+        const end = new Date(this.current.startTime).setHours(23, 59, 59, 999);
 
         return end >= Date.now() ? 'NOW' : TimeUtility.getTimeString(new Date(end));
     }

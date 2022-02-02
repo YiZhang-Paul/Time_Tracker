@@ -9,22 +9,22 @@
             <div class="working-time-breakdown">
                 <sword-cross class="icon" />
 
-                <template v-if="summaries.length">
+                <template v-if="summaries.timeline.length">
                     <span>Working: {{ workingTime }}</span>
                     <span>Interruptions: {{ interruptionTime }}</span>
                     <span>Tasks: {{ taskTime }}</span>
                 </template>
 
-                <span v-if="!summaries.length">time information not available.</span>
+                <span v-if="!summaries.timeline.length">time information not available.</span>
             </div>
 
-            <div v-if="!summaries.length" class="event-timeline-placeholder">no data available.</div>
+            <div v-if="!summaries.timeline.length" class="event-timeline-placeholder">no data available.</div>
 
-            <overlay-scrollbar-panel v-if="summaries.length" class="event-timeline">
-                <event-history-summary-card v-for="(summary, index) in summaries"
+            <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-timeline">
+                <event-history-summary-card v-for="(timeline, index) in summaries.timeline"
                     class="event-history-summary-card"
-                    :current="summary"
-                    :next="index === summaries.length - 1 ? null : summaries[index + 1]"
+                    :current="timeline"
+                    :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
                     :key="index">
                 </event-history-summary-card>
             </overlay-scrollbar-panel>
@@ -32,13 +32,13 @@
             <div class="not-working-time-breakdown">
                 <shield-cross class="icon" />
 
-                <template v-if="summaries.length">
+                <template v-if="summaries.timeline.length">
                     <span>Not Working: {{ notWorkingTime }}</span>
                     <span>Idling: {{ idlingTime }}</span>
                     <span>Breaks: {{ breakTime }}</span>
                 </template>
 
-                <span v-if="!summaries.length">time information not available.</span>
+                <span v-if="!summaries.timeline.length">time information not available.</span>
             </div>
         </div>
     </div>
@@ -50,8 +50,8 @@ import { mapStores } from 'pinia';
 import { ShieldCross, SwordCross } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
-import { EventTimeBreakdownDto } from '../../../core/dtos/event-time-breakdown-dto';
-import { EventHistorySummary } from '../../../core/models/event/event-history-summary';
+import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
+import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
@@ -72,8 +72,7 @@ import EventHistorySummaryCard from './event-history-summary-card/event-history-
 })
 export default class EventHistory extends Vue {
     public day = new Date();
-    public breakdown = new EventTimeBreakdownDto();
-    public summaries: EventHistorySummary[] = [];
+    public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
 
     get date(): string {
@@ -81,27 +80,27 @@ export default class EventHistory extends Vue {
     }
 
     get workingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.interruption + this.breakdown.task, false);
+        return this.getDuration([...this.summaries.interruption, ...this.summaries.task]);
     }
 
     get notWorkingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.idling + this.breakdown.break, false);
+        return this.getDuration([...this.summaries.idling, ...this.summaries.break]);
     }
 
     get interruptionTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.interruption, false);
+        return this.getDuration(this.summaries.interruption);
     }
 
     get taskTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.task, false);
+        return this.getDuration(this.summaries.task);
     }
 
     get idlingTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.idling, false);
+        return this.getDuration(this.summaries.idling);
     }
 
     get breakTime(): string {
-        return TimeUtility.getDurationString(this.breakdown.break, false);
+        return this.getDuration(this.summaries.break);
     }
 
     public created(): void {
@@ -111,8 +110,13 @@ export default class EventHistory extends Vue {
 
     public async onDaySelect(): Promise<void> {
         const [year, month, date] = [this.day.getFullYear(), this.day.getMonth() + 1, this.day.getDate()];
-        this.breakdown = await this.eventStore.getTimeBreakdownByDay(year, month, date);
-        this.summaries = await this.eventStore.getEventHistorySummariesByDay(year, month, date);
+        this.summaries = await this.eventStore.getEventSummariesByDay(year, month, date);
+    }
+
+    private getDuration(events: EventDurationDto[]): string {
+        const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
+
+        return TimeUtility.getDurationString(duration, false);
     }
 }
 </script>
