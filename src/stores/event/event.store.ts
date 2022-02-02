@@ -3,8 +3,7 @@ import { defineStore } from 'pinia';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
-import { EventTimeBreakdownDto } from '../../core/dtos/event-time-breakdown-dto';
-import { EventHistorySummary } from '../../core/models/event/event-history-summary';
+import { EventSummariesDto } from '../../core/dtos/event-summaries-dto';
 import { EventType } from '../../core/enums/event-type.enum';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
@@ -91,15 +90,10 @@ export const useEventStore = defineStore('event', {
             const start = new Date(new Date().setHours(0, 0, 0, 0));
             this.ongoingEventSummary = await eventHttpService.getOngoingEventSummary(start);
         },
-        async getTimeBreakdownByDay(year: number, month: number, date: number): Promise<EventTimeBreakdownDto> {
+        async getEventSummariesByDay(year: number, month: number, date: number): Promise<EventSummariesDto> {
             const day = new Date(year, month - 1, date, 0, 0, 0, 0);
 
-            return await eventHttpService.getTimeBreakdownByDay(day);
-        },
-        async getEventHistorySummariesByDay(year: number, month: number, date: number): Promise<EventHistorySummary[]> {
-            const day = new Date(year, month - 1, date, 0, 0, 0, 0);
-
-            return await eventHttpService.getEventHistorySummariesByDay(day);
+            return await eventHttpService.getEventSummariesByDay(day);
         },
         async startIdling(): Promise<boolean> {
             const isStarted = await eventHttpService.startIdling();
