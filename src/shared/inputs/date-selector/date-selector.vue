@@ -377,13 +377,13 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
                     background-color: $selection-color;
                 }
 
+                &.today {
+                    color: var(--context-colors-suggestion-0-00);
+                }
+
                 &.unselectable-day {
                     color: var(--font-colors-4-00);
                     transition: none;
-                }
-
-                &.today {
-                    color: var(--context-colors-suggestion-0-00);
                 }
 
                 &.selected-day {

@@ -3,6 +3,7 @@
         <div class="date">
             <span>History of</span>
             <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+            <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
         </div>
 
         <div class="content">
@@ -18,16 +19,30 @@
                 <span v-if="!summaries.timeline.length">time information not available.</span>
             </div>
 
-            <div v-if="!summaries.timeline.length" class="event-timeline-placeholder">no data available.</div>
+            <template v-if="showTimeline">
+                <div v-if="!summaries.timeline.length" class="event-summaries-placeholder">no data available.</div>
 
-            <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-timeline">
-                <event-history-summary-card v-for="(timeline, index) in summaries.timeline"
-                    class="event-history-summary-card"
-                    :current="timeline"
-                    :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
-                    :key="index">
-                </event-history-summary-card>
-            </overlay-scrollbar-panel>
+                <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-summaries">
+                    <event-timeline-summary-card v-for="(timeline, index) in summaries.timeline"
+                        class="event-summary-card"
+                        :current="timeline"
+                        :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
+                        :key="index">
+                    </event-timeline-summary-card>
+                </overlay-scrollbar-panel>
+            </template>
+
+            <template v-if="!showTimeline">
+                <div v-if="!workingDurations.length" class="event-summaries-placeholder">no data available.</div>
+
+                <overlay-scrollbar-panel v-if="workingDurations.length" class="event-summaries">
+                    <event-duration-summary-card v-for="(duration, index) in workingDurations"
+                        class="event-summary-card"
+                        :summary="duration"
+                        :key="index">
+                    </event-duration-summary-card>
+                </overlay-scrollbar-panel>
+            </template>
 
             <div class="not-working-time-breakdown">
                 <shield-cross class="icon" />
@@ -52,17 +67,22 @@ import { ShieldCross, SwordCross } from 'mdue';
 import { useEventStore } from '../../../stores/event/event.store';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
+import { EventType } from '../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
-import EventHistorySummaryCard from './event-history-summary-card/event-history-summary-card.vue';
+import EventTimelineSummaryCard from './event-timeline-summary-card/event-timeline-summary-card.vue';
+import EventDurationSummaryCard from './event-duration-summary-card/event-duration-summary-card.vue';
 
 @Options({
     components: {
         ShieldCross,
         SwordCross,
-        EventHistorySummaryCard,
+        EventTimelineSummaryCard,
+        EventDurationSummaryCard,
+        ToggleSelector,
         DateSelector,
         OverlayScrollbarPanel
     },
@@ -72,6 +92,7 @@ import EventHistorySummaryCard from './event-history-summary-card/event-history-
 })
 export default class EventHistory extends Vue {
     public day = new Date();
+    public showTimeline = true;
     public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
 
@@ -80,27 +101,31 @@ export default class EventHistory extends Vue {
     }
 
     get workingTime(): string {
-        return this.getDuration([...this.summaries.interruption, ...this.summaries.task]);
+        return this.getDurationString([EventType.Interruption, EventType.Task]);
     }
 
     get notWorkingTime(): string {
-        return this.getDuration([...this.summaries.idling, ...this.summaries.break]);
+        return this.getDurationString([EventType.Idling, EventType.Break]);
     }
 
     get interruptionTime(): string {
-        return this.getDuration(this.summaries.interruption);
+        return this.getDurationString([EventType.Interruption]);
     }
 
     get taskTime(): string {
-        return this.getDuration(this.summaries.task);
+        return this.getDurationString([EventType.Task]);
     }
 
     get idlingTime(): string {
-        return this.getDuration(this.summaries.idling);
+        return this.getDurationString([EventType.Idling]);
     }
 
     get breakTime(): string {
-        return this.getDuration(this.summaries.break);
+        return this.getDurationString([EventType.Break]);
+    }
+
+    get workingDurations(): EventDurationDto[] {
+        return this.getEventDurations([EventType.Interruption, EventType.Task]);
     }
 
     public created(): void {
@@ -113,10 +138,15 @@ export default class EventHistory extends Vue {
         this.summaries = await this.eventStore.getEventSummariesByDay(year, month, date);
     }
 
-    private getDuration(events: EventDurationDto[]): string {
+    private getDurationString(types: EventType[]): string {
+        const events = this.getEventDurations(types);
         const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
 
         return TimeUtility.getDurationString(duration, false);
+    }
+
+    private getEventDurations(types: EventType[]): EventDurationDto[] {
+        return this.summaries.duration.filter(_ => types.includes(_.eventType));
     }
 }
 </script>
@@ -126,23 +156,32 @@ export default class EventHistory extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    $timeline-width: 40%;
-    $timeline-height: 75%;
+    $summaries-width: 45%;
+    $summaries-height: 75%;
 
     @include flex-column(center);
     color: var(--font-colors-3-00);
     font-size: var(--font-sizes-500);
-    @include animate-opacity(0, 1, 0.3s, 0.5s);
 
     .date {
         @include flex-row(center, center);
+        z-index: 1;
+        position: relative;
         width: 100%;
         height: 7.5%;
         color: var(--font-colors-1-00);
+        @include animate-opacity(0, 1, 0.3s, 0.3s);
 
         & > span {
             margin-right: 1.5vh;
             font-size: var(--font-sizes-700);
+        }
+
+        .view-toggle {
+            position: absolute;
+            right: 30%;
+            bottom: 1vh;
+            font-size: var(--font-sizes-400);
         }
     }
 
@@ -150,13 +189,16 @@ export default class EventHistory extends Vue {
         @include flex-row(flex-start, space-between);
         width: 100%;
         height: 92.5%;
+        @include animate-opacity(0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
             @include flex-column(center, center);
-            width: 30%;
+            width: calc(50% - #{$summaries-width} / 2);
             height: 80%;
+            @include animate-opacity(0, 1, 0.4s, 0.5s);
 
             & > span {
+                margin-bottom: 0.75vh;
                 @include animate-opacity(0, 1, 0.4s);
             }
 
@@ -166,31 +208,24 @@ export default class EventHistory extends Vue {
             }
         }
 
-        .working-time-breakdown {
-            margin-bottom: 5vh;
-            @include animate-opacity(0, 1, 0.4s, 0.5s);
-        }
-
-        .not-working-time-breakdown {
-            @include animate-opacity(0, 1, 0.4s, 0.7s);
-        }
-
-        .event-timeline-placeholder, .event-timeline {
+        .event-summaries-placeholder, .event-summaries {
             @include flex-column(center, center);
             margin-top: 5vh;
+            @include animate-opacity(0, 1, 0.3s, 0.3s);
         }
 
-        .event-timeline-placeholder {
-            width: $timeline-width;
-            height: $timeline-height;
+        .event-summaries-placeholder {
+            width: $summaries-width;
+            height: $summaries-height;
         }
 
-        .event-timeline {
+        .event-summaries {
+            box-sizing: border-box;
             padding: 0 3.5vh;
-            max-width: $timeline-width;
-            max-height: $timeline-height;
+            max-width: $summaries-width;
+            max-height: $summaries-height;
 
-            .event-history-summary-card {
+            .event-summary-card {
                 margin: 1vh 0;
                 scroll-snap-align: start;
             }

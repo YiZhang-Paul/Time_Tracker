@@ -1,5 +1,5 @@
 <template>
-    <div class="event-history-card-summary-container">
+    <div class="event-timeline-summary-card-container">
         <div :style="{ color }">{{ start }} ~ {{ end }}</div>
         <span class="name">{{ name }}</span>
         <span v-if="current.name && current.isDeleted" class="deleted-label">(DELETED)</span>
@@ -13,12 +13,12 @@ import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
-class EventHistorySummaryCardProp {
+class EventTimelineSummaryCardProp {
     public current = prop<EventTimelineDto>({ default: new EventTimelineDto() });
     public next = prop<EventTimelineDto | null>({ default: null });
 }
 
-export default class EventHistorySummaryCard extends Vue.with(EventHistorySummaryCardProp) {
+export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
     get color(): string {
         const { eventType } = this.current;
         const type = eventType === EventType.Idling || eventType === EventType.Break ? 'not-working' : 'working';
@@ -53,12 +53,10 @@ export default class EventHistorySummaryCard extends Vue.with(EventHistorySummar
 </script>
 
 <style lang="scss" scoped>
-.event-history-card-summary-container {
+.event-timeline-summary-card-container {
     @import '../../../../styles/presets.scss';
-    @import '../../../../styles/animations.scss';
 
     @include flex-row(center);
-    @include animate-opacity(0, 1, 0.3s, 0.6s);
 
     & > div {
         @include flex-row(center, center);
