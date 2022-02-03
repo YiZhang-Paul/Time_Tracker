@@ -12,7 +12,7 @@
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
             @start="onInterruptionStart($event.id)"
-            @stop="eventStore.startIdling()"
+            @stop="onWorkItemStop()"
             @resolve="onInterruptionResolve($event)"
             @unresolve="onInterruptionUnresolve($event)">
         </interruption-item-editor>
@@ -24,7 +24,7 @@
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
             @start="onTaskStart($event.id)"
-            @stop="eventStore.startIdling()"
+            @stop="onWorkItemStop()"
             @resolve="onTaskResolve($event)"
             @unresolve="onTaskUnresolve($event)">
         </task-item-editor>
@@ -52,6 +52,7 @@ import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
+import { useNotificationStore } from '../../stores/notification/notification.store';
 import { useEventStore } from '../../stores/event/event.store';
 import { useInterruptionStore } from '../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../stores/task/task.store';
@@ -82,7 +83,7 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         WorkItemCreator
     },
     computed: {
-        ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
+        ...mapStores(useDialogStore, useNotificationStore, useEventStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItems extends Vue {
@@ -91,6 +92,7 @@ export default class WorkItems extends Vue {
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
+    private notificationStore!: ReturnType<typeof useNotificationStore>;
 
     get isEditing(): boolean {
         return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
@@ -155,7 +157,11 @@ export default class WorkItems extends Vue {
     }
 
     public onInterruptionStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startInterruption(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startInterruption(id)) {
+                this.notificationStore.startTabWorkTimer();
+            }
+        });
     }
 
     public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
@@ -163,6 +169,7 @@ export default class WorkItems extends Vue {
             return;
         }
 
+        this.notificationStore.stopTabWorkTimer();
         await this.interruptionStore.loadSummaries();
 
         if (this.interruptionStore.editingItem?.id === item.id) {
@@ -219,7 +226,11 @@ export default class WorkItems extends Vue {
     }
 
     public onTaskStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startTask(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startTask(id)) {
+                this.notificationStore.startTabWorkTimer();
+            }
+        });
     }
 
     public async onTaskResolve(item: TaskItem): Promise<void> {
@@ -227,6 +238,7 @@ export default class WorkItems extends Vue {
             return;
         }
 
+        this.notificationStore.stopTabWorkTimer();
         await this.taskStore.loadSummaries();
 
         if (this.taskStore.editingItem?.id === item.id) {
@@ -247,6 +259,12 @@ export default class WorkItems extends Vue {
 
         if (this.taskStore.editingItem?.id === item.id) {
             this.taskStore.startItemEdit(item.id, false);
+        }
+    }
+
+    public async onWorkItemStop(): Promise<void> {
+        if (await this.eventStore.startIdling()) {
+            this.notificationStore.stopTabWorkTimer();
         }
     }
 
@@ -288,6 +306,8 @@ export default class WorkItems extends Vue {
             return;
         }
 
+        this.notificationStore.stopTabWorkTimer();
+
         if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
             await this.eventStore.startIdling();
         }
@@ -297,6 +317,8 @@ export default class WorkItems extends Vue {
         if (!await this.taskStore.deleteItem(item.id)) {
             return;
         }
+
+        this.notificationStore.stopTabWorkTimer();
 
         if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
             await this.eventStore.startIdling();
