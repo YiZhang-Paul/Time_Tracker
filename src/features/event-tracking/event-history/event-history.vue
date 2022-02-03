@@ -33,10 +33,10 @@
             </template>
 
             <template v-if="!showTimeline">
-                <div v-if="!durations.length" class="event-summaries-placeholder">no data available.</div>
+                <div v-if="!workingDurations.length" class="event-summaries-placeholder">no data available.</div>
 
-                <overlay-scrollbar-panel v-if="durations.length" class="event-summaries">
-                    <event-duration-summary-card v-for="(duration, index) in durations"
+                <overlay-scrollbar-panel v-if="workingDurations.length" class="event-summaries">
+                    <event-duration-summary-card v-for="(duration, index) in workingDurations"
                         class="event-summary-card"
                         :summary="duration"
                         :key="index">
@@ -67,6 +67,7 @@ import { ShieldCross, SwordCross } from 'mdue';
 import { useEventStore } from '../../../stores/event/event.store';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
+import { EventType } from '../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
@@ -100,31 +101,31 @@ export default class EventHistory extends Vue {
     }
 
     get workingTime(): string {
-        return this.getDuration([...this.summaries.interruption, ...this.summaries.task]);
+        return this.getDurationString([EventType.Interruption, EventType.Task]);
     }
 
     get notWorkingTime(): string {
-        return this.getDuration([...this.summaries.idling, ...this.summaries.break]);
+        return this.getDurationString([EventType.Idling, EventType.Break]);
     }
 
     get interruptionTime(): string {
-        return this.getDuration(this.summaries.interruption);
+        return this.getDurationString([EventType.Interruption]);
     }
 
     get taskTime(): string {
-        return this.getDuration(this.summaries.task);
+        return this.getDurationString([EventType.Task]);
     }
 
     get idlingTime(): string {
-        return this.getDuration(this.summaries.idling);
+        return this.getDurationString([EventType.Idling]);
     }
 
     get breakTime(): string {
-        return this.getDuration(this.summaries.break);
+        return this.getDurationString([EventType.Break]);
     }
 
-    get durations(): EventDurationDto[] {
-        return [...this.summaries.interruption, ...this.summaries.task].sort((a, b) => b.duration - a.duration);
+    get workingDurations(): EventDurationDto[] {
+        return this.getEventDurations([EventType.Interruption, EventType.Task]);
     }
 
     public created(): void {
@@ -137,10 +138,15 @@ export default class EventHistory extends Vue {
         this.summaries = await this.eventStore.getEventSummariesByDay(year, month, date);
     }
 
-    private getDuration(events: EventDurationDto[]): string {
+    private getDurationString(types: EventType[]): string {
+        const events = this.getEventDurations(types);
         const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
 
         return TimeUtility.getDurationString(duration, false);
+    }
+
+    private getEventDurations(types: EventType[]): EventDurationDto[] {
+        return this.summaries.duration.filter(_ => types.includes(_.eventType));
     }
 }
 </script>
