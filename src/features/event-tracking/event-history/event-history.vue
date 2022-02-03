@@ -3,7 +3,11 @@
         <div class="date">
             <span>History of</span>
             <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
-            <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
+
+            <div class="actions">
+                <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
+                <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
+            </div>
         </div>
 
         <div class="content">
@@ -62,12 +66,15 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ShieldCross, SwordCross } from 'mdue';
+import { ExportVariant, ShieldCross, SwordCross } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
+import { types } from '../../../core/ioc/types';
+import { container } from '../../../core/ioc/container';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { EventType } from '../../../core/enums/event-type.enum';
+import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
@@ -78,6 +85,7 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
 
 @Options({
     components: {
+        ExportVariant,
         ShieldCross,
         SwordCross,
         EventTimelineSummaryCard,
@@ -91,14 +99,11 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     }
 })
 export default class EventHistory extends Vue {
-    public day = new Date();
+    public day = new Date(new Date().setHours(0, 0, 0, 0));
     public showTimeline = true;
     public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
-
-    get date(): string {
-        return TimeUtility.getDateString(this.day);
-    }
+    private readonly eventHttpService = container.get<EventHttpService>(types.EventHttpService);
 
     get workingTime(): string {
         return this.getDurationString([EventType.Interruption, EventType.Task]);
@@ -125,7 +130,9 @@ export default class EventHistory extends Vue {
     }
 
     get workingDurations(): EventDurationDto[] {
-        return this.getEventDurations([EventType.Interruption, EventType.Task]);
+        const types = [EventType.Interruption, EventType.Task];
+
+        return this.summaries.duration.filter(_ => types.includes(_.eventType));
     }
 
     public created(): void {
@@ -134,19 +141,18 @@ export default class EventHistory extends Vue {
     }
 
     public async onDaySelect(): Promise<void> {
-        const [year, month, date] = [this.day.getFullYear(), this.day.getMonth() + 1, this.day.getDate()];
-        this.summaries = await this.eventStore.getEventSummariesByDay(year, month, date);
+        this.summaries = await this.eventHttpService.getEventSummariesByDay(this.day);
+    }
+
+    public downloadTimesheets(): void {
+        this.eventHttpService.downloadTimesheetsByDay(this.day);
     }
 
     private getDurationString(types: EventType[]): string {
-        const events = this.getEventDurations(types);
+        const events = this.summaries.duration.filter(_ => types.includes(_.eventType));
         const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
 
         return TimeUtility.getDurationString(duration, false);
-    }
-
-    private getEventDurations(types: EventType[]): EventDurationDto[] {
-        return this.summaries.duration.filter(_ => types.includes(_.eventType));
     }
 }
 </script>
@@ -177,11 +183,27 @@ export default class EventHistory extends Vue {
             font-size: var(--font-sizes-700);
         }
 
-        .view-toggle {
+        .actions {
+            @include flex-row(center, center);
             position: absolute;
             right: 30%;
-            bottom: 1vh;
-            font-size: var(--font-sizes-400);
+            bottom: 0.75vh;
+
+            .timesheets-button {
+                color: var(--font-colors-1-00);
+                transition: color 0.3s;
+                @include animate-opacity(0, 1, 0.3s);
+
+                &:hover {
+                    cursor: pointer;
+                    color: var(--context-colors-info-0-00);
+                }
+            }
+
+            .view-toggle {
+                margin-left: 1.25vh;
+                font-size: var(--font-sizes-400);
+            }
         }
     }
 

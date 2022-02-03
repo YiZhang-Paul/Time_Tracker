@@ -27,6 +27,23 @@ export class EventHttpService {
         }
     }
 
+    public async downloadTimesheetsByDay(start: Date): Promise<boolean> {
+        try {
+            const endpoint = `${this._api}/timesheets/${start.toISOString()}`;
+            const { data, headers } = await axios.get(endpoint, { responseType: 'blob' });
+            const name = headers['content-disposition'].split(';').find(_ => /filename=/.test(_));
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(data);
+            link.setAttribute('download', name?.replace(/^.*filename=/, '') ?? `timesheets_${start.toLocaleDateString()}`);
+            link.click();
+
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+
     public async startIdling(): Promise<boolean> {
         try {
             return (await axios.post(`${this._api}/idling-sessions`)).data;
