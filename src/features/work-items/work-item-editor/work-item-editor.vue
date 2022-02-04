@@ -1,0 +1,244 @@
+<template>
+    <div class="work-item-editor-container">
+        <div class="header">
+            <input type="text"
+                class="name"
+                v-model="item.name"
+                maxlength="140"
+                placeholder="enter title here..." />
+        </div>
+
+        <textarea class="description"
+            v-model="item.description"
+            placeholder="no descriptions...">
+        </textarea>
+
+        <div class="footer">
+            <template v-if="item.id !== -1">
+                <check-bold v-if="!item.resolvedTime"
+                    class="action-button resolve-button"
+                    @click="$emit('resolve', item)" />
+
+                <progress-question v-if="item.resolvedTime"
+                    class="action-button unresolve-button"
+                    @click="$emit('unresolve', item)" />
+
+                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
+                    class="action-button start-button"
+                    @click="$emit('start', item)" />
+
+                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
+                    class="action-button stop-button"
+                    @click="$emit('stop', item)" />
+            </template>
+
+            <div class="filler"></div>
+            <span v-if="item.creationTime">Created {{ creationTime }}</span>
+            <cloud-upload class="action-button save-button" @click="onSave()" />
+            <delete-variant class="action-button delete-button" @click="$emit('delete', item)" />
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
+import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
+
+import { useEventStore } from '../../../stores/event/event.store';
+import { InterruptionItem } from '../../../core/models/interruption/interruption-item';
+import { TaskItem } from '../../../core/models/task/task-item';
+import { EventType } from '../../../core/enums/event-type.enum';
+import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+
+class WorkItemEditorProp {
+    public item = prop<InterruptionItem & TaskItem>({ default: null });
+}
+
+@Options({
+    components: {
+        CheckBold,
+        CloudUpload,
+        DeleteVariant,
+        PlayCircle,
+        ProgressQuestion,
+        StopCircle
+    },
+    emits: [
+        'create',
+        'update',
+        'delete',
+        'start',
+        'stop',
+        'resolve',
+        'unresolve'
+    ],
+    computed: {
+        ...mapStores(useEventStore)
+    }
+})
+export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
+    private eventStore!: ReturnType<typeof useEventStore>;
+
+    get isActiveWorkItem(): boolean {
+        return this.eventStore.isActiveWorkItem(EventType.Task, this.item.id);
+    }
+
+    get creationTime(): string {
+        return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    }
+
+    public onSave(): void {
+        if (this.item.name.trim()) {
+            const event = this.item.id === -1 ? 'create' : 'update';
+            this.$emit(event, this.item);
+        }
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+.work-item-editor-container {
+    @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
+
+    $content-width: 95%;
+
+    @include flex-column(center, center);
+    position: relative;
+    box-sizing: border-box;
+
+    .header {
+        $starting-height: 87.5%;
+
+        @include flex-row(center, center);
+        position: absolute;
+        top: 5%;
+        width: calc(#{$content-width} + 2.5vh);
+        height: $starting-height;
+        border-radius: 5px;
+        background-color: var(--primary-colors-10-00);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
+        animation: raise-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
+
+        .name {
+            width: 90%;
+            border: none;
+            outline: none;
+            background-color: var(--primary-colors-8-00);
+            color: var(--font-colors-0-00);
+            text-align: center;
+            font-size: var(--font-sizes-600);
+            font-family: inherit;
+            @include animate-opacity(0, 1, 0.3s, 0.6s);
+        }
+
+        @keyframes raise-header {
+            from {
+                background-color: var(--primary-colors-10-00);
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
+            }
+            to {
+                background-color: var(--primary-colors-8-00);
+                box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+            }
+        }
+
+        @keyframes shrink-header {
+            from { height: $starting-height; }
+            to { height: 12.5%; }
+        }
+    }
+
+    .description {
+        box-sizing: border-box;
+        padding: 1.75vh 1vh;
+        margin-top: 10%;
+        width: $content-width;
+        height: 80%;
+        border: none;
+        outline: none;
+        resize: none;
+        border-radius: 0 0 5px 5px;
+        background-color: var(--text-editor-color);
+        color: var(--font-colors-0-00);
+        font-size: inherit;
+        font-family: inherit;
+    }
+
+    .footer {
+        @include flex-row(center, flex-end);
+        width: $content-width;
+        height: 10%;
+        color: var(--font-colors-2-00);
+        font-size: var(--font-sizes-300);
+        @include animate-opacity(0, 1, 0.3s, 0.6s);
+
+        .filler {
+            flex-grow: 1;
+        }
+
+        .action-button {
+            cursor: pointer;
+            font-size: var(--font-sizes-600);
+            transition: color 0.3s;
+        }
+
+        .resolve-button, .unresolve-button, .start-button, .stop-button {
+            margin-right: 1vh;
+        }
+
+        .save-button, .delete-button {
+            margin-left: 1vh;
+        }
+
+        .resolve-button {
+            color: var(--context-colors-success-1-00);
+
+            &:hover {
+                color: var(--context-colors-success-0-00);
+            }
+        }
+
+        .unresolve-button {
+            color: var(--context-colors-suggestion-1-00);
+
+            &:hover {
+                color: var(--context-colors-suggestion-0-00);
+            }
+        }
+
+        .start-button {
+            color: var(--start-button-color-inactive);
+
+            &:hover {
+                color: var(--start-button-color-active);
+            }
+        }
+
+        .stop-button {
+            color: var(--stop-button-color-inactive);
+
+            &:hover {
+                color: var(--stop-button-color-active);
+            }
+        }
+
+        .save-button {
+            color: var(--context-colors-info-1-00);
+
+            &:hover {
+                color: var(--context-colors-info-0-00);
+            }
+        }
+
+        .delete-button {
+            color: var(--context-colors-warning-1-00);
+
+            &:hover {
+                color: var(--context-colors-warning-0-00);
+            }
+        }
+    }
+}
+</style>
