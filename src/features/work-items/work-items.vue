@@ -52,7 +52,6 @@ import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
-import { useNotificationStore } from '../../stores/notification/notification.store';
 import { useEventStore } from '../../stores/event/event.store';
 import { useInterruptionStore } from '../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../stores/task/task.store';
@@ -82,31 +81,16 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         TaskItemList,
         WorkItemCreator
     },
-    watch: {
-        isWorking(current: boolean): void {
-            if (current) {
-                this.notificationStore.startTabWorkTimer();
-            }
-            else {
-                this.notificationStore.stopTabWorkTimer();
-            }
-        }
-    },
     computed: {
-        ...mapStores(useDialogStore, useNotificationStore, useEventStore, useInterruptionStore, useTaskStore)
+        ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItems extends Vue {
     public searchText = '';
     public eventStore!: ReturnType<typeof useEventStore>;
-    public notificationStore!: ReturnType<typeof useNotificationStore>;
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
-
-    get isWorking(): boolean {
-        return this.eventStore.isWorking;
-    }
 
     get isEditing(): boolean {
         return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
