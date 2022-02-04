@@ -32,6 +32,7 @@
                     @click="$emit('stop', item)" />
             </template>
 
+            <slot name="footerActions"></slot>
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <cloud-upload class="action-button save-button" @click="onSave()" />
