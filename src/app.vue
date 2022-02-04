@@ -40,6 +40,14 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
             else {
                 this.notificationStore.stopTabWorkTimer();
             }
+        },
+        isBreaking(current: boolean): void {
+            if (current) {
+                this.notificationStore.startTabBreakTimer();
+            }
+            else {
+                this.notificationStore.stopTabBreakTimer();
+            }
         }
     },
     computed: {
@@ -57,6 +65,10 @@ export default class App extends Vue {
 
     get isWorking(): boolean {
         return this.eventStore.isWorking;
+    }
+
+    get isBreaking(): boolean {
+        return this.eventStore.isBreaking;
     }
 
     /* istanbul ignore next */
