@@ -25,6 +25,7 @@ import { mapStores } from 'pinia';
 import { ShieldCross, SwordCross } from 'mdue';
 
 import { useDialogStore } from '../../../stores/dialog/dialog.store';
+import { useNotificationStore } from '../../../stores/notification/notification.store';
 import { useEventStore } from '../../../stores/event/event.store';
 import { ConfirmationDialogOption } from '../../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
@@ -38,7 +39,7 @@ import ConfirmationDialog from '../../../shared/dialogs/confirmation-dialog/conf
         SwordCross
     },
     computed: {
-        ...mapStores(useDialogStore, useEventStore)
+        ...mapStores(useDialogStore, useNotificationStore, useEventStore)
     }
 })
 export default class EventTracker extends Vue {
@@ -47,6 +48,7 @@ export default class EventTracker extends Vue {
     public nonWorkingDuration = '';
     public eventStore!: ReturnType<typeof useEventStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
+    private notificationStore!: ReturnType<typeof useNotificationStore>;
     private isBreakStartPromptActive = false;
     private isBreakEndPromptActive = false;
     private updateTimeout!: number;
@@ -89,8 +91,13 @@ export default class EventTracker extends Vue {
         const preCancel = this.skipBreak.bind(this);
         const preConfirm = this.startBreak.bind(this);
         const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '35vw', preCancel, preConfirm });
-        setTimeout(() => this.dialogStore.open(config), 1500);
         this.isBreakStartPromptActive = true;
+
+        setTimeout(() => {
+            this.notificationStore.clearTabNotification('working');
+            this.notificationStore.showTabNotificationForBreakPrompt();
+            this.dialogStore.open(config);
+        }, 1500);
     }
 
     private async checkBreakEnd(): Promise<void> {
@@ -112,11 +119,14 @@ export default class EventTracker extends Vue {
 
     private async startBreak(): Promise<void> {
         await this.eventStore.startBreak();
+        this.notificationStore.clearTabNotification('breakPrompt');
         this.isBreakStartPromptActive = false;
     }
 
     private async skipBreak(): Promise<void> {
         await this.eventStore.skipBreak();
+        this.notificationStore.clearTabNotification('breakPrompt');
+        this.notificationStore.showTabNotificationForWork();
         this.isBreakStartPromptActive = false;
     }
 }

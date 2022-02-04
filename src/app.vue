@@ -34,19 +34,23 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
     },
     watch: {
         isWorking(current: boolean): void {
+            const store = this.notificationStore as ReturnType<typeof useNotificationStore>;
+
             if (current) {
-                this.notificationStore.startTabWorkTimer();
+                store.showTabNotificationForWork();
             }
             else {
-                this.notificationStore.stopTabWorkTimer();
+                store.clearTabNotification('working');
             }
         },
         isBreaking(current: boolean): void {
+            const store = this.notificationStore as ReturnType<typeof useNotificationStore>;
+
             if (current) {
-                this.notificationStore.startTabBreakTimer();
+                store.showTabNotificationForBreak();
             }
             else {
-                this.notificationStore.stopTabBreakTimer();
+                store.clearTabNotification('breaking');
             }
         }
     },

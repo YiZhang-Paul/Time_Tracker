@@ -4,33 +4,33 @@ import { useEventStore } from '../event/event.store';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 
 const defaultTitle = document.title;
-let tabWorkTimerTimeout: number | null = null;
-let tabBreakTimerTimeout: number | null = null;
+
+const tabTimeouts = {
+    working: null as number | null,
+    breaking: null as number | null,
+    breakPrompt: null as number | null
+};
 
 export const useNotificationStore = defineStore('notification', {
     actions: {
-        startTabWorkTimer(): void {
+        showTabNotificationForWork(): void {
             const duration = useEventStore().getWorkingDuration();
             document.title = `${defaultTitle} - ${TimeUtility.getDurationString(duration)} Focus`;
-            tabWorkTimerTimeout = setTimeout(() => this.startTabWorkTimer(), 1000);
+            tabTimeouts.working = setTimeout(() => this.showTabNotificationForWork(), 1000);
         },
-        stopTabWorkTimer(): void {
-            if (tabWorkTimerTimeout) {
-                clearTimeout(tabWorkTimerTimeout);
-                tabWorkTimerTimeout = null;
-            }
-
-            document.title = defaultTitle;
-        },
-        startTabBreakTimer(): void {
+        showTabNotificationForBreak(): void {
             const duration = useEventStore().getRemainingBreak();
             document.title = `${defaultTitle} - ${TimeUtility.getDurationString(duration)} Break`;
-            tabBreakTimerTimeout = setTimeout(() => this.startTabBreakTimer(), 1000);
+            tabTimeouts.breaking = setTimeout(() => this.showTabNotificationForBreak(), 1000);
         },
-        stopTabBreakTimer(): void {
-            if (tabBreakTimerTimeout) {
-                clearTimeout(tabBreakTimerTimeout);
-                tabBreakTimerTimeout = null;
+        showTabNotificationForBreakPrompt(isVisible = true): void {
+            document.title = `${defaultTitle} - ${isVisible ? 'Time for a break!' : ''}`;
+            tabTimeouts.breakPrompt = setTimeout(() => this.showTabNotificationForBreakPrompt(!isVisible), 1000);
+        },
+        clearTabNotification(key: keyof typeof tabTimeouts): void {
+            if (tabTimeouts[key]) {
+                clearTimeout(tabTimeouts[key]!);
+                tabTimeouts[key] = null;
             }
 
             document.title = defaultTitle;
