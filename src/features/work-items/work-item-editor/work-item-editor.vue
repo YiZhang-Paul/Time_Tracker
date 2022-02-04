@@ -23,11 +23,11 @@
                     class="action-button unresolve-button"
                     @click="$emit('unresolve', item)" />
 
-                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
+                <play-circle v-if="!item.resolvedTime && !isActive"
                     class="action-button start-button"
                     @click="$emit('start', item)" />
 
-                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
+                <stop-circle v-if="!item.resolvedTime && isActive"
                     class="action-button stop-button"
                     @click="$emit('stop', item)" />
             </template>
@@ -53,6 +53,7 @@ import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 
 class WorkItemEditorProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
+    public type = prop<EventType>({ default: null });
 }
 
 @Options({
@@ -80,8 +81,8 @@ class WorkItemEditorProp {
 export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
 
-    get isActiveWorkItem(): boolean {
-        return this.eventStore.isActiveWorkItem(EventType.Task, this.item.id);
+    get isActive(): boolean {
+        return this.eventStore.isActiveWorkItem(this.type, this.item.id);
     }
 
     get creationTime(): string {
@@ -182,6 +183,7 @@ export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
             cursor: pointer;
             font-size: var(--font-sizes-600);
             transition: color 0.3s;
+            @include animate-opacity(0, 1, 0.3s);
         }
 
         .resolve-button, .unresolve-button, .start-button, .stop-button {
