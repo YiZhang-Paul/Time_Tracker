@@ -14,8 +14,11 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { History, Sword } from 'mdue';
 
+import { useNotificationStore } from './stores/notification/notification.store';
+import { useEventStore } from './stores/event/event.store';
 import { MenuSelectionOption } from './core/models/options/menu-selection-option';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
@@ -28,13 +31,49 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
         EventTracker,
         MenuSelector,
         DialogsBase
+    },
+    watch: {
+        isWorking(current: boolean): void {
+            const store = this.notificationStore as ReturnType<typeof useNotificationStore>;
+
+            if (current) {
+                store.showTabNotificationForWork();
+            }
+            else {
+                store.clearTabNotification('working');
+            }
+        },
+        isBreaking(current: boolean): void {
+            const store = this.notificationStore as ReturnType<typeof useNotificationStore>;
+
+            if (current) {
+                store.showTabNotificationForBreak();
+            }
+            else {
+                store.clearTabNotification('breaking');
+            }
+        }
+    },
+    computed: {
+        ...mapStores(useNotificationStore, useEventStore)
     }
 })
 export default class App extends Vue {
+    public notificationStore!: ReturnType<typeof useNotificationStore>;
+    private eventStore!: ReturnType<typeof useEventStore>;
+
     public readonly menuOptions = [
         new MenuSelectionOption('Work', 'works', markRaw(Sword)),
         new MenuSelectionOption('History', 'histories', markRaw(History))
     ];
+
+    get isWorking(): boolean {
+        return this.eventStore.isWorking;
+    }
+
+    get isBreaking(): boolean {
+        return this.eventStore.isBreaking;
+    }
 
     /* istanbul ignore next */
     get uiBuildVersion(): string {

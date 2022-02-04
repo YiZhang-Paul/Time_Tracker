@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import App from './app.vue';
@@ -13,7 +14,7 @@ describe('app unit test', () => {
             routes: [{ path: '/', component: { template: '<span></span>' } }]
         });
 
-        component = shallowMount(App, { global: { plugins: [router] } });
+        component = shallowMount(App, { global: { plugins: [router, createTestingPinia()] } });
     });
 
     afterEach(() => {
