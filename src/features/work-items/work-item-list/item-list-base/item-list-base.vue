@@ -67,8 +67,9 @@ import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto'
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
-import InterruptionItemCard from '../interruption-item-list/interruption-item-card/interruption-item-card.vue';
-import TaskItemCard from '../task-item-list/task-item-card/task-item-card.vue';
+
+import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
+import TaskItemCard from './task-item-card/task-item-card.vue';
 
 type ItemSummary = InterruptionItemSummaryDto & TaskItemSummaryDto;
 
