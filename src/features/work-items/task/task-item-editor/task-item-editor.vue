@@ -29,7 +29,7 @@ import { Dumbbell } from 'mdue';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
-import WorkItemEditor from '../../work-item-editor/work-item-editor.vue';
+import WorkItemEditor from '../../../../shared/editors/work-item-editor/work-item-editor.vue';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });

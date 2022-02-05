@@ -30,7 +30,7 @@ import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
-import WorkItemEditor from '../../work-item-editor/work-item-editor.vue';
+import WorkItemEditor from '../../../../shared/editors/work-item-editor/work-item-editor.vue';
 
 class InterruptionItemEditorProp {
     public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });

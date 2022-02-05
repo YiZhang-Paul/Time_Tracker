@@ -70,7 +70,6 @@ import InterruptionItemEditor from './interruption/interruption-item-editor/inte
 import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
-import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 
 @Options({
@@ -80,7 +79,6 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         InterruptionItemList,
         TaskItemEditor,
         TaskItemList,
-        WorkItemEditor,
         WorkItemCreator
     },
     computed: {
