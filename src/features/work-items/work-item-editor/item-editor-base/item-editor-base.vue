@@ -1,5 +1,5 @@
 <template>
-    <div class="task-item-editor-container">
+    <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
             <input type="text"
                 class="name"
@@ -23,23 +23,16 @@
                     class="action-button unresolve-button"
                     @click="$emit('unresolve', item)" />
 
-                <play-circle v-if="!item.resolvedTime && !isActiveWorkItem"
+                <play-circle v-if="!item.resolvedTime && !isActive"
                     class="action-button start-button"
                     @click="$emit('start', item)" />
 
-                <stop-circle v-if="!item.resolvedTime && isActiveWorkItem"
+                <stop-circle v-if="!item.resolvedTime && isActive"
                     class="action-button stop-button"
                     @click="$emit('stop', item)" />
             </template>
 
-            <selection-group class="effort-selector"
-                :options="effortOptions"
-                :selectedOption="item.effort"
-                @select="item.effort = $event">
-
-                <dumbbell class="icon" />
-            </selection-group>
-
+            <slot name="footerActions"></slot>
             <div class="filler"></div>
             <span v-if="item.creationTime">Created {{ creationTime }}</span>
             <cloud-upload class="action-button save-button" @click="onSave()" />
@@ -51,16 +44,17 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { CheckBold, CloudUpload, DeleteVariant, Dumbbell, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
+import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
 
 import { useEventStore } from '../../../../stores/event/event.store';
+import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
-import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
 
-class TaskItemEditorProp {
-    public item = prop<TaskItem>({ default: new TaskItem(-1) });
+class ItemEditorBaseProp {
+    public item = prop<InterruptionItem & TaskItem>({ default: null });
+    public type = prop<EventType>({ default: null });
 }
 
 @Options({
@@ -68,11 +62,9 @@ class TaskItemEditorProp {
         CheckBold,
         CloudUpload,
         DeleteVariant,
-        Dumbbell,
         PlayCircle,
         ProgressQuestion,
-        StopCircle,
-        SelectionGroup
+        StopCircle
     },
     emits: [
         'create',
@@ -87,13 +79,11 @@ class TaskItemEditorProp {
         ...mapStores(useEventStore)
     }
 })
-/* istanbul ignore next */
-export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
-    public readonly effortOptions = [1, 2, 3, 5, 8, 13];
+export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
 
-    get isActiveWorkItem(): boolean {
-        return this.eventStore.isActiveWorkItem(EventType.Task, this.item.id);
+    get isActive(): boolean {
+        return this.eventStore.isActiveWorkItem(this.type, this.item.id);
     }
 
     get creationTime(): string {
@@ -110,7 +100,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
 </script>
 
 <style lang="scss" scoped>
-.task-item-editor-container {
+.item-editor-base-container {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
@@ -186,18 +176,6 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
         font-size: var(--font-sizes-300);
         @include animate-opacity(0, 1, 0.3s, 0.6s);
 
-        .effort-selector {
-            transition: color 0.3s;
-
-            &:hover {
-                color: var(--font-colors-0-00);
-            }
-
-            .icon {
-                margin-right: 2px;
-            }
-        }
-
         .filler {
             flex-grow: 1;
         }
@@ -206,6 +184,7 @@ export default class TaskItemEditor extends Vue.with(TaskItemEditorProp) {
             cursor: pointer;
             font-size: var(--font-sizes-600);
             transition: color 0.3s;
+            @include animate-opacity(0, 1, 0.3s);
         }
 
         .resolve-button, .unresolve-button, .start-button, .stop-button {

@@ -1,5 +1,5 @@
 <template>
-    <div class="interruption-item-list-container">
+    <div v-if="summaries && type" class="item-list-base-container" :class="{ 'right-to-left': isRightToLeft }">
         <span v-if="totalUnresolved || totalResolved" class="list-types">
             <span class="unresolved-list" :class="{ active: showUnresolved }" @click="selectUnresolved()">
                 {{ totalUnresolved }} unresolved
@@ -12,26 +12,47 @@
             </span>
         </span>
 
-        <div class="card-wrapper" v-if="interruptionStore.activeSummary">
-            <interruption-item-card class="interruption-item-card"
-                :class="getItemCardClasses(interruptionStore.activeSummary)"
-                :item="interruptionStore.activeSummary"
-                :isSelected="selectedItemId === interruptionStore.activeSummary.id"
+        <div class="card-wrapper" v-if="activeSummary">
+            <interruption-item-card v-if="type === eventType.Interruption"
+                class="item-card"
+                :class="getItemCardClasses(activeSummary)"
+                :item="activeSummary"
+                :isSelected="selectedId === activeSummary.id"
                 :isActive="true"
-                @click="$emit('select', interruptionStore.activeSummary)">
+                @click="$emit('select', activeSummary)">
             </interruption-item-card>
+
+            <task-item-card v-if="type === eventType.Task"
+                class="item-card"
+                :class="getItemCardClasses(activeSummary)"
+                :item="activeSummary"
+                :isSelected="selectedId === activeSummary.id"
+                :isActive="true"
+                @click="$emit('select', activeSummary)">
+            </task-item-card>
         </div>
 
         <overlay-scrollbar-panel class="card-wrappers">
             <div class="card-wrapper" v-for="(item, index) of items" :key="index">
-                <interruption-item-card class="interruption-item-card"
+                <interruption-item-card v-if="type === eventType.Interruption"
+                    class="item-card"
                     :class="getItemCardClasses(item)"
                     :item="item"
-                    :isSelected="selectedItemId === item.id"
+                    :isSelected="selectedId === item.id"
                     :isResolved="!showUnresolved"
-                    :isActive="isActive(item)"
+                    :isActive="false"
                     @click="$emit('select', item)">
                 </interruption-item-card>
+
+                <task-item-card v-if="type === eventType.Task"
+                    class="item-card"
+                    :class="getItemCardClasses(item)"
+                    :item="item"
+                    :isSelected="selectedId === item.id"
+                    :isResolved="!showUnresolved"
+                    :isActive="false"
+                    @click="$emit('select', item)">
+                </task-item-card>
             </div>
         </overlay-scrollbar-panel>
     </div>
@@ -39,26 +60,32 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { mapStores } from 'pinia';
 
-import { useEventStore } from '../../../../stores/event/event.store';
-import { useInterruptionStore } from '../../../../stores/interruption/interruption.store';
 import { ItemSummariesDto } from '../../../../core/dtos/item-summaries-dto';
 import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-item-summary-dto';
+import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
+import TaskItemCard from './task-item-card/task-item-card.vue';
 
-class InterruptionItemListProp {
-    public searchText = prop<string>({ default: '' });
+type ItemSummary = InterruptionItemSummaryDto & TaskItemSummaryDto;
+
+class ItemListBaseProp {
+    public summaries = prop<ItemSummariesDto<ItemSummary>>({ default: null });
+    public activeSummary = prop<ItemSummary>({ default: null });
+    public selectedId = prop<number>({ default: -1 });
+    public type = prop<EventType>({ default: null });
+    public isRightToLeft = prop<boolean>({ default: false });
 }
 
 @Options({
     components: {
         OverlayScrollbarPanel,
-        InterruptionItemCard
+        InterruptionItemCard,
+        TaskItemCard
     },
     watch: {
         items(): void {
@@ -67,44 +94,35 @@ class InterruptionItemListProp {
     },
     emits: [
         'select'
-    ],
-    computed: {
-        ...mapStores(useEventStore, useInterruptionStore)
-    }
+    ]
 })
-/* istanbul ignore next */
-export default class InterruptionItemList extends Vue.with(InterruptionItemListProp) {
+export default class ItemListBase extends Vue.with(ItemListBaseProp) {
+    public readonly eventType = EventType;
     public showUnresolved = true;
-    private eventStore!: ReturnType<typeof useEventStore>;
-    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private animateTimeouts: number[] = [];
     private animated = new Set<number>();
 
     get totalUnresolved(): number {
-        return this.filteredSummaries.unresolved.length;
+        return this.summaries.unresolved.length;
     }
 
     get totalResolved(): number {
-        return this.filteredSummaries.resolved.length;
+        return this.summaries.resolved.length;
     }
 
-    get items(): InterruptionItemSummaryDto[] {
-        if (!this.showUnresolved) {
-            return this.filteredSummaries.resolved;
+    get items(): ItemSummary[] {
+        if (!this.summaries) {
+            return [];
         }
 
-        const { unresolved } = this.filteredSummaries;
-        const active = this.interruptionStore.activeSummary;
+        if (!this.showUnresolved) {
+            return this.summaries.resolved;
+        }
+
+        const { unresolved } = this.summaries;
+        const active = this.activeSummary;
 
         return active ? unresolved.filter(_ => _.id !== active.id) : unresolved;
-    }
-
-    get filteredSummaries(): ItemSummariesDto<InterruptionItemSummaryDto> {
-        return this.interruptionStore.filteredSummaries(this.searchText);
-    }
-
-    get selectedItemId(): number {
-        return this.interruptionStore.editingItem?.id ?? -1;
     }
 
     public mounted(): void {
@@ -125,22 +143,30 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         }
     }
 
-    public getItemCardClasses(item: InterruptionItemSummaryDto): ClassConfigs {
+    public getItemCardClasses(item: ItemSummary): ClassConfigs {
         return {
             animated: this.animated.has(item.id),
-            selected: this.selectedItemId === item.id
+            selected: this.selectedId === item.id
         };
     }
 
-    public isActive(item: InterruptionItemSummaryDto): boolean {
-        return this.eventStore.isActiveWorkItem(EventType.Interruption, item.id);
+    private resetAnimation(): void {
+        this.animated.clear();
+
+        if (this.activeSummary) {
+            this.animated.add(this.activeSummary.id);
+        }
+
+        while (this.animateTimeouts.length) {
+            clearTimeout(this.animateTimeouts.pop());
+        }
     }
 
     private animateItemCards(): void {
         let total = 0;
 
-        if (this.interruptionStore.activeSummary) {
-            const { id } = this.interruptionStore.activeSummary;
+        if (this.activeSummary) {
+            const { id } = this.activeSummary;
             this.animated.delete(id);
             setTimeout(() => this.animated.add(id));
         }
@@ -152,27 +178,59 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
             }
         }
     }
-
-    private resetAnimation(): void {
-        this.animated.clear();
-
-        if (this.interruptionStore.activeSummary) {
-            this.animated.add(this.interruptionStore.activeSummary.id);
-        }
-
-        while (this.animateTimeouts.length) {
-            clearTimeout(this.animateTimeouts.pop());
-        }
-    }
 }
 </script>
 
 <style lang="scss" scoped>
-.interruption-item-list-container {
+.item-list-base-container {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    @include flex-column();
+    @include flex-column(flex-end);
+
+    &:not(.right-to-left) .card-wrapper {
+        padding: 0.5vh 0 0.5vh 1vh;
+
+        .item-card {
+            margin-left: 110%;
+            transition: margin-left 0.3s, color 0.3s;
+
+            &.animated {
+                margin-left: 17.5%;
+            }
+
+            &.animated.selected {
+                margin-left: 0;
+            }
+        }
+    }
+
+    &.right-to-left {
+        align-items: initial;
+
+        .card-wrappers {
+            direction: rtl;
+        }
+
+        .card-wrapper {
+            padding: 0.5vh 1vh 0.5vh 0;
+            direction: rtl;
+
+            .item-card {
+                margin-right: 110%;
+                transition: margin-right 0.3s, color 0.3s;
+                direction: ltr;
+
+                &.animated {
+                    margin-right: 17.5%;
+                }
+
+                &.animated.selected {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
 
     .list-types {
         margin-bottom: 0.25rem;
@@ -212,32 +270,18 @@ export default class InterruptionItemList extends Vue.with(InterruptionItemListP
         @include flex-column();
         width: 100%;
         height: 100%;
-        direction: rtl;
     }
 
     .card-wrapper {
         box-sizing: border-box;
         margin-bottom: 1rem;
-        padding: 0.5vh 1vh 0.5vh 0;
         width: 100%;
         min-height: 5.25rem;
         overflow-x: hidden;
         scroll-snap-align: start;
-        direction: rtl;
 
-        .interruption-item-card {
-            margin-right: 110%;
-            transition: margin-right 0.3s, color 0.3s;
+        .item-card {
             @include animate-opacity(0, 1, 0.3s);
-            direction: ltr;
-
-            &.animated {
-                margin-right: 17.5%;
-            }
-
-            &.animated.selected {
-                margin-right: 0;
-            }
         }
     }
 }
