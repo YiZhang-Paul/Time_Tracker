@@ -1,5 +1,5 @@
 <template>
-    <work-item-editor class="interruption-item-editor-container"
+    <item-editor-base class="interruption-item-editor-container"
         :item="item"
         :type="type"
         @create="$emit('create', $event)"
@@ -17,7 +17,7 @@
                 @select="item.priority = $event.properties.priority">
             </selection-group>
         </template>
-    </work-item-editor>
+    </item-editor-base>
 </template>
 
 <script lang="ts">
@@ -30,7 +30,7 @@ import { Priority } from '../../../../core/enums/priority.enum';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import PriorityIndicator from '../../../../shared/indicators/priority-indicator/priority-indicator.vue';
 import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
-import WorkItemEditor from '../../../../shared/editors/work-item-editor/work-item-editor.vue';
+import ItemEditorBase from '../../../../shared/editors/item-editor-base/item-editor-base.vue';
 
 class InterruptionItemEditorProp {
     public item = prop<InterruptionItem>({ default: new InterruptionItem(-1) });
@@ -40,7 +40,7 @@ class InterruptionItemEditorProp {
     components: {
         PriorityIndicator,
         SelectionGroup,
-        WorkItemEditor
+        ItemEditorBase
     },
     emits: [
         'create',

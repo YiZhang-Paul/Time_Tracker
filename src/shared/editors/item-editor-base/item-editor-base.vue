@@ -1,5 +1,5 @@
 <template>
-    <div v-if="item && type" class="work-item-editor-container">
+    <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
             <input type="text"
                 class="name"
@@ -52,7 +52,7 @@ import { TaskItem } from '../../../core/models/task/task-item';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 
-class WorkItemEditorProp {
+class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
     public type = prop<EventType>({ default: null });
 }
@@ -79,7 +79,7 @@ class WorkItemEditorProp {
         ...mapStores(useEventStore)
     }
 })
-export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
+export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
 
     get isActive(): boolean {
@@ -100,7 +100,7 @@ export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
 </script>
 
 <style lang="scss" scoped>
-.work-item-editor-container {
+.item-editor-base-container {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 

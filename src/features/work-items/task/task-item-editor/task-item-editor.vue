@@ -1,5 +1,5 @@
 <template>
-    <work-item-editor class="task-item-editor-container"
+    <item-editor-base class="task-item-editor-container"
         :item="item"
         :type="type"
         @create="$emit('create', $event)"
@@ -19,7 +19,7 @@
                 <dumbbell class="icon" />
             </selection-group>
         </template>
-    </work-item-editor>
+    </item-editor-base>
 </template>
 
 <script lang="ts">
@@ -29,7 +29,7 @@ import { Dumbbell } from 'mdue';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import SelectionGroup from '../../../../shared/inputs/selection-group/selection-group.vue';
-import WorkItemEditor from '../../../../shared/editors/work-item-editor/work-item-editor.vue';
+import ItemEditorBase from '../../../../shared/editors/item-editor-base/item-editor-base.vue';
 
 class TaskItemEditorProp {
     public item = prop<TaskItem>({ default: new TaskItem(-1) });
@@ -39,7 +39,7 @@ class TaskItemEditorProp {
     components: {
         Dumbbell,
         SelectionGroup,
-        WorkItemEditor
+        ItemEditorBase
     },
     emits: [
         'create',

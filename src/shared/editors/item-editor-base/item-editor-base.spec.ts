@@ -7,15 +7,15 @@ import { InterruptionItem } from '../../../core/models/interruption/interruption
 import { TaskItem } from '../../../core/models/task/task-item';
 import { EventType } from '../../../core/enums/event-type.enum';
 
-import WorkItemEditor from './work-item-editor.vue';
+import ItemEditorBase from './item-editor-base.vue';
 
-describe('work item editor unit test', () => {
+describe('item editor base unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
     let eventStore: ReturnType<typeof useEventStore>;
 
     beforeEach(() => {
-        component = shallowMount(WorkItemEditor, { global: { plugins: [createTestingPinia()] } });
+        component = shallowMount(ItemEditorBase, { global: { plugins: [createTestingPinia()] } });
         eventStore = useEventStore();
     });
 
