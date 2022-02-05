@@ -20,10 +20,9 @@
             <span v-if="!hasUnresolvedWorkItem">You sure you have nothing to do, you dipshit?</span>
         </div>
 
-        <work-item-editor v-if="interruptionStore.editingItem"
+        <interruption-item-editor v-if="interruptionStore.editingItem"
             class="work-item-editor"
             :item="interruptionStore.editingItem"
-            :type="eventType.Interruption"
             @create="onInterruptionCreate($event)"
             @update="onInterruptionUpdate($event)"
             @delete="onInterruptionDeleteStart($event)"
@@ -31,19 +30,12 @@
             @stop="eventStore.startIdling()"
             @resolve="onInterruptionResolve($event)"
             @unresolve="onInterruptionUnresolve($event)">
-
-            <template v-slot:footerActions>
-                <selection-group class="priority-selector"
-                    :options="priorityOptions"
-                    :selectedOption="selectedPriority"
-                    @select="interruptionStore.editingItem.priority = $event.properties.priority">
-                </selection-group>
-            </template>
-        </work-item-editor>
+        </interruption-item-editor>
 
         <work-item-editor v-if="taskStore.editingItem"
             class="work-item-editor"
             :item="taskStore.editingItem"
+            :type="eventType.Task"
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
             @delete="onTaskDeleteStart($event)"
@@ -77,19 +69,17 @@ import { useInterruptionStore } from '../../stores/interruption/interruption.sto
 import { useTaskStore } from '../../stores/task/task.store';
 import { InterruptionItemSummaryDto } from '../../core/dtos/interruption-item-summary-dto';
 import { TaskItemSummaryDto } from '../../core/dtos/task-item-summary-dto';
-import { DynamicComponentOption } from '../../core/models/options/dynamic-component-option';
 import { InterruptionItem } from '../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../core/models/task/task-item';
 import { ConfirmationDialogOption } from '../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../core/models/generic/dialog-config';
 import { ButtonType } from '../../core/enums/button-type.enum';
-import { Priority } from '../../core/enums/priority.enum';
 import { EventType } from '../../core/enums/event-type.enum';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import SelectionGroup from '../../shared/inputs/selection-group/selection-group.vue';
-import PriorityIndicator from '../../shared/indicators/priority-indicator/priority-indicator.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
+import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
 import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemEditor from './work-item-editor/work-item-editor.vue';
@@ -100,7 +90,7 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
         Dumbbell,
         SearchBox,
         SelectionGroup,
-        PriorityIndicator,
+        InterruptionItemEditor,
         InterruptionItemList,
         TaskItemList,
         WorkItemEditor,
@@ -111,13 +101,6 @@ import WorkItemCreator from './work-item-creator/work-item-creator.vue';
     }
 })
 export default class WorkItems extends Vue {
-    public readonly priorityOptions = [Priority.Low, Priority.Medium, Priority.High].map(_ => {
-        const component = markRaw(PriorityIndicator);
-        const properties = { priority: _ };
-
-        return new DynamicComponentOption(component, properties);
-    });
-
     public readonly effortOptions = [1, 2, 3, 5, 8, 13];
     public readonly eventType = EventType;
     public searchText = '';
@@ -128,10 +111,6 @@ export default class WorkItems extends Vue {
 
     get isEditing(): boolean {
         return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
-    }
-
-    get selectedPriority(): DynamicComponentOption<typeof PriorityIndicator> {
-        return this.priorityOptions.find(_ => _.properties.priority === this.interruptionStore.editingItem!.priority)!;
     }
 
     get hasUnresolvedWorkItem(): boolean {
@@ -385,10 +364,6 @@ export default class WorkItems extends Vue {
     .work-item-editor, .editor-placeholder {
         bottom: 12.5vh;
         height: 67.5%;
-
-        .priority-selector {
-            font-size: var(--font-sizes-400);
-        }
 
         .effort-selector {
             transition: color 0.3s;
