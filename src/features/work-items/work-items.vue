@@ -41,8 +41,8 @@
             </template>
         </work-item-editor>
 
-        <task-item-editor v-if="taskStore.editingItem"
-            class="task-item-editor"
+        <work-item-editor v-if="taskStore.editingItem"
+            class="work-item-editor"
             :item="taskStore.editingItem"
             @create="onTaskCreate($event)"
             @update="onTaskUpdate($event)"
@@ -51,7 +51,17 @@
             @stop="eventStore.startIdling()"
             @resolve="onTaskResolve($event)"
             @unresolve="onTaskUnresolve($event)">
-        </task-item-editor>
+
+            <template v-slot:footerActions>
+                <selection-group class="effort-selector"
+                    :options="effortOptions"
+                    :selectedOption="taskStore.editingItem.effort"
+                    @select="taskStore.editingItem.effort = $event">
+
+                    <dumbbell class="icon" />
+                </selection-group>
+            </template>
+        </work-item-editor>
     </div>
 </template>
 
@@ -59,6 +69,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
+import { Dumbbell } from 'mdue';
 
 import { useDialogStore } from '../../stores/dialog/dialog.store';
 import { useEventStore } from '../../stores/event/event.store';
@@ -80,18 +91,17 @@ import PriorityIndicator from '../../shared/indicators/priority-indicator/priori
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
-import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 
 @Options({
     components: {
+        Dumbbell,
         SearchBox,
         SelectionGroup,
         PriorityIndicator,
         InterruptionItemList,
-        TaskItemEditor,
         TaskItemList,
         WorkItemEditor,
         WorkItemCreator
@@ -108,6 +118,7 @@ export default class WorkItems extends Vue {
         return new DynamicComponentOption(component, properties);
     });
 
+    public readonly effortOptions = [1, 2, 3, 5, 8, 13];
     public readonly eventType = EventType;
     public searchText = '';
     public eventStore!: ReturnType<typeof useEventStore>;
@@ -342,7 +353,7 @@ export default class WorkItems extends Vue {
     box-sizing: border-box;
     position: relative;
 
-    .actions-bar, .work-item-editor, .task-item-editor, .editor-placeholder {
+    .actions-bar, .work-item-editor, .editor-placeholder {
         $width: 45%;
 
         position: absolute;
@@ -371,12 +382,24 @@ export default class WorkItems extends Vue {
         }
     }
 
-    .work-item-editor, .task-item-editor, .editor-placeholder {
+    .work-item-editor, .editor-placeholder {
         bottom: 12.5vh;
         height: 67.5%;
 
         .priority-selector {
             font-size: var(--font-sizes-400);
+        }
+
+        .effort-selector {
+            transition: color 0.3s;
+
+            &:hover {
+                color: var(--font-colors-0-00);
+            }
+
+            .icon {
+                margin-right: 2px;
+            }
         }
     }
 
