@@ -1,5 +1,5 @@
 <template>
-    <div class="work-item-editor-container">
+    <div v-if="item && type" class="work-item-editor-container">
         <div class="header">
             <input type="text"
                 class="name"
