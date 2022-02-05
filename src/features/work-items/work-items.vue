@@ -5,15 +5,11 @@
             <work-item-creator class="work-item-creator"></work-item-creator>
         </div>
 
-        <interruption-item-list class="interruption-item-list"
+        <work-item-list class="work-item-list"
             :searchText="searchText"
-            @select="onInterruptionSelect($event)">
-        </interruption-item-list>
-
-        <task-item-list class="task-item-list"
-            :searchText="searchText"
-            @select="onTaskSelect($event)">
-        </task-item-list>
+            @select:interruption="onInterruptionSelect($event)"
+            @select:task="onTaskSelect($event)">
+        </work-item-list>
 
         <div v-if="!isEditing" class="editor-placeholder">
             <span v-if="hasUnresolvedWorkItem">You still got things to do. Pick one and get it done.</span>
@@ -67,19 +63,17 @@ import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
-import InterruptionItemList from './interruption/interruption-item-list/interruption-item-list.vue';
 import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
-import TaskItemList from './task/task-item-list/task-item-list.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
+import WorkItemList from './work-item-list/work-item-list.vue';
 
 @Options({
     components: {
         SearchBox,
         InterruptionItemEditor,
-        InterruptionItemList,
         TaskItemEditor,
-        TaskItemList,
-        WorkItemCreator
+        WorkItemCreator,
+        WorkItemList
     },
     computed: {
         ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
@@ -312,6 +306,7 @@ export default class WorkItems extends Vue {
 
     $border-gap: 1.5vh;
 
+    @include flex-column(center, center);
     box-sizing: border-box;
     position: relative;
 
@@ -344,6 +339,14 @@ export default class WorkItems extends Vue {
         }
     }
 
+    .work-item-list {
+        position: absolute;
+        top: 15%;
+        width: calc(100% - #{$border-gap} * 2);
+        height: 38.5rem;
+        max-height: 77.5%;
+    }
+
     .work-item-editor, .editor-placeholder {
         bottom: 12.5vh;
         height: 67.5%;
@@ -354,22 +357,6 @@ export default class WorkItems extends Vue {
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-700);
         @include animate-opacity(0, 1, 0.3s, 0.5s);
-    }
-
-    .interruption-item-list, .task-item-list {
-        position: absolute;
-        top: 15%;
-        width: 20%;
-        height: 38.5rem;
-        max-height: 77.5%;
-    }
-
-    .interruption-item-list {
-        left: $border-gap;
-    }
-
-    .task-item-list {
-        right: $border-gap;
     }
 }
 </style>
