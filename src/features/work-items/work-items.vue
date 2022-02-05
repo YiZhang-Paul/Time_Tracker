@@ -11,34 +11,22 @@
             @select:task="onTaskSelect($event)">
         </work-item-list>
 
-        <div v-if="!isEditing" class="editor-placeholder">
-            <span v-if="hasUnresolvedWorkItem">You still got things to do. Pick one and get it done.</span>
-            <span v-if="!hasUnresolvedWorkItem">You sure you have nothing to do, you dipshit?</span>
-        </div>
-
-        <interruption-item-editor v-if="interruptionStore.editingItem"
-            class="work-item-editor"
-            :item="interruptionStore.editingItem"
-            @create="onInterruptionCreate($event)"
-            @update="onInterruptionUpdate($event)"
-            @delete="onInterruptionDeleteStart($event)"
-            @start="onInterruptionStart($event.id)"
-            @stop="eventStore.startIdling()"
-            @resolve="onInterruptionResolve($event)"
-            @unresolve="onInterruptionUnresolve($event)">
-        </interruption-item-editor>
-
-        <task-item-editor v-if="taskStore.editingItem"
-            class="work-item-editor"
-            :item="taskStore.editingItem"
-            @create="onTaskCreate($event)"
-            @update="onTaskUpdate($event)"
-            @delete="onTaskDeleteStart($event)"
-            @start="onTaskStart($event.id)"
-            @stop="eventStore.startIdling()"
-            @resolve="onTaskResolve($event)"
-            @unresolve="onTaskUnresolve($event)">
-        </task-item-editor>
+        <work-item-editor class="work-item-editor"
+            @create:interruption="onInterruptionCreate($event)"
+            @create:task="onTaskCreate($event)"
+            @update:interruption="onInterruptionUpdate($event)"
+            @update:task="onTaskUpdate($event)"
+            @delete:interruption="onInterruptionDeleteStart($event)"
+            @delete:task="onTaskDeleteStart($event)"
+            @start:interruption="onInterruptionStart($event.id)"
+            @start:task="onTaskStart($event.id)"
+            @stop:interruption="eventStore.startIdling()"
+            @stop:task="eventStore.startIdling()"
+            @resolve:interruption="onInterruptionResolve($event)"
+            @resolve:task="onTaskResolve($event)"
+            @unresolve:interruption="onInterruptionUnresolve($event)"
+            @unresolve:task="onTaskUnresolve($event)">
+        </work-item-editor>
     </div>
 </template>
 
@@ -62,18 +50,16 @@ import { EventType } from '../../core/enums/event-type.enum';
 import SearchBox from '../../shared/inputs/search-box/search-box.vue';
 import ConfirmationDialog from '../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
-import InterruptionItemEditor from './interruption/interruption-item-editor/interruption-item-editor.vue';
-import TaskItemEditor from './task/task-item-editor/task-item-editor.vue';
 import WorkItemCreator from './work-item-creator/work-item-creator.vue';
 import WorkItemList from './work-item-list/work-item-list.vue';
+import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 
 @Options({
     components: {
         SearchBox,
-        InterruptionItemEditor,
-        TaskItemEditor,
         WorkItemCreator,
-        WorkItemList
+        WorkItemList,
+        WorkItemEditor
     },
     computed: {
         ...mapStores(useDialogStore, useEventStore, useInterruptionStore, useTaskStore)
@@ -82,20 +68,9 @@ import WorkItemList from './work-item-list/work-item-list.vue';
 export default class WorkItems extends Vue {
     public searchText = '';
     public eventStore!: ReturnType<typeof useEventStore>;
-    public interruptionStore!: ReturnType<typeof useInterruptionStore>;
-    public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
-
-    get isEditing(): boolean {
-        return Boolean(this.interruptionStore.editingItem) || Boolean(this.taskStore.editingItem);
-    }
-
-    get hasUnresolvedWorkItem(): boolean {
-        const interruptions = this.interruptionStore.summaries.unresolved;
-        const tasks = this.taskStore.summaries.unresolved;
-
-        return Boolean(interruptions.length) || Boolean(tasks.length);
-    }
+    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    private taskStore!: ReturnType<typeof useTaskStore>;
 
     public created(): void {
         this.initialize();
@@ -310,7 +285,7 @@ export default class WorkItems extends Vue {
     box-sizing: border-box;
     position: relative;
 
-    .actions-bar, .work-item-editor, .editor-placeholder {
+    .actions-bar, .work-item-editor {
         $width: 45%;
 
         position: absolute;
@@ -347,16 +322,9 @@ export default class WorkItems extends Vue {
         max-height: 77.5%;
     }
 
-    .work-item-editor, .editor-placeholder {
+    .work-item-editor {
         bottom: 12.5vh;
         height: 67.5%;
-    }
-
-    .editor-placeholder {
-        @include flex-row(center, center);
-        color: var(--font-colors-2-00);
-        font-size: var(--font-sizes-700);
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 }
 </style>
