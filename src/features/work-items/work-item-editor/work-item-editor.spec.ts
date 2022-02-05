@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 
 import WorkItemEditor from './work-item-editor.vue';
 
@@ -7,7 +8,7 @@ describe('work item editor unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(WorkItemEditor);
+        component = shallowMount(WorkItemEditor, { global: { plugins: [createTestingPinia()] } });
     });
 
     afterEach(() => {

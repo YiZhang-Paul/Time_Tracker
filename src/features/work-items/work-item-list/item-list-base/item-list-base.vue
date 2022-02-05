@@ -111,6 +111,10 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
     }
 
     get items(): ItemSummary[] {
+        if (!this.summaries) {
+            return [];
+        }
+
         if (!this.showUnresolved) {
             return this.summaries.resolved;
         }
