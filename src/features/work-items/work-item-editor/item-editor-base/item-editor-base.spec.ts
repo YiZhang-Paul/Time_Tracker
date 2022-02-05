@@ -2,10 +2,10 @@ import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, stub } from 'sinon';
 
-import { useEventStore } from '../../../stores/event/event.store';
-import { InterruptionItem } from '../../../core/models/interruption/interruption-item';
-import { TaskItem } from '../../../core/models/task/task-item';
-import { EventType } from '../../../core/enums/event-type.enum';
+import { useEventStore } from '../../../../stores/event/event.store';
+import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
+import { TaskItem } from '../../../../core/models/task/task-item';
+import { EventType } from '../../../../core/enums/event-type.enum';
 
 import ItemEditorBase from './item-editor-base.vue';
 

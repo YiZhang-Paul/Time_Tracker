@@ -46,11 +46,11 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
 import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
 
-import { useEventStore } from '../../../stores/event/event.store';
-import { InterruptionItem } from '../../../core/models/interruption/interruption-item';
-import { TaskItem } from '../../../core/models/task/task-item';
-import { EventType } from '../../../core/enums/event-type.enum';
-import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import { useEventStore } from '../../../../stores/event/event.store';
+import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
+import { TaskItem } from '../../../../core/models/task/task-item';
+import { EventType } from '../../../../core/enums/event-type.enum';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
@@ -101,8 +101,8 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
 <style lang="scss" scoped>
 .item-editor-base-container {
-    @import '../../../styles/presets.scss';
-    @import '../../../styles/animations.scss';
+    @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     $content-width: 95%;
 
