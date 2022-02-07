@@ -8,14 +8,16 @@
                 maxlength="140"
                 placeholder="enter title here..." />
 
-            <span v-if="item.modifiedTime" class="modified-time">Updated {{ modifiedTime }}</span>
+            <span class="modified-time">
+                {{ isExistingItem ? `Updated ${modifiedTime}` : 'not created yet' }}
+            </span>
         </div>
 
         <div class="editor-actions">
             <flat-button class="save-button action-button" :isDisabled="isSaved" @click="onSave()">
                 <cloud-upload v-if="!isSaved" class="icon" />
-                <span v-if="isSaved">Saved</span>
-                <span v-if="!isSaved">Save</span>
+                <span v-if="isExistingItem && isSaved">Saved</span>
+                <span v-if="!isSaved">{{ isExistingItem ? 'Save' : 'Create' }}</span>
             </flat-button>
 
             <icon-button class="close-button action-button" @click="$emit('close', item)">
@@ -71,10 +73,13 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         return TimeUtility.getDateTimeString(new Date(this.item.modifiedTime));
     }
 
+    get isExistingItem(): boolean {
+        return this.item.id !== -1;
+    }
+
     public onSave(): void {
         if (this.item.name.trim()) {
-            const event = this.item.id === -1 ? 'create' : 'update';
-            this.$emit(event, this.item);
+            this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
             this.isSaved = true;
         }
     }
