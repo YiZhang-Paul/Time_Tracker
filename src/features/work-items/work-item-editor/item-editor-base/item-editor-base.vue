@@ -11,9 +11,9 @@
         </div>
 
         <div class="editor-actions">
-            <flat-button class="save-button action-button">
+            <flat-button class="save-button action-button" :isDisabled="isSaved">
                 <cloud-upload class="icon" />
-                <span>Save</span>
+                <span>{{ isSaved ? 'Saved' : 'Save' }}</span>
             </flat-button>
 
             <icon-button class="close-button action-button" @click="$emit('close', item)">
@@ -60,6 +60,8 @@ class ItemEditorBaseProp {
     ]
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
+    public isSaved = true;
+
     get modifiedTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.modifiedTime));
     }
@@ -119,13 +121,16 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         }
 
         .save-button {
-            background-color: var(--context-colors-info-1-00);
-            box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
-            color: var(--font-colors-0-00);
 
-            &:hover {
-                background-color: var(--context-colors-info-0-00);
-                box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
+            &:not(.disabled) {
+                background-color: var(--context-colors-info-1-00);
+                box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
+                color: var(--font-colors-0-00);
+
+                &:hover {
+                    background-color: var(--context-colors-info-0-00);
+                    box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
+                }
             }
 
             .icon {

@@ -1,11 +1,15 @@
 <template>
-    <button class="flat-button-container"><slot></slot></button>
+    <button class="flat-button-container" :class="{ disabled: isDisabled }"><slot></slot></button>
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
+import { Vue, prop } from 'vue-class-component';
 
-export default class FlatButton extends Vue { }
+class FlatButtonProp {
+    public isDisabled = prop<boolean>({ default: false });
+}
+
+export default class FlatButton extends Vue.with(FlatButtonProp) { }
 </script>
 
 <style lang="scss" scoped>
@@ -26,6 +30,13 @@ export default class FlatButton extends Vue { }
 
     &:hover {
         cursor: pointer;
+    }
+
+    &.disabled {
+        pointer-events: none;
+        background-color: var(--context-colors-disabled-1-00);
+        box-shadow: none;
+        color: var(--font-colors-5-00);
     }
 }
 </style>
