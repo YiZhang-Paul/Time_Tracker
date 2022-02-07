@@ -4,6 +4,7 @@
             <input type="text"
                 class="name"
                 v-model="item.name"
+                @update:modelValue="isSaved = false"
                 maxlength="140"
                 placeholder="enter title here..." />
 
@@ -12,8 +13,9 @@
 
         <div class="editor-actions">
             <flat-button class="save-button action-button" :isDisabled="isSaved" @click="onSave()">
-                <cloud-upload class="icon" />
-                <span>{{ isSaved ? 'Saved' : 'Save' }}</span>
+                <cloud-upload v-if="!isSaved" class="icon" />
+                <span v-if="isSaved">Saved</span>
+                <span v-if="!isSaved">Save</span>
             </flat-button>
 
             <icon-button class="close-button action-button" @click="$emit('close', item)">
@@ -24,6 +26,7 @@
         <div class="content">
             <textarea class="description"
                 v-model="item.description"
+                @update:modelValue="isSaved = false"
                 placeholder="no descriptions...">
             </textarea>
 
@@ -81,6 +84,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 <style lang="scss" scoped>
 .item-editor-base-container {
     @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     $gap: 1.5vh;
     $border-radius: 5px;
@@ -92,6 +96,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     border-radius: $border-radius;
     background-color: var(--primary-colors-9-00);
     box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    @include animate-opacity(0, 1, 0.3s, 0.2s);
 
     .header {
         @include flex-column(initial, center);
@@ -141,6 +146,14 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
                     background-color: var(--context-colors-info-0-00);
                     box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
                 }
+            }
+
+            &.disabled {
+                background-color: transparent;
+            }
+
+            .icon, span {
+                @include animate-opacity(0, 1, 0.3s);
             }
 
             .icon {
