@@ -286,7 +286,7 @@ export default class WorkItems extends Vue {
     position: relative;
 
     .actions-bar, .work-item-editor {
-        $width: 45%;
+        $width: 50%;
 
         position: absolute;
         left: calc(50% - #{$width} / 2);
@@ -324,7 +324,7 @@ export default class WorkItems extends Vue {
 
     .work-item-editor {
         bottom: 12.5vh;
-        height: 67.5%;
+        height: 70%;
     }
 }
 </style>
