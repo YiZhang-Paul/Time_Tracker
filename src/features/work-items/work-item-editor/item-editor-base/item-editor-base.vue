@@ -11,7 +11,7 @@
         </div>
 
         <div class="editor-actions">
-            <flat-button class="save-button action-button" :isDisabled="isSaved">
+            <flat-button class="save-button action-button" :isDisabled="isSaved" @click="onSave()">
                 <cloud-upload class="icon" />
                 <span>{{ isSaved ? 'Saved' : 'Save' }}</span>
             </flat-button>
@@ -56,7 +56,9 @@ class ItemEditorBaseProp {
         IconButton
     },
     emits: [
-        'close'
+        'close',
+        'create',
+        'update'
     ]
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
@@ -64,6 +66,14 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
     get modifiedTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.modifiedTime));
+    }
+
+    public onSave(): void {
+        if (this.item.name.trim()) {
+            const event = this.item.id === -1 ? 'create' : 'update';
+            this.$emit(event, this.item);
+            this.isSaved = true;
+        }
     }
 }
 </script>
