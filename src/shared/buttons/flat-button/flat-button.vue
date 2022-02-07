@@ -1,9 +1,5 @@
 <template>
-    <button class="flat-button-container">
-        <div class="content-wrapper">
-            <slot></slot>
-        </div>
-    </button>
+    <button class="flat-button-container"><slot></slot></button>
 </template>
 
 <script lang="ts">
@@ -14,30 +10,22 @@ export default class FlatButton extends Vue { }
 
 <style lang="scss" scoped>
 .flat-button-container {
-    @import '../../../styles/animations.scss';
+    @import '../../../styles/presets.scss';
 
-    $border-radius: 5px;
-
-    padding: 0;
+    @include flex-row(center, center);
+    box-sizing: border-box;
+    padding: 0.75vh 2vh;
+    min-width: 3vw;
+    height: 3vh;
     border: none;
     outline: none;
-    color: inherit;
-    font-size: inherit;
-    border-radius: $border-radius;
-    background-color: transparent;
+    border-radius: 5px;
+    background-color: var(--primary-colors-5-00);
+    color: var(--font-colors-3-00);
+    font-size: var(--font-sizes-200);
 
     &:hover {
         cursor: pointer;
-    }
-
-    .content-wrapper {
-        box-sizing: border-box;
-        padding: 0.75vh 1.75vh;
-        width: 100%;
-        height: 100%;
-        border-radius: $border-radius;
-        transition: color 0.3s;
-        @include animate-opacity(0, 1, 0.3s, 0.6s);
     }
 }
 </style>

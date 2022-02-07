@@ -13,13 +13,13 @@ export default class IconButton extends Vue { }
     @import '../../../styles/presets.scss';
 
     @include flex-row(center, center);
-    min-width: 3.5vh;
-    min-height: 3.5vh;
+    width: 3vh;
+    height: 3vh;
     border: none;
     outline: none;
     border-radius: 50%;
-    background-color: var(--primary-colors-5-00);;
-    color: var(--font-colors-1-00);;
+    background-color: var(--primary-colors-5-00);
+    color: var(--font-colors-3-00);
     font-size: var(--font-sizes-400);
 
     &:hover {
