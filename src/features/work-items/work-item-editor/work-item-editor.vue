@@ -9,6 +9,7 @@
             class="item-editor"
             :item="interruptionStore.editingItem"
             :type="eventType.Interruption"
+            @close="$emit('close:interruption', $event)"
             @create="$emit('create:interruption', $event)"
             @update="$emit('update:interruption', $event)"
             @delete="$emit('delete:interruption', $event)"
@@ -30,6 +31,7 @@
             class="item-editor"
             :item="taskStore.editingItem"
             :type="eventType.Task"
+            @close="$emit('close:task', $event)"
             @create="$emit('create:task', $event)"
             @update="$emit('update:task', $event)"
             @delete="$emit('delete:task', $event)"
@@ -75,6 +77,8 @@ import ItemEditorBase from './item-editor-base/item-editor-base.vue';
         ItemEditorBase
     },
     emits: [
+        'close:interruption',
+        'close:task',
         'create:interruption',
         'create:task',
         'update:interruption',

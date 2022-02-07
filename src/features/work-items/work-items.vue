@@ -12,6 +12,8 @@
         </work-item-list>
 
         <work-item-editor class="work-item-editor"
+            @close:interruption="interruptionStore.stopItemEdit()"
+            @close:task="taskStore.stopItemEdit()"
             @create:interruption="onInterruptionCreate($event)"
             @create:task="onTaskCreate($event)"
             @update:interruption="onInterruptionUpdate($event)"
@@ -68,9 +70,9 @@ import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 export default class WorkItems extends Vue {
     public searchText = '';
     public eventStore!: ReturnType<typeof useEventStore>;
+    public interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
-    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
-    private taskStore!: ReturnType<typeof useTaskStore>;
 
     public created(): void {
         this.initialize();
