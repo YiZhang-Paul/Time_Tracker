@@ -1,6 +1,5 @@
 <template>
     <div class="selection-group-container" ref="container" @click="showOptions = !showOptions">
-        <slot></slot>
         <component v-if="isComponent(selected)" :is="selected.component" v-bind="selected.properties"></component>
         <span v-if="!isComponent(selected)">{{ selected }}</span>
 
@@ -92,7 +91,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
     .options {
         @include flex-row(center, center);
         position: absolute;
-        bottom: calc(100% + 1vh);
+        bottom: calc(100% + 1.75vh);
         @include animate-opacity(0, 1, 0.2s);
 
         .option {
