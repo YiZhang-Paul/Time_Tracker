@@ -7,13 +7,13 @@
 
         <item-editor-base v-if="interruptionStore.editingItem"
             class="item-editor"
+            v-model:isSaved="isBaseSaved"
             :item="interruptionStore.editingItem"
             :type="eventType.Interruption"
-            v-model:isSaved="isBaseSaved"
             @close="$emit('close:interruption', $event)"
             @create="$emit('create:interruption', $event)"
             @update="$emit('update:interruption', $event)"
-            @update:isSaved="$emit('update:isSaved', $event)"
+            @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:interruption', $event)"
             @start="$emit('start:interruption', $event)"
             @stop="$emit('stop:interruption', $event)"
@@ -31,13 +31,13 @@
 
         <item-editor-base v-if="taskStore.editingItem"
             class="item-editor"
+            v-model:isSaved="isBaseSaved"
             :item="taskStore.editingItem"
             :type="eventType.Task"
-            v-model:isSaved="isBaseSaved"
             @close="$emit('close:task', $event)"
             @create="$emit('create:task', $event)"
             @update="$emit('update:task', $event)"
-            @update:isSaved="$emit('update:isSaved', $event)"
+            @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:task', $event)"
             @start="$emit('start:task', $event)"
             @stop="$emit('stop:task', $event)"
@@ -79,6 +79,11 @@ class WorkItemEditorProp {
         PriorityIndicator,
         SelectionGroup,
         ItemEditorBase
+    },
+    watch: {
+        isSaved(): void {
+            this.isBaseSaved = this.isSaved;
+        }
     },
     emits: [
         'close:interruption',
@@ -134,12 +139,17 @@ export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
 
     public onPrioritySelect(option: DynamicComponentOption<typeof PriorityIndicator>): void {
         this.interruptionStore.editingItem!.priority = option.properties.priority as Priority;
-        this.$emit('update:isSaved', false);
+        this.onSaveStatusChange(false);
     }
 
     public onEffortSelect(effort: number): void {
         this.taskStore.editingItem!.effort = effort;
-        this.$emit('update:isSaved', false);
+        this.onSaveStatusChange(false);
+    }
+
+    public onSaveStatusChange(isSaved: boolean): void {
+        this.$emit('update:isSaved', isSaved);
+        this.isBaseSaved = isSaved;
     }
 }
 </script>

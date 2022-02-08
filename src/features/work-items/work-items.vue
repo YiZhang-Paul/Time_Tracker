@@ -12,6 +12,7 @@
         </work-item-list>
 
         <work-item-editor class="work-item-editor"
+            v-model:isSaved="isEditorSaved"
             @close:interruption="interruptionStore.stopItemEdit()"
             @close:task="taskStore.stopItemEdit()"
             @create:interruption="onInterruptionCreate($event)"
@@ -69,6 +70,7 @@ import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 })
 export default class WorkItems extends Vue {
     public searchText = '';
+    public isEditorSaved = true;
     public eventStore!: ReturnType<typeof useEventStore>;
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
@@ -97,17 +99,20 @@ export default class WorkItems extends Vue {
         if (this.interruptionStore.editingItem?.id !== item.id) {
             this.taskStore.stopItemEdit();
             this.interruptionStore.startItemEdit(item.id);
+            this.isEditorSaved = true;
         }
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.createItem(item)) {
+            this.isEditorSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.updateItem(item)) {
+            this.isEditorSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
@@ -161,17 +166,20 @@ export default class WorkItems extends Vue {
         if (this.taskStore.editingItem?.id !== item.id) {
             this.interruptionStore.stopItemEdit();
             this.taskStore.startItemEdit(item.id);
+            this.isEditorSaved = true;
         }
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
         if (await this.taskStore.createItem(item)) {
+            this.isEditorSaved = true;
             this.taskStore.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
         if (await this.taskStore.updateItem(item)) {
+            this.isEditorSaved = true;
             this.taskStore.loadSummaries();
         }
     }
