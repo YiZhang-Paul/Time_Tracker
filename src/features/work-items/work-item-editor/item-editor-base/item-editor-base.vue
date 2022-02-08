@@ -8,6 +8,7 @@
             <div class="basic-information">
                 <input type="text"
                     class="name"
+                    ref="nameInput"
                     v-model="item.name"
                     @update:modelValue="$emit('update:isSaved', false)"
                     maxlength="140"
@@ -33,6 +34,7 @@
 
         <div class="content">
             <textarea class="description"
+                ref="descriptionInput"
                 v-model="item.description"
                 @update:modelValue="$emit('update:isSaved', false)"
                 placeholder="no descriptions...">
@@ -87,6 +89,15 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
     get isExistingItem(): boolean {
         return this.item.id !== -1;
+    }
+
+    public mounted(): void {
+        if (this.isExistingItem) {
+            (this.$refs.descriptionInput as HTMLElement).focus();
+        }
+        else {
+            (this.$refs.nameInput as HTMLElement).focus();
+        }
     }
 
     public onSave(): void {
