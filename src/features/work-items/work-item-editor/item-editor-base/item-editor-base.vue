@@ -1,16 +1,22 @@
 <template>
     <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
-            <input type="text"
-                class="name"
-                v-model="item.name"
-                @update:modelValue="isSaved = false"
-                maxlength="140"
-                placeholder="enter title here..." />
+            <div class="selector-wrapper" :style="{ 'border-color': wrapperColor }">
+                <slot name="selector"></slot>
+            </div>
 
-            <span class="modified-time">
-                {{ isExistingItem ? `Updated ${modifiedTime}` : 'not created yet' }}
-            </span>
+            <div class="basic-information">
+                <input type="text"
+                    class="name"
+                    v-model="item.name"
+                    @update:modelValue="$emit('update:isSaved', false)"
+                    maxlength="140"
+                    placeholder="enter title here..." />
+
+                <span class="modified-time">
+                    {{ isExistingItem ? `Updated ${modifiedTime}` : 'not created yet' }}
+                </span>
+            </div>
         </div>
 
         <div class="editor-actions">
@@ -28,7 +34,7 @@
         <div class="content">
             <textarea class="description"
                 v-model="item.description"
-                @update:modelValue="isSaved = false"
+                @update:modelValue="$emit('update:isSaved', false)"
                 placeholder="no descriptions...">
             </textarea>
 
@@ -51,6 +57,7 @@ import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
 class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
     public type = prop<EventType>({ default: null });
+    public isSaved = prop<boolean>({ default: true });
 }
 
 @Options({
@@ -63,11 +70,16 @@ class ItemEditorBaseProp {
     emits: [
         'close',
         'create',
-        'update'
+        'update',
+        'update:isSaved'
     ]
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
-    public isSaved = true;
+    get wrapperColor(): string {
+        const type = this.type === EventType.Task ? 'task' : 'interruption';
+
+        return `var(--item-type-colors-${type}-0-00)`;
+    }
 
     get modifiedTime(): string {
         return TimeUtility.getDateTimeString(new Date(this.item.modifiedTime));
@@ -80,7 +92,6 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public onSave(): void {
         if (this.item.name.trim()) {
             this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
-            this.isSaved = true;
         }
     }
 }
@@ -91,7 +102,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    $gap: 1.5vh;
+    $gap: 2vh;
     $border-radius: 5px;
 
     @include flex-column(center, space-between);
@@ -104,25 +115,46 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     @include animate-opacity(0, 1, 0.3s, 0.2s);
 
     .header {
-        @include flex-column(initial, center);
+        @include flex-row(center);
         width: 100%;
         height: 12.5%;
 
-        .name {
-            width: 75%;
-            border: none;
-            outline: none;
-            background-color: transparent;
-            color: var(--font-colors-0-00);
+        .selector-wrapper {
+            $dimension: 6vh;
+
+            @include flex-row(center, center);
+            margin-left: calc(2.25vh - #{$gap});
+            margin-right: 1.75vh;
+            width: $dimension;
+            min-width: $dimension;
+            height: $dimension;
+            min-height: $dimension;
+            border: 2px dashed;
+            border-radius: 50%;
+            color: var(--font-colors-2-00);
             font-size: var(--font-sizes-500);
-            font-family: inherit;
         }
 
-        .modified-time {
-            margin-top: 0.15rem;
-            margin-left: 0.15rem;
-            color: var(--font-colors-4-00);
-            font-size: var(--font-sizes-300);
+        .basic-information {
+            @include flex-column(initial, center);
+            width: 100%;
+
+            .name {
+                width: 75%;
+                border: none;
+                outline: none;
+                background-color: transparent;
+                color: var(--font-colors-0-00);
+                font-size: var(--font-sizes-500);
+                font-family: inherit;
+            }
+
+            .modified-time {
+                margin-top: 0.15rem;
+                margin-left: 0.15rem;
+                color: var(--font-colors-4-00);
+                font-size: var(--font-sizes-300);
+            }
         }
     }
 
