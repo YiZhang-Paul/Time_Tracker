@@ -104,9 +104,10 @@ export default class WorkItemTypeSelectionDialog extends Vue { }
     .cancel-button {
         align-self: flex-end;
         margin-right: 12.5%;
+        background-color: transparent;
         color: var(--font-colors-3-00);
         font-size: var(--font-sizes-400);
-        @include animate-opacity(0, 1, 0.3s, 1.5s);
+        @include animate-opacity(0, 1, 0.3s, 1s);
 
         &:hover ::v-deep(.content-wrapper) {
             color: var(--font-colors-0-00);

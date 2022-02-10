@@ -20,13 +20,13 @@ export default class FlatButton extends Vue.with(FlatButtonProp) { }
     box-sizing: border-box;
     padding: 0.75vh 2vh;
     min-width: 3vw;
-    height: 3vh;
+    min-height: 3vh;
     border: none;
     outline: none;
     border-radius: 5px;
     background-color: var(--primary-colors-5-00);
-    color: var(--font-colors-3-00);
-    font-size: var(--font-sizes-200);
+    color: inherit;
+    font-size: inherit;
 
     &:hover {
         cursor: pointer;

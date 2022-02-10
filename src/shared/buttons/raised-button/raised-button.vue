@@ -42,14 +42,13 @@ export default class RaisedButton extends Vue { }
 
     .content-wrapper {
         box-sizing: border-box;
-        padding: 0.75vh 1.75vh;
+        padding: 0.75vh 2vh;
         width: 100%;
         height: 100%;
         border-radius: $border-radius;
         box-shadow: $box-shadow;
         background-color: var(--primary-colors-9-00);
         transition: background-color 0.3s, color 0.3s;
-        @include animate-opacity(0, 1, 0.3s, 0.6s);
     }
 }
 </style>

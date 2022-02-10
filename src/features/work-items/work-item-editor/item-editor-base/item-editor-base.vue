@@ -184,6 +184,9 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         }
 
         .save-button {
+            height: 3vh;
+            color: var(--font-colors-3-00);
+            font-size: var(--font-sizes-200);
 
             &:not(.disabled) {
                 background-color: var(--context-colors-info-1-00);
