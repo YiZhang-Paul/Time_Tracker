@@ -27,6 +27,11 @@
                 <span v-if="!isSaved">{{ isExistingItem ? 'Save' : 'Create' }}</span>
             </flat-button>
 
+            <expand-menu class="additional-actions action-button"
+                :options="menuOptions"
+                @select="onMenuOptionSelect($event)">
+            </expand-menu>
+
             <icon-button class="close-button action-button" @click="$emit('close', item)">
                 <close />
             </icon-button>
@@ -57,6 +62,7 @@ import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
+import ExpandMenu from '../../../../shared/inputs/expand-menu/expand-menu.vue';
 
 class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
@@ -69,17 +75,20 @@ class ItemEditorBaseProp {
         Close,
         CloudUpload,
         FlatButton,
-        IconButton
+        IconButton,
+        ExpandMenu
     },
     emits: [
         'close',
         'create',
         'update',
-        'update:isSaved'
+        'update:isSaved',
+        'delete'
     ]
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public readonly textareaId = `textarea-${Date.now()}`;
+    public readonly menuOptions = ['Delete'];
 
     get wrapperColor(): string {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
@@ -118,6 +127,12 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public onSave(): void {
         if (this.item.name.trim()) {
             this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
+        }
+    }
+
+    public onMenuOptionSelect(option: string): void {
+        if (option === this.menuOptions[0]) {
+            this.$emit('delete', this.item);
         }
     }
 }
@@ -226,6 +241,11 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
                 margin-right: 0.75vh;
                 font-size: var(--font-sizes-400);
             }
+        }
+
+        .additional-actions:hover, .additional-actions.active {
+            background-color: var(--primary-colors-4-00);
+            color: var(--font-colors-0-00);
         }
 
         .close-button:hover {
