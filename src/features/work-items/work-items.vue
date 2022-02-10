@@ -12,7 +12,7 @@
         </work-item-list>
 
         <work-item-editor class="work-item-editor"
-            v-model:isSaved="isEditorSaved"
+            v-model:isSaved="isEditingItemSaved"
             @close:interruption="onInterruptionClose()"
             @close:task="onTaskClose()"
             @create:interruption="onInterruptionCreate($event)"
@@ -70,7 +70,7 @@ import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 })
 export default class WorkItems extends Vue {
     public searchText = '';
-    public isEditorSaved = true;
+    public isEditingItemSaved = true;
     public eventStore!: ReturnType<typeof useEventStore>;
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
@@ -100,7 +100,7 @@ export default class WorkItems extends Vue {
             this.onEditingItemChange(() => {
                 this.taskStore.stopItemEdit();
                 this.interruptionStore.startItemEdit(item.id);
-                this.isEditorSaved = true;
+                this.isEditingItemSaved = true;
             });
         }
     }
@@ -108,20 +108,20 @@ export default class WorkItems extends Vue {
     public onInterruptionClose(): void {
         this.onEditingItemChange(() => {
             this.interruptionStore.stopItemEdit();
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
         });
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.createItem(item)) {
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.updateItem(item)) {
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
@@ -149,13 +149,10 @@ export default class WorkItems extends Vue {
         }
 
         await this.interruptionStore.loadSummaries();
+        await this.onWorkItemConcluded(EventType.Interruption, item.id);
 
         if (this.interruptionStore.editingItem?.id === item.id) {
             this.interruptionStore.startItemEdit(item.id, false);
-        }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventStore.startIdling();
         }
     }
 
@@ -176,7 +173,7 @@ export default class WorkItems extends Vue {
             this.onEditingItemChange(() => {
                 this.interruptionStore.stopItemEdit();
                 this.taskStore.startItemEdit(item.id);
-                this.isEditorSaved = true;
+                this.isEditingItemSaved = true;
             });
         }
     }
@@ -184,20 +181,20 @@ export default class WorkItems extends Vue {
     public onTaskClose(): void {
         this.onEditingItemChange(() => {
             this.taskStore.stopItemEdit();
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
         });
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
         if (await this.taskStore.createItem(item)) {
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
             this.taskStore.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
         if (await this.taskStore.updateItem(item)) {
-            this.isEditorSaved = true;
+            this.isEditingItemSaved = true;
             this.taskStore.loadSummaries();
         }
     }
@@ -225,13 +222,10 @@ export default class WorkItems extends Vue {
         }
 
         await this.taskStore.loadSummaries();
+        await this.onWorkItemConcluded(EventType.Task, item.id);
 
         if (this.taskStore.editingItem?.id === item.id) {
             this.taskStore.startItemEdit(item.id, false);
-        }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
-            await this.eventStore.startIdling();
         }
     }
 
@@ -247,26 +241,26 @@ export default class WorkItems extends Vue {
         }
     }
 
-    private onEditingItemChange(callback: () => void): void {
-        if (!this.isEditorSaved) {
-            const title = 'You have unsaved changes. Discard?';
-            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
-            this.dialogStore.open(config);
-        }
-        else {
-            callback();
+    private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
+        if (await this.interruptionStore.deleteItem(item.id)) {
+            await this.onWorkItemConcluded(EventType.Interruption, item.id);
         }
     }
 
-    private onWorkItemStart(callback: () => void): void {
-        if (!this.eventStore.isBreaking) {
+    private async onTaskDelete(item: TaskItem): Promise<void> {
+        if (await this.taskStore.deleteItem(item.id)) {
+            await this.onWorkItemConcluded(EventType.Task, item.id);
+        }
+    }
+
+    private onEditingItemChange(callback: () => void): void {
+        if (this.isEditingItemSaved) {
             callback();
         }
         else {
-            const title = 'You are still taking rest now. Ready to start working right away?';
-            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
+            const title = 'You have unsaved changes. Discard?';
+            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
             this.dialogStore.open(config);
         }
     }
@@ -292,22 +286,20 @@ export default class WorkItems extends Vue {
         }
     }
 
-    private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.deleteItem(item.id)) {
-            return;
+    private onWorkItemStart(callback: () => void): void {
+        if (!this.eventStore.isBreaking) {
+            callback();
         }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventStore.startIdling();
+        else {
+            const title = 'You are still taking rest now. Ready to start working right away?';
+            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
+            this.dialogStore.open(config);
         }
     }
 
-    private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.deleteItem(item.id)) {
-            return;
-        }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+    private async onWorkItemConcluded(type: EventType, id: number): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(type, id)) {
             await this.eventStore.startIdling();
         }
     }
