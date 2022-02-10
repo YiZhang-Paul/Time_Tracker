@@ -107,9 +107,10 @@ export default class WorkItemTypeSelectionDialog extends Vue { }
         background-color: transparent;
         color: var(--font-colors-3-00);
         font-size: var(--font-sizes-400);
+        transition: color 0.3s;
         @include animate-opacity(0, 1, 0.3s, 1s);
 
-        &:hover ::v-deep(.content-wrapper) {
+        &:hover {
             color: var(--font-colors-0-00);
         }
     }

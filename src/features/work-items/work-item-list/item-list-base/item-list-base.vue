@@ -33,7 +33,7 @@
         </div>
 
         <overlay-scrollbar-panel class="card-wrappers">
-            <div class="card-wrapper" v-for="(item, index) of items" :key="index">
+            <div class="card-wrapper" v-for="(item, index) in items" :key="index">
                 <interruption-item-card v-if="type === eventType.Interruption"
                     class="item-card"
                     :class="getItemCardClasses(item)"

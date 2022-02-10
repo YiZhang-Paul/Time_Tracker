@@ -84,8 +84,9 @@ export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp)
         .cancel-button {
             background-color: transparent;
             color: var(--font-colors-3-00);
+            transition: color 0.3s;
 
-            &:hover ::v-deep(.content-wrapper) {
+            &:hover {
                 color: var(--font-colors-0-00);
             }
         }
