@@ -2,7 +2,7 @@
     <router-view class="main-view"></router-view>
     <time-display class="time-display"></time-display>
     <event-tracker class="event-tracker"></event-tracker>
-    <menu-selector class="menu-selector" :options="menuOptions"></menu-selector>
+    <view-selector class="view-selector" :options="viewOptions"></view-selector>
     <dialogs-base></dialogs-base>
 
     <div class="build-versions">
@@ -19,17 +19,17 @@ import { History, Sword } from 'mdue';
 
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
-import { MenuSelectionOption } from './core/models/options/menu-selection-option';
+import { ViewSelectionOption } from './core/models/options/view-selection-option';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
-import MenuSelector from './shared/inputs/menu-selector/menu-selector.vue';
+import ViewSelector from './shared/inputs/view-selector/view-selector.vue';
 import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
         TimeDisplay,
         EventTracker,
-        MenuSelector,
+        ViewSelector,
         DialogsBase
     },
     watch: {
@@ -62,9 +62,9 @@ export default class App extends Vue {
     public notificationStore!: ReturnType<typeof useNotificationStore>;
     private eventStore!: ReturnType<typeof useEventStore>;
 
-    public readonly menuOptions = [
-        new MenuSelectionOption('Work', 'works', markRaw(Sword)),
-        new MenuSelectionOption('History', 'histories', markRaw(History))
+    public readonly viewOptions = [
+        new ViewSelectionOption('Work', 'works', markRaw(Sword)),
+        new ViewSelectionOption('History', 'histories', markRaw(History))
     ];
 
     get isWorking(): boolean {
@@ -138,7 +138,7 @@ html, body, #app {
     right: $border-gap;
 }
 
-.menu-selector {
+.view-selector {
     position: absolute;
     bottom: $border-gap;
 }

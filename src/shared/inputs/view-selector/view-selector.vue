@@ -1,7 +1,7 @@
 <template>
-    <div class="menu-selector-container">
+    <div class="view-selector-container">
         <router-link v-for="option in options"
-            class="menu-option"
+            class="view-option"
             :to="{ name: option.route }"
             :key="option.route">
 
@@ -14,22 +14,22 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
-import { MenuSelectionOption } from '../../../core/models/options/menu-selection-option';
+import { ViewSelectionOption } from '../../../core/models/options/view-selection-option';
 
-class MenuSelectorProp {
-    public options = prop<MenuSelectionOption[]>({ default: [] });
+class ViewSelectorProp {
+    public options = prop<ViewSelectionOption[]>({ default: [] });
 }
 
-export default class MenuSelector extends Vue.with(MenuSelectorProp) { }
+export default class ViewSelector extends Vue.with(ViewSelectorProp) { }
 </script>
 
 <style lang="scss" scoped>
-.menu-selector-container {
+.view-selector-container {
     @import '../../../styles/presets.scss';
 
     @include flex-row(center, center);
 
-    .menu-option {
+    .view-option {
         @include flex-column(center, center);
         width: 5rem;
         height: 5rem;
