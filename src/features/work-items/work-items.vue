@@ -144,27 +144,15 @@ export default class WorkItems extends Vue {
     }
 
     public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.resolveItem(item)) {
-            return;
-        }
-
-        await this.interruptionStore.loadSummaries();
-        await this.onWorkItemConcluded(EventType.Interruption, item.id);
-
-        if (this.interruptionStore.editingItem?.id === item.id) {
-            this.interruptionStore.startItemEdit(item.id, false);
+        if (await this.interruptionStore.resolveItem(item)) {
+            await this.reloadInterruptions(item.id);
+            await this.onWorkItemConcluded(EventType.Interruption, item.id);
         }
     }
 
     public async onInterruptionUnresolve(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.unresolveItem(item)) {
-            return;
-        }
-
-        await this.interruptionStore.loadSummaries();
-
-        if (this.interruptionStore.editingItem?.id === item.id) {
-            this.interruptionStore.startItemEdit(item.id, false);
+        if (await this.interruptionStore.unresolveItem(item)) {
+            await this.reloadInterruptions(item.id);
         }
     }
 
@@ -217,27 +205,15 @@ export default class WorkItems extends Vue {
     }
 
     public async onTaskResolve(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.resolveItem(item)) {
-            return;
-        }
-
-        await this.taskStore.loadSummaries();
-        await this.onWorkItemConcluded(EventType.Task, item.id);
-
-        if (this.taskStore.editingItem?.id === item.id) {
-            this.taskStore.startItemEdit(item.id, false);
+        if (await this.taskStore.resolveItem(item)) {
+            await this.reloadTasks(item.id);
+            await this.onWorkItemConcluded(EventType.Task, item.id);
         }
     }
 
     public async onTaskUnresolve(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.unresolveItem(item)) {
-            return;
-        }
-
-        await this.taskStore.loadSummaries();
-
-        if (this.taskStore.editingItem?.id === item.id) {
-            this.taskStore.startItemEdit(item.id, false);
+        if (await this.taskStore.unresolveItem(item)) {
+            await this.reloadTasks(item.id);
         }
     }
 
@@ -259,6 +235,22 @@ export default class WorkItems extends Vue {
         }
         else if (tasks.length) {
             this.onTaskSelect(tasks[0]);
+        }
+    }
+
+    private async reloadInterruptions(id: number): Promise<void> {
+        await this.interruptionStore.loadSummaries();
+
+        if (this.interruptionStore.editingItem?.id === id) {
+            this.interruptionStore.startItemEdit(id, false);
+        }
+    }
+
+    private async reloadTasks(id: number): Promise<void> {
+        await this.taskStore.loadSummaries();
+
+        if (this.taskStore.editingItem?.id === id) {
+            this.taskStore.startItemEdit(id, false);
         }
     }
 
