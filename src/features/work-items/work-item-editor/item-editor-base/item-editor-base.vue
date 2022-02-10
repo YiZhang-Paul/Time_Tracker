@@ -33,7 +33,8 @@
         </div>
 
         <div class="content">
-            <textarea class="description"
+            <textarea :id="textareaId"
+                class="description"
                 ref="descriptionInput"
                 v-model="item.description"
                 @update:modelValue="$emit('update:isSaved', false)"
@@ -48,6 +49,7 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 import { Close, CloudUpload } from 'mdue';
+import OverlayScrollbars from 'overlayscrollbars';
 
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../../core/models/task/task-item';
@@ -77,6 +79,8 @@ class ItemEditorBaseProp {
     ]
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
+    public readonly textareaId = `textarea-${Date.now()}`;
+
     get wrapperColor(): string {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
 
@@ -98,6 +102,17 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         else {
             (this.$refs.nameInput as HTMLElement).focus();
         }
+
+        OverlayScrollbars(document.getElementById(this.textareaId)!, {
+            scrollbars: {
+                autoHide: 'leave',
+                autoHideDelay: 100
+            },
+            textarea: {
+                dynWidth: true,
+                dynHeight: true
+            }
+        });
     }
 
     public onSave(): void {
@@ -227,13 +242,13 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         width: 100%;
         height: 75%;
 
-        .description, .side-panel {
+        ::v-deep(.description), .side-panel {
             height: 100%;
             border-radius: $border-radius;
             background-color: var(--primary-colors-10-00);
         }
 
-        .description {
+        ::v-deep(.description) {
             box-sizing: border-box;
             padding: 1vh;
             width: $description-width;
