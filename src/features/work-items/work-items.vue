@@ -13,8 +13,8 @@
 
         <work-item-editor class="work-item-editor"
             v-model:isSaved="isEditorSaved"
-            @close:interruption="interruptionStore.stopItemEdit()"
-            @close:task="taskStore.stopItemEdit()"
+            @close:interruption="onInterruptionClose()"
+            @close:task="onTaskClose()"
             @create:interruption="onInterruptionCreate($event)"
             @create:task="onTaskCreate($event)"
             @update:interruption="onInterruptionUpdate($event)"
@@ -97,10 +97,19 @@ export default class WorkItems extends Vue {
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.interruptionStore.editingItem?.id !== item.id) {
-            this.taskStore.stopItemEdit();
-            this.interruptionStore.startItemEdit(item.id);
-            this.isEditorSaved = true;
+            this.onEditingItemChange(() => {
+                this.taskStore.stopItemEdit();
+                this.interruptionStore.startItemEdit(item.id);
+                this.isEditorSaved = true;
+            });
         }
+    }
+
+    public onInterruptionClose(): void {
+        this.onEditingItemChange(() => {
+            this.interruptionStore.stopItemEdit();
+            this.isEditorSaved = true;
+        });
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
@@ -164,10 +173,19 @@ export default class WorkItems extends Vue {
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
-            this.interruptionStore.stopItemEdit();
-            this.taskStore.startItemEdit(item.id);
-            this.isEditorSaved = true;
+            this.onEditingItemChange(() => {
+                this.interruptionStore.stopItemEdit();
+                this.taskStore.startItemEdit(item.id);
+                this.isEditorSaved = true;
+            });
         }
+    }
+
+    public onTaskClose(): void {
+        this.onEditingItemChange(() => {
+            this.taskStore.stopItemEdit();
+            this.isEditorSaved = true;
+        });
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
@@ -226,6 +244,18 @@ export default class WorkItems extends Vue {
 
         if (this.taskStore.editingItem?.id === item.id) {
             this.taskStore.startItemEdit(item.id, false);
+        }
+    }
+
+    private onEditingItemChange(callback: () => void): void {
+        if (!this.isEditorSaved) {
+            const title = 'You have unsaved changes. Discard?';
+            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
+            this.dialogStore.open(config);
+        }
+        else {
+            callback();
         }
     }
 
