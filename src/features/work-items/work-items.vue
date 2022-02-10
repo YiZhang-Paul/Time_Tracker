@@ -131,11 +131,11 @@ export default class WorkItems extends Vue {
             this.interruptionStore.stopItemEdit();
         }
         else {
-            const title = 'The item will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
-            const preConfirm = this.onInterruptionDelete.bind(this);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogStore.open(config);
+            this.onWorkItemDelete(item, async() => {
+                if (await this.interruptionStore.deleteItem(item.id)) {
+                    await this.onWorkItemConcluded(EventType.Interruption, item.id);
+                }
+            });
         }
     }
 
@@ -204,11 +204,11 @@ export default class WorkItems extends Vue {
             this.taskStore.stopItemEdit();
         }
         else {
-            const title = 'The task will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
-            const preConfirm = this.onTaskDelete.bind(this);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogStore.open(config);
+            this.onWorkItemDelete(item, async() => {
+                if (await this.taskStore.deleteItem(item.id)) {
+                    await this.onWorkItemConcluded(EventType.Task, item.id);
+                }
+            });
         }
     }
 
@@ -241,30 +241,6 @@ export default class WorkItems extends Vue {
         }
     }
 
-    private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionStore.deleteItem(item.id)) {
-            await this.onWorkItemConcluded(EventType.Interruption, item.id);
-        }
-    }
-
-    private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (await this.taskStore.deleteItem(item.id)) {
-            await this.onWorkItemConcluded(EventType.Task, item.id);
-        }
-    }
-
-    private onEditingItemChange(callback: () => void): void {
-        if (this.isEditingItemSaved) {
-            callback();
-        }
-        else {
-            const title = 'You have unsaved changes. Discard?';
-            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
-            this.dialogStore.open(config);
-        }
-    }
-
     private openActiveWorkItem(): void {
         if (this.interruptionStore.activeSummary) {
             this.onInterruptionSelect(this.interruptionStore.activeSummary);
@@ -286,6 +262,18 @@ export default class WorkItems extends Vue {
         }
     }
 
+    private onEditingItemChange(callback: () => void): void {
+        if (this.isEditingItemSaved) {
+            callback();
+        }
+        else {
+            const title = 'You have unsaved changes. Discard?';
+            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
+            this.dialogStore.open(config);
+        }
+    }
+
     private onWorkItemStart(callback: () => void): void {
         if (!this.eventStore.isBreaking) {
             callback();
@@ -296,6 +284,13 @@ export default class WorkItems extends Vue {
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
             this.dialogStore.open(config);
         }
+    }
+
+    private onWorkItemDelete(item: InterruptionItem | TaskItem, callback: () => void): void {
+        const title = 'The item will be permanently deleted. Proceed?';
+        const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
+        const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm: callback });
+        this.dialogStore.open(config);
     }
 
     private async onWorkItemConcluded(type: EventType, id: number): Promise<void> {
