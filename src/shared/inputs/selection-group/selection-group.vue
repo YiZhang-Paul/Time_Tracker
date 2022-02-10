@@ -21,6 +21,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 
 import { DynamicComponentOption } from '../../../core/models/options/dynamic-component-option';
+import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
 
 class SelectionGroupProp {
     public options = prop<string[] | DynamicComponentOption<unknown>[]>({ default: [] });
@@ -68,11 +69,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
     }
 
     private checkClickOutside(event: Event): void {
-        const path = event.composedPath();
-        const container = this.$refs.container as HTMLElement;
-        const target = event.target as HTMLElement;
-
-        if (path && !path.includes(container) && !container.contains(target)) {
+        if (DomUtility.isClickOutside(event, this.$refs.container as HTMLElement)) {
             this.showOptions = false;
         }
     }

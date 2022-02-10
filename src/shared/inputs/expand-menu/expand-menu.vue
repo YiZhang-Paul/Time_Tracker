@@ -22,6 +22,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { DotsVertical } from 'mdue';
 
+import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
 import IconButton from '../../buttons/icon-button/icon-button.vue';
 
 class ExpandMenuProp {
@@ -49,11 +50,9 @@ export default class ExpandMenu extends Vue.with(ExpandMenuProp) {
     }
 
     private checkClickOutside(event: Event): void {
-        const path = event.composedPath();
-        const container = (this.$refs.container as Vue).$el as HTMLElement;
-        const target = event.target as HTMLElement;
+        const container = this.$refs.container as Vue;
 
-        if (path && !path.includes(container) && !container.contains(target)) {
+        if (DomUtility.isClickOutside(event, container.$el)) {
             this.showMenu = false;
         }
     }
