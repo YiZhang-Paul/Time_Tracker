@@ -105,13 +105,6 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     }
 
     public mounted(): void {
-        if (this.isExistingItem) {
-            (this.$refs.descriptionInput as HTMLElement).focus();
-        }
-        else {
-            (this.$refs.nameInput as HTMLElement).focus();
-        }
-
         OverlayScrollbars(document.getElementById(this.textareaId)!, {
             scrollbars: {
                 autoHide: 'leave',
@@ -122,6 +115,13 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
                 dynHeight: true
             }
         });
+
+        if (this.isExistingItem) {
+            (this.$refs.descriptionInput as HTMLElement).focus();
+        }
+        else {
+            (this.$refs.nameInput as HTMLElement).focus();
+        }
     }
 
     public onSave(): void {
