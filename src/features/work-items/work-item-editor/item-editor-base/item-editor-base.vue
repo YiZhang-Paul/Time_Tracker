@@ -37,6 +37,29 @@
             </icon-button>
         </div>
 
+        <div v-if="item.id !== -1" class="status-toggles">
+            <expand-icon-button class="pending status-toggle"
+                :text="'Pending'"
+                :isActive="isPending">
+
+                <refresh />
+            </expand-icon-button>
+
+            <expand-icon-button class="ongoing status-toggle"
+                :text="'In Progress'"
+                :isActive="isOngoing">
+
+                <play-circle-outline />
+            </expand-icon-button>
+
+            <expand-icon-button class="resolved status-toggle"
+                :text="'Done'"
+                :isActive="isResolved">
+
+                <check />
+            </expand-icon-button>
+        </div>
+
         <div class="content">
             <textarea :id="textareaId"
                 class="description"
@@ -53,15 +76,18 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { Close, CloudUpload } from 'mdue';
+import { Check, Close, CloudUpload, PlayCircleOutline, Refresh } from 'mdue';
+import { mapStores } from 'pinia';
 import OverlayScrollbars from 'overlayscrollbars';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
+import ExpandIconButton from '../../../../shared/buttons/expand-icon-button/expand-icon-button.vue';
 import ExpandMenu from '../../../../shared/inputs/expand-menu/expand-menu.vue';
 
 class ItemEditorBaseProp {
@@ -72,10 +98,14 @@ class ItemEditorBaseProp {
 
 @Options({
     components: {
+        Check,
         Close,
         CloudUpload,
+        PlayCircleOutline,
+        Refresh,
         FlatButton,
         IconButton,
+        ExpandIconButton,
         ExpandMenu
     },
     emits: [
@@ -83,12 +113,19 @@ class ItemEditorBaseProp {
         'create',
         'update',
         'update:isSaved',
-        'delete'
-    ]
+        'delete',
+        'pending',
+        'start',
+        'resolve'
+    ],
+    computed: {
+        ...mapStores(useEventStore)
+    }
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public readonly textareaId = `textarea-${Date.now()}`;
     public readonly menuOptions = ['Delete'];
+    private eventStore!: ReturnType<typeof useEventStore>;
 
     get wrapperColor(): string {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
@@ -102,6 +139,18 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
     get isExistingItem(): boolean {
         return this.item.id !== -1;
+    }
+
+    get isPending(): boolean {
+        return !this.isOngoing && !this.isResolved;
+    }
+
+    get isOngoing(): boolean {
+        return this.eventStore.isActiveWorkItem(this.type, this.item.id);
+    }
+
+    get isResolved(): boolean {
+        return Boolean(this.item.resolvedTime);
     }
 
     public mounted(): void {
@@ -251,6 +300,50 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         .close-button:hover {
             background-color: var(--context-colors-warning-1-00);
             color: var(--font-colors-0-00);
+        }
+    }
+
+    .status-toggles {
+        @include flex-row(center);
+        width: 100%;
+        @include animate-opacity(0, 1, 0.3s);
+
+        .status-toggle {
+            color: var(--font-colors-1-00);
+            opacity: 0.35;
+
+            &:hover, &.active {
+                color: var(--font-colors-0-00);
+                opacity: 1;
+            }
+
+            &:not(:first-of-type) {
+                margin-left: 1vh;
+            }
+        }
+
+        .pending {
+            background-color: var(--context-colors-suggestion-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-suggestion-1-03);
+            }
+        }
+
+        .ongoing {
+            background-color: var(--context-colors-info-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
+            }
+        }
+
+        .resolved {
+            background-color: var(--context-colors-success-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-success-1-03);
+            }
         }
     }
 
