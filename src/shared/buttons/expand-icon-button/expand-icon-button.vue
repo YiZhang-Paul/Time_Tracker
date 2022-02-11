@@ -32,8 +32,11 @@ export default class ExpandIconButton extends Vue.with(ExpandIconButtonProp) { }
     font-size: var(--font-sizes-500);
     transition: all 0.3s;
 
-    &:hover, &.active {
+    &:hover {
         cursor: pointer;
+    }
+
+    &.active {
         padding-right: 1.15vh;
 
         span {

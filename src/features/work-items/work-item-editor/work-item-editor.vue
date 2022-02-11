@@ -15,10 +15,9 @@
             @update="$emit('update:interruption', $event)"
             @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:interruption', $event)"
+            @pending="$emit('pending:interruption', $event)"
             @start="$emit('start:interruption', $event)"
-            @stop="$emit('stop:interruption', $event)"
-            @resolve="$emit('resolve:interruption', $event)"
-            @unresolve="$emit('unresolve:interruption', $event)">
+            @resolve="$emit('resolve:interruption', $event)">
 
             <template v-slot:selector>
                 <selection-group class="priority-selector"
@@ -39,10 +38,9 @@
             @update="$emit('update:task', $event)"
             @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:task', $event)"
+            @pending="$emit('pending:task', $event)"
             @start="$emit('start:task', $event)"
-            @stop="$emit('stop:task', $event)"
-            @resolve="$emit('resolve:task', $event)"
-            @unresolve="$emit('unresolve:task', $event)">
+            @resolve="$emit('resolve:task', $event)">
 
             <template v-slot:selector>
                 <selection-group class="effort-selector"
@@ -95,14 +93,12 @@ class WorkItemEditorProp {
         'update:isSaved',
         'delete:interruption',
         'delete:task',
+        'pending:interruption',
+        'pending:task',
         'start:interruption',
         'start:task',
-        'stop:interruption',
-        'stop:task',
         'resolve:interruption',
-        'resolve:task',
-        'unresolve:interruption',
-        'unresolve:task'
+        'resolve:task'
     ],
     computed: {
         ...mapStores(useInterruptionStore, useTaskStore)

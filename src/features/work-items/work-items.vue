@@ -21,14 +21,12 @@
             @update:task="onTaskUpdate($event)"
             @delete:interruption="onInterruptionDeleteStart($event)"
             @delete:task="onTaskDeleteStart($event)"
+            @pending:interruption="onInterruptionPending($event)"
+            @pending:task="onTaskPending($event)"
             @start:interruption="onInterruptionStart($event.id)"
             @start:task="onTaskStart($event.id)"
-            @stop:interruption="eventStore.startIdling()"
-            @stop:task="eventStore.startIdling()"
             @resolve:interruption="onInterruptionResolve($event)"
-            @resolve:task="onTaskResolve($event)"
-            @unresolve:interruption="onInterruptionUnresolve($event)"
-            @unresolve:task="onTaskUnresolve($event)">
+            @resolve:task="onTaskResolve($event)">
         </work-item-editor>
     </div>
 </template>
@@ -139,20 +137,27 @@ export default class WorkItems extends Vue {
         }
     }
 
+    public async onInterruptionPending(item: InterruptionItem): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
+        }
+        else if (await this.interruptionStore.unresolveItem(item)) {
+            await this.reloadInterruptions(item.id);
+        }
+    }
+
     public onInterruptionStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startInterruption(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startInterruption(id)) {
+                await this.reloadInterruptions(id);
+            }
+        });
     }
 
     public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.resolveItem(item)) {
             await this.reloadInterruptions(item.id);
             await this.onWorkItemConcluded(EventType.Interruption, item.id);
-        }
-    }
-
-    public async onInterruptionUnresolve(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionStore.unresolveItem(item)) {
-            await this.reloadInterruptions(item.id);
         }
     }
 
@@ -200,20 +205,27 @@ export default class WorkItems extends Vue {
         }
     }
 
+    public async onTaskPending(item: TaskItem): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
+        }
+        else if (await this.taskStore.unresolveItem(item)) {
+            await this.reloadTasks(item.id);
+        }
+    }
+
     public onTaskStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startTask(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startTask(id)) {
+                await this.reloadTasks(id);
+            }
+        });
     }
 
     public async onTaskResolve(item: TaskItem): Promise<void> {
         if (await this.taskStore.resolveItem(item)) {
             await this.reloadTasks(item.id);
             await this.onWorkItemConcluded(EventType.Task, item.id);
-        }
-    }
-
-    public async onTaskUnresolve(item: TaskItem): Promise<void> {
-        if (await this.taskStore.unresolveItem(item)) {
-            await this.reloadTasks(item.id);
         }
     }
 
