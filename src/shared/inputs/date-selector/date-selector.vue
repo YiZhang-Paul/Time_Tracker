@@ -300,8 +300,10 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
             .today-button {
                 position: absolute;
                 right: 5%;
-                font-size: var(--font-sizes-100);
+                background-color: transparent;
                 color: var(--context-colors-suggestion-1-00);
+                font-size: var(--font-sizes-100);
+                transition: color 0.3s;
 
                 &:hover {
                     color: var(--context-colors-suggestion-0-00);
