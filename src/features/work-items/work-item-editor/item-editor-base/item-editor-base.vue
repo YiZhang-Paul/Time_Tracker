@@ -40,21 +40,24 @@
         <div v-if="item.id !== -1" class="status-toggles">
             <expand-icon-button class="pending status-toggle"
                 :text="'Pending'"
-                :isActive="isPending">
+                :isActive="isPending"
+                @click="onPending()">
 
                 <refresh />
             </expand-icon-button>
 
             <expand-icon-button class="ongoing status-toggle"
                 :text="'In Progress'"
-                :isActive="isOngoing">
+                :isActive="isOngoing"
+                @click="onStart()">
 
                 <play-circle-outline />
             </expand-icon-button>
 
             <expand-icon-button class="resolved status-toggle"
                 :text="'Done'"
-                :isActive="isResolved">
+                :isActive="isResolved"
+                @click="onResolve()">
 
                 <check />
             </expand-icon-button>
@@ -182,6 +185,24 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public onMenuOptionSelect(option: string): void {
         if (option === this.menuOptions[0]) {
             this.$emit('delete', this.item);
+        }
+    }
+
+    public onPending(): void {
+        if (!this.isPending) {
+            this.$emit('pending', this.item);
+        }
+    }
+
+    public onStart(): void {
+        if (!this.isOngoing) {
+            this.$emit('start', this.item);
+        }
+    }
+
+    public onResolve(): void {
+        if (!this.isResolved) {
+            this.$emit('resolve', this.item);
         }
     }
 }
