@@ -157,6 +157,10 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     }
 
     public mounted(): void {
+        if (!this.item) {
+            return;
+        }
+
         OverlayScrollbars(document.getElementById(this.textareaId)!, {
             scrollbars: {
                 autoHide: 'leave',
