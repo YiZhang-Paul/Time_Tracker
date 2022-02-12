@@ -12,20 +12,21 @@
         </work-item-list>
 
         <work-item-editor class="work-item-editor"
+            v-model:isSaved="isEditingItemSaved"
+            @close:interruption="onInterruptionClose()"
+            @close:task="onTaskClose()"
             @create:interruption="onInterruptionCreate($event)"
             @create:task="onTaskCreate($event)"
             @update:interruption="onInterruptionUpdate($event)"
             @update:task="onTaskUpdate($event)"
             @delete:interruption="onInterruptionDeleteStart($event)"
             @delete:task="onTaskDeleteStart($event)"
+            @pending:interruption="onInterruptionPending($event)"
+            @pending:task="onTaskPending($event)"
             @start:interruption="onInterruptionStart($event.id)"
             @start:task="onTaskStart($event.id)"
-            @stop:interruption="eventStore.startIdling()"
-            @stop:task="eventStore.startIdling()"
             @resolve:interruption="onInterruptionResolve($event)"
-            @resolve:task="onTaskResolve($event)"
-            @unresolve:interruption="onInterruptionUnresolve($event)"
-            @unresolve:task="onTaskUnresolve($event)">
+            @resolve:task="onTaskResolve($event)">
         </work-item-editor>
     </div>
 </template>
@@ -67,10 +68,11 @@ import WorkItemEditor from './work-item-editor/work-item-editor.vue';
 })
 export default class WorkItems extends Vue {
     public searchText = '';
+    public isEditingItemSaved = true;
     public eventStore!: ReturnType<typeof useEventStore>;
+    public interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    public taskStore!: ReturnType<typeof useTaskStore>;
     private dialogStore!: ReturnType<typeof useDialogStore>;
-    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
-    private taskStore!: ReturnType<typeof useTaskStore>;
 
     public created(): void {
         this.initialize();
@@ -93,19 +95,31 @@ export default class WorkItems extends Vue {
 
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.interruptionStore.editingItem?.id !== item.id) {
-            this.taskStore.stopItemEdit();
-            this.interruptionStore.startItemEdit(item.id);
+            this.onEditingItemChange(() => {
+                this.taskStore.stopItemEdit();
+                this.interruptionStore.startItemEdit(item.id);
+                this.isEditingItemSaved = true;
+            });
         }
+    }
+
+    public onInterruptionClose(): void {
+        this.onEditingItemChange(() => {
+            this.interruptionStore.stopItemEdit();
+            this.isEditingItemSaved = true;
+        });
     }
 
     public async onInterruptionCreate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.createItem(item)) {
+            this.isEditingItemSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
 
     public async onInterruptionUpdate(item: InterruptionItem): Promise<void> {
         if (await this.interruptionStore.updateItem(item)) {
+            this.isEditingItemSaved = true;
             this.interruptionStore.loadSummaries();
         }
     }
@@ -115,61 +129,65 @@ export default class WorkItems extends Vue {
             this.interruptionStore.stopItemEdit();
         }
         else {
-            const title = 'The item will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
-            const preConfirm = this.onInterruptionDelete.bind(this);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogStore.open(config);
+            this.onWorkItemDelete(item, async() => {
+                if (await this.interruptionStore.deleteItem(item.id)) {
+                    await this.onWorkItemConcluded(EventType.Interruption, item.id);
+                }
+            });
+        }
+    }
+
+    public async onInterruptionPending(item: InterruptionItem): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
+            await this.eventStore.startIdling();
+        }
+        else if (await this.interruptionStore.unresolveItem(item)) {
+            await this.reloadInterruptions(item.id);
         }
     }
 
     public onInterruptionStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startInterruption(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startInterruption(id)) {
+                await this.reloadInterruptions(id);
+            }
+        });
     }
 
     public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.resolveItem(item)) {
-            return;
-        }
-
-        await this.interruptionStore.loadSummaries();
-
-        if (this.interruptionStore.editingItem?.id === item.id) {
-            this.interruptionStore.startItemEdit(item.id, false);
-        }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventStore.startIdling();
-        }
-    }
-
-    public async onInterruptionUnresolve(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.unresolveItem(item)) {
-            return;
-        }
-
-        await this.interruptionStore.loadSummaries();
-
-        if (this.interruptionStore.editingItem?.id === item.id) {
-            this.interruptionStore.startItemEdit(item.id, false);
+        if (await this.interruptionStore.resolveItem(item)) {
+            await this.reloadInterruptions(item.id);
+            await this.onWorkItemConcluded(EventType.Interruption, item.id);
         }
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
-            this.interruptionStore.stopItemEdit();
-            this.taskStore.startItemEdit(item.id);
+            this.onEditingItemChange(() => {
+                this.interruptionStore.stopItemEdit();
+                this.taskStore.startItemEdit(item.id);
+                this.isEditingItemSaved = true;
+            });
         }
+    }
+
+    public onTaskClose(): void {
+        this.onEditingItemChange(() => {
+            this.taskStore.stopItemEdit();
+            this.isEditingItemSaved = true;
+        });
     }
 
     public async onTaskCreate(item: TaskItem): Promise<void> {
         if (await this.taskStore.createItem(item)) {
+            this.isEditingItemSaved = true;
             this.taskStore.loadSummaries();
         }
     }
 
     public async onTaskUpdate(item: TaskItem): Promise<void> {
         if (await this.taskStore.updateItem(item)) {
+            this.isEditingItemSaved = true;
             this.taskStore.loadSummaries();
         }
     }
@@ -179,55 +197,35 @@ export default class WorkItems extends Vue {
             this.taskStore.stopItemEdit();
         }
         else {
-            const title = 'The task will be permanently deleted. Proceed?';
-            const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
-            const preConfirm = this.onTaskDelete.bind(this);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm });
-            this.dialogStore.open(config);
+            this.onWorkItemDelete(item, async() => {
+                if (await this.taskStore.deleteItem(item.id)) {
+                    await this.onWorkItemConcluded(EventType.Task, item.id);
+                }
+            });
+        }
+    }
+
+    public async onTaskPending(item: TaskItem): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+            await this.eventStore.startIdling();
+        }
+        else if (await this.taskStore.unresolveItem(item)) {
+            await this.reloadTasks(item.id);
         }
     }
 
     public onTaskStart(id: number): void {
-        this.onWorkItemStart(() => this.eventStore.startTask(id));
+        this.onWorkItemStart(async() => {
+            if (await this.eventStore.startTask(id)) {
+                await this.reloadTasks(id);
+            }
+        });
     }
 
     public async onTaskResolve(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.resolveItem(item)) {
-            return;
-        }
-
-        await this.taskStore.loadSummaries();
-
-        if (this.taskStore.editingItem?.id === item.id) {
-            this.taskStore.startItemEdit(item.id, false);
-        }
-
-        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
-            await this.eventStore.startIdling();
-        }
-    }
-
-    public async onTaskUnresolve(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.unresolveItem(item)) {
-            return;
-        }
-
-        await this.taskStore.loadSummaries();
-
-        if (this.taskStore.editingItem?.id === item.id) {
-            this.taskStore.startItemEdit(item.id, false);
-        }
-    }
-
-    private onWorkItemStart(callback: () => void): void {
-        if (!this.eventStore.isBreaking) {
-            callback();
-        }
-        else {
-            const title = 'You are still taking rest now. Ready to start working right away?';
-            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
-            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
-            this.dialogStore.open(config);
+        if (await this.taskStore.resolveItem(item)) {
+            await this.reloadTasks(item.id);
+            await this.onWorkItemConcluded(EventType.Task, item.id);
         }
     }
 
@@ -252,22 +250,55 @@ export default class WorkItems extends Vue {
         }
     }
 
-    private async onInterruptionDelete(item: InterruptionItem): Promise<void> {
-        if (!await this.interruptionStore.deleteItem(item.id)) {
-            return;
-        }
+    private async reloadInterruptions(id: number): Promise<void> {
+        await this.interruptionStore.loadSummaries();
 
-        if (this.eventStore.isActiveWorkItem(EventType.Interruption, item.id)) {
-            await this.eventStore.startIdling();
+        if (this.interruptionStore.editingItem?.id === id) {
+            this.interruptionStore.startItemEdit(id, false);
         }
     }
 
-    private async onTaskDelete(item: TaskItem): Promise<void> {
-        if (!await this.taskStore.deleteItem(item.id)) {
-            return;
-        }
+    private async reloadTasks(id: number): Promise<void> {
+        await this.taskStore.loadSummaries();
 
-        if (this.eventStore.isActiveWorkItem(EventType.Task, item.id)) {
+        if (this.taskStore.editingItem?.id === id) {
+            this.taskStore.startItemEdit(id, false);
+        }
+    }
+
+    private onEditingItemChange(callback: () => void): void {
+        if (this.isEditingItemSaved) {
+            callback();
+        }
+        else {
+            const title = 'You have unsaved changes. Discard?';
+            const data = new ConfirmationDialogOption(title, 'Discard', 'Wait NO', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '25vw', preConfirm: callback });
+            this.dialogStore.open(config);
+        }
+    }
+
+    private onWorkItemStart(callback: () => void): void {
+        if (!this.eventStore.isBreaking) {
+            callback();
+        }
+        else {
+            const title = 'You are still taking rest now. Ready to start working right away?';
+            const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
+            this.dialogStore.open(config);
+        }
+    }
+
+    private onWorkItemDelete(item: InterruptionItem | TaskItem, callback: () => void): void {
+        const title = 'The item will be permanently deleted. Proceed?';
+        const data = new ConfirmationDialogOption(title, 'Delete', 'Wait NO', ButtonType.Warning, item);
+        const config = new DialogConfig(markRaw(ConfirmationDialog), data, { preConfirm: callback });
+        this.dialogStore.open(config);
+    }
+
+    private async onWorkItemConcluded(type: EventType, id: number): Promise<void> {
+        if (this.eventStore.isActiveWorkItem(type, id)) {
             await this.eventStore.startIdling();
         }
     }
@@ -286,7 +317,7 @@ export default class WorkItems extends Vue {
     position: relative;
 
     .actions-bar, .work-item-editor {
-        $width: 45%;
+        $width: 50%;
 
         position: absolute;
         left: calc(50% - #{$width} / 2);
@@ -324,7 +355,7 @@ export default class WorkItems extends Vue {
 
     .work-item-editor {
         bottom: 12.5vh;
-        height: 67.5%;
+        height: 70%;
     }
 }
 </style>

@@ -59,6 +59,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { ChevronLeft, ChevronRight } from 'mdue';
 
 import { ClassConfigs } from '../../../core/models/generic/class-configs';
+import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 
@@ -233,11 +234,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
     }
 
     private checkClickOutside(event: Event): void {
-        const path = event.composedPath();
-        const container = this.$refs.container as HTMLElement;
-        const target = event.target as HTMLElement;
-
-        if (path && !path.includes(container) && !container.contains(target)) {
+        if (DomUtility.isClickOutside(event, this.$refs.container as HTMLElement)) {
             this.showOptions = false;
         }
     }
@@ -303,8 +300,10 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
             .today-button {
                 position: absolute;
                 right: 5%;
-                font-size: var(--font-sizes-100);
+                background-color: transparent;
                 color: var(--context-colors-suggestion-1-00);
+                font-size: var(--font-sizes-100);
+                transition: color 0.3s;
 
                 &:hover {
                     color: var(--context-colors-suggestion-0-00);

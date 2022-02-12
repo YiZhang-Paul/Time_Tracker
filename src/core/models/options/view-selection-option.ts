@@ -1,4 +1,4 @@
-export class MenuSelectionOption {
+export class ViewSelectionOption {
     public name: string;
     public route: string;
     public icon: unknown;

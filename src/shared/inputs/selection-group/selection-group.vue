@@ -1,6 +1,5 @@
 <template>
     <div class="selection-group-container" ref="container" @click="showOptions = !showOptions">
-        <slot></slot>
         <component v-if="isComponent(selected)" :is="selected.component" v-bind="selected.properties"></component>
         <span v-if="!isComponent(selected)">{{ selected }}</span>
 
@@ -22,6 +21,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 
 import { DynamicComponentOption } from '../../../core/models/options/dynamic-component-option';
+import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
 
 class SelectionGroupProp {
     public options = prop<string[] | DynamicComponentOption<unknown>[]>({ default: [] });
@@ -69,11 +69,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
     }
 
     private checkClickOutside(event: Event): void {
-        const path = event.composedPath();
-        const container = this.$refs.container as HTMLElement;
-        const target = event.target as HTMLElement;
-
-        if (path && !path.includes(container) && !container.contains(target)) {
+        if (DomUtility.isClickOutside(event, this.$refs.container as HTMLElement)) {
             this.showOptions = false;
         }
     }
@@ -92,7 +88,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
     .options {
         @include flex-row(center, center);
         position: absolute;
-        bottom: calc(100% + 1vh);
+        bottom: calc(100% + 1.75vh);
         @include animate-opacity(0, 1, 0.2s);
 
         .option {

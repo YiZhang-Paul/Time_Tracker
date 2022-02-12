@@ -17,8 +17,10 @@
     --font-colors-2-00: rgb(210, 210, 210);
     --font-colors-3-00: rgb(180, 180, 180);
     --font-colors-4-00: rgb(150, 150, 150);
+    --font-colors-5-00: rgb(120, 120, 120);
     --font-colors-9-00: rgb(25, 25, 25);
     // primary colors
+    --primary-colors-4-00: rgb(125, 119, 141);
     --primary-colors-5-00: rgb(106, 100, 121);
     --primary-colors-6-00: rgb(92, 87, 104);
     --primary-colors-7-00: rgb(80, 75, 92);
@@ -39,27 +41,25 @@
     --priority-colors-low-0-00: rgb(86, 233, 28);
     --priority-colors-medium-0-00: rgb(241, 155, 26);
     --priority-colors-high-0-00: rgb(248, 53, 53);
-    // text editor colors
-    --text-editor-color: rgb(72, 88, 144);
     // button colors
     --creation-button-color-start: rgb(21, 218, 76);
     --creation-button-color-end: rgba(15, 168, 58, 0.3);
     --creation-button-color-shadow: rgba(5, 164, 49, 0.35);
-    --start-button-color-inactive: rgb(235, 235, 235);
-    --start-button-color-active: rgb(235, 231, 11);
-    --stop-button-color-inactive: rgb(235, 231, 11);
-    --stop-button-color-active: rgb(253, 49, 49);
     // context colors
     --context-colors-suggestion-0-00: rgb(233, 201, 23);
     --context-colors-suggestion-1-00: rgb(192, 166, 21);
+    --context-colors-suggestion-1-03: rgba(192, 166, 21, 0.3);
     --context-colors-suggestion-8-00: rgb(133, 115, 13);
     --context-colors-success-0-00: rgb(49, 253, 59);
     --context-colors-success-1-00: rgb(30, 185, 38);
+    --context-colors-success-1-03: rgba(30, 185, 38, 0.3);
     --context-colors-success-8-00: rgb(14, 128, 20);
     --context-colors-warning-0-00: rgb(253, 49, 49);
     --context-colors-warning-1-00: rgb(212, 32, 32);
     --context-colors-info-0-00: rgb(34, 198, 219);
+    --context-colors-info-0-03: rgba(34, 198, 219, 0.3);
     --context-colors-info-1-00: rgb(26, 168, 187);
+    --context-colors-info-1-03: rgba(26, 168, 187, 0.3);
     --context-colors-disabled-0-00: rgb(145, 145, 145);
     --context-colors-disabled-1-00: rgb(85, 85, 85);
     // scrollbar colors

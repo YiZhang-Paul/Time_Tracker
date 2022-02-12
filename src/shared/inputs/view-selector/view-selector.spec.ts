@@ -1,9 +1,9 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
 
-import MenuSelector from './menu-selector.vue';
+import ViewSelector from './view-selector.vue';
 
-describe('menu selector unit test', () => {
+describe('view selector unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
@@ -13,7 +13,7 @@ describe('menu selector unit test', () => {
             routes: [{ path: '/', component: { template: '<span></span>' } }]
         });
 
-        component = shallowMount(MenuSelector, { global: { plugins: [router] } });
+        component = shallowMount(ViewSelector, { global: { plugins: [router] } });
     });
 
     afterEach(() => {

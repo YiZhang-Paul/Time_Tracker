@@ -7,44 +7,46 @@
 
         <item-editor-base v-if="interruptionStore.editingItem"
             class="item-editor"
+            v-model:isSaved="isBaseSaved"
             :item="interruptionStore.editingItem"
             :type="eventType.Interruption"
+            @close="$emit('close:interruption', $event)"
             @create="$emit('create:interruption', $event)"
             @update="$emit('update:interruption', $event)"
+            @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:interruption', $event)"
+            @pending="$emit('pending:interruption', $event)"
             @start="$emit('start:interruption', $event)"
-            @stop="$emit('stop:interruption', $event)"
-            @resolve="$emit('resolve:interruption', $event)"
-            @unresolve="$emit('unresolve:interruption', $event)">
+            @resolve="$emit('resolve:interruption', $event)">
 
-            <template v-slot:footerActions>
+            <template v-slot:selector>
                 <selection-group class="priority-selector"
                     :options="priorityOptions"
                     :selectedOption="priority"
-                    @select="interruptionStore.editingItem.priority = $event.properties.priority">
+                    @select="onPrioritySelect($event)">
                 </selection-group>
             </template>
         </item-editor-base>
 
         <item-editor-base v-if="taskStore.editingItem"
             class="item-editor"
+            v-model:isSaved="isBaseSaved"
             :item="taskStore.editingItem"
             :type="eventType.Task"
+            @close="$emit('close:task', $event)"
             @create="$emit('create:task', $event)"
             @update="$emit('update:task', $event)"
+            @update:isSaved="onSaveStatusChange($event)"
             @delete="$emit('delete:task', $event)"
+            @pending="$emit('pending:task', $event)"
             @start="$emit('start:task', $event)"
-            @stop="$emit('stop:task', $event)"
-            @resolve="$emit('resolve:task', $event)"
-            @unresolve="$emit('unresolve:task', $event)">
+            @resolve="$emit('resolve:task', $event)">
 
-            <template v-slot:footerActions>
+            <template v-slot:selector>
                 <selection-group class="effort-selector"
                     :options="effortOptions"
                     :selectedOption="taskStore.editingItem.effort"
-                    @select="taskStore.editingItem.effort = $event">
-
-                    <dumbbell class="icon" />
+                    @select="onEffortSelect($event)">
                 </selection-group>
             </template>
         </item-editor-base>
@@ -53,9 +55,8 @@
 
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
-import { Options, Vue } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Dumbbell } from 'mdue';
 
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
@@ -67,38 +68,48 @@ import SelectionGroup from '../../../shared/inputs/selection-group/selection-gro
 
 import ItemEditorBase from './item-editor-base/item-editor-base.vue';
 
+class WorkItemEditorProp {
+    public isSaved = prop<boolean>({ default: true });
+}
+
 @Options({
     components: {
-        Dumbbell,
         PriorityIndicator,
         SelectionGroup,
         ItemEditorBase
     },
+    watch: {
+        isSaved(): void {
+            this.isBaseSaved = this.isSaved;
+        }
+    },
     emits: [
+        'close:interruption',
+        'close:task',
         'create:interruption',
         'create:task',
         'update:interruption',
         'update:task',
+        'update:isSaved',
         'delete:interruption',
         'delete:task',
+        'pending:interruption',
+        'pending:task',
         'start:interruption',
         'start:task',
-        'stop:interruption',
-        'stop:task',
         'resolve:interruption',
-        'resolve:task',
-        'unresolve:interruption',
-        'unresolve:task'
+        'resolve:task'
     ],
     computed: {
         ...mapStores(useInterruptionStore, useTaskStore)
     }
 })
-export default class WorkItemEditor extends Vue {
+export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
     public readonly eventType = EventType;
     public readonly effortOptions = [1, 2, 3, 5, 8, 13];
     public interruptionStore!: ReturnType<typeof useInterruptionStore>;
     public taskStore!: ReturnType<typeof useTaskStore>;
+    public isBaseSaved = this.isSaved;
 
     public readonly priorityOptions = [Priority.Low, Priority.Medium, Priority.High].map(_ => {
         const component = markRaw(PriorityIndicator);
@@ -121,6 +132,21 @@ export default class WorkItemEditor extends Vue {
     get priority(): DynamicComponentOption<typeof PriorityIndicator> {
         return this.priorityOptions.find(_ => _.properties.priority === this.interruptionStore.editingItem!.priority)!;
     }
+
+    public onPrioritySelect(option: DynamicComponentOption<typeof PriorityIndicator>): void {
+        this.interruptionStore.editingItem!.priority = option.properties.priority as Priority;
+        this.onSaveStatusChange(false);
+    }
+
+    public onEffortSelect(effort: number): void {
+        this.taskStore.editingItem!.effort = effort;
+        this.onSaveStatusChange(false);
+    }
+
+    public onSaveStatusChange(isSaved: boolean): void {
+        this.$emit('update:isSaved', isSaved);
+        this.isBaseSaved = isSaved;
+    }
 }
 </script>
 
@@ -141,12 +167,18 @@ export default class WorkItemEditor extends Vue {
         @include animate-opacity(0, 1, 0.3s, 0.5s);
     }
 
-    .priority-selector {
-        font-size: var(--font-sizes-400);
+    .priority-selector, .effort-selector {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        transition: background-color 0.3s, color 0.3s;
+
+        &:hover {
+            background-color: var(--primary-colors-7-00);
+        }
     }
 
     .effort-selector {
-        transition: color 0.3s;
 
         &:hover {
             color: var(--font-colors-0-00);

@@ -1,99 +1,212 @@
 <template>
     <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
-            <input type="text"
-                class="name"
-                v-model="item.name"
-                maxlength="140"
-                placeholder="enter title here..." />
+            <div class="selector-wrapper" :style="{ 'border-color': wrapperColor }">
+                <slot name="selector"></slot>
+            </div>
+
+            <div class="basic-information">
+                <input type="text"
+                    class="name"
+                    ref="nameInput"
+                    v-model="item.name"
+                    @update:modelValue="$emit('update:isSaved', false)"
+                    maxlength="140"
+                    placeholder="enter title here..." />
+
+                <span class="modified-time">
+                    {{ isExistingItem ? `Updated ${modifiedTime}` : 'not created yet' }}
+                </span>
+            </div>
         </div>
 
-        <textarea class="description"
-            v-model="item.description"
-            placeholder="no descriptions...">
-        </textarea>
+        <div class="editor-actions">
+            <flat-button class="save-button action-button" :isDisabled="isSaved" @click="onSave()">
+                <cloud-upload v-if="!isSaved" class="icon" />
+                <span v-if="isExistingItem && isSaved">Saved</span>
+                <span v-if="!isSaved">{{ isExistingItem ? 'Save' : 'Create' }}</span>
+            </flat-button>
 
-        <div class="footer">
-            <template v-if="item.id !== -1">
-                <check-bold v-if="!item.resolvedTime"
-                    class="action-button resolve-button"
-                    @click="$emit('resolve', item)" />
+            <expand-menu class="additional-actions action-button"
+                :options="menuOptions"
+                @select="onMenuOptionSelect($event)">
+            </expand-menu>
 
-                <progress-question v-if="item.resolvedTime"
-                    class="action-button unresolve-button"
-                    @click="$emit('unresolve', item)" />
+            <icon-button class="close-button action-button" @click="$emit('close', item)">
+                <close />
+            </icon-button>
+        </div>
 
-                <play-circle v-if="!item.resolvedTime && !isActive"
-                    class="action-button start-button"
-                    @click="$emit('start', item)" />
+        <div v-if="item.id !== -1" class="status-toggles">
+            <expand-icon-button class="pending status-toggle"
+                :text="'Pending'"
+                :isActive="isPending"
+                @click="onPending()">
 
-                <stop-circle v-if="!item.resolvedTime && isActive"
-                    class="action-button stop-button"
-                    @click="$emit('stop', item)" />
-            </template>
+                <refresh />
+            </expand-icon-button>
 
-            <slot name="footerActions"></slot>
-            <div class="filler"></div>
-            <span v-if="item.creationTime">Created {{ creationTime }}</span>
-            <cloud-upload class="action-button save-button" @click="onSave()" />
-            <delete-variant class="action-button delete-button" @click="$emit('delete', item)" />
+            <expand-icon-button class="ongoing status-toggle"
+                :text="'In Progress'"
+                :isActive="isOngoing"
+                @click="onStart()">
+
+                <play-circle-outline />
+            </expand-icon-button>
+
+            <expand-icon-button class="resolved status-toggle"
+                :text="'Done'"
+                :isActive="isResolved"
+                @click="onResolve()">
+
+                <check />
+            </expand-icon-button>
+        </div>
+
+        <div class="content">
+            <textarea :id="textareaId"
+                class="description"
+                ref="descriptionInput"
+                v-model="item.description"
+                @update:modelValue="$emit('update:isSaved', false)"
+                placeholder="no descriptions...">
+            </textarea>
+
+            <div class="side-panel"></div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { Check, Close, CloudUpload, PlayCircleOutline, Refresh } from 'mdue';
 import { mapStores } from 'pinia';
-import { CheckBold, CloudUpload, DeleteVariant, PlayCircle, ProgressQuestion, StopCircle } from 'mdue';
+import OverlayScrollbars from 'overlayscrollbars';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
+import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
+import ExpandIconButton from '../../../../shared/buttons/expand-icon-button/expand-icon-button.vue';
+import ExpandMenu from '../../../../shared/inputs/expand-menu/expand-menu.vue';
 
 class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
     public type = prop<EventType>({ default: null });
+    public isSaved = prop<boolean>({ default: true });
 }
 
 @Options({
     components: {
-        CheckBold,
+        Check,
+        Close,
         CloudUpload,
-        DeleteVariant,
-        PlayCircle,
-        ProgressQuestion,
-        StopCircle
+        PlayCircleOutline,
+        Refresh,
+        FlatButton,
+        IconButton,
+        ExpandIconButton,
+        ExpandMenu
     },
     emits: [
+        'close',
         'create',
         'update',
+        'update:isSaved',
         'delete',
+        'pending',
         'start',
-        'stop',
-        'resolve',
-        'unresolve'
+        'resolve'
     ],
     computed: {
         ...mapStores(useEventStore)
     }
 })
 export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
+    public readonly textareaId = `textarea-${Date.now()}`;
+    public readonly menuOptions = ['Delete'];
     private eventStore!: ReturnType<typeof useEventStore>;
 
-    get isActive(): boolean {
+    get wrapperColor(): string {
+        const type = this.type === EventType.Task ? 'task' : 'interruption';
+
+        return `var(--item-type-colors-${type}-0-00)`;
+    }
+
+    get modifiedTime(): string {
+        return TimeUtility.getDateTimeString(new Date(this.item.modifiedTime));
+    }
+
+    get isExistingItem(): boolean {
+        return this.item.id !== -1;
+    }
+
+    get isPending(): boolean {
+        return !this.isOngoing && !this.isResolved;
+    }
+
+    get isOngoing(): boolean {
         return this.eventStore.isActiveWorkItem(this.type, this.item.id);
     }
 
-    get creationTime(): string {
-        return TimeUtility.getDateTimeString(new Date(this.item.creationTime));
+    get isResolved(): boolean {
+        return Boolean(this.item.resolvedTime);
+    }
+
+    public mounted(): void {
+        if (!this.item) {
+            return;
+        }
+
+        OverlayScrollbars(document.getElementById(this.textareaId)!, {
+            scrollbars: {
+                autoHide: 'leave',
+                autoHideDelay: 100
+            },
+            textarea: {
+                dynWidth: true,
+                dynHeight: true
+            }
+        });
+
+        if (this.isExistingItem) {
+            (this.$refs.descriptionInput as HTMLElement).focus();
+        }
+        else {
+            (this.$refs.nameInput as HTMLElement).focus();
+        }
     }
 
     public onSave(): void {
         if (this.item.name.trim()) {
-            const event = this.item.id === -1 ? 'create' : 'update';
-            this.$emit(event, this.item);
+            this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
+        }
+    }
+
+    public onMenuOptionSelect(option: string): void {
+        if (option === this.menuOptions[0]) {
+            this.$emit('delete', this.item);
+        }
+    }
+
+    public onPending(): void {
+        if (!this.isPending) {
+            this.$emit('pending', this.item);
+        }
+    }
+
+    public onStart(): void {
+        if (!this.isOngoing) {
+            this.$emit('start', this.item);
+        }
+    }
+
+    public onResolve(): void {
+        if (!this.isResolved) {
+            this.$emit('resolve', this.item);
         }
     }
 }
@@ -104,143 +217,190 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    $content-width: 95%;
+    $gap: 2vh;
+    $border-radius: 5px;
 
-    @include flex-column(center, center);
-    position: relative;
+    @include flex-column(center, space-between);
     box-sizing: border-box;
+    position: relative;
+    padding: $gap;
+    border-radius: $border-radius;
+    background-color: var(--primary-colors-9-00);
+    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    @include animate-opacity(0, 1, 0.3s, 0.2s);
 
     .header {
-        $starting-height: 87.5%;
+        @include flex-row(center);
+        width: 100%;
+        height: 12.5%;
 
+        .selector-wrapper {
+            $dimension: 6vh;
+
+            @include flex-row(center, center);
+            margin-left: calc(2.25vh - #{$gap});
+            margin-right: 1.75vh;
+            width: $dimension;
+            min-width: $dimension;
+            height: $dimension;
+            min-height: $dimension;
+            border: 2px dashed;
+            border-radius: 50%;
+            color: var(--font-colors-2-00);
+            font-size: var(--font-sizes-500);
+        }
+
+        .basic-information {
+            @include flex-column(initial, center);
+            width: 100%;
+
+            .name {
+                width: 75%;
+                border: none;
+                outline: none;
+                background-color: transparent;
+                color: var(--font-colors-0-00);
+                font-size: var(--font-sizes-500);
+                font-family: inherit;
+            }
+
+            .modified-time {
+                margin-top: 0.15rem;
+                margin-left: 0.15rem;
+                color: var(--font-colors-4-00);
+                font-size: var(--font-sizes-300);
+            }
+        }
+    }
+
+    .editor-actions {
         @include flex-row(center, center);
         position: absolute;
-        top: 5%;
-        width: calc(#{$content-width} + 2.5vh);
-        height: $starting-height;
-        border-radius: 5px;
-        background-color: var(--primary-colors-10-00);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
-        animation: raise-header 0.2s ease forwards, shrink-header 0.4s ease 0.2s forwards;
-
-        .name {
-            width: 90%;
-            border: none;
-            outline: none;
-            background-color: var(--primary-colors-8-00);
-            color: var(--font-colors-0-00);
-            text-align: center;
-            font-size: var(--font-sizes-600);
-            font-family: inherit;
-            @include animate-opacity(0, 1, 0.3s, 0.6s);
-        }
-
-        @keyframes raise-header {
-            from {
-                background-color: var(--primary-colors-10-00);
-                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35);
-            }
-            to {
-                background-color: var(--primary-colors-8-00);
-                box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-            }
-        }
-
-        @keyframes shrink-header {
-            from { height: $starting-height; }
-            to { height: 12.5%; }
-        }
-    }
-
-    .description {
-        box-sizing: border-box;
-        padding: 1.75vh 1vh;
-        margin-top: 10%;
-        width: $content-width;
-        height: 80%;
-        border: none;
-        outline: none;
-        resize: none;
-        border-radius: 0 0 5px 5px;
-        background-color: var(--text-editor-color);
-        color: var(--font-colors-0-00);
-        font-size: inherit;
-        font-family: inherit;
-    }
-
-    .footer {
-        @include flex-row(center, flex-end);
-        width: $content-width;
-        height: 10%;
-        color: var(--font-colors-2-00);
-        font-size: var(--font-sizes-300);
-        @include animate-opacity(0, 1, 0.3s, 0.6s);
-
-        .filler {
-            flex-grow: 1;
-        }
+        top: $gap;
+        right: $gap;
 
         .action-button {
-            cursor: pointer;
-            font-size: var(--font-sizes-600);
-            transition: color 0.3s;
-            @include animate-opacity(0, 1, 0.3s);
-        }
+            transition: all 0.3s;
 
-        .resolve-button, .unresolve-button, .start-button, .stop-button {
-            margin-right: 1vh;
-        }
-
-        .save-button, .delete-button {
-            margin-left: 1vh;
-        }
-
-        .resolve-button {
-            color: var(--context-colors-success-1-00);
-
-            &:hover {
-                color: var(--context-colors-success-0-00);
-            }
-        }
-
-        .unresolve-button {
-            color: var(--context-colors-suggestion-1-00);
-
-            &:hover {
-                color: var(--context-colors-suggestion-0-00);
-            }
-        }
-
-        .start-button {
-            color: var(--start-button-color-inactive);
-
-            &:hover {
-                color: var(--start-button-color-active);
-            }
-        }
-
-        .stop-button {
-            color: var(--stop-button-color-inactive);
-
-            &:hover {
-                color: var(--stop-button-color-active);
+            &:not(:first-child) {
+                margin-left: 1.25vh;
             }
         }
 
         .save-button {
-            color: var(--context-colors-info-1-00);
+            height: 3vh;
+            color: var(--font-colors-3-00);
+            font-size: var(--font-sizes-200);
 
-            &:hover {
-                color: var(--context-colors-info-0-00);
+            &:not(.disabled) {
+                background-color: var(--context-colors-info-1-00);
+                box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
+                color: var(--font-colors-0-00);
+
+                &:hover {
+                    background-color: var(--context-colors-info-0-00);
+                    box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
+                }
+            }
+
+            &.disabled {
+                background-color: transparent;
+            }
+
+            .icon, span {
+                @include animate-opacity(0, 1, 0.3s);
+            }
+
+            .icon {
+                margin-right: 0.75vh;
+                font-size: var(--font-sizes-400);
             }
         }
 
-        .delete-button {
-            color: var(--context-colors-warning-1-00);
+        .additional-actions:hover, .additional-actions.active {
+            background-color: var(--primary-colors-4-00);
+            color: var(--font-colors-0-00);
+        }
 
-            &:hover {
-                color: var(--context-colors-warning-0-00);
+        .close-button:hover {
+            background-color: var(--context-colors-warning-1-00);
+            color: var(--font-colors-0-00);
+        }
+    }
+
+    .status-toggles {
+        @include flex-row(center);
+        width: 100%;
+        @include animate-opacity(0, 1, 0.3s);
+
+        .status-toggle {
+            color: var(--font-colors-1-00);
+            opacity: 0.35;
+
+            &:hover, &.active {
+                color: var(--font-colors-0-00);
+                opacity: 1;
             }
+
+            &:not(:first-of-type) {
+                margin-left: 1vh;
+            }
+        }
+
+        .pending {
+            background-color: var(--context-colors-suggestion-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-suggestion-1-03);
+            }
+        }
+
+        .ongoing {
+            background-color: var(--context-colors-info-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
+            }
+        }
+
+        .resolved {
+            background-color: var(--context-colors-success-1-00);
+
+            &:hover, &.active {
+                box-shadow: 0 0 6px 1px var(--context-colors-success-1-03);
+            }
+        }
+    }
+
+    .content {
+        $description-width: 70%;
+
+        @include flex-row(initial, center);
+        box-sizing: border-box;
+        width: 100%;
+        height: 75%;
+
+        ::v-deep(.description), .side-panel {
+            height: 100%;
+            border-radius: $border-radius;
+            background-color: var(--primary-colors-10-00);
+        }
+
+        ::v-deep(.description) {
+            box-sizing: border-box;
+            padding: 1vh;
+            width: $description-width;
+            border: none;
+            outline: none;
+            resize: none;
+            color: var(--font-colors-0-00);
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        .side-panel {
+            margin-left: $gap;
+            width: calc(100% - #{$description-width});
         }
     }
 }
