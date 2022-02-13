@@ -2,10 +2,10 @@
     <div class="interruption-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <span class="name">{{ item.name }}</span>
 
-        <div class="progress-indicator">
+        <progress-indicator class="progress-indicator">
             <priority-indicator v-if="!isResolved" :priority="item.priority"></priority-indicator>
             <check-bold v-if="isResolved" class="resolved-icon" />
-        </div>
+        </progress-indicator>
     </div>
 </template>
 
@@ -15,6 +15,7 @@ import { CheckBold } from 'mdue';
 
 import { InterruptionItemSummaryDto } from '../../../../../core/dtos/interruption-item-summary-dto';
 import PriorityIndicator from '../../../../../shared/indicators/priority-indicator/priority-indicator.vue';
+import ProgressIndicator from '../../../../../shared/indicators/progress-indicator/progress-indicator.vue';
 
 class InterruptionItemCardProp {
     public item = prop<InterruptionItemSummaryDto>({ default: null });
@@ -26,7 +27,8 @@ class InterruptionItemCardProp {
 @Options({
     components: {
         CheckBold,
-        PriorityIndicator
+        PriorityIndicator,
+        ProgressIndicator
     }
 })
 export default class InterruptionItemCard extends Vue.with(InterruptionItemCardProp) { }
@@ -75,17 +77,13 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
     }
 
     .progress-indicator {
-        @include flex-row(center, center);
         margin-right: $indicator-margin;
         width: $indicator-dimension;
         min-width: $indicator-dimension;
         height: $indicator-dimension;
         min-height: $indicator-dimension;
-        border: 2px dashed var(--item-type-colors-interruption-1-00);
-        border-radius: 50%;
-        background-clip: padding-box;
+        border-color: var(--item-type-colors-interruption-1-00);
         font-size: var(--font-sizes-600);
-        transition: background-color 0.4s;
 
         .resolved-icon {
             color: var(--context-colors-success-0-00);

@@ -178,15 +178,12 @@ export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
         }
     }
 
+    .priority-selector ::v-deep(.options) {
+        font-size: var(--font-sizes-300);
+    }
+
     .effort-selector {
-
-        &:hover {
-            color: var(--font-colors-0-00);
-        }
-
-        .icon {
-            margin-right: 2px;
-        }
+        color: var(--font-colors-0-00);
     }
 }
 </style>
