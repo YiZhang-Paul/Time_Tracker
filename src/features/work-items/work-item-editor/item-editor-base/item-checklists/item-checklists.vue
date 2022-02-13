@@ -2,25 +2,27 @@
     <div class="item-checklists-container">
         <flat-button class="add-button" @click="onEntryAdd()"><plus /></flat-button>
 
-        <draggable class="drag-wrapper"
-            :modelValue="modelValue"
-            @update:modelValue="$emit('update:modelValue', $event)"
-            handle=".list-handle"
-            @change="$emit('update:modelValue', modelValue)"
-            item-key="description">
+        <overlay-scrollbar-panel class="entries">
+            <draggable class="drag-wrapper"
+                :modelValue="modelValue"
+                @update:modelValue="$emit('update:modelValue', $event)"
+                handle=".list-handle"
+                @change="$emit('update:modelValue', modelValue)"
+                item-key="description">
 
-            <template #item="{ element, index }">
-                <div class="sortable-card">
-                    <drag-vertical class="list-handle" />
+                <template #item="{ element, index }">
+                    <div class="sortable-card">
+                        <drag-vertical class="list-handle" />
 
-                    <checklist-entry-card class="entry"
-                        :entry="element"
-                        @change="onEntryChange($event, index)"
-                        @delete="onEntryDelete(index)">
-                    </checklist-entry-card>
-                </div>
-            </template>
-        </draggable>
+                        <checklist-entry-card class="entry"
+                            :entry="element"
+                            @change="onEntryChange($event, index)"
+                            @delete="onEntryDelete(index)">
+                        </checklist-entry-card>
+                    </div>
+                </template>
+            </draggable>
+        </overlay-scrollbar-panel>
     </div>
 </template>
 
@@ -31,6 +33,7 @@ import Draggable from 'vuedraggable';
 
 import { ChecklistEntry } from '../../../../../core/models/generic/checklist-entry';
 import FlatButton from '../../../../../shared/buttons/flat-button/flat-button.vue';
+import OverlayScrollbarPanel from '../../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import ChecklistEntryCard from './checklist-entry-card/checklist-entry-card.vue';
 
@@ -44,6 +47,7 @@ class ItemChecklistsProp {
         Plus,
         FlatButton,
         Draggable,
+        OverlayScrollbarPanel,
         ChecklistEntryCard
     },
     emits: [
@@ -75,8 +79,8 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
     @include flex-column(center);
 
     .add-button {
+        margin-bottom: 0.75vh;
         width: 100%;
-        margin: 0.5vh 0 0.75vh 0;
         background-color: var(--primary-colors-7-00);
         color: var(--font-colors-2-00);
         transition: background-color 0.3s, color 0.3s;
@@ -87,16 +91,21 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         }
     }
 
+    .entries {
+        width: 100%;
+        height: 100%;
+    }
+
     .drag-wrapper {
         width: 100%;
 
         .sortable-card {
-            $handle-width: 0.5vh;
+            $gap: 1.75vh;
 
             @include flex-row(center);
             position: relative;
-            margin-left: $handle-width;
-            width: calc(100% - #{$handle-width});
+            margin: 0 $gap;
+            width: calc(100% - #{$gap} * 2);
             @include animate-opacity(0, 1, 0.3s);
 
             &:hover .list-handle {

@@ -409,12 +409,11 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         .side-panel {
             @include flex-row(center, center);
             box-sizing: border-box;
-            padding: 0.5vh;
             margin-left: $gap;
             width: calc(100% - #{$description-width} - #{$gap});
 
             .item-checklists {
-                width: 95%;
+                width: 100%;
                 height: 100%;
             }
         }
