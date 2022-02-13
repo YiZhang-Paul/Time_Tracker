@@ -21,7 +21,7 @@ export default class ProgressIndicator extends Vue.with(ProgressIndicatorProp) {
     get progressStyles(): StyleConfigs {
         return {
             height: `${this.progress}%`,
-            opacity: this.progress / 100 * 0.4
+            opacity: Math.max(0.2, this.progress / 100 * 0.7)
         };
     }
 }
@@ -63,7 +63,6 @@ export default class ProgressIndicator extends Vue.with(ProgressIndicatorProp) {
             position: absolute;
             bottom: 0;
             width: 100%;
-            background-color: lightblue;
             transition: height 0.5s, opacity 0.5s;
         }
     }

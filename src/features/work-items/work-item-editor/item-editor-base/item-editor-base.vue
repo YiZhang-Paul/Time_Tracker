@@ -1,7 +1,10 @@
 <template>
     <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
-            <progress-indicator class="selector-wrapper" :style="{ 'border-color': wrapperColor }">
+            <progress-indicator class="selector-wrapper"
+                :style="{ '--item-editor-base-wrapper-color': wrapperColor }"
+                :progress="progress">
+
                 <slot name="selector"></slot>
             </progress-indicator>
 
@@ -140,6 +143,16 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public readonly menuOptions = ['Delete'];
     private eventStore!: ReturnType<typeof useEventStore>;
 
+    get progress(): number {
+        const { checklists } = this.item;
+
+        if (!checklists.length) {
+            return 0;
+        }
+
+        return checklists.filter(_ => _.isCompleted).length / checklists.length * 100;
+    }
+
     get wrapperColor(): string {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
 
@@ -254,6 +267,11 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
             min-width: $dimension;
             height: $dimension;
             min-height: $dimension;
+            border-color: var(--item-editor-base-wrapper-color);
+
+            ::v-deep(.progress) {
+                background-color: var(--item-editor-base-wrapper-color);
+            }
         }
 
         .basic-information {
