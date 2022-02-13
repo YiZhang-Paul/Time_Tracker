@@ -1,7 +1,11 @@
 <template>
     <div class="item-checklists-container">
         <div class="header">
-            <span class="title" :class="{ completed: isCompleted }">Checklist {{ progressText }}</span>
+            <span class="title"
+                :class="{ completed: isCompleted, empty: !modelValue.length }">
+
+                Checklist {{ progressText }}
+            </span>
 
             <icon-button class="add-button" :isDisabled="!canAddEntry" @click="onEntryAdd()">
                 <plus />
@@ -66,7 +70,7 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
     }
 
     get isCompleted(): boolean {
-        return this.modelValue.every(_ => _.isCompleted);
+        return this.modelValue.length > 0 && this.modelValue.every(_ => _.isCompleted);
     }
 
     get progressText(): string {
@@ -113,6 +117,10 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
 
             &.completed {
                 color: var(--context-colors-success-1-00);
+            }
+
+            &.empty {
+                color: var(--font-colors-4-00);
             }
         }
 
