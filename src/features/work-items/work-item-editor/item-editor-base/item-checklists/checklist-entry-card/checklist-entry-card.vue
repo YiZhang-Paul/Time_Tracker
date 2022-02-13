@@ -1,6 +1,6 @@
 <template>
     <div class="checklist-entry-card-container">
-        <div class="status-toggle" :class="{ disabled: !entry.description }" @click="onStatusChange()">
+        <div class="status-toggle" :class="{ disabled: !entry.description.trim() }" @click="onStatusChange()">
             <radiobox-blank v-if="!entry.isCompleted" class="incomplete-button" />
             <check v-if="entry.isCompleted" class="complete-button" />
         </div>
@@ -68,20 +68,20 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
     }
 
     public onEditConfirm(): void {
-        if (this.editContent) {
+        if (this.editContent.trim()) {
             this.isEditing = false;
-            this.$emit('change', { ...this.entry, description: this.editContent });
+            this.$emit('change', { ...this.entry, description: this.editContent.trim() });
         }
     }
 
     public onEditCancel(): void {
-        if (this.entry.description) {
+        if (this.entry.description.trim()) {
             this.isEditing = false;
         }
     }
 
     public onStatusChange(): void {
-        if (this.entry.description) {
+        if (this.entry.description.trim()) {
             this.$emit('change', { ...this.entry, isCompleted: !this.entry.isCompleted });
         }
     }
@@ -89,7 +89,7 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
     private initialize(): void {
         this.editContent = this.entry.description;
 
-        if (!this.editContent) {
+        if (!this.editContent.trim()) {
             this.onEditStart();
         }
     }

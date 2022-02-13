@@ -190,6 +190,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
     public onSave(): void {
         if (this.item.name.trim()) {
+            this.item.checklists = this.item.checklists.filter(_ => _.description.trim());
             this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
         }
     }
