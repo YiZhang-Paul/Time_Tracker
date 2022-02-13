@@ -2,7 +2,10 @@
     <div class="item-checklists-container">
         <div class="header">
             <span>checklist {{ progressText }}</span>
-            <flat-button class="add-button" @click="onEntryAdd()"><plus /></flat-button>
+
+            <flat-button class="add-button" :isDisabled="!canAddEntry" @click="onEntryAdd()">
+                <plus />
+            </flat-button>
         </div>
 
         <overlay-scrollbar-panel class="entries">
@@ -62,6 +65,10 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         const completed = this.modelValue.filter(_ => _.isCompleted);
 
         return `${completed.length} / ${this.modelValue.length}`;
+    }
+
+    get canAddEntry(): boolean {
+        return this.modelValue.every(_ => Boolean(_.description));
     }
 
     public onEntryAdd(): void {
