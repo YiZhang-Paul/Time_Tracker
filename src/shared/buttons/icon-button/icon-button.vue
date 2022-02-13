@@ -1,11 +1,15 @@
 <template>
-    <button class="icon-button-container"><slot></slot></button>
+    <button class="icon-button-container" :class="{ disabled: isDisabled }"><slot></slot></button>
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
+import { Vue, prop } from 'vue-class-component';
 
-export default class IconButton extends Vue { }
+class IconButtonProp {
+    public isDisabled = prop<boolean>({ default: false });
+}
+
+export default class IconButton extends Vue.with(IconButtonProp) { }
 </script>
 
 <style lang="scss" scoped>
@@ -24,6 +28,12 @@ export default class IconButton extends Vue { }
 
     &:hover {
         cursor: pointer;
+    }
+
+    &.disabled {
+        pointer-events: none;
+        background-color: var(--context-colors-disabled-1-00);
+        color: var(--font-colors-5-00);
     }
 }
 </style>

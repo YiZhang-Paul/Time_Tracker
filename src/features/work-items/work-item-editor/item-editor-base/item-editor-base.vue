@@ -72,7 +72,12 @@
                 placeholder="no descriptions...">
             </textarea>
 
-            <div class="side-panel"></div>
+            <div class="side-panel">
+                <item-checklists class="item-checklists"
+                    v-model="item.checklists"
+                    @update:modelValue="$emit('update:isSaved', false)">
+                </item-checklists>
+            </div>
         </div>
     </div>
 </template>
@@ -93,6 +98,8 @@ import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
 import ExpandIconButton from '../../../../shared/buttons/expand-icon-button/expand-icon-button.vue';
 import ExpandMenu from '../../../../shared/inputs/expand-menu/expand-menu.vue';
 
+import ItemChecklists from './item-checklists/item-checklists.vue';
+
 class ItemEditorBaseProp {
     public item = prop<InterruptionItem & TaskItem>({ default: null });
     public type = prop<EventType>({ default: null });
@@ -109,7 +116,8 @@ class ItemEditorBaseProp {
         FlatButton,
         IconButton,
         ExpandIconButton,
-        ExpandMenu
+        ExpandMenu,
+        ItemChecklists
     },
     emits: [
         'close',
@@ -182,6 +190,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
 
     public onSave(): void {
         if (this.item.name.trim()) {
+            this.item.checklists = this.item.checklists.filter(_ => _.description.trim());
             this.$emit(this.isExistingItem ? 'update' : 'create', this.item);
         }
     }
@@ -373,7 +382,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     }
 
     .content {
-        $description-width: 70%;
+        $description-width: 65%;
 
         @include flex-row(initial, center);
         box-sizing: border-box;
@@ -399,8 +408,15 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         }
 
         .side-panel {
+            @include flex-row(center, center);
+            box-sizing: border-box;
             margin-left: $gap;
-            width: calc(100% - #{$description-width});
+            width: calc(100% - #{$description-width} - #{$gap});
+
+            .item-checklists {
+                width: 100%;
+                height: 100%;
+            }
         }
     }
 }
