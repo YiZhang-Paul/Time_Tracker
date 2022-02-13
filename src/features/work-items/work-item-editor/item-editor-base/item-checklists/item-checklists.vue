@@ -2,19 +2,32 @@
     <div class="item-checklists-container">
         <flat-button class="add-button" @click="onEntryAdd()"><plus /></flat-button>
 
-        <checklist-entry-card v-for="(entry, index) in modelValue"
-            class="entry"
-            :entry="entry"
-            :key="index"
-            @change="onEntryChange($event, index)"
-            @delete="onEntryDelete(index)">
-        </checklist-entry-card>
+        <draggable class="drag-wrapper"
+            :modelValue="modelValue"
+            @update:modelValue="$emit('update:modelValue', $event)"
+            handle=".list-handle"
+            @change="$emit('update:modelValue', modelValue)"
+            item-key="description">
+
+            <template #item="{ element, index }">
+                <div class="sortable-card">
+                    <drag-vertical class="list-handle" />
+
+                    <checklist-entry-card class="entry"
+                        :entry="element"
+                        @change="onEntryChange($event, index)"
+                        @delete="onEntryDelete(index)">
+                    </checklist-entry-card>
+                </div>
+            </template>
+        </draggable>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { Plus } from 'mdue';
+import { DragVertical, Plus } from 'mdue';
+import Draggable from 'vuedraggable';
 
 import { ChecklistEntry } from '../../../../../core/models/generic/checklist-entry';
 import FlatButton from '../../../../../shared/buttons/flat-button/flat-button.vue';
@@ -27,8 +40,10 @@ class ItemChecklistsProp {
 
 @Options({
     components: {
+        DragVertical,
         Plus,
         FlatButton,
+        Draggable,
         ChecklistEntryCard
     },
     emits: [
@@ -55,6 +70,7 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
 <style lang="scss" scoped>
 .item-checklists-container {
     @import '../../../../../styles/presets.scss';
+    @import '../../../../../styles/animations.scss';
 
     @include flex-column(center);
 
@@ -71,11 +87,49 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         }
     }
 
-    .entry {
+    .drag-wrapper {
         width: 100%;
 
-        &:not(:first-of-type) {
-            margin-top: 0.75vh;
+        .sortable-card {
+            $handle-width: 0.5vh;
+
+            @include flex-row(center);
+            position: relative;
+            margin-left: $handle-width;
+            width: calc(100% - #{$handle-width});
+            @include animate-opacity(0, 1, 0.3s);
+
+            &:hover .list-handle {
+                opacity: 1;
+            }
+
+            &:not(:first-of-type) {
+                margin-top: 0.75vh;
+            }
+
+            .list-handle {
+                $font-size: var(--font-sizes-700);
+
+                position: absolute;
+                right: calc(100% - #{$font-size} / 5);
+                color: var(--font-colors-0-00);
+                font-size: $font-size;
+                transition: opacity 0.3s;
+                opacity: 0;
+
+                &:hover {
+                    cursor: grab;
+                }
+
+                &:active {
+                    cursor: grabbing;
+                }
+            }
+
+            .entry {
+                width: 100%;
+                height: 100%;
+            }
         }
     }
 }
