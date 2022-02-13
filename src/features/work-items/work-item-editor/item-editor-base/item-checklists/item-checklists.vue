@@ -1,11 +1,11 @@
 <template>
     <div class="item-checklists-container">
         <div class="header">
-            <span>checklist {{ progressText }}</span>
+            <span class="title" :class="{ completed: isCompleted }">Checklist {{ progressText }}</span>
 
-            <flat-button class="add-button" :isDisabled="!canAddEntry" @click="onEntryAdd()">
+            <icon-button class="add-button" :isDisabled="!canAddEntry" @click="onEntryAdd()">
                 <plus />
-            </flat-button>
+            </icon-button>
         </div>
 
         <overlay-scrollbar-panel class="entries">
@@ -38,7 +38,7 @@ import { DragVertical, Plus } from 'mdue';
 import Draggable from 'vuedraggable';
 
 import { ChecklistEntry } from '../../../../../core/models/generic/checklist-entry';
-import FlatButton from '../../../../../shared/buttons/flat-button/flat-button.vue';
+import IconButton from '../../../../../shared/buttons/icon-button/icon-button.vue';
 import OverlayScrollbarPanel from '../../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import ChecklistEntryCard from './checklist-entry-card/checklist-entry-card.vue';
@@ -51,7 +51,7 @@ class ItemChecklistsProp {
     components: {
         DragVertical,
         Plus,
-        FlatButton,
+        IconButton,
         Draggable,
         OverlayScrollbarPanel,
         ChecklistEntryCard
@@ -61,14 +61,18 @@ class ItemChecklistsProp {
     ]
 })
 export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
+    get canAddEntry(): boolean {
+        return this.modelValue.every(_ => Boolean(_.description));
+    }
+
+    get isCompleted(): boolean {
+        return this.modelValue.every(_ => _.isCompleted);
+    }
+
     get progressText(): string {
         const completed = this.modelValue.filter(_ => _.isCompleted);
 
         return `${completed.length} / ${this.modelValue.length}`;
-    }
-
-    get canAddEntry(): boolean {
-        return this.modelValue.every(_ => Boolean(_.description));
     }
 
     public onEntryAdd(): void {
@@ -101,7 +105,16 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         margin: 1vh 0 0.75vh 0;
         width: calc(100% - #{$gap} * 2);
         color: var(--font-colors-1-00);
-        font-size: var(--font-sizes-300);
+
+        .title {
+            margin-left: 0.25vh;
+            font-size: var(--font-sizes-300);
+            transition: color 0.5s;
+
+            &.completed {
+                color: var(--context-colors-success-1-00);
+            }
+        }
 
         .add-button {
             background-color: var(--primary-colors-7-00);
@@ -160,6 +173,7 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
             .entry {
                 width: 100%;
                 height: 100%;
+                scroll-snap-align: start;
             }
         }
     }
