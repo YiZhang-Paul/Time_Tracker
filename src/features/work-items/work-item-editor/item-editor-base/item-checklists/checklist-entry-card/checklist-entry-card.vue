@@ -102,13 +102,13 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
     box-sizing: border-box;
     padding: 0.75vh 1vh;
     border-radius: 4px;
-    background-color: var(--primary-colors-7-00);
+    background-color: var(--primary-colors-8-00);
     color: var(--font-colors-1-00);
     font-size: var(--font-sizes-500);
     transition: background-color 0.3s;
 
     &:hover {
-        background-color: var(--primary-colors-5-00);
+        background-color: var(--primary-colors-6-00);
 
         .delete-button {
             opacity: 1;

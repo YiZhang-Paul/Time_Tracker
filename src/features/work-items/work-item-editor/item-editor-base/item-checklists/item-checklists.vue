@@ -1,6 +1,9 @@
 <template>
     <div class="item-checklists-container">
-        <flat-button class="add-button" @click="onEntryAdd()"><plus /></flat-button>
+        <div class="header">
+            <span>checklist {{ progressText }}</span>
+            <flat-button class="add-button" @click="onEntryAdd()"><plus /></flat-button>
+        </div>
 
         <overlay-scrollbar-panel class="entries">
             <draggable class="drag-wrapper"
@@ -55,6 +58,12 @@ class ItemChecklistsProp {
     ]
 })
 export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
+    get progressText(): string {
+        const completed = this.modelValue.filter(_ => _.isCompleted);
+
+        return `${completed.length} / ${this.modelValue.length}`;
+    }
+
     public onEntryAdd(): void {
         this.$emit('update:modelValue', [...this.modelValue, new ChecklistEntry()]);
     }
@@ -76,18 +85,26 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
     @import '../../../../../styles/presets.scss';
     @import '../../../../../styles/animations.scss';
 
+    $gap: 1.75vh;
+
     @include flex-column(center);
 
-    .add-button {
-        margin-bottom: 0.75vh;
-        width: 100%;
-        background-color: var(--primary-colors-7-00);
-        color: var(--font-colors-2-00);
-        transition: background-color 0.3s, color 0.3s;
+    .header {
+        @include flex-row(center, space-between);
+        margin: 1vh 0 0.75vh 0;
+        width: calc(100% - #{$gap} * 2);
+        color: var(--font-colors-1-00);
+        font-size: var(--font-sizes-300);
 
-        &:hover {
-            background-color: var(--primary-colors-5-00);
-            color: var(--font-colors-0-00);
+        .add-button {
+            background-color: var(--primary-colors-7-00);
+            font-size: var(--font-sizes-400);
+            transition: background-color 0.3s, color 0.3s;
+
+            &:hover {
+                background-color: var(--primary-colors-5-00);
+                color: var(--font-colors-0-00);
+            }
         }
     }
 
@@ -100,8 +117,6 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         width: 100%;
 
         .sortable-card {
-            $gap: 1.75vh;
-
             @include flex-row(center);
             position: relative;
             margin: 0 $gap;
