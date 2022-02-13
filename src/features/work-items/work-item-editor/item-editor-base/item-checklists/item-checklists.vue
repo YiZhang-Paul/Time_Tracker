@@ -139,7 +139,7 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
         .sortable-card {
             @include flex-row(center);
             position: relative;
-            margin: 0 $gap;
+            margin: 0 $gap 0.75vh $gap;
             width: calc(100% - #{$gap} * 2);
             @include animate-opacity(0, 1, 0.3s);
 
@@ -147,8 +147,8 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
                 opacity: 1;
             }
 
-            &:not(:first-of-type) {
-                margin-top: 0.75vh;
+            &:last-of-type {
+                margin-bottom: 1.25vh;
             }
 
             .list-handle {

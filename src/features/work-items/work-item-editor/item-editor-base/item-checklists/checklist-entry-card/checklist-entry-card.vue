@@ -88,7 +88,10 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
 
     private initialize(): void {
         this.editContent = this.entry.description;
-        this.isEditing = !this.entry.description;
+
+        if (!this.editContent) {
+            this.onEditStart();
+        }
     }
 }
 </script>
