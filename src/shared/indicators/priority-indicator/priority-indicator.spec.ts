@@ -32,17 +32,4 @@ describe('priority indicator unit test', () => {
             expect(component.vm.color).toEqual('var(--priority-colors-high-0-00)');
         });
     });
-
-    describe('icons', () => {
-        test('should return correct icons count', async() => {
-            await component.setProps({ priority: Priority.Low });
-            expect(component.findAll('.icon').length).toEqual(1);
-
-            await component.setProps({ priority: Priority.Medium });
-            expect(component.findAll('.icon').length).toEqual(2);
-
-            await component.setProps({ priority: Priority.High });
-            expect(component.findAll('.icon').length).toEqual(3);
-        });
-    });
 });
