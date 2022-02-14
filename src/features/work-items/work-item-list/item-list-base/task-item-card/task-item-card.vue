@@ -74,10 +74,10 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         min-width: $indicator-dimension;
         height: $indicator-dimension;
         min-height: $indicator-dimension;
-        border-color: var(--item-type-colors-task-1-00);
+        border-color: var(--item-type-colors-task-0-00);
 
         ::v-deep(.progress) {
-            background-color: var(--item-type-colors-task-0-00);
+            background-color: var(--item-type-colors-task-1-00);
         }
 
         .resolved-icon {

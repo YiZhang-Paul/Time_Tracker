@@ -82,11 +82,11 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         min-width: $indicator-dimension;
         height: $indicator-dimension;
         min-height: $indicator-dimension;
-        border-color: var(--item-type-colors-interruption-1-00);
+        border-color: var(--item-type-colors-interruption-0-00);
         font-size: var(--font-sizes-600);
 
         ::v-deep(.progress) {
-            background-color: var(--item-type-colors-interruption-0-00);
+            background-color: var(--item-type-colors-interruption-1-00);
         }
 
         .resolved-icon {

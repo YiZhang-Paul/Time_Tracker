@@ -1,10 +1,7 @@
 <template>
     <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
-            <progress-indicator class="selector-wrapper"
-                :style="{ '--item-editor-base-wrapper-color': wrapperColor }"
-                :progress="progress">
-
+            <progress-indicator class="selector-wrapper" :style="selectorColors" :progress="progress">
                 <slot name="selector"></slot>
             </progress-indicator>
 
@@ -93,6 +90,7 @@ import OverlayScrollbars from 'overlayscrollbars';
 
 import { useEventStore } from '../../../../stores/event/event.store';
 import { InterruptionItem } from '../../../../core/models/interruption/interruption-item';
+import { StyleConfigs } from '../../../../core/models/generic/style-configs';
 import { TaskItem } from '../../../../core/models/task/task-item';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -153,10 +151,13 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         return checklists.filter(_ => _.isCompleted).length / checklists.length * 100;
     }
 
-    get wrapperColor(): string {
+    get selectorColors(): StyleConfigs {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
 
-        return `var(--item-type-colors-${type}-0-00)`;
+        return {
+            '--item-editor-base-selector-color-light': `var(--item-type-colors-${type}-0-00)`,
+            '--item-editor-base-selector-color-dark': `var(--item-type-colors-${type}-1-00)`
+        };
     }
 
     get modifiedTime(): string {
@@ -267,10 +268,10 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
             min-width: $dimension;
             height: $dimension;
             min-height: $dimension;
-            border-color: var(--item-editor-base-wrapper-color);
+            border-color: var(--item-editor-base-selector-color-light);
 
             ::v-deep(.progress) {
-                background-color: var(--item-editor-base-wrapper-color);
+                background-color: var(--item-editor-base-selector-color-dark);
             }
         }
 
