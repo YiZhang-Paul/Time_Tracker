@@ -2,7 +2,7 @@
     <div class="interruption-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <span class="name">{{ item.name }}</span>
 
-        <progress-indicator class="progress-indicator" :progress="item.progress">
+        <progress-indicator class="progress-indicator" :progress="item.progress * 100">
             <priority-indicator v-if="!isResolved" :priority="item.priority"></priority-indicator>
             <check-bold v-if="isResolved" class="resolved-icon" />
         </progress-indicator>
@@ -57,7 +57,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         background: linear-gradient(270deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 
         .progress-indicator {
-            background-color: var(--item-type-colors-interruption-2-02);
+            background-color: var(--item-type-colors-interruption-2-01);
         }
     }
 

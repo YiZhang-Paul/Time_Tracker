@@ -1,6 +1,6 @@
 <template>
     <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
-        <progress-indicator class="progress-indicator" :progress="item.progress">
+        <progress-indicator class="progress-indicator" :progress="item.progress * 100">
             <span v-if="!isResolved">{{ item.effort }}</span>
             <check-bold v-if="isResolved" class="resolved-icon" />
         </progress-indicator>
@@ -55,7 +55,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         background: linear-gradient(90deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 
         .progress-indicator {
-            background-color: var(--item-type-colors-task-2-02);
+            background-color: var(--item-type-colors-task-2-01);
         }
     }
 
