@@ -28,15 +28,15 @@ describe('interruption store unit test', () => {
 
     beforeEach(() => {
         unresolved = [
-            { id: 1, name: 'name_1', priority: Priority.Low },
-            { id: 2, name: 'name_2', priority: Priority.High },
-            { id: 3, name: 'name_3', priority: Priority.Medium },
-            { id: 4, name: 'name_4', priority: Priority.Low }
+            { id: 1, name: 'name_1', priority: Priority.Low, progress: 0 },
+            { id: 2, name: 'name_2', priority: Priority.High, progress: 0 },
+            { id: 3, name: 'name_3', priority: Priority.Medium, progress: 0 },
+            { id: 4, name: 'name_4', priority: Priority.Low, progress: 0 }
         ];
 
         resolved = [
-            { id: 41, name: 'name_41', priority: Priority.Low },
-            { id: 60, name: 'name_60', priority: Priority.High }
+            { id: 41, name: 'name_41', priority: Priority.Low, progress: 0 },
+            { id: 60, name: 'name_60', priority: Priority.High, progress: 0 }
         ];
 
         interruptionItemHttpStub.getSummaries.resolves({ unresolved: unresolved.slice(), resolved: resolved.slice() });
