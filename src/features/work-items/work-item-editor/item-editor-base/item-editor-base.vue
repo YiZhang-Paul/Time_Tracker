@@ -142,6 +142,10 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     private eventStore!: ReturnType<typeof useEventStore>;
 
     get progress(): number {
+        if (this.isResolved) {
+            return 100;
+        }
+
         const { checklists } = this.item;
 
         if (!checklists.length) {
