@@ -96,17 +96,17 @@ export default class WorkItems extends Vue {
     public onInterruptionSelect(item: InterruptionItemSummaryDto): void {
         if (this.interruptionStore.editingItem?.id !== item.id) {
             this.onEditingItemChange(() => {
+                this.isEditingItemSaved = true;
                 this.taskStore.stopItemEdit();
                 this.interruptionStore.startItemEdit(item.id);
-                this.isEditingItemSaved = true;
             });
         }
     }
 
     public onInterruptionClose(): void {
         this.onEditingItemChange(() => {
-            this.interruptionStore.stopItemEdit();
             this.isEditingItemSaved = true;
+            this.interruptionStore.stopItemEdit();
         });
     }
 
@@ -142,6 +142,7 @@ export default class WorkItems extends Vue {
             await this.eventStore.startIdling();
         }
         else if (await this.interruptionStore.unresolveItem(item)) {
+            this.isEditingItemSaved = true;
             await this.reloadInterruptions(item.id);
         }
     }
@@ -154,27 +155,30 @@ export default class WorkItems extends Vue {
         });
     }
 
-    public async onInterruptionResolve(item: InterruptionItem): Promise<void> {
-        if (await this.interruptionStore.resolveItem(item)) {
-            await this.reloadInterruptions(item.id);
-            await this.onWorkItemConcluded(EventType.Interruption, item.id);
-        }
+    public onInterruptionResolve(item: InterruptionItem): void {
+        this.onWorkItemResolve(item, async() => {
+            if (await this.interruptionStore.resolveItem(item)) {
+                this.isEditingItemSaved = true;
+                await this.reloadInterruptions(item.id);
+                await this.onWorkItemConcluded(EventType.Interruption, item.id);
+            }
+        });
     }
 
     public onTaskSelect(item: TaskItemSummaryDto): void {
         if (this.taskStore.editingItem?.id !== item.id) {
             this.onEditingItemChange(() => {
+                this.isEditingItemSaved = true;
                 this.interruptionStore.stopItemEdit();
                 this.taskStore.startItemEdit(item.id);
-                this.isEditingItemSaved = true;
             });
         }
     }
 
     public onTaskClose(): void {
         this.onEditingItemChange(() => {
-            this.taskStore.stopItemEdit();
             this.isEditingItemSaved = true;
+            this.taskStore.stopItemEdit();
         });
     }
 
@@ -210,6 +214,7 @@ export default class WorkItems extends Vue {
             await this.eventStore.startIdling();
         }
         else if (await this.taskStore.unresolveItem(item)) {
+            this.isEditingItemSaved = true;
             await this.reloadTasks(item.id);
         }
     }
@@ -222,11 +227,14 @@ export default class WorkItems extends Vue {
         });
     }
 
-    public async onTaskResolve(item: TaskItem): Promise<void> {
-        if (await this.taskStore.resolveItem(item)) {
-            await this.reloadTasks(item.id);
-            await this.onWorkItemConcluded(EventType.Task, item.id);
-        }
+    public onTaskResolve(item: TaskItem): void {
+        this.onWorkItemResolve(item, async() => {
+            if (await this.taskStore.resolveItem(item)) {
+                this.isEditingItemSaved = true;
+                await this.reloadTasks(item.id);
+                await this.onWorkItemConcluded(EventType.Task, item.id);
+            }
+        });
     }
 
     private openActiveWorkItem(): void {
@@ -285,6 +293,18 @@ export default class WorkItems extends Vue {
         else {
             const title = 'You are still taking rest now. Ready to start working right away?';
             const data = new ConfirmationDialogOption(title, 'Work, work', 'More rest then', ButtonType.Warning);
+            const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
+            this.dialogStore.open(config);
+        }
+    }
+
+    private onWorkItemResolve(item: InterruptionItem | TaskItem, callback: () => void): void {
+        if (item.checklists.every(_ => _.isCompleted)) {
+            callback();
+        }
+        else {
+            const title = 'Checklist items not completed yet. Resolve the item anyway?';
+            const data = new ConfirmationDialogOption(title, 'Resolve', 'Wait NO', ButtonType.Warning);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
             this.dialogStore.open(config);
         }
