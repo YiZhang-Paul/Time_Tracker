@@ -1,12 +1,12 @@
 <template>
     <div class="priority-indicator-container" :style="{ color }">
-        <knife-military class="icon" v-for="i in icons" :key="i" />
+        <flash class="icon" />
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { KnifeMilitary } from 'mdue';
+import { Flash } from 'mdue';
 
 import { Priority } from '../../../core/enums/priority.enum';
 
@@ -16,7 +16,7 @@ class PriorityIndicatorProp {
 
 @Options({
     components: {
-        KnifeMilitary
+        Flash
     }
 })
 export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
@@ -46,10 +46,5 @@ export default class PriorityIndicator extends Vue.with(PriorityIndicatorProp) {
 
     @include flex-row(center, center);
     min-width: 1.5rem;
-
-    .icon {
-        margin: 0 -0.25em;
-        transform: rotate(-30deg);
-    }
 }
 </style>
