@@ -1,9 +1,12 @@
 <template>
     <div v-if="item && type" class="item-editor-base-container">
         <div class="header">
-            <div class="selector-wrapper" :style="{ 'border-color': wrapperColor }">
+            <progress-indicator class="selector-wrapper"
+                :style="{ '--item-editor-base-wrapper-color': wrapperColor }"
+                :progress="progress">
+
                 <slot name="selector"></slot>
-            </div>
+            </progress-indicator>
 
             <div class="basic-information">
                 <input type="text"
@@ -97,6 +100,7 @@ import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import IconButton from '../../../../shared/buttons/icon-button/icon-button.vue';
 import ExpandIconButton from '../../../../shared/buttons/expand-icon-button/expand-icon-button.vue';
 import ExpandMenu from '../../../../shared/inputs/expand-menu/expand-menu.vue';
+import ProgressIndicator from '../../../../shared/indicators/progress-indicator/progress-indicator.vue';
 
 import ItemChecklists from './item-checklists/item-checklists.vue';
 
@@ -117,6 +121,7 @@ class ItemEditorBaseProp {
         IconButton,
         ExpandIconButton,
         ExpandMenu,
+        ProgressIndicator,
         ItemChecklists
     },
     emits: [
@@ -137,6 +142,16 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     public readonly textareaId = `textarea-${Date.now()}`;
     public readonly menuOptions = ['Delete'];
     private eventStore!: ReturnType<typeof useEventStore>;
+
+    get progress(): number {
+        const { checklists } = this.item;
+
+        if (!checklists.length) {
+            return 0;
+        }
+
+        return checklists.filter(_ => _.isCompleted).length / checklists.length * 100;
+    }
 
     get wrapperColor(): string {
         const type = this.type === EventType.Task ? 'task' : 'interruption';
@@ -246,17 +261,17 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
         .selector-wrapper {
             $dimension: 6vh;
 
-            @include flex-row(center, center);
             margin-left: calc(2.25vh - #{$gap});
             margin-right: 1.75vh;
             width: $dimension;
             min-width: $dimension;
             height: $dimension;
             min-height: $dimension;
-            border: 2px dashed;
-            border-radius: 50%;
-            color: var(--font-colors-2-00);
-            font-size: var(--font-sizes-500);
+            border-color: var(--item-editor-base-wrapper-color);
+
+            ::v-deep(.progress) {
+                background-color: var(--item-editor-base-wrapper-color);
+            }
         }
 
         .basic-information {

@@ -1,9 +1,9 @@
 <template>
     <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
-        <div class="progress-indicator">
+        <progress-indicator class="progress-indicator" :progress="item.progress * 100">
             <span v-if="!isResolved">{{ item.effort }}</span>
             <check-bold v-if="isResolved" class="resolved-icon" />
-        </div>
+        </progress-indicator>
 
         <span class="name">{{ item.name }}</span>
     </div>
@@ -14,6 +14,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { CheckBold } from 'mdue';
 
 import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
+import ProgressIndicator from '../../../../../shared/indicators/progress-indicator/progress-indicator.vue';
 
 class TaskItemCardProp {
     public item = prop<TaskItemSummaryDto>({ default: null });
@@ -24,7 +25,8 @@ class TaskItemCardProp {
 
 @Options({
     components: {
-        CheckBold
+        CheckBold,
+        ProgressIndicator
     }
 })
 export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
@@ -53,7 +55,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
         background: linear-gradient(90deg, var(--primary-colors-7-00) 0%, var(--primary-colors-10-00) 85%);
 
         .progress-indicator {
-            background-color: var(--item-type-colors-task-2-02);
+            background-color: var(--item-type-colors-task-2-01);
         }
     }
 
@@ -67,17 +69,16 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) { }
     }
 
     .progress-indicator {
-        @include flex-row(center, center);
         margin-left: $indicator-margin;
         width: $indicator-dimension;
         min-width: $indicator-dimension;
         height: $indicator-dimension;
         min-height: $indicator-dimension;
-        border: 2px dashed var(--item-type-colors-task-1-00);
-        border-radius: 50%;
-        background-clip: padding-box;
-        font-size: var(--font-sizes-500);
-        transition: background-color 0.4s;
+        border-color: var(--item-type-colors-task-1-00);
+
+        ::v-deep(.progress) {
+            background-color: var(--item-type-colors-task-0-00);
+        }
 
         .resolved-icon {
             color: var(--context-colors-success-0-00);
