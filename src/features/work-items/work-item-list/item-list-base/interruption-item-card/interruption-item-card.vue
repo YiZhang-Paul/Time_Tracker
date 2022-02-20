@@ -70,7 +70,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
     }
 
     &.selected .name {
-        max-width: calc(97.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
     }
 
     .name {

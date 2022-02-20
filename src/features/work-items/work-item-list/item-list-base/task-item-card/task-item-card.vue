@@ -68,7 +68,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
     }
 
     &.selected .name {
-        max-width: calc(97.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
     }
 
     .progress-indicator {

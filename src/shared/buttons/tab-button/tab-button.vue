@@ -24,10 +24,10 @@ export default class TabButton extends Vue.with(TabButtonProp) { }
 .tab-button-container {
     @import '../../../styles/presets.scss';
 
-    $content-dimension: 2.75vh;
+    $content-dimension: 2.5vh;
 
     @include flex-row(center, center);
-    padding: 0.75vh 1vh;
+    padding: 0.75vh;
     border: none;
     outline: none;
     border-radius: 5px;

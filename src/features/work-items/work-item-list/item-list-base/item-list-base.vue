@@ -213,7 +213,7 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
             }
 
             &.animated.selected {
-                margin-left: 0;
+                margin-left: 5%;
             }
         }
     }
@@ -239,7 +239,7 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
                 }
 
                 &.animated.selected {
-                    margin-right: 0;
+                    margin-right: 5%;
                 }
             }
         }
