@@ -68,7 +68,7 @@ export default class SearchBox extends Vue {
     @include flex-row(center, center);
     border-radius: $border-radius;
     color: var(--font-colors-4-00);
-    font-size: var(--font-sizes-700);
+    font-size: var(--font-sizes-500);
 
     @include raise(
         var(--primary-colors-10-00),
@@ -79,12 +79,12 @@ export default class SearchBox extends Vue {
         0.6s
     );
 
-    .inner-wrapper{
-        $padding: 1.5vh;
+    .inner-wrapper {
+        $padding: 1.25vh;
 
         @include flex-row(center, center);
         box-sizing: border-box;
-        padding: 0.75vh 1.25vh;
+        padding: 0.75vh 0.5vh;
         width: calc(100% - #{$padding});
         height: calc(100% - #{$padding});
         border-radius: $border-radius;
@@ -100,7 +100,7 @@ export default class SearchBox extends Vue {
         }
 
         .icon {
-            margin-right: 4px;
+            margin-right: 3px;
             @include animate-opacity(0, 1, 0.15s, 0.15s);
         }
 
@@ -119,7 +119,7 @@ export default class SearchBox extends Vue {
             outline: none;
             background-color: inherit;
             color: inherit;
-            font-size: var(--font-sizes-500);
+            font-size: var(--font-sizes-400);
             font-family: inherit;
         }
     }

@@ -140,7 +140,7 @@ html, body, #app {
 
 .view-selector {
     position: absolute;
-    bottom: $border-gap;
+    bottom: 1vh;
 }
 
 .build-versions {

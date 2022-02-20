@@ -1,33 +1,35 @@
 <template>
     <div class="work-items-container">
-        <div class="actions-bar">
-            <search-box class="search-box" @search="searchText = $event"></search-box>
-            <work-item-creator class="work-item-creator"></work-item-creator>
-        </div>
-
         <work-item-list class="work-item-list"
             :searchText="searchText"
             @select:interruption="onInterruptionSelect($event)"
             @select:task="onTaskSelect($event)">
         </work-item-list>
 
-        <work-item-editor class="work-item-editor"
-            v-model:isSaved="isEditingItemSaved"
-            @close:interruption="onInterruptionClose()"
-            @close:task="onTaskClose()"
-            @create:interruption="onInterruptionCreate($event)"
-            @create:task="onTaskCreate($event)"
-            @update:interruption="onInterruptionUpdate($event)"
-            @update:task="onTaskUpdate($event)"
-            @delete:interruption="onInterruptionDeleteStart($event)"
-            @delete:task="onTaskDeleteStart($event)"
-            @pending:interruption="onInterruptionPending($event)"
-            @pending:task="onTaskPending($event)"
-            @start:interruption="onInterruptionStart($event.id)"
-            @start:task="onTaskStart($event.id)"
-            @resolve:interruption="onInterruptionResolve($event)"
-            @resolve:task="onTaskResolve($event)">
-        </work-item-editor>
+        <div class="content">
+            <div class="actions-bar">
+                <work-item-creator class="work-item-creator"></work-item-creator>
+                <search-box class="search-box" @search="searchText = $event"></search-box>
+            </div>
+
+            <work-item-editor class="work-item-editor"
+                v-model:isSaved="isEditingItemSaved"
+                @close:interruption="onInterruptionClose()"
+                @close:task="onTaskClose()"
+                @create:interruption="onInterruptionCreate($event)"
+                @create:task="onTaskCreate($event)"
+                @update:interruption="onInterruptionUpdate($event)"
+                @update:task="onTaskUpdate($event)"
+                @delete:interruption="onInterruptionDeleteStart($event)"
+                @delete:task="onTaskDeleteStart($event)"
+                @pending:interruption="onInterruptionPending($event)"
+                @pending:task="onTaskPending($event)"
+                @start:interruption="onInterruptionStart($event.id)"
+                @start:task="onTaskStart($event.id)"
+                @resolve:interruption="onInterruptionResolve($event)"
+                @resolve:task="onTaskResolve($event)">
+            </work-item-editor>
+        </div>
     </div>
 </template>
 
@@ -336,35 +338,6 @@ export default class WorkItems extends Vue {
     box-sizing: border-box;
     position: relative;
 
-    .actions-bar, .work-item-editor {
-        $width: 60%;
-
-        position: absolute;
-        left: calc(50% - #{$width} / 2);
-        width: $width;
-    }
-
-    .actions-bar {
-        $creator-dimension: 5.5vh;
-
-        @include flex-row(center, space-between);
-        box-sizing: border-box;
-        padding: 0 1vh;
-        top: $border-gap;
-        height: 9%;
-
-        .search-box {
-            width: calc(100% - 2vh - #{$creator-dimension});
-            height: 100%;
-        }
-
-        .work-item-creator {
-            width: $creator-dimension;
-            height: $creator-dimension;
-            @include animate-opacity(0, 1, 0.3s, 0.8s);
-        }
-    }
-
     .work-item-list {
         position: absolute;
         top: 15%;
@@ -373,9 +346,42 @@ export default class WorkItems extends Vue {
         max-height: 77.5%;
     }
 
-    .work-item-editor {
-        bottom: 10vh;
-        height: 77.5%;
+    .content {
+        $width: 60%;
+        $actions-height: 5vh;
+
+        @include flex-column(center, space-between);
+        position: absolute;
+        left: calc(50% - #{$width} / 2);
+        bottom: 8.5vh;
+        width: $width;
+        height: 87.5%;
+
+        .actions-bar, .work-item-editor {
+            width: 100%;
+        }
+
+        .actions-bar {
+            @include flex-row(center);
+            box-sizing: border-box;
+            padding: 0 0.5vh;
+
+            .work-item-creator {
+                width: calc(#{$actions-height} * 0.85);
+                height: calc(#{$actions-height} * 0.85);
+                @include animate-opacity(0, 1, 0.3s, 0.8s);
+            }
+
+            .search-box {
+                margin-left: 1vh;
+                width: 45%;
+                height: $actions-height;
+            }
+        }
+
+        .work-item-editor {
+            height: calc(100% - 1vh - #{$actions-height});
+        }
     }
 }
 </style>
