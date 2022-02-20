@@ -340,10 +340,10 @@ export default class WorkItems extends Vue {
 
     .work-item-list {
         position: absolute;
-        top: 15%;
+        top: 12.5%;
         width: calc(100% - #{$border-gap} * 2);
-        height: 38.5rem;
-        max-height: 77.5%;
+        height: 40rem;
+        max-height: 80%;
     }
 
     .content {

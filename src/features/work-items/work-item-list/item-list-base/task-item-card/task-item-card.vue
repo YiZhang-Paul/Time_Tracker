@@ -65,7 +65,6 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
 
     &.active {
         color: var(--context-colors-suggestion-0-00);
-        text-shadow: 0 0 3px var(--context-colors-suggestion-0-00);
     }
 
     &.selected .name {
