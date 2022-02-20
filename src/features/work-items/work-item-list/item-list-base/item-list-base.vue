@@ -98,6 +98,10 @@ class ItemListBaseProp {
     },
     watch: {
         items(): void {
+            if (!this.showUnresolved && !this.totalResolved) {
+                this.showUnresolved = true;
+            }
+
             setTimeout(() => this.animateItemCards());
         }
     },
