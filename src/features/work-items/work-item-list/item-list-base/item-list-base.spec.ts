@@ -25,15 +25,15 @@ describe('item list base unit test', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('list types', () => {
-        test('should not show counters when no item exists', async() => {
+    describe('list tabs', () => {
+        test('should not show tabs when no item exists', async() => {
             const summaries = { unresolved: [], resolved: [] };
             await component.setProps({ summaries, type: EventType.Task });
 
-            expect(component.find('.list-types').exists()).toEqual(false);
+            expect(component.find('.list-tabs').exists()).toEqual(false);
         });
 
-        test('should display total items', async() => {
+        test('should show tabs when item exists', async() => {
             const unresolved = [
                 { id: 1 } as TaskItemSummaryDto,
                 { id: 2 } as TaskItemSummaryDto,
@@ -47,7 +47,7 @@ describe('item list base unit test', () => {
 
             await component.setProps({ summaries: { unresolved, resolved }, type: EventType.Task });
 
-            expect(component.find('.list-types').text()).toEqual('3 unresolved | 2 resolved');
+            expect(component.find('.list-tabs').exists()).toEqual(true);
         });
     });
 
