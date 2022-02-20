@@ -1,8 +1,12 @@
 <template>
     <div class="task-item-card-container" :class="{ selected: isSelected, active: isActive }">
         <progress-indicator class="progress-indicator" :progress="progress">
-            <span v-if="!isResolved">{{ item.effort }}</span>
-            <check-bold v-if="isResolved" class="resolved-icon" />
+            <template v-if="!isActive">
+                <span v-if="!isResolved" class="indicator-content">{{ item.effort }}</span>
+                <check-bold v-if="isResolved" class="resolved-icon indicator-content" />
+            </template>
+
+            <lightbulb-on v-if="isActive" class="active-icon indicator-content" />
         </progress-indicator>
 
         <span class="name">{{ item.name }}</span>
@@ -11,7 +15,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { CheckBold } from 'mdue';
+import { CheckBold, LightbulbOn } from 'mdue';
 
 import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
 import ProgressIndicator from '../../../../../shared/indicators/progress-indicator/progress-indicator.vue';
@@ -26,6 +30,7 @@ class TaskItemCardProp {
 @Options({
     components: {
         CheckBold,
+        LightbulbOn,
         ProgressIndicator
     }
 })
@@ -39,6 +44,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
 <style lang="scss" scoped>
 .task-item-card-container {
     @import '../../../../../styles/presets.scss';
+    @import '../../../../../styles/animations.scss';
 
     $height: 7.5vh;
     $name-margin: 1vh;
@@ -83,9 +89,17 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
             background-color: var(--item-type-colors-task-1-00);
         }
 
+        .indicator-content {
+            @include animate-opacity(0, 1, 0.3s);
+        }
+
         .resolved-icon {
             color: var(--context-colors-success-0-00);
             font-size: var(--font-sizes-600);
+        }
+
+        .active-icon {
+            color: var(--context-colors-suggestion-0-00);
         }
     }
 

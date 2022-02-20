@@ -3,15 +3,23 @@
         <span class="name">{{ item.name }}</span>
 
         <progress-indicator class="progress-indicator" :progress="progress">
-            <priority-indicator v-if="!isResolved" :priority="item.priority"></priority-indicator>
-            <check-bold v-if="isResolved" class="resolved-icon" />
+            <template v-if="!isActive">
+                <priority-indicator v-if="!isResolved"
+                    class="indicator-content"
+                    :priority="item.priority">
+                </priority-indicator>
+
+                <check-bold v-if="isResolved" class="resolved-icon indicator-content" />
+            </template>
+
+            <lightbulb-on v-if="isActive" class="active-icon indicator-content" />
         </progress-indicator>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { CheckBold } from 'mdue';
+import { CheckBold, LightbulbOn } from 'mdue';
 
 import { InterruptionItemSummaryDto } from '../../../../../core/dtos/interruption-item-summary-dto';
 import PriorityIndicator from '../../../../../shared/indicators/priority-indicator/priority-indicator.vue';
@@ -27,6 +35,7 @@ class InterruptionItemCardProp {
 @Options({
     components: {
         CheckBold,
+        LightbulbOn,
         PriorityIndicator,
         ProgressIndicator
     }
@@ -41,6 +50,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
 <style lang="scss" scoped>
 .interruption-item-card-container {
     @import '../../../../../styles/presets.scss';
+    @import '../../../../../styles/animations.scss';
 
     $height: 7.5vh;
     $name-margin: 1vh;
@@ -93,9 +103,16 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
             background-color: var(--item-type-colors-interruption-1-00);
         }
 
+        .indicator-content {
+            @include animate-opacity(0, 1, 0.3s);
+        }
+
         .resolved-icon {
             color: var(--context-colors-success-0-00);
-            font-size: var(--font-sizes-600);
+        }
+
+        .active-icon {
+            color: var(--context-colors-suggestion-0-00);
         }
     }
 }
