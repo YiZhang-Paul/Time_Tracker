@@ -125,10 +125,9 @@ html, body, #app {
 
 .event-tracker {
     position: absolute;
-    top: $content-top;
-    right: $border-gap;
-    width: 20vw;
-    height: 10vh;
+    top: calc(#{$content-top} + 1.5vh);
+    right: 20vw;
+    height: 5vh;
     @include animate-opacity(0, 1, 0.4s, 1.5s);
 }
 

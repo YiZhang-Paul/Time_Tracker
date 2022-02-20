@@ -353,7 +353,7 @@ export default class WorkItems extends Vue {
         @include flex-column(center, space-between);
         position: absolute;
         left: calc(50% - #{$width} / 2);
-        bottom: 8.5vh;
+        top: $border-gap;
         width: $width;
         height: 87.5%;
 

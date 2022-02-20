@@ -88,10 +88,12 @@ export default class SearchBox extends Vue {
         width: calc(100% - #{$padding});
         height: calc(100% - #{$padding});
         border-radius: $border-radius;
-        border: 1px solid var(--primary-colors-5-00);
+        border: 1px solid var(--primary-colors-7-00);
+        transition: border-color 0.3s;
         @include animate-opacity(0, 1, 0.3s, 0.85s);
 
         &.active {
+            border-color: var(--primary-colors-5-00);
             color: var(--font-colors-2-00);
         }
 
