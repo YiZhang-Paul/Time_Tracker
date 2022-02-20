@@ -1,32 +1,44 @@
 <template>
-    <creation-button class="work-item-creator-container"
-        @click="onTypeSelectStart()"
-        :isDisabled="!canCreate">
-    </creation-button>
+    <div class="work-item-creator-container" ref="container">
+        <creation-button class="create-button"
+            @click="showTypes = canCreate ? !showTypes : showTypes"
+            :isDisabled="!canCreate">
+        </creation-button>
+
+        <div v-if="showTypes" class="types">
+            <div class="type interruption-type" @click.stop="onTypeSelect(true)">
+                <flash-alert />
+            </div>
+
+            <div class="type task-type" @click.stop="onTypeSelect(false)">
+                <sitemap />
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
+import { FlashAlert, Sitemap } from 'mdue';
 
-import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
-import { DialogConfig } from '../../../core/models/generic/dialog-config';
+import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
-import WorkItemTypeSelectionDialog from '../../../shared/dialogs/work-item-type-selection-dialog/work-item-type-selection-dialog.vue';
 
 @Options({
     components: {
+        FlashAlert,
+        Sitemap,
         CreationButton
     },
     computed: {
-        ...mapStores(useDialogStore, useInterruptionStore, useTaskStore)
+        ...mapStores(useInterruptionStore, useTaskStore)
     }
 })
 export default class WorkItemCreator extends Vue {
-    private dialogStore!: ReturnType<typeof useDialogStore>;
+    public showTypes = false;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
 
@@ -34,14 +46,15 @@ export default class WorkItemCreator extends Vue {
         return this.interruptionStore.editingItem?.id !== -1 && this.taskStore.editingItem?.id !== -1;
     }
 
-    public onTypeSelectStart(): void {
-        const component = markRaw(WorkItemTypeSelectionDialog);
-        const postConfirm = this.onTypeSelect.bind(this);
-        const config = new DialogConfig(component, null, { width: '35vw', height: '20vh', postConfirm });
-        this.dialogStore.open(config);
+    public mounted(): void {
+        document.addEventListener('click', this.checkClickOutside);
     }
 
-    private onTypeSelect(isInterruption: boolean): void {
+    public beforeUnmount(): void {
+        document.removeEventListener('click', this.checkClickOutside);
+    }
+
+    public onTypeSelect(isInterruption: boolean): void {
         if (isInterruption) {
             this.taskStore.stopItemEdit();
             this.interruptionStore.startItemCreate();
@@ -50,13 +63,66 @@ export default class WorkItemCreator extends Vue {
             this.interruptionStore.stopItemEdit();
             this.taskStore.startItemCreate();
         }
+
+        this.showTypes = false;
+    }
+
+    private checkClickOutside(event: Event): void {
+        if (DomUtility.isClickOutside(event, this.$refs.container as HTMLElement)) {
+            this.showTypes = false;
+        }
     }
 }
 </script>
 
 <style lang="scss" scoped>
 .work-item-creator-container {
+    @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
+
+    @include flex-row(center, center);
+    position: relative;
     width: 100%;
     height: 100%;
+
+    .create-button {
+        width: 100%;
+        height: 100%;
+    }
+
+    .types {
+        @include flex-row(center, center);
+        position: absolute;
+        bottom: calc(100% + 1.25vh);
+        @include animate-opacity(0, 1, 0.2s);
+
+        .type {
+            @include flex-row(center, center);
+            padding: 1vh;
+            border-radius: 5px;
+            border: 2px solid var(--primary-colors-4-00);
+            background-color: var(--primary-colors-9-00);
+            color: var(--font-colors-0-00);
+            font-size: var(--font-sizes-600);
+            transition: all 0.2s;
+
+            &:not(:last-of-type) {
+                margin-right: 0.75vh;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: var(--primary-colors-7-00);
+            }
+
+            &.interruption-type:hover {
+                color: var(--item-type-colors-interruption-0-00);
+            }
+
+            &.task-type:hover {
+                color: var(--item-type-colors-task-0-00);
+            }
+        }
+    }
 }
 </style>

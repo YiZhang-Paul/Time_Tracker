@@ -373,14 +373,14 @@ export default class WorkItems extends Vue {
             }
 
             .search-box {
-                margin-left: 1vh;
+                margin-left: 1.25vh;
                 width: 45%;
                 height: $actions-height;
             }
         }
 
         .work-item-editor {
-            height: calc(100% - 1vh - #{$actions-height});
+            height: calc(100% - 1.5vh - #{$actions-height});
         }
     }
 }

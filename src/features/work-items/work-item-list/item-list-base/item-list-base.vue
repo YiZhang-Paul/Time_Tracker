@@ -15,7 +15,7 @@
                 :badgeCount="totalResolved"
                 @click="selectResolved()">
 
-                Resolved
+                Done
             </tab-button>
         </span>
 
