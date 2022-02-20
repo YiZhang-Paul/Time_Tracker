@@ -31,8 +31,8 @@ export default class ViewSelector extends Vue.with(ViewSelectorProp) { }
 
     .view-option {
         @include flex-column(center, center);
-        width: 5rem;
-        height: 5rem;
+        width: 3.5rem;
+        height: 3.5rem;
         color: var(--font-colors-0-00);
         text-decoration: none;
         transition: color 0.3s;
@@ -50,7 +50,7 @@ export default class ViewSelector extends Vue.with(ViewSelectorProp) { }
         }
 
         .icon {
-            font-size: var(--font-sizes-800);
+            font-size: var(--font-sizes-700);
         }
     }
 }

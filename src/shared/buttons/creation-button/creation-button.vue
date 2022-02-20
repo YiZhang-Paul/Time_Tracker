@@ -49,7 +49,7 @@ export default class CreationButton extends Vue.with(CreationButtonProp) { }
 
     .icon {
         color: var(--font-colors-2-00);
-        font-size: var(--font-sizes-700);
+        font-size: var(--font-sizes-500);
         transition: color 0.3s;
     }
 }

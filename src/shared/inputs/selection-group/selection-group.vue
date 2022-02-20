@@ -111,8 +111,8 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
             }
 
             &:hover {
-                color: var(--context-colors-suggestion-0-00);
                 background-color: var(--primary-colors-6-00);
+                color: var(--context-colors-suggestion-0-00);
             }
         }
     }

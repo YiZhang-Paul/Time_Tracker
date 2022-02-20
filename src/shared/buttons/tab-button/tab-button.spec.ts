@@ -1,13 +1,13 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
-import WorkItemTypeSelectionDialog from './work-item-type-selection-dialog.vue';
+import TabButton from './tab-button.vue';
 
-describe('work item type selection dialog unit test', () => {
+describe('tab button unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(WorkItemTypeSelectionDialog);
+        component = shallowMount(TabButton);
     });
 
     afterEach(() => {

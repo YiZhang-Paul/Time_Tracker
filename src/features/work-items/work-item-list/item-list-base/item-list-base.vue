@@ -1,15 +1,22 @@
 <template>
     <div v-if="summaries && type" class="item-list-base-container" :class="{ 'right-to-left': isRightToLeft }">
-        <span v-if="totalUnresolved || totalResolved" class="list-types">
-            <span class="unresolved-list" :class="{ active: showUnresolved }" @click="selectUnresolved()">
-                {{ totalUnresolved }} unresolved
-            </span>
+        <span v-if="totalUnresolved || totalResolved" class="list-tabs">
+            <tab-button class="unresolved-tab-button"
+                :isActive="showUnresolved"
+                :badgeCount="totalUnresolved"
+                @click="selectUnresolved()">
 
-            <span>| </span>
+                Unresolved
+            </tab-button>
 
-            <span class="resolved-list" :class="{ active: !showUnresolved }" @click="selectResolved()">
-                {{ totalResolved }} resolved
-            </span>
+            <tab-button class="resolved-tab-button"
+                :isActive="!showUnresolved"
+                :isDisabled="!totalResolved"
+                :badgeCount="totalResolved"
+                @click="selectResolved()">
+
+                Done
+            </tab-button>
         </span>
 
         <div class="card-wrapper" v-if="activeSummary">
@@ -66,6 +73,7 @@ import { InterruptionItemSummaryDto } from '../../../../core/dtos/interruption-i
 import { TaskItemSummaryDto } from '../../../../core/dtos/task-item-summary-dto';
 import { ClassConfigs } from '../../../../core/models/generic/class-configs';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import TabButton from '../../../../shared/buttons/tab-button/tab-button.vue';
 import OverlayScrollbarPanel from '../../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import InterruptionItemCard from './interruption-item-card/interruption-item-card.vue';
@@ -83,12 +91,17 @@ class ItemListBaseProp {
 
 @Options({
     components: {
+        TabButton,
         OverlayScrollbarPanel,
         InterruptionItemCard,
         TaskItemCard
     },
     watch: {
         items(): void {
+            if (!this.showUnresolved && !this.totalResolved) {
+                this.showUnresolved = true;
+            }
+
             setTimeout(() => this.animateItemCards());
         }
     },
@@ -200,7 +213,7 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
             }
 
             &.animated.selected {
-                margin-left: 0;
+                margin-left: 5%;
             }
         }
     }
@@ -226,43 +239,30 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
                 }
 
                 &.animated.selected {
-                    margin-right: 0;
+                    margin-right: 5%;
                 }
             }
         }
     }
 
-    .list-types {
-        margin-bottom: 0.25rem;
-        color: var(--font-colors-4-00);
+    .list-tabs {
+        @include flex-row(center);
+        margin-bottom: 1vh;
 
-        .unresolved-list, .resolved-list {
-            cursor: pointer;
-            transition: all 0.2s;
+        .unresolved-tab-button {
+            margin-right: 0.75vh;
         }
 
-        .unresolved-list {
-            color: var(--context-colors-suggestion-8-00);
-
-            &:hover, &.active {
-                color: var(--context-colors-suggestion-0-00);
-            }
-
-            &.active {
-                text-shadow: 0 0 4px var(--context-colors-suggestion-0-00);
-            }
+        .unresolved-tab-button.active:not(.disabled) ::v-deep(.content) {
+            color: var(--font-colors-9-00);
+            background-color: var(--context-colors-suggestion-0-00);
+            box-shadow: 0 0 6px 2px var(--context-colors-suggestion-1-03);
         }
 
-        .resolved-list {
-            color: var(--context-colors-success-8-00);
-
-            &:hover, &.active {
-                color: var(--context-colors-success-0-00);
-            }
-
-            &.active {
-                text-shadow: 0 0 4px var(--context-colors-success-0-00);
-            }
+        .resolved-tab-button.active:not(.disabled) ::v-deep(.content) {
+            color: var(--font-colors-9-00);
+            background-color: var(--context-colors-success-0-00);
+            box-shadow: 0 0 6px 2px var(--context-colors-success-1-03);
         }
     }
 

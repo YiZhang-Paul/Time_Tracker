@@ -1,7 +1,7 @@
 <template>
     <div class="work-item-editor-container">
         <div v-if="!isEditing" class="placeholder">
-            <span v-if="hasUnresolvedItem">You still got things to do. Pick one and get it done.</span>
+            <span v-if="hasUnresolvedItem">You still got things to do, pick one and get it done.</span>
             <span v-if="!hasUnresolvedItem">You sure you have nothing to do, you dipshit?</span>
         </div>
 

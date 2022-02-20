@@ -78,7 +78,7 @@ export default class WorkItemList extends Vue.with(WorkItemListProp) {
     .interruption-item-list, .task-item-list {
         position: absolute;
         top: 0;
-        width: 20%;
+        width: 17.5%;
         height: 100%;
     }
 

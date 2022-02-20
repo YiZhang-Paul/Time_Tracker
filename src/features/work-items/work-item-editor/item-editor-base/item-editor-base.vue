@@ -402,7 +402,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     }
 
     .content {
-        $description-width: 65%;
+        $description-width: 60%;
 
         @include flex-row(initial, center);
         box-sizing: border-box;

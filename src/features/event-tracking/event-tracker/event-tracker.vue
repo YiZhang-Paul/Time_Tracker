@@ -150,7 +150,8 @@ export default class EventTracker extends Vue {
 
     .working-duration, .non-working-duration {
         @include flex-row(center);
-        width: 40%;
+        min-width: 7.5vw;
+        width: 35%;
         transition: color 0.5s;
 
         &.active {
