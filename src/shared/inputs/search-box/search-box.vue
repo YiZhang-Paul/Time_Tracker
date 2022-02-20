@@ -1,6 +1,6 @@
 <template>
-    <div class="search-box-container">
-        <div class="inner-wrapper" :class="{ active: isFocused }">
+    <div class="search-box-container" :class="{ active: isFocused }">
+        <div class="inner-wrapper">
             <target v-if="!searchText" class="icon" />
 
             <close-circle-outline v-if="searchText"
@@ -63,21 +63,34 @@ export default class SearchBox extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
+    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
     $border-radius: 5px;
 
     @include flex-row(center, center);
     border-radius: $border-radius;
     color: var(--font-colors-4-00);
     font-size: var(--font-sizes-500);
+    transition: background-color 0.3s;
 
     @include raise(
         var(--primary-colors-10-00),
         var(--primary-colors-9-00),
         0 0 0 0 rgba(0, 0, 0, 0.35),
-        0 0 6px 1px rgba(0, 0, 0, 0.35),
+        $box-shadow,
         0.2s,
         0.6s
     );
+
+    &.active {
+        background-color: var(--primary-colors-8-00);
+        box-shadow: $box-shadow;
+        animation-fill-mode: initial;
+
+        .inner-wrapper {
+            border-color: var(--primary-colors-5-00);
+            color: var(--font-colors-2-00);
+        }
+    }
 
     .inner-wrapper {
         $padding: 1.25vh;
@@ -91,11 +104,6 @@ export default class SearchBox extends Vue {
         border: 1px solid var(--primary-colors-7-00);
         transition: border-color 0.3s;
         @include animate-opacity(0, 1, 0.3s, 0.85s);
-
-        &.active {
-            border-color: var(--primary-colors-5-00);
-            color: var(--font-colors-2-00);
-        }
 
         .icon, input {
             transition: color 0.3s;
