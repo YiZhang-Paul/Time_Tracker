@@ -1,5 +1,5 @@
 <template>
-    <div class="checklist-entry-card-container">
+    <div v-if="entry" class="checklist-entry-card-container">
         <div class="status-toggle" :class="{ disabled: !entry.description.trim() }" @click="onStatusChange()">
             <radiobox-blank v-if="!entry.isCompleted" class="incomplete-button" />
             <check v-if="entry.isCompleted" class="complete-button" />
@@ -35,7 +35,7 @@ import { Check, Delete, RadioboxBlank } from 'mdue';
 import { ChecklistEntry } from '../../../../../../core/models/generic/checklist-entry';
 
 class ChecklistEntryCardProp {
-    public entry = prop<ChecklistEntry>({ default: new ChecklistEntry() });
+    public entry = prop<ChecklistEntry>({ default: null });
 }
 
 @Options({
