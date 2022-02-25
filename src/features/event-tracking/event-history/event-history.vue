@@ -163,11 +163,11 @@ export default class EventHistory extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    $summaries-width: 45%;
+    $summaries-width: 52.5%;
     $summaries-height: 75%;
 
     @include flex-column(center);
-    color: var(--font-colors-3-00);
+    color: var(--font-colors-1-00);
     font-size: var(--font-sizes-500);
 
     .date {
@@ -249,23 +249,22 @@ export default class EventHistory extends Vue {
 
         .event-summaries-placeholder, .event-summaries {
             @include flex-column(center, center);
-            margin-top: 5vh;
+            margin-top: 3.5vh;
+            width: $summaries-width;
             @include animate-opacity(0, 1, 0.3s, 0.3s);
         }
 
         .event-summaries-placeholder {
-            width: $summaries-width;
             height: $summaries-height;
         }
 
         .event-summaries {
             box-sizing: border-box;
             padding: 0 3.5vh;
-            max-width: $summaries-width;
             max-height: $summaries-height;
 
             .event-summary-card {
-                margin: 1vh 0;
+                margin: 1.5vh 0;
                 scroll-snap-align: start;
             }
         }

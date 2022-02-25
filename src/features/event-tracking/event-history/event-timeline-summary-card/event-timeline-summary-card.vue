@@ -1,8 +1,9 @@
 <template>
     <div class="event-timeline-summary-card-container">
-        <div :style="{ color }">{{ start }} ~ {{ end }}</div>
         <span class="name">{{ name }}</span>
-        <span v-if="current.name && current.isDeleted" class="deleted-label">(DELETED)</span>
+        <div class="range">{{ start }} - {{ end }}</div>
+        <div class="breakdown"></div>
+        <div class="duration">{{ duration }}</div>
     </div>
 </template>
 
@@ -19,27 +20,6 @@ class EventTimelineSummaryCardProp {
 }
 
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
-    get color(): string {
-        const { eventType } = this.current;
-        const type = eventType === EventType.Idling || eventType === EventType.Break ? 'not-working' : 'working';
-
-        return `var(--event-type-colors-${type}-0-00)`;
-    }
-
-    get start(): string {
-        return TimeUtility.getTimeString(new Date(this.current.startTime));
-    }
-
-    get end(): string {
-        if (this.next) {
-            return TimeUtility.getTimeString(new Date(this.next.startTime));
-        }
-
-        const end = new Date(this.current.startTime).setHours(23, 59, 59, 999);
-
-        return end >= Date.now() ? 'NOW' : TimeUtility.getTimeString(new Date(end));
-    }
-
     get name(): string {
         const { name, eventType } = this.current;
 
@@ -47,7 +27,35 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
             return name;
         }
 
-        return eventType === EventType.Idling ? 'Idling' : 'Break';
+        return eventType === EventType.Idling ? 'Untracked' : 'Break';
+    }
+
+    get start(): string {
+        return TimeUtility.getTimeString(new Date(this.current.startTime), false);
+    }
+
+    get end(): string {
+        if (this.next) {
+            return TimeUtility.getTimeString(new Date(this.next.startTime), false);
+        }
+
+        const end = new Date(this.current.startTime).setHours(23, 59, 59, 999);
+
+        return end >= Date.now() ? 'NOW' : TimeUtility.getTimeString(new Date(end), false);
+    }
+
+    get duration(): string {
+        let end: number;
+        const start = new Date(this.current.startTime).getTime();
+
+        if (this.next) {
+            end = new Date(this.next.startTime).getTime();
+        }
+        else {
+            end = Math.min(Date.now(), new Date(this.current.startTime).setHours(23, 59, 59, 999));
+        }
+
+        return TimeUtility.getDurationString(end - start, false);
     }
 }
 </script>
@@ -56,28 +64,42 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
 .event-timeline-summary-card-container {
     @import '../../../../styles/presets.scss';
 
-    @include flex-row(center);
-
-    & > div {
-        @include flex-row(center, center);
-        box-sizing: border-box;
-        padding: 0.75vh 1.75vh;
-        margin-right: 2vh;
-        min-width: 15rem;
-        border-radius: 5px;
-        box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-        background-color: var(--primary-colors-9-00);
-    }
+    @include flex-row(center, center);
+    box-sizing: border-box;
+    padding: 1.5vh 2.5vh;
+    border-radius: 5vh;
+    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    background-color: var(--primary-colors-9-00);
+    font-size: var(--font-sizes-400);
 
     .name {
+        width: 32.5%;
         @include line-overflow();
+        background-color: lightblue;
     }
 
-    .deleted-label {
-        margin-top: 0.25rem;
-        margin-left: 0.5vh;
-        color: var(--context-colors-suggestion-0-00);
-        font-size: var(--font-sizes-100);
+    .range {
+        width: 15%;
+        text-align: center;
+        background-color: red;
+    }
+
+    .breakdown {
+        width: 30%;
+        height: 1px;
+        background-color: lightblue;
+    }
+
+    .duration {
+        @include flex-row(center, center);
+        padding: 0.35vh 0;
+        width: 10%;
+        border-radius: 5vh;
+        box-shadow: 0 0 4px 1px var(--primary-colors-1-03);
+        background-color: var(--primary-colors-1-00);
+        color: var(--font-colors-7-00);
+        font-size: var(--font-sizes-300);
+        font-weight: 600;
     }
 }
 </style>
