@@ -264,8 +264,9 @@ export default class EventHistory extends Vue {
             max-height: $summaries-height;
 
             .event-summary-card {
-                margin: 1.5vh 0;
+                margin-bottom: 1.5vh;
                 scroll-snap-align: start;
+                @include animate-opacity(0, 1, 0.3s);
             }
         }
     }

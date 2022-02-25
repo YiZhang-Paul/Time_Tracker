@@ -1,8 +1,12 @@
 <template>
     <div class="event-duration-summary-card-container">
-        <div :style="{ color }">{{ duration }}</div>
         <span class="name">{{ summary.name }}</span>
-        <span v-if="summary.isDeleted" class="deleted-label">(DELETED)</span>
+        <div class="duration">{{ duration }}</div>
+        <div class="breakdown"></div>
+
+        <div class="status" :class="{ resolved: summary.isResolved }">
+            {{ summary.isResolved ? 'Done' : 'Not Done' }}
+        </div>
     </div>
 </template>
 
@@ -18,12 +22,6 @@ class EventDurationSummaryCardProp {
 }
 
 export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
-    get color(): string {
-        const type = this.summary.eventType === EventType.Interruption ? 'interruption' : 'task';
-
-        return `var(--item-type-colors-${type}-0-00)`;
-    }
-
     get duration(): string {
         if (this.summary.duration < 60 * 1000) {
             return '< 1m';
@@ -38,28 +36,43 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
 .event-duration-summary-card-container {
     @import '../../../../styles/presets.scss';
 
-    @include flex-row(center);
-
-    & > div {
-        @include flex-row(center, center);
-        box-sizing: border-box;
-        padding: 0.75vh 1.75vh;
-        margin-right: 2vh;
-        min-width: 10rem;
-        border-radius: 5px;
-        background-color: var(--primary-colors-9-00);
-        box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-    }
+    @include flex-row(center, center);
+    box-sizing: border-box;
+    padding: 1.5vh 2.5vh;
+    border-radius: 5vh;
+    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    background-color: var(--primary-colors-9-00);
+    font-size: var(--font-sizes-400);
 
     .name {
+        width: 37.5%;
         @include line-overflow();
     }
 
-    .deleted-label {
-        margin-top: 0.25rem;
-        margin-left: 0.5vh;
-        color: var(--context-colors-suggestion-0-00);
-        font-size: var(--font-sizes-100);
+    .duration {
+        width: 15%;
+        text-align: center;
+    }
+
+    .breakdown {
+        width: 32.5%;
+        height: 1px;
+    }
+
+    .status {
+        @include flex-row(center, center);
+        padding: 0.35vh 0;
+        width: 10%;
+        border-radius: 5vh;
+        box-shadow: 0 0 4px 1px var(--context-colors-suggestion-1-03);
+        background-color: var(--context-colors-suggestion-0-00);
+        color: var(--font-colors-7-00);
+        font-size: var(--font-sizes-300);
+
+        &.resolved {
+            box-shadow: 0 0 4px 1px var(--context-colors-success-1-03);
+            background-color: var(--context-colors-success-0-00);
+        }
     }
 }
 </style>

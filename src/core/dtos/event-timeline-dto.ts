@@ -6,4 +6,5 @@ export class EventTimelineDto {
     public startTime!: string;
     public name = '';
     public isDeleted = false;
+    public isResolved = false;
 }
