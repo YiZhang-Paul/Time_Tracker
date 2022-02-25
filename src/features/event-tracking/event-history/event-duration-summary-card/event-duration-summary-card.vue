@@ -1,5 +1,11 @@
 <template>
     <div class="event-duration-summary-card-container">
+        <div class="rank">
+            <div v-if="rank > 3" class="value">
+                <span>{{ rank }}</span>
+            </div>
+        </div>
+
         <span class="name">{{ summary.name }}</span>
         <div class="duration">{{ duration }}</div>
         <div class="breakdown"></div>
@@ -14,11 +20,11 @@
 import { Vue, prop } from 'vue-class-component';
 
 import { EventDurationDto } from '../../../../core/dtos/event-duration-dto';
-import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class EventDurationSummaryCardProp {
     public summary = prop<EventDurationDto>({ default: new EventDurationDto() });
+    public rank = prop<number>({ default: 1 });
 }
 
 export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
@@ -43,6 +49,21 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
     box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
     background-color: var(--primary-colors-9-00);
     font-size: var(--font-sizes-400);
+
+    .rank {
+        @include flex-row(center);
+        margin-right: 1.5%;
+        width: 3.5%;
+
+        .value {
+            @include flex-row(center, center);
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background-color: var(--context-colors-info-5-00);
+            font-size: var(--font-sizes-300);
+        }
+    }
 
     .name {
         width: 37.5%;

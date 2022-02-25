@@ -1,6 +1,6 @@
 <template>
     <div class="event-timeline-summary-card-container">
-        <div class="icon">
+        <div class="type">
             <progress-question v-if="current.eventType === eventType.Idling" class="untracked" />
             <food v-if="current.eventType === eventType.Break" class="break" />
             <flash-alert v-if="current.eventType === eventType.Interruption" class="interruption" />
@@ -92,7 +92,7 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     background-color: var(--primary-colors-9-00);
     font-size: var(--font-sizes-400);
 
-    .icon {
+    .type {
         @include flex-row(center);
         margin-right: 1.5%;
         width: 3.5%;

@@ -44,6 +44,7 @@
                     <event-duration-summary-card v-for="(duration, index) in workingDurations"
                         class="event-summary-card"
                         :summary="duration"
+                        :rank="index + 1"
                         :key="index">
                     </event-duration-summary-card>
                 </overlay-scrollbar-panel>
