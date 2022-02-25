@@ -1,5 +1,12 @@
 <template>
     <div class="event-timeline-summary-card-container">
+        <div class="icon">
+            <progress-question v-if="current.eventType === eventType.Idling" class="untracked" />
+            <food v-if="current.eventType === eventType.Break" class="break" />
+            <flash-alert v-if="current.eventType === eventType.Interruption" class="interruption" />
+            <target v-if="current.eventType === eventType.Task" class="task" />
+        </div>
+
         <span class="name">{{ name }}</span>
         <div class="range">{{ start }} - {{ end }}</div>
         <div class="breakdown"></div>
@@ -8,7 +15,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
+import { FlashAlert, Food, ProgressQuestion, Target } from 'mdue';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -19,7 +27,17 @@ class EventTimelineSummaryCardProp {
     public next = prop<EventTimelineDto | null>({ default: null });
 }
 
+@Options({
+    components: {
+        FlashAlert,
+        Food,
+        ProgressQuestion,
+        Target
+    }
+})
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
+    public readonly eventType = EventType;
+
     get name(): string {
         const { name, eventType } = this.current;
 
@@ -55,7 +73,9 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
             end = Math.min(Date.now(), new Date(this.current.startTime).setHours(23, 59, 59, 999));
         }
 
-        return TimeUtility.getDurationString(end - start, false);
+        const duration = end - start;
+
+        return duration < 60000 ? '< 1m' : TimeUtility.getDurationString(duration, false);
     }
 }
 </script>
@@ -72,22 +92,42 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     background-color: var(--primary-colors-9-00);
     font-size: var(--font-sizes-400);
 
+    .icon {
+        @include flex-row(center);
+        margin-right: 1.5%;
+        width: 3.5%;
+        font-size: var(--font-sizes-700);
+
+        .untracked {
+            color: var(--item-type-colors-idling-0-00);
+        }
+
+        .break {
+            color: var(--item-type-colors-break-0-00);
+        }
+
+        .interruption {
+            color: var(--item-type-colors-interruption-0-00);
+        }
+
+        .task {
+            color: var(--item-type-colors-task-0-00);
+        }
+    }
+
     .name {
-        width: 32.5%;
+        width: 37.5%;
         @include line-overflow();
-        background-color: lightblue;
     }
 
     .range {
         width: 15%;
         text-align: center;
-        background-color: red;
     }
 
     .breakdown {
-        width: 30%;
+        width: 32.5%;
         height: 1px;
-        background-color: lightblue;
     }
 
     .duration {
