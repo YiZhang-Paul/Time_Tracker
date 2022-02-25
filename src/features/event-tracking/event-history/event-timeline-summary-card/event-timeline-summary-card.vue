@@ -75,7 +75,7 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
 
         const duration = end - start;
 
-        return duration < 60000 ? '< 1m' : TimeUtility.getDurationString(duration, false);
+        return duration < 60 * 1000 ? '< 1m' : TimeUtility.getDurationString(duration, 'short');
     }
 }
 </script>

@@ -42,12 +42,16 @@ export class TimeUtility {
         return months[date.getMonth()].slice(0, 3);
     }
 
-    public static getDurationString(milliseconds: number, isStandard = true): string {
+    public static getDurationString(milliseconds: number, format: 'standard' | 'short' | 'raw' = 'raw'): string {
         const hours = Math.floor(milliseconds / oneHour);
         const minutes = Math.floor(milliseconds % oneHour / oneMinute);
         const seconds = Math.floor(milliseconds % oneMinute / oneSecond);
 
-        if (!isStandard) {
+        if (format === 'standard') {
+            return `${hours} hr ${minutes} min`;
+        }
+
+        if (format === 'short') {
             return `${hours}h ${minutes}m`;
         }
 

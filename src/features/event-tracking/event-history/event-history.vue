@@ -153,7 +153,7 @@ export default class EventHistory extends Vue {
         const events = this.summaries.duration.filter(_ => types.includes(_.eventType));
         const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
 
-        return TimeUtility.getDurationString(duration, false);
+        return TimeUtility.getDurationString(duration, 'short');
     }
 }
 </script>

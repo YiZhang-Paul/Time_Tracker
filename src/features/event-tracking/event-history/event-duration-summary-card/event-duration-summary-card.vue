@@ -27,7 +27,7 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
             return '< 1m';
         }
 
-        return TimeUtility.getDurationString(this.summary.duration, false);
+        return TimeUtility.getDurationString(this.summary.duration, 'standard');
     }
 }
 </script>
