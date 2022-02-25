@@ -1,6 +1,8 @@
 <template>
     <div class="event-duration-summary-card-container">
         <div class="rank">
+            <trophy v-if="rank <= 3" :class="['icon', `rank-${rank}`]" />
+
             <div v-if="rank > 3" class="value">
                 <span>{{ rank }}</span>
             </div>
@@ -17,7 +19,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
+import { Trophy } from 'mdue';
 
 import { EventDurationDto } from '../../../../core/dtos/event-duration-dto';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -27,6 +30,11 @@ class EventDurationSummaryCardProp {
     public rank = prop<number>({ default: 1 });
 }
 
+@Options({
+    components: {
+        Trophy
+    }
+})
 export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
     get duration(): string {
         if (this.summary.duration < 60 * 1000) {
@@ -54,6 +62,22 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
         @include flex-row(center);
         margin-right: 1.5%;
         width: 3.5%;
+
+        .icon {
+            font-size: var(--font-sizes-700);
+
+            &.rank-1 {
+                color: var(--rank-colors-first-place-0-00);
+            }
+
+            &.rank-2 {
+                color: var(--rank-colors-second-place-0-00);
+            }
+
+            &.rank-3 {
+                color: var(--rank-colors-third-place-0-00);
+            }
+        }
 
         .value {
             @include flex-row(center, center);
