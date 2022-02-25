@@ -1,14 +1,15 @@
 <template>
     <div class="event-history-container">
         <div class="date">
-            <span>History of</span>
-            <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+            <date-selector class="date-selector" v-model="day" @update:modelValue="onDaySelect()"></date-selector>
 
             <div class="actions">
                 <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
                 <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
             </div>
         </div>
+
+        <div class="separator"></div>
 
         <div class="content">
             <div class="working-time-breakdown">
@@ -174,12 +175,16 @@ export default class EventHistory extends Vue {
         z-index: 1;
         position: relative;
         width: 100%;
-        height: 7.5%;
+        height: 12.5%;
         color: var(--font-colors-1-00);
         @include animate-opacity(0, 1, 0.3s, 0.3s);
 
-        & > span {
-            margin-right: 1.5vh;
+        .date-selector::before {
+            display: inline-block;
+            position: absolute;
+            right: calc(100% + 1.25vh);
+            content: 'What you did on';
+            white-space: nowrap;
             font-size: var(--font-sizes-700);
         }
 
@@ -207,10 +212,22 @@ export default class EventHistory extends Vue {
         }
     }
 
+    .separator {
+        width: 55vw;
+        height: 1px;
+
+        background: linear-gradient(
+            90deg,
+            var(--font-colors-0-01) 0%,
+            var(--font-colors-0-03) 50%,
+            var(--font-colors-0-01) 100%
+        );
+    }
+
     .content {
         @include flex-row(flex-start, space-between);
         width: 100%;
-        height: 92.5%;
+        height: 87.5%;
         @include animate-opacity(0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
