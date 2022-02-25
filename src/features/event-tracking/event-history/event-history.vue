@@ -1,11 +1,13 @@
 <template>
     <div class="event-history-container">
-        <div class="date">
-            <date-selector class="date-selector" v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+        <div class="header">
+            <div class="date-wrapper">
+                <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+            </div>
 
             <div class="actions">
-                <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
                 <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
+                <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
             </div>
         </div>
 
@@ -164,38 +166,46 @@ export default class EventHistory extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    $summaries-width: 52.5%;
+    $summaries-width: 57.5%;
     $summaries-height: 75%;
 
     @include flex-column(center);
     color: var(--font-colors-1-00);
     font-size: var(--font-sizes-500);
 
-    .date {
-        @include flex-row(center, center);
+    .header {
+        @include flex-column(center, center);
         z-index: 1;
-        position: relative;
-        width: 100%;
-        height: 12.5%;
+        width: $summaries-width;
+        height: 15%;
         color: var(--font-colors-1-00);
         @include animate-opacity(0, 1, 0.3s, 0.3s);
 
-        .date-selector::before {
-            display: inline-block;
-            position: absolute;
-            right: calc(100% + 1.25vh);
-            content: 'What you did on';
-            white-space: nowrap;
-            font-size: var(--font-sizes-700);
+        .date-wrapper {
+            @include flex-row(center);
+            position: relative;
+            height: 60%;
+
+            &::before {
+                position: absolute;
+                right: calc(100% + 1.25vh);
+                content: 'What you did on';
+                white-space: nowrap;
+                font-size: var(--font-sizes-700);
+            }
         }
 
         .actions {
-            @include flex-row(center, center);
-            position: absolute;
-            right: 30%;
-            bottom: 0.75vh;
+            @include flex-row(flex-start, center);
+            align-self: flex-start;
+            height: 40%;
+
+            .view-toggle {
+                font-size: var(--font-sizes-400);
+            }
 
             .timesheets-button {
+                margin-left: 1.25vh;
                 color: var(--font-colors-1-00);
                 transition: color 0.3s;
                 @include animate-opacity(0, 1, 0.3s);
@@ -204,11 +214,6 @@ export default class EventHistory extends Vue {
                     cursor: pointer;
                     color: var(--context-colors-info-0-00);
                 }
-            }
-
-            .view-toggle {
-                margin-left: 1.25vh;
-                font-size: var(--font-sizes-400);
             }
         }
     }
@@ -228,7 +233,7 @@ export default class EventHistory extends Vue {
     .content {
         @include flex-row(flex-start, space-between);
         width: 100%;
-        height: 87.5%;
+        height: 85%;
         @include animate-opacity(0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
@@ -261,7 +266,7 @@ export default class EventHistory extends Vue {
 
         .event-summaries {
             box-sizing: border-box;
-            padding: 0 3.5vh;
+            padding: 0 3.5%;
             max-height: $summaries-height;
 
             .event-summary-card {
