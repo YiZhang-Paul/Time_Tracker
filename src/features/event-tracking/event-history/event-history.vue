@@ -246,7 +246,7 @@ export default class EventHistory extends Vue {
         .actions-wrapper {
             @include flex-row(center, center);
             box-sizing: border-box;
-            padding-bottom: 1vh;
+            padding-bottom: 1.5vh;
             position: relative;
             width: 100%;
             height: 40%;
@@ -289,6 +289,7 @@ export default class EventHistory extends Vue {
     .separator {
         width: calc(#{$summaries-width} * 0.975);
         height: 1px;
+        @include animate-opacity(0, 1, 0.3s, 0.2s);
 
         background: linear-gradient(
             90deg,

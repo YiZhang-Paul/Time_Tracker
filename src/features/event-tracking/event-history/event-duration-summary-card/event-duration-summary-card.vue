@@ -12,8 +12,9 @@
         <div class="duration">{{ duration }}</div>
         <div class="breakdown"></div>
 
-        <div class="status" :class="{ resolved: summary.isResolved }">
-            {{ summary.isResolved ? 'Done' : 'Not Done' }}
+        <div class="status" :class="{ resolved: summary.isResolved, deleted: summary.isDeleted }">
+            <span v-if="summary.isDeleted">Deleted</span>
+            <span v-if="!summary.isDeleted">{{ summary.isResolved ? 'Done' : 'Not Done' }}</span>
         </div>
     </div>
 </template>
@@ -111,12 +112,17 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
         border-radius: 5vh;
         box-shadow: 0 0 4px 1px var(--context-colors-suggestion-1-03);
         background-color: var(--context-colors-suggestion-0-00);
-        color: var(--font-colors-7-00);
+        color: var(--font-colors-8-00);
         font-size: var(--font-sizes-300);
 
         &.resolved {
             box-shadow: 0 0 4px 1px var(--context-colors-success-1-03);
             background-color: var(--context-colors-success-0-00);
+        }
+
+        &.deleted {
+            box-shadow: 0 0 4px 1px var(--context-colors-disabled-1-03);
+            background-color: var(--context-colors-disabled-0-00);
         }
     }
 }
