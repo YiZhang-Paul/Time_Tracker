@@ -17,6 +17,7 @@ import { StyleConfigs } from '../../../core/models/generic/style-configs';
 class CompletionIndicatorProp {
     public description = prop<string>({ default: '' });
     public percentage = prop<number>({ default: 0 });
+    public isHigherPreferred = prop<boolean>({ default: true });
 }
 
 @Options({
@@ -27,14 +28,15 @@ class CompletionIndicatorProp {
     }
 })
 export default class CompletionIndicator extends Vue.with(CompletionIndicatorProp) {
+    private readonly types = ['warning', 'suggestion', 'success'];
     private completion = 0;
 
     get completionStyle(): StyleConfigs {
-        let type = 'success';
+        let type = this.types[2];
         const boxShadow = '1px 0 4px 1px rgba(0, 0, 0, 0.3)';
 
         if (this.completion < 75) {
-            type = this.completion < 25 ? 'warning' : 'suggestion';
+            type = this.completion < 25 ? this.types[0] : this.types[1];
         }
 
         return {
@@ -50,6 +52,10 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
     }
 
     public mounted(): void {
+        if (!this.isHigherPreferred) {
+            this.types.reverse();
+        }
+
         this.updateCompletion();
     }
 

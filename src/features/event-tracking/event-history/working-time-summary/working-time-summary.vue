@@ -25,7 +25,8 @@
 
             <completion-indicator class="completion-indicator"
                 :description="'Percentage - lower is better'"
-                :percentage="interruptionDuration / totalDuration">
+                :percentage="interruptionDuration / totalDuration"
+                :isHigherPreferred="false">
             </completion-indicator>
         </div>
 
