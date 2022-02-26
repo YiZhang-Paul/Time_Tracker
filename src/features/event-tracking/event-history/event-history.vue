@@ -7,7 +7,14 @@
 
             <div class="actions">
                 <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
-                <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
+                <icon-button class="action-button" @click="onDaySelect()"><refresh /></icon-button>
+
+                <icon-button v-if="!showTimeline && workingDurations.length"
+                    class="action-button"
+                    @click="downloadTimesheets()">
+
+                    <export-variant />
+                </icon-button>
             </div>
         </div>
 
@@ -70,7 +77,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ExportVariant, ShieldCross, SwordCross } from 'mdue';
+import { ExportVariant, Refresh, ShieldCross, SwordCross } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { types } from '../../../core/ioc/types';
@@ -80,6 +87,7 @@ import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import IconButton from '../../../shared/buttons/icon-button/icon-button.vue';
 import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
@@ -90,10 +98,12 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
 @Options({
     components: {
         ExportVariant,
+        Refresh,
         ShieldCross,
         SwordCross,
         EventTimelineSummaryCard,
         EventDurationSummaryCard,
+        IconButton,
         ToggleSelector,
         DateSelector,
         OverlayScrollbarPanel
@@ -196,7 +206,7 @@ export default class EventHistory extends Vue {
         }
 
         .actions {
-            @include flex-row(flex-start, center);
+            @include flex-row(center, center);
             align-self: flex-start;
             height: 40%;
 
@@ -204,15 +214,14 @@ export default class EventHistory extends Vue {
                 font-size: var(--font-sizes-400);
             }
 
-            .timesheets-button {
-                margin-left: 1.25vh;
-                color: var(--font-colors-1-00);
-                transition: color 0.3s;
-                @include animate-opacity(0, 1, 0.3s);
+            .action-button {
+                margin-left: 1vh;
+                transition: all 0.3s;
+                @include animate-opacity(0, 1, 0.3s, 0.1s);
 
                 &:hover {
-                    cursor: pointer;
-                    color: var(--context-colors-info-0-00);
+                    background-color: var(--primary-colors-4-00);
+                    color: var(--font-colors-0-00);
                 }
             }
         }
@@ -270,7 +279,7 @@ export default class EventHistory extends Vue {
             max-height: $summaries-height;
 
             .event-summary-card {
-                margin-bottom: 1.5vh;
+                margin-bottom: 1.25vh;
                 scroll-snap-align: start;
                 @include animate-opacity(0, 1, 0.3s);
             }
