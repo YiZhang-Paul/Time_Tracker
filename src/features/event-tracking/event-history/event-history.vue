@@ -22,12 +22,15 @@
                 <div class="actions-right">
                     <icon-button v-if="!showTimeline && workingDurations.length"
                         class="action-button"
+                        :tooltip="'export'"
                         @click="downloadTimesheets()">
 
                         <export-variant />
                     </icon-button>
 
-                    <icon-button class="action-button" @click="onDaySelect()"><refresh /></icon-button>
+                    <icon-button class="action-button" @click="onDaySelect()" :tooltip="'refresh'">
+                        <refresh />
+                    </icon-button>
                 </div>
             </div>
         </div>
