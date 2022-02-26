@@ -113,7 +113,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ChartTimelineVariant, ExportVariant, FlashAlert, Food, ProgressQuestion, Refresh, ShieldCross, SwordCross, Target, TrophyAward } from 'mdue';
+import { ChartTimelineVariant, ExportVariant, Refresh, TrophyAward } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { types } from '../../../core/ioc/types';
@@ -124,6 +124,7 @@ import { IconConfig } from '../../../core/models/generic/icon-config';
 import { FilterGroupOption } from '../../../core/models/options/filter-group-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import IconButton from '../../../shared/buttons/icon-button/icon-button.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import TabGroup from '../../../shared/inputs/tab-group/tab-group.vue';
@@ -138,8 +139,6 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     components: {
         ExportVariant,
         Refresh,
-        ShieldCross,
-        SwordCross,
         EventTimeSummaryCard,
         EventTimelineSummaryCard,
         EventDurationSummaryCard,
@@ -154,12 +153,12 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     }
 })
 export default class EventHistory extends Vue {
-    public readonly interruptionIcon = new IconConfig(markRaw(FlashAlert), 'var(--item-type-colors-interruption-0-00)');
-    public readonly taskIcon = new IconConfig(markRaw(Target), 'var(--item-type-colors-task-0-00)');
-    public readonly idlingIcon = new IconConfig(markRaw(ProgressQuestion), 'var(--item-type-colors-idling-0-00)');
-    public readonly breakIcon = new IconConfig(markRaw(Food), 'var(--item-type-colors-break-0-00)');
-    public readonly workingTimeIcon = new IconConfig(markRaw(SwordCross));
-    public readonly notWorkingTimeIcon = new IconConfig(markRaw(ShieldCross));
+    public readonly interruptionIcon = IconUtility.getInterruptionTypeIcon();
+    public readonly taskIcon = IconUtility.getTaskTypeIcon();
+    public readonly idlingIcon = IconUtility.getIdlingTypeIcon();
+    public readonly breakIcon = IconUtility.getBreakTypeIcon();
+    public readonly workingTimeIcon = IconUtility.getWorkingTypeIcon();
+    public readonly notWorkingTimeIcon = IconUtility.getNotWorkingTypeIcon();
     public tabOptions: FilterGroupOption[] = [];
     public filterOptions: FilterGroupOption<EventType>[] = [];
     public day = new Date(new Date().setHours(0, 0, 0, 0));

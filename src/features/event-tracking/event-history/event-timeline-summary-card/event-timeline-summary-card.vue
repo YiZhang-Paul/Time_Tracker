@@ -1,10 +1,7 @@
 <template>
     <div class="event-timeline-summary-card-container">
         <div class="type">
-            <progress-question v-if="current.eventType === eventType.Idling" class="untracked" />
-            <food v-if="current.eventType === eventType.Break" class="break" />
-            <flash-alert v-if="current.eventType === eventType.Interruption" class="interruption" />
-            <target v-if="current.eventType === eventType.Task" class="task" />
+            <component :is="icon.component" :style="{ color: icon.color }"></component>
         </div>
 
         <span class="name">{{ name }}</span>
@@ -15,11 +12,11 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue, prop } from 'vue-class-component';
-import { FlashAlert, Food, ProgressQuestion, Target } from 'mdue';
+import { Vue, prop } from 'vue-class-component';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class EventTimelineSummaryCardProp {
@@ -27,16 +24,15 @@ class EventTimelineSummaryCardProp {
     public next = prop<EventTimelineDto | null>({ default: null });
 }
 
-@Options({
-    components: {
-        FlashAlert,
-        Food,
-        ProgressQuestion,
-        Target
-    }
-})
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
-    public readonly eventType = EventType;
+    public readonly icons = {
+        [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
+        [EventType.Break]: IconUtility.getBreakTypeIcon(),
+        [EventType.Interruption]: IconUtility.getInterruptionTypeIcon(),
+        [EventType.Task]: IconUtility.getTaskTypeIcon()
+    };
+
+    public readonly icon = this.icons[this.current.eventType];
 
     get name(): string {
         const { name, eventType } = this.current;
@@ -97,22 +93,6 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         margin-right: 1.5%;
         width: 3.5%;
         font-size: var(--font-sizes-700);
-
-        .untracked {
-            color: var(--item-type-colors-idling-0-00);
-        }
-
-        .break {
-            color: var(--item-type-colors-break-0-00);
-        }
-
-        .interruption {
-            color: var(--item-type-colors-interruption-0-00);
-        }
-
-        .task {
-            color: var(--item-type-colors-task-0-00);
-        }
     }
 
     .name {

@@ -7,12 +7,12 @@
 
         <div v-if="showTypes" class="types">
             <div class="type interruption-type" @click.stop="onTypeSelect(true)">
-                <flash-alert />
+                <component :is="interruptionIcon.component" :style="{ color: interruptionIcon.color }"></component>
                 <span>interruption</span>
             </div>
 
             <div class="type task-type" @click.stop="onTypeSelect(false)">
-                <target />
+                <component :is="taskIcon.component" :style="{ color: taskIcon.color }"></component>
                 <span>task</span>
             </div>
         </div>
@@ -22,17 +22,15 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { FlashAlert, Target } from 'mdue';
 
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
 import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
 
 @Options({
     components: {
-        FlashAlert,
-        Target,
         CreationButton
     },
     computed: {
@@ -40,6 +38,8 @@ import CreationButton from '../../../shared/buttons/creation-button/creation-but
     }
 })
 export default class WorkItemCreator extends Vue {
+    public readonly interruptionIcon = IconUtility.getInterruptionTypeIcon();
+    public readonly taskIcon = IconUtility.getTaskTypeIcon();
     public showTypes = false;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;

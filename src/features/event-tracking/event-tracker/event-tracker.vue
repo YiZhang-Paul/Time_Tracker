@@ -6,12 +6,12 @@
 
         <template v-if="!eventStore.isBreaking">
             <div class="working-duration" :class="{ active: eventStore.isWorking }">
-                <sword-cross class="icon" />
+                <component class="icon" :is="workingIcon.component"></component>
                 <span>{{ workingDuration }}</span>
             </div>
 
             <div class="non-working-duration" :class="{ active: eventStore.isNotWorking }">
-                <shield-cross class="icon" />
+                <component class="icon" :is="notWorkingIcon.component"></component>
                 <span>{{ nonWorkingDuration }}</span>
             </div>
         </template>
@@ -22,7 +22,6 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ShieldCross, SwordCross } from 'mdue';
 
 import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { useNotificationStore } from '../../../stores/notification/notification.store';
@@ -30,19 +29,18 @@ import { useEventStore } from '../../../stores/event/event.store';
 import { ConfirmationDialogOption } from '../../../core/models/options/confirmation-dialog-option';
 import { DialogConfig } from '../../../core/models/generic/dialog-config';
 import { ButtonType } from '../../../core/enums/button-type.enum';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import ConfirmationDialog from '../../../shared/dialogs/confirmation-dialog/confirmation-dialog.vue';
 
 @Options({
-    components: {
-        ShieldCross,
-        SwordCross
-    },
     computed: {
         ...mapStores(useDialogStore, useNotificationStore, useEventStore)
     }
 })
 export default class EventTracker extends Vue {
+    public readonly workingIcon = IconUtility.getWorkingTypeIcon();
+    public readonly notWorkingIcon = IconUtility.getNotWorkingTypeIcon();
     public remainingBreak = '';
     public workingDuration = '';
     public nonWorkingDuration = '';
@@ -144,7 +142,7 @@ export default class EventTracker extends Vue {
     .remaining-break {
         @include flex-row(center);
         width: 50%;
-        color: var(--event-type-colors-not-working-0-00);
+        color: var(--context-colors-suggestion-0-00);
         @include animate-opacity(0, 1, 0.4s);
     }
 
@@ -166,11 +164,11 @@ export default class EventTracker extends Vue {
     }
 
     .working-duration.active .icon {
-        color: var(--event-type-colors-working-0-00);
+        color: var(--context-colors-suggestion-0-00);
     }
 
     .non-working-duration.active .icon {
-        color: var(--event-type-colors-not-working-0-00);
+        color: var(--context-colors-suggestion-0-00);
     }
 }
 </style>
