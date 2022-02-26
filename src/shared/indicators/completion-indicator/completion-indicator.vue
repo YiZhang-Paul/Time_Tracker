@@ -46,7 +46,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
     }
 
     get completionText(): string {
-        return `${Math.floor(this.completion * 10) / 10}%`;
+        return `${Math.round(this.completion * 10) / 10}%`;
     }
 
     public mounted(): void {
@@ -71,7 +71,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
     font-size: $font-size;
 
     .description {
-        margin-bottom: 1vh;
+        margin-bottom: 0.75vh;
     }
 
     .completion-base {

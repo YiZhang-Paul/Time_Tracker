@@ -7,8 +7,8 @@
             </event-time-summary-card>
 
             <completion-indicator class="completion-indicator"
-                :description="dailyTargetTitle"
-                :percentage="dailyTargetCompletion">
+                :description="targetTitle"
+                :percentage="totalDuration / targetMilliseconds">
             </completion-indicator>
         </div>
 
@@ -17,6 +17,16 @@
                 :duration="interruptionDuration"
                 :icon="interruptionIcon">
             </event-time-summary-card>
+
+            <completion-indicator class="completion-indicator"
+                :description="interruptionCompletionTitle"
+                :percentage="interruptionCompletion">
+            </completion-indicator>
+
+            <completion-indicator class="completion-indicator"
+                :description="'Percentage - lower is better'"
+                :percentage="interruptionDuration / totalDuration">
+            </completion-indicator>
         </div>
 
         <div class="summaries">
@@ -24,6 +34,16 @@
                 :duration="taskDuration"
                 :icon="taskIcon">
             </event-time-summary-card>
+
+            <completion-indicator class="completion-indicator"
+                :description="taskCompletionTitle"
+                :percentage="taskCompletion">
+            </completion-indicator>
+
+            <completion-indicator class="completion-indicator"
+                :description="'Percentage - higher is better'"
+                :percentage="taskDuration / totalDuration">
+            </completion-indicator>
         </div>
     </div>
 </template>
@@ -49,32 +69,53 @@ class WorkingTimeSummaryProp {
     }
 })
 export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp) {
+    public readonly targetHours = 8;
+    public readonly targetMilliseconds = TimeUtility.convertTime(this.targetHours, 'hour', 'millisecond');
     public readonly workingTypeIcon = IconUtility.getWorkingTypeIcon();
     public readonly interruptionIcon = IconUtility.getInterruptionTypeIcon();
     public readonly taskIcon = IconUtility.getTaskTypeIcon();
-    private readonly dailyTargetHours = 8;
 
     get totalDuration(): number {
         return this.getDuration([EventType.Interruption, EventType.Task]);
     }
 
-    get dailyTargetTitle(): string {
+    get targetTitle(): string {
         const converted = TimeUtility.convertTime(this.totalDuration, 'millisecond', 'hour');
-        const completed = Math.floor(converted * 10) / 10;
+        const completed = Math.round(converted * 10) / 10;
 
-        return `Daily target - ${completed} out of ${this.dailyTargetHours} hrs`;
-    }
-
-    get dailyTargetCompletion(): number {
-        return this.totalDuration / TimeUtility.convertTime(this.dailyTargetHours, 'hour', 'millisecond');
+        return `Daily target - ${completed} out of ${this.targetHours} hrs`;
     }
 
     get interruptionDuration(): number {
         return this.getDuration([EventType.Interruption]);
     }
 
+    get interruptionCompletionTitle(): string {
+        const events = this.summaries.duration.filter(_ => _.eventType === EventType.Interruption);
+
+        return `Completed - ${events.filter(_ => _.isResolved).length} out of ${events.length}`;
+    }
+
+    get interruptionCompletion(): number {
+        const events = this.summaries.duration.filter(_ => _.eventType === EventType.Interruption);
+
+        return events.length ? events.filter(_ => _.isResolved).length / events.length : 0;
+    }
+
     get taskDuration(): number {
         return this.getDuration([EventType.Task]);
+    }
+
+    get taskCompletionTitle(): string {
+        const events = this.summaries.duration.filter(_ => _.eventType === EventType.Task);
+
+        return `Completed - ${events.filter(_ => _.isResolved).length} out of ${events.length}`;
+    }
+
+    get taskCompletion(): number {
+        const events = this.summaries.duration.filter(_ => _.eventType === EventType.Task);
+
+        return events.length ? events.filter(_ => _.isResolved).length / events.length : 0;
     }
 
     private getDuration(types: EventType[]): number {
@@ -95,8 +136,12 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
         width: 100%;
         height: 33%;
 
+        &:first-of-type {
+            height: 25%;
+        }
+
         .completion-indicator {
-            margin-top: 1.5vh;
+            margin-top: 1.25vh;
         }
     }
 }
