@@ -10,6 +10,14 @@ const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
 const defaultLocale = 'en-US';
 
+const conversions = {
+    millisecond: 1,
+    second: oneSecond,
+    minute: oneMinute,
+    hour: oneHour,
+    day: oneHour * 24
+};
+
 export class TimeUtility {
     public static isLeapYear(year: number): boolean {
         return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
@@ -72,6 +80,10 @@ export class TimeUtility {
         }
 
         return 'th';
+    }
+
+    public static convertTime(time: number, from: keyof(typeof conversions), to: keyof(typeof conversions)): number {
+        return conversions[from] * time / conversions[to];
     }
 
     private static prependZero(value: number): string {
