@@ -39,7 +39,7 @@ class EventDurationSummaryCardProp {
 export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
     get duration(): string {
         if (this.summary.duration < 60 * 1000) {
-            return '< 1m';
+            return '< 1 min';
         }
 
         return TimeUtility.getDurationString(this.summary.duration, 'standard');
