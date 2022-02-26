@@ -93,7 +93,7 @@ import { container } from '../../../core/ioc/container';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { IconConfig } from '../../../core/models/generic/icon-config';
-import { FilterGroupOption } from '../../../core/models/options/filter-group-option';
+import { ActionGroupOption } from '../../../core/models/options/action-group-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
 import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
@@ -127,8 +127,8 @@ import NotWorkingTimeSummary from './not-working-time-summary/not-working-time-s
     }
 })
 export default class EventHistory extends Vue {
-    public tabOptions: FilterGroupOption[] = [];
-    public filterOptions: FilterGroupOption<EventType>[] = [];
+    public tabOptions: ActionGroupOption[] = [];
+    public filterOptions: ActionGroupOption<EventType>[] = [];
     public day = new Date(new Date().setHours(0, 0, 0, 0));
     public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
@@ -157,13 +157,13 @@ export default class EventHistory extends Vue {
 
     public created(): void {
         this.tabOptions = [
-            new FilterGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
-            new FilterGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
+            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
+            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
         ];
 
         this.filterOptions = [
-            new FilterGroupOption('interruption', IconUtility.getInterruptionTypeIcon(), EventType.Interruption),
-            new FilterGroupOption('task', IconUtility.getTaskTypeIcon(), EventType.Task)
+            new ActionGroupOption('interruption', IconUtility.getInterruptionTypeIcon(), EventType.Interruption),
+            new ActionGroupOption('task', IconUtility.getTaskTypeIcon(), EventType.Task)
         ];
 
         this.eventStore.loadOngoingEventSummary();

@@ -15,10 +15,10 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import { FilterGroupOption } from '../../../core/models/options/filter-group-option';
+import { ActionGroupOption } from '../../../core/models/options/action-group-option';
 
 class TabGroupProp {
-    public modelValue = prop<FilterGroupOption[]>({ default: [] });
+    public modelValue = prop<ActionGroupOption[]>({ default: [] });
 }
 
 @Options({

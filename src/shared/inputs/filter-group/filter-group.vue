@@ -14,10 +14,10 @@
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
 
-import { FilterGroupOption } from '../../../core/models/options/filter-group-option';
+import { ActionGroupOption } from '../../../core/models/options/action-group-option';
 
 class FilterGroupProp {
-    public modelValue = prop<FilterGroupOption[]>({ default: [] });
+    public modelValue = prop<ActionGroupOption[]>({ default: [] });
 }
 
 @Options({
@@ -28,7 +28,7 @@ class FilterGroupProp {
 export default class FilterGroup extends Vue.with(FilterGroupProp) {
     public onFilter(index: number): void {
         const previous = this.modelValue[index];
-        const current: FilterGroupOption = { ...previous, isActive: !previous.isActive };
+        const current: ActionGroupOption = { ...previous, isActive: !previous.isActive };
         const updated = [...this.modelValue.slice(0, index), current, ...this.modelValue.slice(index + 1)];
         this.$emit('update:modelValue', updated);
     }

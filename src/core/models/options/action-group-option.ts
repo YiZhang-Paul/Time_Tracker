@@ -1,6 +1,6 @@
 import { IconConfig } from '../generic/icon-config';
 
-export class FilterGroupOption<T = unknown> {
+export class ActionGroupOption<T = unknown> {
     public name: string;
     public icon: IconConfig;
     public data: T | null;
