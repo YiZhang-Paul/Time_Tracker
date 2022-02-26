@@ -8,11 +8,7 @@
             <div class="actions-wrapper">
                 <div class="actions-left">
                     <tab-group v-model="tabOptions" class="tab-group"></tab-group>
-
-                    <filter-group v-if="!showTimeline && workingDurations.length"
-                        class="filter-group"
-                        v-model="filterOptions">
-                    </filter-group>
+                    <filter-group v-if="showRankViewActions" class="filter-group" v-model="filterOptions"></filter-group>
                 </div>
 
                 <span v-if="!showTimeline" class="item-count">
@@ -20,7 +16,7 @@
                 </span>
 
                 <div class="actions-right">
-                    <icon-button v-if="!showTimeline && workingDurations.length"
+                    <icon-button v-if="showRankViewActions"
                         class="action-button"
                         :tooltip="'export'"
                         @click="downloadTimesheets()">
@@ -168,6 +164,16 @@ export default class EventHistory extends Vue {
 
     get showTimeline(): boolean {
         return this.tabOptions[0].isActive;
+    }
+
+    get showRankViewActions(): boolean {
+        if (this.showTimeline) {
+            return false;
+        }
+
+        const types = [EventType.Interruption, EventType.Task];
+
+        return this.summaries.duration.some(_ => types.includes(_.eventType));
     }
 
     get workingDuration(): number {
