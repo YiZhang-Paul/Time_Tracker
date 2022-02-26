@@ -43,7 +43,7 @@ export default class FilterGroup extends Vue.with(FilterGroupProp) {
 
     button {
         @include flex-row(center, center);
-        width: 3.25vh;
+        padding: 0 6px;
         height: 3vh;
         border: none;
         border-left: 2px solid var(--font-colors-7-00);
@@ -60,16 +60,19 @@ export default class FilterGroup extends Vue.with(FilterGroupProp) {
         }
 
         &.active {
+            box-shadow: 0 0 6px 1px var(--context-colors-info-4-03);
             background-color: var(--context-colors-info-4-00);
         }
 
         &:first-of-type {
+            padding-left: 10px;
             border: none;
             border-top-left-radius: 15px;
             border-bottom-left-radius: 15px;
         }
 
         &:last-of-type {
+            padding-right: 10px;
             border-top-right-radius: 15px;
             border-bottom-right-radius: 15px;
         }

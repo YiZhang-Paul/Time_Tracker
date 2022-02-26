@@ -6,19 +6,29 @@
             </div>
 
             <div class="actions-wrapper">
-                <div class="actions">
-                    <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
-                    <icon-button class="action-button" @click="onDaySelect()"><refresh /></icon-button>
+                <div class="actions-left">
+                    <tab-group v-model="tabOptions" class="tab-group"></tab-group>
 
-                    <template v-if="!showTimeline && workingDurations.length">
-                        <icon-button class="action-button" @click="downloadTimesheets()"><export-variant /></icon-button>
-                        <filter-group class="filter-group" v-model="filterOptions"></filter-group>
-                    </template>
+                    <filter-group v-if="!showTimeline && workingDurations.length"
+                        class="filter-group"
+                        v-model="filterOptions">
+                    </filter-group>
                 </div>
 
                 <span v-if="!showTimeline" class="item-count">
                     {{ workingDurations.length }} item{{ workingDurations.length > 1 ? 's' : '' }}
                 </span>
+
+                <div class="actions-right">
+                    <icon-button v-if="!showTimeline && workingDurations.length"
+                        class="action-button"
+                        @click="downloadTimesheets()">
+
+                        <export-variant />
+                    </icon-button>
+
+                    <icon-button class="action-button" @click="onDaySelect()"><refresh /></icon-button>
+                </div>
             </div>
         </div>
 
@@ -82,7 +92,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ExportVariant, FlashAlert, Refresh, ShieldCross, SwordCross, Target } from 'mdue';
+import { ChartTimelineVariant, ExportVariant, FlashAlert, Refresh, ShieldCross, SwordCross, Target, TrophyAward } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { types } from '../../../core/ioc/types';
@@ -96,8 +106,8 @@ import { EventHttpService } from '../../../core/services/http/event-http/event-h
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import IconButton from '../../../shared/buttons/icon-button/icon-button.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
+import TabGroup from '../../../shared/inputs/tab-group/tab-group.vue';
 import FilterGroup from '../../../shared/inputs/filter-group/filter-group.vue';
-import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import EventTimelineSummaryCard from './event-timeline-summary-card/event-timeline-summary-card.vue';
@@ -113,8 +123,8 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
         EventDurationSummaryCard,
         IconButton,
         DateSelector,
+        TabGroup,
         FilterGroup,
-        ToggleSelector,
         OverlayScrollbarPanel
     },
     computed: {
@@ -122,12 +132,16 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     }
 })
 export default class EventHistory extends Vue {
+    public tabOptions: FilterGroupOption[] = [];
     public filterOptions: FilterGroupOption<EventType>[] = [];
     public day = new Date(new Date().setHours(0, 0, 0, 0));
-    public showTimeline = true;
     public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
     private readonly eventHttpService = container.get<EventHttpService>(types.EventHttpService);
+
+    get showTimeline(): boolean {
+        return this.tabOptions[0].isActive;
+    }
 
     get workingTime(): string {
         return this.getDurationString([EventType.Interruption, EventType.Task]);
@@ -163,6 +177,11 @@ export default class EventHistory extends Vue {
     public created(): void {
         const interruptionIcon = new IconConfig(markRaw(FlashAlert), 'var(--item-type-colors-interruption-0-00)');
         const taskIcon = new IconConfig(markRaw(Target), 'var(--item-type-colors-task-0-00)');
+
+        this.tabOptions = [
+            new FilterGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
+            new FilterGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
+        ];
 
         this.filterOptions = [
             new FilterGroupOption('interruption', interruptionIcon, EventType.Interruption),
@@ -226,31 +245,20 @@ export default class EventHistory extends Vue {
 
         .actions-wrapper {
             @include flex-row(center, center);
+            box-sizing: border-box;
+            padding-bottom: 1vh;
             position: relative;
             width: 100%;
             height: 40%;
 
-            .actions {
+            .actions-left {
                 @include flex-row(center, center);
                 position: absolute;
                 left: 0;
 
-                .view-toggle {
-                    font-size: var(--font-sizes-400);
-                }
-
-                .action-button, .filter-group {
-                    margin-left: 1vh;
+                .filter-group {
+                    margin-left: 1.5vh;
                     @include animate-opacity(0, 1, 0.3s, 0.1s);
-                }
-
-                .action-button {
-                    transition: all 0.3s;
-
-                    &:hover {
-                        background-color: var(--primary-colors-4-00);
-                        color: var(--font-colors-0-00);
-                    }
                 }
             }
 
@@ -258,11 +266,28 @@ export default class EventHistory extends Vue {
                 color: var(--font-colors-4-00);
                 font-size: var(--font-sizes-400);
             }
+
+            .actions-right {
+                @include flex-row(center, center);
+                position: absolute;
+                right: 0;
+
+                .action-button {
+                    margin-left: 1vh;
+                    transition: all 0.3s;
+                    @include animate-opacity(0, 1, 0.3s, 0.1s);
+
+                    &:hover {
+                        background-color: var(--primary-colors-4-00);
+                        color: var(--font-colors-0-00);
+                    }
+                }
+            }
         }
     }
 
     .separator {
-        width: 55vw;
+        width: calc(#{$summaries-width} * 0.975);
         height: 1px;
 
         background: linear-gradient(
@@ -300,17 +325,13 @@ export default class EventHistory extends Vue {
             @include flex-column(center, center);
             margin-top: 3.5vh;
             width: $summaries-width;
-            @include animate-opacity(0, 1, 0.3s, 0.3s);
-        }
-
-        .event-summaries-placeholder {
             height: $summaries-height;
+            @include animate-opacity(0, 1, 0.3s, 0.3s);
         }
 
         .event-summaries {
             box-sizing: border-box;
             padding: 0 3.5%;
-            max-height: $summaries-height;
 
             .event-summary-card {
                 margin-bottom: 1.25vh;

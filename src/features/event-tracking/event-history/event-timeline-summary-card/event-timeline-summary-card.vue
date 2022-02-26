@@ -135,11 +135,10 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         padding: 0.35vh 0;
         width: 10%;
         border-radius: 5vh;
-        box-shadow: 0 0 4px 1px var(--primary-colors-1-03);
-        background-color: var(--primary-colors-1-00);
-        color: var(--font-colors-7-00);
+        box-shadow: 0 0 4px 1px var(--context-colors-info-4-03);
+        background-color: var(--context-colors-info-4-00);
+        color: var(--font-colors-1-00);
         font-size: var(--font-sizes-300);
-        font-weight: 600;
     }
 }
 </style>
