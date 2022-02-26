@@ -39,12 +39,21 @@
 
         <div class="content">
             <div class="working-time-breakdown">
-                <sword-cross class="icon" />
-
                 <template v-if="summaries.timeline.length">
-                    <span>Working: {{ workingTime }}</span>
-                    <span>Interruptions: {{ interruptionTime }}</span>
-                    <span>Tasks: {{ taskTime }}</span>
+                    <event-time-summary-card :title="'You worked'"
+                        :duration="workingDuration"
+                        :icon="workingTimeIcon">
+                    </event-time-summary-card>
+
+                    <event-time-summary-card :title="'Interruptions'"
+                        :duration="interruptionDuration"
+                        :icon="interruptionIcon">
+                    </event-time-summary-card>
+
+                    <event-time-summary-card :title="'Tasks'"
+                        :duration="taskDuration"
+                        :icon="taskIcon">
+                    </event-time-summary-card>
                 </template>
 
                 <span v-if="!summaries.timeline.length">time information not available.</span>
@@ -77,12 +86,21 @@
             </template>
 
             <div class="not-working-time-breakdown">
-                <shield-cross class="icon" />
-
                 <template v-if="summaries.timeline.length">
-                    <span>Not Working: {{ notWorkingTime }}</span>
-                    <span>Idling: {{ idlingTime }}</span>
-                    <span>Breaks: {{ breakTime }}</span>
+                    <event-time-summary-card :title="'Time didn\'t work'"
+                        :duration="notWorkingDuration"
+                        :icon="notWorkingTimeIcon">
+                    </event-time-summary-card>
+
+                    <event-time-summary-card :title="'Untracked'"
+                        :duration="idlingDuration"
+                        :icon="idlingIcon">
+                    </event-time-summary-card>
+
+                    <event-time-summary-card :title="'Sleeps & Breaks'"
+                        :duration="breakDuration"
+                        :icon="breakIcon">
+                    </event-time-summary-card>
                 </template>
 
                 <span v-if="!summaries.timeline.length">time information not available.</span>
@@ -95,7 +113,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ChartTimelineVariant, ExportVariant, FlashAlert, Refresh, ShieldCross, SwordCross, Target, TrophyAward } from 'mdue';
+import { ChartTimelineVariant, ExportVariant, FlashAlert, Food, ProgressQuestion, Refresh, ShieldCross, SwordCross, Target, TrophyAward } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { types } from '../../../core/ioc/types';
@@ -106,13 +124,13 @@ import { IconConfig } from '../../../core/models/generic/icon-config';
 import { FilterGroupOption } from '../../../core/models/options/filter-group-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
-import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import IconButton from '../../../shared/buttons/icon-button/icon-button.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
 import TabGroup from '../../../shared/inputs/tab-group/tab-group.vue';
 import FilterGroup from '../../../shared/inputs/filter-group/filter-group.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
+import EventTimeSummaryCard from './event-time-summary-card/event-time-summary-card.vue';
 import EventTimelineSummaryCard from './event-timeline-summary-card/event-timeline-summary-card.vue';
 import EventDurationSummaryCard from './event-duration-summary-card/event-duration-summary-card.vue';
 
@@ -122,6 +140,7 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
         Refresh,
         ShieldCross,
         SwordCross,
+        EventTimeSummaryCard,
         EventTimelineSummaryCard,
         EventDurationSummaryCard,
         IconButton,
@@ -135,6 +154,12 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     }
 })
 export default class EventHistory extends Vue {
+    public readonly interruptionIcon = new IconConfig(markRaw(FlashAlert), 'var(--item-type-colors-interruption-0-00)');
+    public readonly taskIcon = new IconConfig(markRaw(Target), 'var(--item-type-colors-task-0-00)');
+    public readonly idlingIcon = new IconConfig(markRaw(ProgressQuestion), 'var(--item-type-colors-idling-0-00)');
+    public readonly breakIcon = new IconConfig(markRaw(Food), 'var(--item-type-colors-break-0-00)');
+    public readonly workingTimeIcon = new IconConfig(markRaw(SwordCross));
+    public readonly notWorkingTimeIcon = new IconConfig(markRaw(ShieldCross));
     public tabOptions: FilterGroupOption[] = [];
     public filterOptions: FilterGroupOption<EventType>[] = [];
     public day = new Date(new Date().setHours(0, 0, 0, 0));
@@ -146,28 +171,28 @@ export default class EventHistory extends Vue {
         return this.tabOptions[0].isActive;
     }
 
-    get workingTime(): string {
-        return this.getDurationString([EventType.Interruption, EventType.Task]);
+    get workingDuration(): number {
+        return this.getDuration([EventType.Interruption, EventType.Task]);
     }
 
-    get notWorkingTime(): string {
-        return this.getDurationString([EventType.Idling, EventType.Break]);
+    get notWorkingDuration(): number {
+        return this.getDuration([EventType.Idling, EventType.Break]);
     }
 
-    get interruptionTime(): string {
-        return this.getDurationString([EventType.Interruption]);
+    get interruptionDuration(): number {
+        return this.getDuration([EventType.Interruption]);
     }
 
-    get taskTime(): string {
-        return this.getDurationString([EventType.Task]);
+    get taskDuration(): number {
+        return this.getDuration([EventType.Task]);
     }
 
-    get idlingTime(): string {
-        return this.getDurationString([EventType.Idling]);
+    get idlingDuration(): number {
+        return this.getDuration([EventType.Idling]);
     }
 
-    get breakTime(): string {
-        return this.getDurationString([EventType.Break]);
+    get breakDuration(): number {
+        return this.getDuration([EventType.Break]);
     }
 
     get workingDurations(): EventDurationDto[] {
@@ -178,17 +203,14 @@ export default class EventHistory extends Vue {
     }
 
     public created(): void {
-        const interruptionIcon = new IconConfig(markRaw(FlashAlert), 'var(--item-type-colors-interruption-0-00)');
-        const taskIcon = new IconConfig(markRaw(Target), 'var(--item-type-colors-task-0-00)');
-
         this.tabOptions = [
             new FilterGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
             new FilterGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
         ];
 
         this.filterOptions = [
-            new FilterGroupOption('interruption', interruptionIcon, EventType.Interruption),
-            new FilterGroupOption('task', taskIcon, EventType.Task)
+            new FilterGroupOption('interruption', this.interruptionIcon, EventType.Interruption),
+            new FilterGroupOption('task', this.taskIcon, EventType.Task)
         ];
 
         this.eventStore.loadOngoingEventSummary();
@@ -203,11 +225,10 @@ export default class EventHistory extends Vue {
         this.eventHttpService.downloadTimesheetsByDay(this.day);
     }
 
-    private getDurationString(types: EventType[]): string {
+    private getDuration(types: EventType[]): number {
         const events = this.summaries.duration.filter(_ => types.includes(_.eventType));
-        const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
 
-        return TimeUtility.getDurationString(duration, 'short');
+        return events.map(_ => _.duration).reduce((total, _) => total + _, 0);
     }
 }
 </script>
@@ -315,13 +336,7 @@ export default class EventHistory extends Vue {
             @include animate-opacity(0, 1, 0.4s, 0.5s);
 
             & > span {
-                margin-bottom: 0.75vh;
                 @include animate-opacity(0, 1, 0.4s);
-            }
-
-            .icon {
-                margin-bottom: 1.5vh;
-                font-size: var(--font-sizes-1000);
             }
         }
 
