@@ -8,7 +8,7 @@
 
             <completion-indicator class="completion-indicator"
                 :description="quotaTitle"
-                :percentage="totalDuration / quotaMilliseconds"
+                :percentage="quotaMilliseconds ? totalDuration / quotaMilliseconds : 0"
                 :isHigherPreferred="false">
             </completion-indicator>
         </div>
@@ -21,7 +21,7 @@
 
             <completion-indicator class="completion-indicator"
                 :description="'Percentage - lower is better'"
-                :percentage="idlingDuration / totalDuration"
+                :percentage="totalDuration ? idlingDuration / totalDuration : 0"
                 :isHigherPreferred="false">
             </completion-indicator>
         </div>
@@ -33,13 +33,13 @@
             </event-time-summary-card>
 
             <completion-indicator class="completion-indicator"
-                :description="breakTargetTitle"
-                :percentage="breakTarget">
+                :description="breakCompletionTitle"
+                :percentage="breakCompletion">
             </completion-indicator>
 
             <completion-indicator class="completion-indicator"
                 :description="'Percentage - higher is better'"
-                :percentage="breakDuration / totalDuration">
+                :percentage="totalDuration ? breakDuration / totalDuration : 0">
             </completion-indicator>
         </div>
     </div>
@@ -90,18 +90,20 @@ export default class NotWorkingTimeSummary extends Vue.with(NotWorkingTimeSummar
         return this.getDuration([EventType.Break]);
     }
 
-    get breakTargetTitle(): string {
-        const workTime = this.getDuration([EventType.Interruption, EventType.Task]);
-        const workingDuration = TimeUtility.convertTime(workTime, 'millisecond', 'hour');
-        const breakDuration = TimeUtility.convertTime(this.breakDuration, 'millisecond', 'hour');
+    get breakCompletionTitle(): string {
+        const completed = TimeUtility.convertTime(this.breakDuration, 'millisecond', 'hour');
 
-        return `Daily target - ${breakDuration} out of ${workingDuration} hrs`;
+        return `Daily target - ${completed} out of ${this.breakTarget} hrs`;
+    }
+
+    get breakCompletion(): number {
+        return TimeUtility.convertTime(this.breakDuration, 'millisecond', 'hour') / this.breakTarget;
     }
 
     get breakTarget(): number {
-        const events = this.summaries.duration.filter(_ => _.eventType === EventType.Break);
+        const workingDuration = this.getDuration([EventType.Interruption, EventType.Task]);
 
-        return events.length ? events.filter(_ => _.isResolved).length / events.length : 0;
+        return TimeUtility.convertTime(workingDuration / 5, 'millisecond', 'hour') + 8;
     }
 
     private getDuration(types: EventType[]): number {

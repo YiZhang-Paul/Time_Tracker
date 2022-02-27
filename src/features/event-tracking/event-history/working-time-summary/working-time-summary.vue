@@ -8,7 +8,7 @@
 
             <completion-indicator class="completion-indicator"
                 :description="targetTitle"
-                :percentage="totalDuration / targetMilliseconds">
+                :percentage="targetMilliseconds ? totalDuration / targetMilliseconds : 0">
             </completion-indicator>
         </div>
 
@@ -20,12 +20,13 @@
 
             <completion-indicator class="completion-indicator"
                 :description="interruptionCompletionTitle"
-                :percentage="interruptionCompletion">
+                :percentage="interruptionCompletion"
+                :isDisabled="isInterruptionCompletionDisabled">
             </completion-indicator>
 
             <completion-indicator class="completion-indicator"
                 :description="'Percentage - lower is better'"
-                :percentage="interruptionDuration / totalDuration"
+                :percentage="totalDuration ? interruptionDuration / totalDuration : 0"
                 :isHigherPreferred="false">
             </completion-indicator>
         </div>
@@ -38,12 +39,13 @@
 
             <completion-indicator class="completion-indicator"
                 :description="taskCompletionTitle"
-                :percentage="taskCompletion">
+                :percentage="taskCompletion"
+                :isDisabled="isTaskCompletionDisabled">
             </completion-indicator>
 
             <completion-indicator class="completion-indicator"
                 :description="'Percentage - higher is better'"
-                :percentage="taskDuration / totalDuration">
+                :percentage="totalDuration ? taskDuration / totalDuration : 0">
             </completion-indicator>
         </div>
     </div>
@@ -102,6 +104,10 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
         return events.length ? events.filter(_ => _.isResolved).length / events.length : 0;
     }
 
+    get isInterruptionCompletionDisabled(): boolean {
+        return this.summaries.duration.every(_ => _.eventType !== EventType.Interruption);
+    }
+
     get taskDuration(): number {
         return this.getDuration([EventType.Task]);
     }
@@ -116,6 +122,10 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
         const events = this.summaries.duration.filter(_ => _.eventType === EventType.Task);
 
         return events.length ? events.filter(_ => _.isResolved).length / events.length : 0;
+    }
+
+    get isTaskCompletionDisabled(): boolean {
+        return this.summaries.duration.every(_ => _.eventType !== EventType.Task);
     }
 
     private getDuration(types: EventType[]): number {
