@@ -5,26 +5,38 @@
         </div>
 
         <span class="name">{{ name }}</span>
-        <div class="range">{{ start }} - {{ end }}</div>
-        <div class="breakdown"></div>
+        <div class="range">{{ timeRange }}</div>
+
+        <activity-indicator class="breakdown"
+            :periods="timePeriods"
+            :color="icon.color">
+        </activity-indicator>
+
         <div class="duration">{{ duration }}</div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
+import { TimePeriod } from '../../../../core/models/generic/time-period';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import ActivityIndicator from '../../../../shared/indicators/activity-indicator/activity-indicator.vue';
 
 class EventTimelineSummaryCardProp {
     public current = prop<EventTimelineDto>({ default: new EventTimelineDto() });
     public next = prop<EventTimelineDto | null>({ default: null });
 }
 
+@Options({
+    components: {
+        ActivityIndicator
+    }
+})
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
     private readonly icons = {
         [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
@@ -47,18 +59,28 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         return eventType === EventType.Idling ? 'Untracked' : 'Break';
     }
 
-    get start(): string {
-        return TimeUtility.getTimeString(new Date(this.current.startTime), false);
+    get timeRange(): string {
+        const start = TimeUtility.getTimeString(new Date(this.current.startTime), false);
+        const end = this.endTime.getTime() >= Date.now() ? 'NOW' : TimeUtility.getTimeString(this.endTime, false);
+
+        return `${start} - ${end}`;
     }
 
-    get end(): string {
+    get timePeriods(): TimePeriod<number>[] {
+        return [{
+            start: new Date(this.current.startTime).getTime(),
+            end: Math.min(this.endTime.getTime(), Date.now())
+        }];
+    }
+
+    get endTime(): Date {
         if (this.next) {
-            return TimeUtility.getTimeString(new Date(this.next.startTime), false);
+            return new Date(this.next.startTime);
         }
 
-        const end = new Date(this.current.startTime).setHours(23, 59, 59, 999);
+        const start = new Date(this.current.startTime);
 
-        return end >= Date.now() ? 'NOW' : TimeUtility.getTimeString(new Date(end), false);
+        return new Date(start.setHours(23, 59, 59, 999));
     }
 
     get duration(): string {
@@ -109,8 +131,10 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     }
 
     .breakdown {
-        width: 32.5%;
-        height: 1px;
+        margin-left: 5%;
+        margin-right: 7.5%;
+        width: 20%;
+        height: 0.75vh;
     }
 
     .duration {

@@ -10,7 +10,11 @@
 
         <span class="name">{{ summary.name }}</span>
         <div class="duration">{{ duration }}</div>
-        <div class="breakdown"></div>
+
+        <activity-indicator class="breakdown"
+            :periods="timePeriods"
+            :color="timePeriodsColor">
+        </activity-indicator>
 
         <div class="status" :class="{ resolved: summary.isResolved, deleted: summary.isDeleted }">
             <span v-if="summary.isDeleted">Deleted</span>
@@ -24,7 +28,11 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Trophy } from 'mdue';
 
 import { EventDurationDto } from '../../../../core/dtos/event-duration-dto';
+import { TimePeriod } from '../../../../core/models/generic/time-period';
+import { EventType } from '../../../../core/enums/event-type.enum';
+import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import ActivityIndicator from '../../../../shared/indicators/activity-indicator/activity-indicator.vue';
 
 class EventDurationSummaryCardProp {
     public summary = prop<EventDurationDto>({ default: new EventDurationDto() });
@@ -33,10 +41,30 @@ class EventDurationSummaryCardProp {
 
 @Options({
     components: {
-        Trophy
+        Trophy,
+        ActivityIndicator
     }
 })
 export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
+    private readonly icons = {
+        [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
+        [EventType.Break]: IconUtility.getBreakTypeIcon(),
+        [EventType.Interruption]: IconUtility.getInterruptionTypeIcon(),
+        [EventType.Task]: IconUtility.getTaskTypeIcon()
+    };
+
+    get timePeriods(): TimePeriod<number>[] {
+        return this.summary.periods.map(({ start, end }) => {
+            const [startTime, endTime] = [new Date(start), new Date(end)];
+
+            return new TimePeriod(startTime.getTime(), endTime.getTime());
+        });
+    }
+
+    get timePeriodsColor(): string {
+        return this.icons[this.summary.eventType].color;
+    }
+
     get duration(): string {
         if (this.summary.duration < 60 * 1000) {
             return '< 1 min';
@@ -101,8 +129,10 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
     }
 
     .breakdown {
-        width: 32.5%;
-        height: 1px;
+        margin-left: 5%;
+        margin-right: 7.5%;
+        width: 20%;
+        height: 0.75vh;
     }
 
     .status {
