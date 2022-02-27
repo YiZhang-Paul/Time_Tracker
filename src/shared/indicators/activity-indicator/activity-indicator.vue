@@ -16,12 +16,12 @@ import { TimePeriod } from '../../../core/models/generic/time-period';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 
 class ActivityIndicatorProp {
-    public periods = prop<TimePeriod[]>({ default: [] });
+    public periods = prop<TimePeriod<number>[]>({ default: [] });
     public color = prop<string>({ default: 'var(--primary-colors-1-00)' });
 }
 
 export default class ActivityIndicator extends Vue.with(ActivityIndicatorProp) {
-    public getStyles({ start, end }: TimePeriod): StyleConfigs {
+    public getStyles({ start, end }: TimePeriod<number>): StyleConfigs {
         const dayStart = new Date(start).setHours(0, 0, 0, 0);
         const duration = TimeUtility.convertTime(end - start, 'millisecond', 'day', 4);
         const sinceDayStart = TimeUtility.convertTime(start - dayStart, 'millisecond', 'day', 4);

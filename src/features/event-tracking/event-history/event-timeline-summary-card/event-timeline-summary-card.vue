@@ -66,7 +66,7 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         return `${start} - ${end}`;
     }
 
-    get timePeriods(): TimePeriod[] {
+    get timePeriods(): TimePeriod<number>[] {
         return [{
             start: new Date(this.current.startTime).getTime(),
             end: Math.min(this.endTime.getTime(), Date.now())

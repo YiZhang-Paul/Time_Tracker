@@ -6,7 +6,7 @@
             <div class="completion" :style="completionStyle"></div>
             <span class="percentage">{{ completionText }}</span>
 
-            <div v-if="completion > 100" class="marker" :style="{ left: `${100 / completion * 100}%` }">
+            <div v-if="completion > 105" class="marker" :style="{ left: `${100 / completion * 100}%` }">
                 <div></div>
                 <span>100%</span>
             </div>
