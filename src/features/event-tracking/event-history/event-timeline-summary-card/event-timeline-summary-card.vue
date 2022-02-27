@@ -15,6 +15,7 @@
 import { Vue, prop } from 'vue-class-component';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
+import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -25,14 +26,16 @@ class EventTimelineSummaryCardProp {
 }
 
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
-    public readonly icons = {
+    private readonly icons = {
         [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
         [EventType.Break]: IconUtility.getBreakTypeIcon(),
         [EventType.Interruption]: IconUtility.getInterruptionTypeIcon(),
         [EventType.Task]: IconUtility.getTaskTypeIcon()
     };
 
-    public readonly icon = this.icons[this.current.eventType];
+    get icon(): IconConfig {
+        return this.icons[this.current.eventType];
+    }
 
     get name(): string {
         const { name, eventType } = this.current;
