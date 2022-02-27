@@ -283,9 +283,9 @@ export default class EventHistory extends Vue {
             @include animate-opacity(0, 1, 0.4s, 0.5s);
 
             .time-summary {
-                margin-top: 2.5vh;
+                margin-top: 3.5vh;
                 width: 60%;
-                height: 82.5%;
+                height: 80%;
             }
 
             & > span {

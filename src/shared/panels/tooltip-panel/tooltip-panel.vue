@@ -1,6 +1,6 @@
 <template>
     <div class="tooltip-panel-container">
-        <div class="tooltip-content" :class="position">{{ content }}</div>
+        <div class="tooltip-content" :class="tooltipClasses">{{ content }}</div>
         <slot></slot>
     </div>
 </template>
@@ -8,12 +8,21 @@
 <script lang="ts">
 import { Vue, prop } from 'vue-class-component';
 
+import { ClassConfigs } from '../../../core/models/generic/class-configs';
+
 class TooltipPanelProp {
     public content = prop<string>({ default: '' });
     public position = prop<'top' | 'bottom' | 'left' | 'right'>({ default: 'top' });
 }
 
-export default class TooltipPanel extends Vue.with(TooltipPanelProp) { }
+export default class TooltipPanel extends Vue.with(TooltipPanelProp) {
+    get tooltipClasses(): ClassConfigs {
+        return {
+            [this.position]: true,
+            visible: Boolean(this.content)
+        };
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -23,7 +32,7 @@ export default class TooltipPanel extends Vue.with(TooltipPanelProp) { }
 
     position: relative;
 
-    &:hover .tooltip-content {
+    &:hover .tooltip-content.visible {
         display: block;
     }
 
