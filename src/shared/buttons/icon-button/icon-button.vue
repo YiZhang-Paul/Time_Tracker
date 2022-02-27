@@ -1,14 +1,29 @@
 <template>
-    <button class="icon-button-container" :class="{ disabled: isDisabled }"><slot></slot></button>
+    <tooltip-panel class="icon-button-container"
+        :class="{ disabled: isDisabled }"
+        :content="tooltip"
+        :position="tooltipPosition">
+
+        <slot></slot>
+    </tooltip-panel>
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
+
+import TooltipPanel from '../../panels/tooltip-panel/tooltip-panel.vue';
 
 class IconButtonProp {
+    public tooltip = prop<string>({ default: '' });
+    public tooltipPosition = prop<'top' | 'bottom' | 'left' | 'right'>({ default: 'top' });
     public isDisabled = prop<boolean>({ default: false });
 }
 
+@Options({
+    components: {
+        TooltipPanel
+    }
+})
 export default class IconButton extends Vue.with(IconButtonProp) { }
 </script>
 

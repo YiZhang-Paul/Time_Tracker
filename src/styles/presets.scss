@@ -8,18 +8,26 @@
     --font-sizes-500: 1.25rem; // 20px
     --font-sizes-600: 1.5rem; // 24px
     --font-sizes-700: 1.75rem; // 28px
+    --font-sizes-750: 2.375rem; // 38px
     --font-sizes-800: 3rem; // 48px
     --font-sizes-900: 4.5rem; // 72px
     --font-sizes-1000: 6.75rem; // 108px
     // font colors
     --font-colors-0-00: rgb(255, 255, 255);
+    --font-colors-0-01: rgba(255, 255, 255, 0.1);
+    --font-colors-0-03: rgba(255, 255, 255, 0.3);
     --font-colors-1-00: rgb(235, 235, 235);
     --font-colors-2-00: rgb(210, 210, 210);
     --font-colors-3-00: rgb(180, 180, 180);
     --font-colors-4-00: rgb(150, 150, 150);
     --font-colors-5-00: rgb(120, 120, 120);
+    --font-colors-7-00: rgb(75, 75, 75);
+    --font-colors-8-00: rgb(50, 50, 50);
     --font-colors-9-00: rgb(25, 25, 25);
     // primary colors
+    --primary-colors-1-00: rgb(236, 230, 250);
+    --primary-colors-2-00: rgb(193, 184, 214);
+    --primary-colors-2-03: rgba(193, 184, 214, 0.3);
     --primary-colors-4-00: rgb(125, 119, 141);
     --primary-colors-5-00: rgb(106, 100, 121);
     --primary-colors-6-00: rgb(92, 87, 104);
@@ -28,38 +36,49 @@
     --primary-colors-9-00: rgb(59, 54, 69);
     --primary-colors-10-00: rgb(49, 45, 60);
     // item type colors
+    --item-type-colors-idling-0-00: rgb(178, 178, 178);
+    --item-type-colors-break-0-00: rgb(236, 130, 30);
     --item-type-colors-task-0-00: rgb(40, 207, 216);
     --item-type-colors-task-1-00: rgb(23, 135, 141);
     --item-type-colors-task-2-01: rgba(25, 184, 247, 0.1);
     --item-type-colors-interruption-0-00: rgb(219, 177, 70);
     --item-type-colors-interruption-1-00: rgb(157, 125, 42);
     --item-type-colors-interruption-2-01: rgba(228, 188, 87, 0.1);
-    // event type colors
-    --event-type-colors-working-0-00: rgb(255, 67, 67);
-    --event-type-colors-not-working-0-00: rgb(28, 228, 128);
     // priority colors
     --priority-colors-low-0-00: rgb(86, 233, 28);
     --priority-colors-medium-0-00: rgb(241, 155, 26);
     --priority-colors-high-0-00: rgb(248, 53, 53);
+    // rank colors
+    --rank-colors-first-place-0-00: rgb(243, 237, 52);
+    --rank-colors-second-place-0-00: rgb(235, 235, 235);
+    --rank-colors-third-place-0-00: rgb(211, 84, 42);
     // button colors
     --creation-button-color-start: rgb(21, 218, 76);
     --creation-button-color-end: rgba(15, 168, 58, 0.3);
     --creation-button-color-shadow: rgba(5, 164, 49, 0.35);
     // context colors
     --context-colors-suggestion-0-00: rgb(233, 201, 23);
+    --context-colors-suggestion-0-04: rgba(233, 201, 23, 0.4);
     --context-colors-suggestion-1-00: rgb(192, 166, 21);
     --context-colors-suggestion-1-03: rgba(192, 166, 21, 0.3);
     --context-colors-success-0-00: rgb(49, 253, 59);
+    --context-colors-success-0-04: rgba(49, 253, 59, 0.4);
     --context-colors-success-1-00: rgb(30, 185, 38);
     --context-colors-success-1-03: rgba(30, 185, 38, 0.3);
     --context-colors-warning-0-00: rgb(253, 49, 49);
+    --context-colors-warning-0-04: rgba(253, 49, 49, 0.4);
     --context-colors-warning-1-00: rgb(212, 32, 32);
     --context-colors-info-0-00: rgb(34, 198, 219);
     --context-colors-info-0-03: rgba(34, 198, 219, 0.3);
     --context-colors-info-1-00: rgb(26, 168, 187);
     --context-colors-info-1-03: rgba(26, 168, 187, 0.3);
+    --context-colors-info-4-00: rgb(40, 146, 160);
+    --context-colors-info-4-03: rgba(40, 146, 160, 0.3);
+    --context-colors-info-5-00: rgb(47, 118, 128);
+    --context-colors-info-8-00: rgb(53, 76, 92);
     --context-colors-disabled-0-00: rgb(145, 145, 145);
     --context-colors-disabled-1-00: rgb(85, 85, 85);
+    --context-colors-disabled-1-03: rgba(85, 85, 85, 0.3);
     --context-colors-disabled-2-00: rgb(60, 60, 60);
     // scrollbar colors
     --scrollbar-color: rgba(180, 180, 180, 0.6);

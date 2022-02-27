@@ -10,6 +10,14 @@ const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
 const defaultLocale = 'en-US';
 
+const conversions = {
+    millisecond: 1,
+    second: oneSecond,
+    minute: oneMinute,
+    hour: oneHour,
+    day: oneHour * 24
+};
+
 export class TimeUtility {
     public static isLeapYear(year: number): boolean {
         return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
@@ -27,23 +35,31 @@ export class TimeUtility {
         return `${dayOfWeek}, ${month} ${date.getDate()}${suffix}, ${date.getFullYear()}`;
     }
 
-    public static getTimeString(date: Date): string {
+    public static getTimeString(date: Date, includeSuffix = true): string {
         const hours = date.getHours();
-        const minutes = this.prependZero(date.getMinutes());
+        const time = `${this.prependZero(hours)}:${this.prependZero(date.getMinutes())}`;
 
-        return `${this.prependZero(hours)}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`;
+        if (!includeSuffix) {
+            return time;
+        }
+
+        return `${time} ${hours < 12 ? 'AM' : 'PM'}`;
     }
 
     public static getShortMonthString(date: Date): string {
         return months[date.getMonth()].slice(0, 3);
     }
 
-    public static getDurationString(milliseconds: number, isStandard = true): string {
+    public static getDurationString(milliseconds: number, format: 'standard' | 'short' | 'raw' = 'raw'): string {
         const hours = Math.floor(milliseconds / oneHour);
         const minutes = Math.floor(milliseconds % oneHour / oneMinute);
         const seconds = Math.floor(milliseconds % oneMinute / oneSecond);
 
-        if (!isStandard) {
+        if (format === 'standard') {
+            return `${hours} hr ${minutes} min`;
+        }
+
+        if (format === 'short') {
             return `${hours}h ${minutes}m`;
         }
 
@@ -64,6 +80,17 @@ export class TimeUtility {
         }
 
         return 'th';
+    }
+
+    public static convertTime(
+        time: number,
+        from: keyof(typeof conversions),
+        to: keyof(typeof conversions),
+        decimal = 1
+    ): number {
+        const modifier = Math.pow(10, decimal);
+
+        return Math.round(conversions[from] * time / conversions[to] * modifier) / modifier;
     }
 
     private static prependZero(value: number): string {

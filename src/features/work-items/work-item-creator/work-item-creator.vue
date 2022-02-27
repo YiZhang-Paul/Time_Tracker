@@ -7,11 +7,13 @@
 
         <div v-if="showTypes" class="types">
             <div class="type interruption-type" @click.stop="onTypeSelect(true)">
-                <flash-alert />
+                <component :is="interruptionIcon.component" :style="{ color: interruptionIcon.color }"></component>
+                <span>interruption</span>
             </div>
 
             <div class="type task-type" @click.stop="onTypeSelect(false)">
-                <sitemap />
+                <component :is="taskIcon.component" :style="{ color: taskIcon.color }"></component>
+                <span>task</span>
             </div>
         </div>
     </div>
@@ -20,17 +22,15 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { FlashAlert, Sitemap } from 'mdue';
 
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
 import { DomUtility } from '../../../core/utilities/dom-utility/dom-utility';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import CreationButton from '../../../shared/buttons/creation-button/creation-button.vue';
 
 @Options({
     components: {
-        FlashAlert,
-        Sitemap,
         CreationButton
     },
     computed: {
@@ -38,6 +38,8 @@ import CreationButton from '../../../shared/buttons/creation-button/creation-but
     }
 })
 export default class WorkItemCreator extends Vue {
+    public readonly interruptionIcon = IconUtility.getInterruptionTypeIcon();
+    public readonly taskIcon = IconUtility.getTaskTypeIcon();
     public showTypes = false;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
@@ -97,8 +99,9 @@ export default class WorkItemCreator extends Vue {
         @include animate-opacity(0, 1, 0.2s);
 
         .type {
-            @include flex-row(center, center);
+            @include flex-column(center, center);
             padding: 1vh;
+            min-width: 3.5vw;
             border-radius: 5px;
             border: 2px solid var(--primary-colors-4-00);
             background-color: var(--primary-colors-9-00);
@@ -121,6 +124,11 @@ export default class WorkItemCreator extends Vue {
 
             &.task-type:hover {
                 color: var(--item-type-colors-task-0-00);
+            }
+
+            span {
+                margin-top: 3px;
+                font-size: var(--font-sizes-300);
             }
         }
     }

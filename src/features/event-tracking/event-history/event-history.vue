@@ -1,24 +1,44 @@
 <template>
     <div class="event-history-container">
-        <div class="date">
-            <span>History of</span>
-            <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+        <div class="header">
+            <div class="date-wrapper">
+                <date-selector v-model="day" @update:modelValue="onDaySelect()"></date-selector>
+            </div>
 
-            <div class="actions">
-                <export-variant v-if="workingDurations.length" class="timesheets-button" @click="downloadTimesheets()" />
-                <toggle-selector v-model="showTimeline" class="view-toggle">timeline</toggle-selector>
+            <div class="actions-wrapper">
+                <div class="actions-left">
+                    <tab-group v-model="tabOptions" class="tab-group"></tab-group>
+                    <filter-group v-if="showRankViewActions" class="filter-group" v-model="filterOptions"></filter-group>
+                </div>
+
+                <span v-if="!showTimeline" class="item-count">
+                    {{ workingDurations.length }} item{{ workingDurations.length > 1 ? 's' : '' }}
+                </span>
+
+                <div class="actions-right">
+                    <icon-button v-if="showRankViewActions"
+                        class="action-button"
+                        :tooltip="'export'"
+                        @click="downloadTimesheets()">
+
+                        <export-variant />
+                    </icon-button>
+
+                    <icon-button class="action-button" @click="onDaySelect()" :tooltip="'refresh'">
+                        <refresh />
+                    </icon-button>
+                </div>
             </div>
         </div>
 
+        <div class="separator"></div>
+
         <div class="content">
             <div class="working-time-breakdown">
-                <sword-cross class="icon" />
-
-                <template v-if="summaries.timeline.length">
-                    <span>Working: {{ workingTime }}</span>
-                    <span>Interruptions: {{ interruptionTime }}</span>
-                    <span>Tasks: {{ taskTime }}</span>
-                </template>
+                <working-time-summary v-if="summaries.timeline.length"
+                    class="time-summary"
+                    :summaries="summaries">
+                </working-time-summary>
 
                 <span v-if="!summaries.timeline.length">time information not available.</span>
             </div>
@@ -43,19 +63,17 @@
                     <event-duration-summary-card v-for="(duration, index) in workingDurations"
                         class="event-summary-card"
                         :summary="duration"
+                        :rank="index + 1"
                         :key="index">
                     </event-duration-summary-card>
                 </overlay-scrollbar-panel>
             </template>
 
             <div class="not-working-time-breakdown">
-                <shield-cross class="icon" />
-
-                <template v-if="summaries.timeline.length">
-                    <span>Not Working: {{ notWorkingTime }}</span>
-                    <span>Idling: {{ idlingTime }}</span>
-                    <span>Breaks: {{ breakTime }}</span>
-                </template>
+                <not-working-time-summary v-if="summaries.timeline.length"
+                    class="time-summary"
+                    :summaries="summaries">
+                </not-working-time-summary>
 
                 <span v-if="!summaries.timeline.length">time information not available.</span>
             </div>
@@ -64,34 +82,44 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { ExportVariant, ShieldCross, SwordCross } from 'mdue';
+import { ChartTimelineVariant, ExportVariant, Refresh, TrophyAward } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { types } from '../../../core/ioc/types';
 import { container } from '../../../core/ioc/container';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
+import { IconConfig } from '../../../core/models/generic/icon-config';
+import { ActionGroupOption } from '../../../core/models/options/action-group-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
-import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
-import ToggleSelector from '../../../shared/inputs/toggle-selector/toggle-selector.vue';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
+import IconButton from '../../../shared/buttons/icon-button/icon-button.vue';
 import DateSelector from '../../../shared/inputs/date-selector/date-selector.vue';
+import TabGroup from '../../../shared/inputs/tab-group/tab-group.vue';
+import FilterGroup from '../../../shared/inputs/filter-group/filter-group.vue';
 import OverlayScrollbarPanel from '../../../shared/panels/overlay-scrollbar-panel/overlay-scrollbar-panel.vue';
 
 import EventTimelineSummaryCard from './event-timeline-summary-card/event-timeline-summary-card.vue';
 import EventDurationSummaryCard from './event-duration-summary-card/event-duration-summary-card.vue';
+import WorkingTimeSummary from './working-time-summary/working-time-summary.vue';
+import NotWorkingTimeSummary from './not-working-time-summary/not-working-time-summary.vue';
 
 @Options({
     components: {
         ExportVariant,
-        ShieldCross,
-        SwordCross,
+        Refresh,
         EventTimelineSummaryCard,
         EventDurationSummaryCard,
-        ToggleSelector,
+        WorkingTimeSummary,
+        NotWorkingTimeSummary,
+        IconButton,
         DateSelector,
+        TabGroup,
+        FilterGroup,
         OverlayScrollbarPanel
     },
     computed: {
@@ -99,43 +127,45 @@ import EventDurationSummaryCard from './event-duration-summary-card/event-durati
     }
 })
 export default class EventHistory extends Vue {
+    public tabOptions: ActionGroupOption[] = [];
+    public filterOptions: ActionGroupOption<EventType>[] = [];
     public day = new Date(new Date().setHours(0, 0, 0, 0));
-    public showTimeline = true;
     public summaries = new EventSummariesDto();
     public eventStore!: ReturnType<typeof useEventStore>;
     private readonly eventHttpService = container.get<EventHttpService>(types.EventHttpService);
 
-    get workingTime(): string {
-        return this.getDurationString([EventType.Interruption, EventType.Task]);
+    get showTimeline(): boolean {
+        return this.tabOptions[0].isActive;
     }
 
-    get notWorkingTime(): string {
-        return this.getDurationString([EventType.Idling, EventType.Break]);
-    }
+    get showRankViewActions(): boolean {
+        if (this.showTimeline) {
+            return false;
+        }
 
-    get interruptionTime(): string {
-        return this.getDurationString([EventType.Interruption]);
-    }
+        const types = [EventType.Interruption, EventType.Task];
 
-    get taskTime(): string {
-        return this.getDurationString([EventType.Task]);
-    }
-
-    get idlingTime(): string {
-        return this.getDurationString([EventType.Idling]);
-    }
-
-    get breakTime(): string {
-        return this.getDurationString([EventType.Break]);
+        return this.summaries.duration.some(_ => types.includes(_.eventType));
     }
 
     get workingDurations(): EventDurationDto[] {
-        const types = [EventType.Interruption, EventType.Task];
+        const options = this.filterOptions.filter(_ => _.isActive);
+        const types = (options.length ? options : this.filterOptions).map(_ => _.data);
 
         return this.summaries.duration.filter(_ => types.includes(_.eventType));
     }
 
     public created(): void {
+        this.tabOptions = [
+            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
+            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
+        ];
+
+        this.filterOptions = [
+            new ActionGroupOption('interruption', IconUtility.getInterruptionTypeIcon(), EventType.Interruption),
+            new ActionGroupOption('task', IconUtility.getTaskTypeIcon(), EventType.Task)
+        ];
+
         this.eventStore.loadOngoingEventSummary();
         this.onDaySelect();
     }
@@ -147,13 +177,6 @@ export default class EventHistory extends Vue {
     public downloadTimesheets(): void {
         this.eventHttpService.downloadTimesheetsByDay(this.day);
     }
-
-    private getDurationString(types: EventType[]): string {
-        const events = this.summaries.duration.filter(_ => types.includes(_.eventType));
-        const duration = events.map(_ => _.duration).reduce((total, _) => total + _, 0);
-
-        return TimeUtility.getDurationString(duration, false);
-    }
 }
 </script>
 
@@ -162,94 +185,130 @@ export default class EventHistory extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    $summaries-width: 45%;
-    $summaries-height: 75%;
+    $summaries-width: 57.5%;
+    $summaries-height: 82.5%;
 
     @include flex-column(center);
-    color: var(--font-colors-3-00);
+    color: var(--font-colors-1-00);
     font-size: var(--font-sizes-500);
 
-    .date {
-        @include flex-row(center, center);
+    .header {
+        @include flex-column(center, center);
         z-index: 1;
-        position: relative;
-        width: 100%;
-        height: 7.5%;
+        width: $summaries-width;
+        height: 15%;
         color: var(--font-colors-1-00);
         @include animate-opacity(0, 1, 0.3s, 0.3s);
 
-        & > span {
-            margin-right: 1.5vh;
-            font-size: var(--font-sizes-700);
+        .date-wrapper {
+            @include flex-row(center);
+            position: relative;
+            height: 60%;
+
+            &::before {
+                position: absolute;
+                right: calc(100% + 1.25vh);
+                content: 'What you did on';
+                white-space: nowrap;
+                font-size: var(--font-sizes-700);
+            }
         }
 
-        .actions {
+        .actions-wrapper {
             @include flex-row(center, center);
-            position: absolute;
-            right: 30%;
-            bottom: 0.75vh;
+            box-sizing: border-box;
+            padding-bottom: 1.5vh;
+            position: relative;
+            width: 100%;
+            height: 40%;
 
-            .timesheets-button {
-                color: var(--font-colors-1-00);
-                transition: color 0.3s;
-                @include animate-opacity(0, 1, 0.3s);
+            .actions-left {
+                @include flex-row(center, center);
+                position: absolute;
+                left: 0;
 
-                &:hover {
-                    cursor: pointer;
-                    color: var(--context-colors-info-0-00);
+                .filter-group {
+                    margin-left: 1.5vh;
+                    @include animate-opacity(0, 1, 0.3s, 0.1s);
                 }
             }
 
-            .view-toggle {
-                margin-left: 1.25vh;
+            .item-count {
+                color: var(--font-colors-4-00);
                 font-size: var(--font-sizes-400);
             }
+
+            .actions-right {
+                @include flex-row(center, center);
+                position: absolute;
+                right: 0;
+
+                .action-button {
+                    margin-left: 1vh;
+                    transition: all 0.3s;
+                    @include animate-opacity(0, 1, 0.3s, 0.1s);
+
+                    &:hover {
+                        background-color: var(--primary-colors-4-00);
+                        color: var(--font-colors-0-00);
+                    }
+                }
+            }
         }
+    }
+
+    .separator {
+        width: calc(#{$summaries-width} * 0.975);
+        height: 1px;
+        @include animate-opacity(0, 1, 0.3s, 0.2s);
+
+        background: linear-gradient(
+            90deg,
+            var(--font-colors-0-01) 0%,
+            var(--font-colors-0-03) 50%,
+            var(--font-colors-0-01) 100%
+        );
     }
 
     .content {
         @include flex-row(flex-start, space-between);
         width: 100%;
-        height: 92.5%;
+        height: 85%;
         @include animate-opacity(0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
-            @include flex-column(center, center);
+            @include flex-column(center);
             width: calc(50% - #{$summaries-width} / 2);
-            height: 80%;
+            height: 100%;
             @include animate-opacity(0, 1, 0.4s, 0.5s);
 
-            & > span {
-                margin-bottom: 0.75vh;
-                @include animate-opacity(0, 1, 0.4s);
+            .time-summary {
+                margin-top: 2.5vh;
+                width: 60%;
+                height: 82.5%;
             }
 
-            .icon {
-                margin-bottom: 1.5vh;
-                font-size: var(--font-sizes-1000);
+            & > span {
+                @include animate-opacity(0, 1, 0.4s);
             }
         }
 
         .event-summaries-placeholder, .event-summaries {
             @include flex-column(center, center);
-            margin-top: 5vh;
-            @include animate-opacity(0, 1, 0.3s, 0.3s);
-        }
-
-        .event-summaries-placeholder {
+            margin-top: 3.5vh;
             width: $summaries-width;
             height: $summaries-height;
+            @include animate-opacity(0, 1, 0.3s, 0.3s);
         }
 
         .event-summaries {
             box-sizing: border-box;
-            padding: 0 3.5vh;
-            max-width: $summaries-width;
-            max-height: $summaries-height;
+            padding: 0 3.5%;
 
             .event-summary-card {
-                margin: 1vh 0;
+                margin-bottom: 1.25vh;
                 scroll-snap-align: start;
+                @include animate-opacity(0, 1, 0.3s);
             }
         }
     }

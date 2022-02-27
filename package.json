@@ -13,6 +13,7 @@
         "axios": "^0.24.0",
         "core-js": "^3.6.5",
         "inversify": "^5.1.1",
+        "lexorank": "^1.0.4",
         "mdue": "^0.1.4",
         "overlayscrollbars": "^1.13.1",
         "pinia": "^2.0.0-rc.4",

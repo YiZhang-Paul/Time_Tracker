@@ -35,7 +35,7 @@ import { Check, Delete, RadioboxBlank } from 'mdue';
 import { ChecklistEntry } from '../../../../../../core/models/generic/checklist-entry';
 
 class ChecklistEntryCardProp {
-    public entry = prop<ChecklistEntry>({ default: new ChecklistEntry() });
+    public entry = prop<ChecklistEntry>({ default: null });
 }
 
 @Options({
@@ -158,14 +158,14 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
 
     span.entry-description {
         @include line-overflow();
-        transition: filter 0.3s, background-color 0.3s 0.1s;
+        transition: color 0.3s, background-color 0.3s 0.1s;
 
         &:hover {
-            background-color: var(--primary-colors-6-00);
+            background-color: var(--primary-colors-9-00);
         }
 
         &.completed {
-            filter: brightness(0.6);
+            color: var(--font-colors-4-00);
         }
     }
 

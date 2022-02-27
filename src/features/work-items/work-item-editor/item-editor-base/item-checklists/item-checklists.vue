@@ -17,7 +17,7 @@
                 :modelValue="modelValue"
                 @update:modelValue="$emit('update:modelValue', $event)"
                 handle=".list-handle"
-                @change="$emit('update:modelValue', modelValue)"
+                @change="onEntryReorder($event.moved)"
                 item-key="description">
 
                 <template #item="{ element, index }">
@@ -38,6 +38,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { LexoRank } from 'lexorank';
 import { DragVertical, Plus } from 'mdue';
 import Draggable from 'vuedraggable';
 
@@ -80,7 +81,26 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
     }
 
     public onEntryAdd(): void {
-        this.$emit('update:modelValue', [...this.modelValue, new ChecklistEntry()]);
+        const lastEntry = this.modelValue.slice(-1)[0];
+        const rank = lastEntry ? LexoRank.parse(lastEntry.rank).genNext() : LexoRank.middle();
+        this.$emit('update:modelValue', [...this.modelValue, new ChecklistEntry(rank.toString())]);
+    }
+
+    public onEntryReorder(event: { newIndex: number; element: ChecklistEntry }): void {
+        const { newIndex, element } = event;
+
+        if (newIndex === 0) {
+            element.rank = LexoRank.parse(this.modelValue[newIndex + 1].rank).genPrev().toString();
+        }
+        else if (newIndex === this.modelValue.length - 1) {
+            element.rank = LexoRank.parse(this.modelValue[newIndex - 1].rank).genNext().toString();
+        }
+        else {
+            const [previous, next] = [this.modelValue[newIndex - 1], this.modelValue[newIndex + 1]];
+            element.rank = LexoRank.parse(previous.rank).between(LexoRank.parse(next.rank)).toString();
+        }
+
+        this.$emit('update:modelValue', this.modelValue);
     }
 
     public onEntryChange(entry: ChecklistEntry, index: number): void {

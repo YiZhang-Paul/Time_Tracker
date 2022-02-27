@@ -1,35 +1,48 @@
 <template>
     <div class="event-duration-summary-card-container">
-        <div :style="{ color }">{{ duration }}</div>
+        <div class="rank">
+            <trophy v-if="rank <= 3" :class="['icon', `rank-${rank}`]" />
+
+            <div v-if="rank > 3" class="value">
+                <span>{{ rank }}</span>
+            </div>
+        </div>
+
         <span class="name">{{ summary.name }}</span>
-        <span v-if="summary.isDeleted" class="deleted-label">(DELETED)</span>
+        <div class="duration">{{ duration }}</div>
+        <div class="breakdown"></div>
+
+        <div class="status" :class="{ resolved: summary.isResolved, deleted: summary.isDeleted }">
+            <span v-if="summary.isDeleted">Deleted</span>
+            <span v-if="!summary.isDeleted">{{ summary.isResolved ? 'Done' : 'Not Done' }}</span>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
+import { Trophy } from 'mdue';
 
 import { EventDurationDto } from '../../../../core/dtos/event-duration-dto';
-import { EventType } from '../../../../core/enums/event-type.enum';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class EventDurationSummaryCardProp {
     public summary = prop<EventDurationDto>({ default: new EventDurationDto() });
+    public rank = prop<number>({ default: 1 });
 }
 
-export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
-    get color(): string {
-        const type = this.summary.eventType === EventType.Interruption ? 'interruption' : 'task';
-
-        return `var(--item-type-colors-${type}-0-00)`;
+@Options({
+    components: {
+        Trophy
     }
-
+})
+export default class EventDurationSummaryCard extends Vue.with(EventDurationSummaryCardProp) {
     get duration(): string {
         if (this.summary.duration < 60 * 1000) {
-            return '< 1m';
+            return '< 1 min';
         }
 
-        return TimeUtility.getDurationString(this.summary.duration, false);
+        return TimeUtility.getDurationString(this.summary.duration, 'standard');
     }
 }
 </script>
@@ -38,28 +51,79 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
 .event-duration-summary-card-container {
     @import '../../../../styles/presets.scss';
 
-    @include flex-row(center);
+    @include flex-row(center, center);
+    box-sizing: border-box;
+    padding: 1.5vh 2.5vh;
+    border-radius: 5vh;
+    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    background-color: var(--primary-colors-9-00);
+    font-size: var(--font-sizes-400);
 
-    & > div {
-        @include flex-row(center, center);
-        box-sizing: border-box;
-        padding: 0.75vh 1.75vh;
-        margin-right: 2vh;
-        min-width: 10rem;
-        border-radius: 5px;
-        background-color: var(--primary-colors-9-00);
-        box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    .rank {
+        @include flex-row(center);
+        margin-right: 1.5%;
+        width: 3.5%;
+
+        .icon {
+            font-size: var(--font-sizes-700);
+
+            &.rank-1 {
+                color: var(--rank-colors-first-place-0-00);
+            }
+
+            &.rank-2 {
+                color: var(--rank-colors-second-place-0-00);
+            }
+
+            &.rank-3 {
+                color: var(--rank-colors-third-place-0-00);
+            }
+        }
+
+        .value {
+            @include flex-row(center, center);
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background-color: var(--context-colors-info-5-00);
+            font-size: var(--font-sizes-300);
+        }
     }
 
     .name {
+        width: 37.5%;
         @include line-overflow();
     }
 
-    .deleted-label {
-        margin-top: 0.25rem;
-        margin-left: 0.5vh;
-        color: var(--context-colors-suggestion-0-00);
-        font-size: var(--font-sizes-100);
+    .duration {
+        width: 15%;
+        text-align: center;
+    }
+
+    .breakdown {
+        width: 32.5%;
+        height: 1px;
+    }
+
+    .status {
+        @include flex-row(center, center);
+        padding: 0.35vh 0;
+        width: 10%;
+        border-radius: 5vh;
+        box-shadow: 0 0 4px 1px var(--context-colors-suggestion-1-03);
+        background-color: var(--context-colors-suggestion-0-00);
+        color: var(--font-colors-8-00);
+        font-size: var(--font-sizes-300);
+
+        &.resolved {
+            box-shadow: 0 0 4px 1px var(--context-colors-success-1-03);
+            background-color: var(--context-colors-success-0-00);
+        }
+
+        &.deleted {
+            box-shadow: 0 0 4px 1px var(--context-colors-disabled-1-03);
+            background-color: var(--context-colors-disabled-0-00);
+        }
     }
 }
 </style>

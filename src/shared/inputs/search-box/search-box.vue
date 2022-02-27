@@ -1,7 +1,7 @@
 <template>
     <div class="search-box-container" :class="{ active: isFocused }">
         <div class="inner-wrapper">
-            <target v-if="!searchText" class="icon" />
+            <magnify v-if="!searchText" class="icon" />
 
             <close-circle-outline v-if="searchText"
                 class="icon reset-button"
@@ -19,12 +19,12 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { CloseCircleOutline, Target } from 'mdue';
+import { CloseCircleOutline, Magnify } from 'mdue';
 
 @Options({
     components: {
         CloseCircleOutline,
-        Target
+        Magnify
     },
     emits: [
         'search'
@@ -110,7 +110,6 @@ export default class SearchBox extends Vue {
         }
 
         .icon {
-            margin-right: 3px;
             @include animate-opacity(0, 1, 0.15s, 0.15s);
         }
 

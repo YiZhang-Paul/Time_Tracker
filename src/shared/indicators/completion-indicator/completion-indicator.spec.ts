@@ -1,15 +1,13 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
-import { ChecklistEntry } from '../../../../../../core/models/generic/checklist-entry';
+import CompletionIndicator from './completion-indicator.vue';
 
-import ChecklistEntryCard from './checklist-entry-card.vue';
-
-describe('checklist entry card unit test', () => {
+describe('completion indicator unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(ChecklistEntryCard, { props: { entry: new ChecklistEntry('0|zzzzzz:') } });
+        component = shallowMount(CompletionIndicator);
     });
 
     afterEach(() => {

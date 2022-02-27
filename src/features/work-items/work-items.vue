@@ -305,7 +305,7 @@ export default class WorkItems extends Vue {
             callback();
         }
         else {
-            const title = 'Checklist items not completed yet. Resolve the item anyway?';
+            const title = 'Checklist not completed yet. Mark item as resolved anyway?';
             const data = new ConfirmationDialogOption(title, 'Resolve', 'Wait NO', ButtonType.Warning);
             const config = new DialogConfig(markRaw(ConfirmationDialog), data, { width: '40vw', preConfirm: callback });
             this.dialogStore.open(config);
