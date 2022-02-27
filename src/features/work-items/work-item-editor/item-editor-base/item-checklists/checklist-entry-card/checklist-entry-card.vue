@@ -1,5 +1,5 @@
 <template>
-    <div v-if="entry" class="checklist-entry-card-container">
+    <div class="checklist-entry-card-container">
         <div class="status-toggle" :class="{ disabled: !entry.description.trim() }" @click="onStatusChange()">
             <radiobox-blank v-if="!entry.isCompleted" class="incomplete-button" />
             <check v-if="entry.isCompleted" class="complete-button" />
