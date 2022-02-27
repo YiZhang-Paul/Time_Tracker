@@ -81,8 +81,7 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
     }
 
     get targetTitle(): string {
-        const converted = TimeUtility.convertTime(this.totalDuration, 'millisecond', 'hour');
-        const completed = Math.round(converted * 10) / 10;
+        const completed = TimeUtility.convertTime(this.totalDuration, 'millisecond', 'hour');
 
         return `Daily target - ${completed} out of ${this.targetHours} hrs`;
     }
@@ -143,6 +142,7 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
 
         .completion-indicator {
             margin-top: 1.25vh;
+            width: 95%;
         }
     }
 }

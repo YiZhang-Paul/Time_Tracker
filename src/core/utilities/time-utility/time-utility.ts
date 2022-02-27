@@ -82,8 +82,15 @@ export class TimeUtility {
         return 'th';
     }
 
-    public static convertTime(time: number, from: keyof(typeof conversions), to: keyof(typeof conversions)): number {
-        return conversions[from] * time / conversions[to];
+    public static convertTime(
+        time: number,
+        from: keyof(typeof conversions),
+        to: keyof(typeof conversions),
+        decimal = 1
+    ): number {
+        const modifier = Math.pow(10, decimal);
+
+        return Math.round(conversions[from] * time / conversions[to] * modifier) / modifier;
     }
 
     private static prependZero(value: number): string {

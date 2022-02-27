@@ -277,14 +277,15 @@ export default class EventHistory extends Vue {
         @include animate-opacity(0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
-            @include flex-column(center, center);
+            @include flex-column(center);
             width: calc(50% - #{$summaries-width} / 2);
             height: 100%;
             @include animate-opacity(0, 1, 0.4s, 0.5s);
 
             .time-summary {
-                width: 65%;
-                height: 90%;
+                margin-top: 2vh;
+                width: 60%;
+                height: 85%;
             }
 
             & > span {

@@ -88,7 +88,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
         width: 100%;
         height: calc(#{$font-size} * 0.7);
         border-radius: $border-radius;
-        background-color: var(--primary-colors-2-00);
+        background-color: var(--primary-colors-1-00);
 
         .completion {
             min-width: 15px;
