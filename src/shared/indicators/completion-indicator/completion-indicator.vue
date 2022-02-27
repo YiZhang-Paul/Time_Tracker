@@ -4,7 +4,12 @@
 
         <div class="completion-base">
             <div class="completion" :style="completionStyle"></div>
-            <span>{{ completionText }}</span>
+            <span class="percentage">{{ completionText }}</span>
+
+            <div v-if="completion > 100" class="marker" :style="{ left: `${100 / completion * 100}%` }">
+                <div></div>
+                <span>100%</span>
+            </div>
         </div>
     </div>
 </template>
@@ -29,8 +34,8 @@ class CompletionIndicatorProp {
     }
 })
 export default class CompletionIndicator extends Vue.with(CompletionIndicatorProp) {
+    public completion = 0;
     private readonly types = ['warning', 'suggestion', 'success'];
-    private completion = 0;
 
     get completionStyle(): StyleConfigs {
         let type = this.types[2];
@@ -106,10 +111,30 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
             transition: width 0.8s 0.2s, background-color 0.3s 0.2s, box-shadow 0.3s 0.2s, opacity 0.3s;
         }
 
-        span {
+        .percentage {
             position: absolute;
             left: calc(100% + 1vh);
             @include animate-opacity(0, 1, 0.5s, 0.5s);
+        }
+    }
+
+    .marker {
+        @include flex-column(center, center);
+        position: absolute;
+        top: 0;
+        transition: left 0.3s 0.2s;
+        @include animate-opacity(0, 1, 0.3s, 0.5s);
+
+        div {
+            width: 1px;
+            height: calc(#{$font-size} * 0.9);
+            background-color: var(--primary-colors-1-00);
+        }
+
+        span {
+            position: absolute;
+            top: 100%;
+            font-size: var(--font-sizes-100);
         }
     }
 }
