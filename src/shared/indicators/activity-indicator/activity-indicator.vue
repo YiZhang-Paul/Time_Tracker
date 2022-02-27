@@ -21,9 +21,7 @@ class ActivityIndicatorProp {
 }
 
 export default class ActivityIndicator extends Vue.with(ActivityIndicatorProp) {
-    public getStyles(period: TimePeriod): StyleConfigs {
-        const start = new Date(period.start).getTime();
-        const end = Math.min(new Date(period.end).getTime(), Date.now());
+    public getStyles({ start, end }: TimePeriod): StyleConfigs {
         const dayStart = new Date(start).setHours(0, 0, 0, 0);
         const duration = TimeUtility.convertTime(end - start, 'millisecond', 'day', 4);
         const sinceDayStart = TimeUtility.convertTime(start - dayStart, 'millisecond', 'day', 4);

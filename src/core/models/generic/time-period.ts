@@ -1,8 +1,8 @@
 export class TimePeriod {
-    public start: string;
-    public end: string;
+    public start: number;
+    public end: number;
 
-    constructor(start: string, end: string) {
+    constructor(start: number, end: number) {
         this.start = start;
         this.end = end;
     }
