@@ -1,5 +1,5 @@
 <template>
-    <div class="completion-indicator-container">
+    <div class="completion-indicator-container" :class="{ disabled: isDisabled }">
         <span v-if="description" class="description">{{ description }}</span>
 
         <div class="completion-base">
@@ -17,6 +17,7 @@ import { StyleConfigs } from '../../../core/models/generic/style-configs';
 class CompletionIndicatorProp {
     public description = prop<string>({ default: '' });
     public percentage = prop<number>({ default: 0 });
+    public isDisabled = prop<boolean>({ default: false });
     public isHigherPreferred = prop<boolean>({ default: true });
 }
 
@@ -33,7 +34,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
 
     get completionStyle(): StyleConfigs {
         let type = this.types[2];
-        const boxShadow = '1px 0 4px 1px rgba(0, 0, 0, 0.3)';
+        const boxShadow = '2px 0 4px 1px rgba(0, 0, 0, 0.3)';
 
         if (this.completion < 75) {
             type = this.completion < 25 ? this.types[0] : this.types[1];
@@ -76,6 +77,14 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
     color: var(--font-colors-2-00);
     font-size: $font-size;
 
+    &.disabled {
+        color: var(--context-colors-disabled-0-00);
+
+        .completion-base {
+            background-color: var(--context-colors-disabled-1-00);
+        }
+    }
+
     .description {
         margin-bottom: 0.75vh;
     }
@@ -94,7 +103,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
             min-width: 15px;
             height: 100%;
             border-radius: $border-radius;
-            transition: width 0.7s 0.3s, background-color 0.3s 0.3s, box-shadow 0.3s 0.3s, opacity 0.3s;
+            transition: width 0.8s 0.2s, background-color 0.3s 0.2s, box-shadow 0.3s 0.2s, opacity 0.3s;
         }
 
         span {
