@@ -42,25 +42,25 @@ export default class EventTimeSummaryCard extends Vue.with(EventTimeSummaryCardP
 
     .icon {
         @include flex-row(center, center);
-        width: 7vh;
-        height: 7vh;
+        width: 5.75vh;
+        height: 5.75vh;
         border-radius: 10px;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.35);
         background-color: var(--context-colors-info-8-00);
-        font-size: var(--font-sizes-750);
+        font-size: var(--font-sizes-700);
     }
 
     .content {
         @include flex-column(flex-start, space-between);
-        margin-left: 2vh;
-        font-size: var(--font-sizes-500);
+        margin-left: 1.5vh;
+        font-size: var(--font-sizes-450);
 
         .title {
             color: var(--font-colors-0-00);
         }
 
         .duration {
-            margin-top: 6px;
+            margin-top: 4px;
         }
     }
 }

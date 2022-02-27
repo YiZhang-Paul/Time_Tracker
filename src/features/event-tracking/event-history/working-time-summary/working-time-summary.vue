@@ -152,7 +152,7 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
 
         .completion-indicator {
             margin-top: 1.25vh;
-            width: 95%;
+            width: 82.5%;
         }
     }
 }

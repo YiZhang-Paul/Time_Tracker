@@ -71,7 +71,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    $font-size: var(--font-sizes-400);
+    $font-size: var(--font-sizes-300);
 
     @include flex-column(flex-start, center);
     color: var(--font-colors-2-00);

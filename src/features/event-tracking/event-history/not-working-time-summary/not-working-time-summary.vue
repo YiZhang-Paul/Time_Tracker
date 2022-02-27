@@ -130,7 +130,7 @@ export default class NotWorkingTimeSummary extends Vue.with(NotWorkingTimeSummar
 
         .completion-indicator {
             margin-top: 1.25vh;
-            width: 95%;
+            width: 82.5%;
         }
     }
 }
