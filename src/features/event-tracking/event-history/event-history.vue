@@ -35,12 +35,7 @@
 
         <div class="content">
             <div class="working-time-breakdown">
-                <working-time-summary v-if="summaries.timeline.length"
-                    class="time-summary"
-                    :summaries="summaries">
-                </working-time-summary>
-
-                <span v-if="!summaries.timeline.length">time information not available.</span>
+                <working-time-summary class="time-summary" :summaries="summaries"></working-time-summary>
             </div>
 
             <template v-if="showTimeline">
@@ -70,12 +65,7 @@
             </template>
 
             <div class="not-working-time-breakdown">
-                <not-working-time-summary v-if="summaries.timeline.length"
-                    class="time-summary"
-                    :summaries="summaries">
-                </not-working-time-summary>
-
-                <span v-if="!summaries.timeline.length">time information not available.</span>
+                <not-working-time-summary class="time-summary" :summaries="summaries"></not-working-time-summary>
             </div>
         </div>
     </div>
@@ -286,10 +276,6 @@ export default class EventHistory extends Vue {
                 margin-top: 3.5vh;
                 width: 60%;
                 height: 80%;
-            }
-
-            & > span {
-                @include animate-opacity(0, 1, 0.4s);
             }
         }
 
