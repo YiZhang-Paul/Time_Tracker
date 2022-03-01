@@ -1,5 +1,5 @@
 <template>
-    <div class="histories-view-selector-container">
+    <div class="histories-view-selector-container" :class="{ hovered: isHovered }" @mouseover="isHovered = true">
         <div class="background">
             <component class="top-right" :is="notWorkingTypeIcon.component"></component>
             <component class="bottom-left" :is="workingTypeIcon.component"></component>
@@ -24,11 +24,11 @@
                 <component :is="breakTypeIcon.component" :style="{ color: breakTypeIcon.color }"></component>
             </div>
 
-            <div class="main-icon">
+            <div class="main-icon left">
                 <component :is="workingTypeIcon.component" :style="{ color: workingTypeIcon.color }"></component>
             </div>
 
-            <div class="main-icon">
+            <div class="main-icon right">
                 <component :is="notWorkingTypeIcon.component" :style="{ color: notWorkingTypeIcon.color }"></component>
             </div>
         </div>
@@ -64,6 +64,7 @@ export default class HistoriesViewSelector extends Vue {
     public readonly breakTypeIcon = IconUtility.getBreakTypeIcon();
     public readonly workingTypeIcon = IconUtility.getWorkingTypeIcon();
     public readonly notWorkingTypeIcon = IconUtility.getNotWorkingTypeIcon();
+    public isHovered = false;
 
     get date(): string {
         return TimeUtility.getDateString(new Date()).split(',').slice(1).join();
@@ -177,7 +178,7 @@ export default class HistoriesViewSelector extends Vue {
         .main-icon, .sub-icon {
             @include flex-row(center, center);
             border-radius: 50%;
-            @include animate-opacity(0, 1, 0.4s, 0.05s);
+            @include animate-opacity(0, 1, 0.4s);
         }
 
         .main-icon {
@@ -186,6 +187,14 @@ export default class HistoriesViewSelector extends Vue {
             box-shadow: 0 0 7px 2px var(--misc-colors-a-03);
             background-color: var(--misc-colors-a-00);
             font-size: var(--font-sizes-750);
+
+            &.left {
+                animation-delay: 0.15s;
+            }
+
+            &.right {
+                animation-delay: 0.15s;
+            }
         }
 
         .sub-icon {
@@ -199,21 +208,25 @@ export default class HistoriesViewSelector extends Vue {
             &.top-left {
                 top: -37.5%;
                 right: 102%;
+                animation-delay: 0.35s;
             }
 
             &.left {
                 bottom: 0;
                 right: 107.5%;
+                animation-delay: 0.35s;
             }
 
             &.top-right {
                 top: -37.5%;
                 left: 102%;
+                animation-delay: 0.35s;
             }
 
             &.right {
                 bottom: 0;
                 left: 107.5%;
+                animation-delay: 0.35s;
             }
         }
     }
@@ -221,7 +234,7 @@ export default class HistoriesViewSelector extends Vue {
     .date {
         @include flex-row(center, center);
         font-size: var(--font-sizes-600);
-        @include animate-opacity(0, 1, 0.3s);
+        @include animate-opacity(0, 1, 0.3s, 0.1s);
 
         .icon {
             margin-right: 0.75vh;
@@ -250,7 +263,21 @@ export default class HistoriesViewSelector extends Vue {
         box-shadow: 0 0 5px 2px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-7-00);
         font-size: var(--font-sizes-300);
-        @include animate-opacity(0, 1, 0.3s, 0.3s);
+        @include animate-opacity(0, 1, 0.4s, 1s);
+    }
+
+    &.hovered {
+
+        .main-icon, .sub-icon {
+
+            &.left, &.right, &.top-left, &.top-right {
+                animation-delay: 0s;
+            }
+        }
+
+        .label {
+            animation-delay: 0.3s;
+        }
     }
 }
 </style>
