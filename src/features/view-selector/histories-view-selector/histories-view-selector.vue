@@ -1,5 +1,10 @@
 <template>
     <div class="histories-view-selector-container">
+        <div class="background">
+            <component class="top-right" :is="notWorkingTypeIcon.component"></component>
+            <component class="bottom-left" :is="workingTypeIcon.component"></component>
+        </div>
+
         <div class="icons">
             <div class="sub-icon top-left">
                 <component :is="taskTypeIcon.component" :style="{ color: taskTypeIcon.color }"></component>
@@ -70,6 +75,29 @@ export default class HistoriesViewSelector extends Vue {
     overflow: hidden;
     color: var(--font-colors-1-00);
 
+    .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        color: var(--font-colors-0-01);
+        font-size: var(--font-sizes-2000);
+
+        .top-right {
+            position: absolute;
+            top: -20%;
+            right: -10%;
+        }
+
+        .bottom-left {
+            position: absolute;
+            bottom: -7.5%;
+            left: -22.5%;
+        }
+    }
+
     .icons {
         @include flex-row(flex-start, space-between);
         position: relative;
@@ -93,7 +121,7 @@ export default class HistoriesViewSelector extends Vue {
             position: absolute;
             width: 4vh;
             height: 4vh;
-            box-shadow: 0 0 7px 2px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 0 7px 2px rgba(0, 0, 0, 0.25);
             background-color: var(--context-colors-info-6-00);
             font-size: var(--font-sizes-550);
 
