@@ -83,6 +83,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
     public panelDate = this.selected ? new Date(this.selected) : new Date();
     public showOptions = false;
     public rows = 0;
+    private readonly locale = 'en-CA';
     private columnOffset = 0;
     private rowOffset = 0;
 
@@ -137,8 +138,8 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
 
         return {
             'unselectable-day': !this.isSelectable(date),
-            today: new Date().toLocaleDateString() === date.toLocaleDateString(),
-            'selected-day': this.selected?.toLocaleDateString() === date.toLocaleDateString()
+            today: new Date().toLocaleDateString(this.locale) === date.toLocaleDateString(this.locale),
+            'selected-day': this.selected?.toLocaleDateString(this.locale) === date.toLocaleDateString(this.locale)
         };
     }
 
@@ -215,8 +216,8 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
             return false;
         }
 
-        const target = date.toLocaleDateString().split('/').reverse().join('/');
-        const current = new Date().toLocaleDateString().split('/').reverse().join('/');
+        const target = date.toLocaleDateString(this.locale);
+        const current = new Date().toLocaleDateString(this.locale);
 
         return target <= current;
     }
