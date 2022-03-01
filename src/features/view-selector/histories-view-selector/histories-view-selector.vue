@@ -3,6 +3,8 @@
         <div class="background">
             <component class="top-right" :is="notWorkingTypeIcon.component"></component>
             <component class="bottom-left" :is="workingTypeIcon.component"></component>
+            <div class="glare top-right"></div>
+            <div class="glare bottom-left"></div>
         </div>
 
         <div class="icons">
@@ -91,9 +93,12 @@ export default class HistoriesViewSelector extends Vue {
             }
         }
 
-        .view-button {
+        .view-button, .background .glare {
             display: initial;
-            margin-top: 1.5vh;
+        }
+
+        .view-button {
+            margin-top: 2vh;
         }
 
         .label {
@@ -110,6 +115,41 @@ export default class HistoriesViewSelector extends Vue {
         overflow: hidden;
         color: var(--font-colors-0-01);
         font-size: var(--font-sizes-2000);
+
+        .glare {
+            display: none;
+            position: absolute;
+            border-radius: 200px;
+            @include animate-opacity(0, 1, 0.6s, 0.1s);
+
+            &.top-right {
+                left: -20%;
+                top: -230%;
+                width: 140%;
+                height: 350%;
+                transform: rotate(-45deg);
+
+                background: radial-gradient(
+                    50% 50% at 50% 50%,
+                    var(--item-type-colors-interruption-0-05) 0%,
+                    transparent 100%
+                );
+            }
+
+            &.bottom-left {
+                left: -75%;
+                right: 35%;
+                top: -60%;
+                bottom: -167.61%;
+                transform: rotate(-10deg);
+
+                background: radial-gradient(
+                    50% 50% at 50% 50%,
+                    var(--item-type-colors-task-0-05) 0%,
+                    transparent 100%
+                );
+            }
+        }
 
         .top-right {
             position: absolute;
@@ -191,12 +231,11 @@ export default class HistoriesViewSelector extends Vue {
 
     .view-button {
         display: none;
-        padding-left: 3.5vh;
-        padding-right: 3.5vh;
+        padding-left: 3.75vh;
+        padding-right: 3.75vh;
         border-radius: 25px;
-        box-shadow: 0 0 10px 3px var(--context-colors-info-4-03);
-        background-color: var(--context-colors-info-4-00);
-        font-size: var(--font-sizes-300);
+        box-shadow: 0 0 10px 3px var(--context-colors-info-6-03);
+        background-color: var(--context-colors-info-6-00);
         transition: margin-top 0.3s;
         @include animate-opacity(0, 1, 0.4s, 0.2s);
     }
@@ -211,7 +250,7 @@ export default class HistoriesViewSelector extends Vue {
         box-shadow: 0 0 5px 2px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-7-00);
         font-size: var(--font-sizes-300);
-        @include animate-opacity(0, 1, 0.3s, 0.2s);
+        @include animate-opacity(0, 1, 0.3s, 0.3s);
     }
 }
 </style>

@@ -42,9 +42,11 @@
     --item-type-colors-idling-0-00: rgb(178, 178, 178);
     --item-type-colors-break-0-00: rgb(236, 130, 30);
     --item-type-colors-task-0-00: rgb(40, 207, 216);
+    --item-type-colors-task-0-05: rgba(40, 207, 216, 0.5);
     --item-type-colors-task-1-00: rgb(23, 135, 141);
     --item-type-colors-task-2-01: rgba(25, 184, 247, 0.1);
-    --item-type-colors-interruption-0-00: rgb(219, 177, 70);
+    --item-type-colors-interruption-0-00: rgb(238, 193, 79);
+    --item-type-colors-interruption-0-05: rgba(238, 193, 79, 0.5);
     --item-type-colors-interruption-1-00: rgb(157, 125, 42);
     --item-type-colors-interruption-2-01: rgba(228, 188, 87, 0.1);
     // priority colors
@@ -61,7 +63,6 @@
     --creation-button-color-shadow: rgba(5, 164, 49, 0.35);
     // context colors
     --context-colors-suggestion-0-00: rgb(233, 201, 23);
-    --context-colors-suggestion-0-04: rgba(233, 201, 23, 0.4);
     --context-colors-suggestion-1-00: rgb(192, 166, 21);
     --context-colors-suggestion-1-03: rgba(192, 166, 21, 0.3);
     --context-colors-success-0-00: rgb(49, 253, 59);
@@ -79,6 +80,7 @@
     --context-colors-info-4-03: rgba(40, 146, 160, 0.3);
     --context-colors-info-5-00: rgb(47, 118, 128);
     --context-colors-info-6-00: rgb(25, 125, 193);
+    --context-colors-info-6-03: rgba(25, 125, 193, 0.3);
     --context-colors-info-7-00: rgb(16, 88, 139);
     --context-colors-info-7-03: rgba(16, 88, 139, 0.3);
     --context-colors-info-8-00: rgb(53, 76, 92);

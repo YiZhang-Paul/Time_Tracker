@@ -6,7 +6,7 @@
 
         <div class="column">
             <div class="selector placeholder"></div>
-            <histories-view-selector class="selector histories"></histories-view-selector>
+            <histories-view-selector class="selector histories" @click="openHistories()"></histories-view-selector>
         </div>
     </div>
 </template>
@@ -21,7 +21,11 @@ import HistoriesViewSelector from './histories-view-selector/histories-view-sele
         HistoriesViewSelector
     }
 })
-export default class ViewSelector extends Vue { }
+export default class ViewSelector extends Vue {
+    public openHistories(): void {
+        this.$router.push('/histories');
+    }
+}
 </script>
 
 <style lang="scss" scoped>
