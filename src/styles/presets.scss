@@ -7,8 +7,10 @@
     --font-sizes-400: 1rem; // 16px
     --font-sizes-450: 1.125rem; // 18px
     --font-sizes-500: 1.25rem; // 20px
+    --font-sizes-550: 1.375rem; // 22px
     --font-sizes-600: 1.5rem; // 24px
     --font-sizes-700: 1.75rem; // 28px
+    --font-sizes-750: 2.375rem; // 38px
     --font-sizes-800: 3rem; // 48px
     --font-sizes-900: 4.5rem; // 72px
     --font-sizes-1000: 6.75rem; // 108px
@@ -75,6 +77,9 @@
     --context-colors-info-4-00: rgb(40, 146, 160);
     --context-colors-info-4-03: rgba(40, 146, 160, 0.3);
     --context-colors-info-5-00: rgb(47, 118, 128);
+    --context-colors-info-6-00: rgb(25, 125, 193);
+    --context-colors-info-7-00: rgb(16, 88, 139);
+    --context-colors-info-7-03: rgba(16, 88, 139, 0.3);
     --context-colors-info-8-00: rgb(53, 76, 92);
     --context-colors-disabled-0-00: rgb(145, 145, 145);
     --context-colors-disabled-1-00: rgb(85, 85, 85);
@@ -82,6 +87,9 @@
     --context-colors-disabled-2-00: rgb(60, 60, 60);
     // scrollbar colors
     --scrollbar-color: rgba(180, 180, 180, 0.6);
+    // misc colors
+    --misc-colors-a-00: rgb(51, 164, 245);
+    --misc-colors-a-04: rgba(51, 164, 245, 0.4);
 }
 
 @mixin flex-row($align: initial, $justify: initial) {

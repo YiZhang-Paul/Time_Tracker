@@ -6,14 +6,21 @@
 
         <div class="column">
             <div class="selector placeholder"></div>
-            <div class="selector histories"></div>
+            <histories-view-selector class="selector histories"></histories-view-selector>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
+import { Options, Vue } from 'vue-class-component';
 
+import HistoriesViewSelector from './histories-view-selector/histories-view-selector.vue';
+
+@Options({
+    components: {
+        HistoriesViewSelector
+    }
+})
 export default class ViewSelector extends Vue { }
 </script>
 
@@ -21,7 +28,7 @@ export default class ViewSelector extends Vue { }
 .view-selector-container {
     @import '../../styles/presets.scss';
 
-    $gap: 5vh;
+    $gap: 3.5vh;
 
     @include flex-row(flex-start, center);
     box-sizing: border-box;
@@ -32,7 +39,7 @@ export default class ViewSelector extends Vue { }
     .column {
         @include flex-column(center, space-between);
         width: 20%;
-        height: 70%;
+        height: 75%;
 
         &:not(:first-of-type) {
             margin-left: $gap;
@@ -41,7 +48,9 @@ export default class ViewSelector extends Vue { }
         .selector {
             width: 100%;
             height: 100%;
-            background-color: orange;
+            border-radius: 10px;
+            background-color: var(--primary-colors-9-00);
+            box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.3);
         }
 
         .placeholder, .histories {
