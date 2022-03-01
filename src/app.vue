@@ -2,7 +2,6 @@
     <router-view class="main-view"></router-view>
     <time-display class="time-display"></time-display>
     <event-tracker class="event-tracker"></event-tracker>
-    <view-selector class="view-selector" :options="viewOptions"></view-selector>
     <dialogs-base></dialogs-base>
 
     <div class="build-versions">
@@ -12,24 +11,19 @@
 </template>
 
 <script lang="ts">
-import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { History, Sword } from 'mdue';
 
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
-import { ViewSelectionOption } from './core/models/options/view-selection-option';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
-import ViewSelector from './shared/inputs/view-selector/view-selector.vue';
 import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
         TimeDisplay,
         EventTracker,
-        ViewSelector,
         DialogsBase
     },
     watch: {
@@ -59,13 +53,9 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
     }
 })
 export default class App extends Vue {
+    public showViewSelection = false;
     public notificationStore!: ReturnType<typeof useNotificationStore>;
     private eventStore!: ReturnType<typeof useEventStore>;
-
-    public readonly viewOptions = [
-        new ViewSelectionOption('Work', 'works', markRaw(Sword)),
-        new ViewSelectionOption('History', 'histories', markRaw(History))
-    ];
 
     get isWorking(): boolean {
         return this.eventStore.isWorking;
@@ -135,11 +125,6 @@ html, body, #app {
     position: absolute;
     top: $border-gap;
     right: $border-gap;
-}
-
-.view-selector {
-    position: absolute;
-    bottom: 1vh;
 }
 
 .build-versions {
