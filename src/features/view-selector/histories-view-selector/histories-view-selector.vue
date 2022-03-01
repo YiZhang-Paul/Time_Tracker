@@ -36,6 +36,7 @@
             <span>{{ date }}</span>
         </div>
 
+        <flat-button class="view-button">View Histories</flat-button>
         <div class="label">histories</div>
     </div>
 </template>
@@ -46,10 +47,12 @@ import { History } from 'mdue';
 
 import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
+import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 
 @Options({
     components: {
-        History
+        History,
+        FlatButton
     }
 })
 export default class HistoriesViewSelector extends Vue {
@@ -69,11 +72,34 @@ export default class HistoriesViewSelector extends Vue {
 <style lang="scss" scoped>
 .histories-view-selector-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-column(center, center);
     position: relative;
     overflow: hidden;
     color: var(--font-colors-1-00);
+
+    &:hover {
+        cursor: pointer;
+
+        .icons {
+            margin-bottom: 0;
+            height: 1.5vh;
+
+            .main-icon, .sub-icon {
+                display: none;
+            }
+        }
+
+        .view-button {
+            display: initial;
+            margin-top: 1.5vh;
+        }
+
+        .label {
+            display: none;
+        }
+    }
 
     .background {
         position: absolute;
@@ -99,20 +125,25 @@ export default class HistoriesViewSelector extends Vue {
     }
 
     .icons {
+        $height: 6.5vh;
+
         @include flex-row(flex-start, space-between);
         position: relative;
-        margin-bottom: 1.5vh;
+        margin-bottom: 2vh;
         width: 42.5%;
+        height: $height;
+        transition: height 0.3s, margin-bottom 0.3s;
 
         .main-icon, .sub-icon {
             @include flex-row(center, center);
             border-radius: 50%;
+            @include animate-opacity(0, 1, 0.4s, 0.05s);
         }
 
         .main-icon {
-            width: 6.75vh;
-            height: 6.75vh;
-            box-shadow: 0 0 7px 2px var(--misc-colors-a-04);
+            width: $height;
+            height: $height;
+            box-shadow: 0 0 7px 2px var(--misc-colors-a-03);
             background-color: var(--misc-colors-a-00);
             font-size: var(--font-sizes-750);
         }
@@ -127,7 +158,7 @@ export default class HistoriesViewSelector extends Vue {
 
             &.top-left {
                 top: -37.5%;
-                right: 101.5%;
+                right: 102%;
             }
 
             &.left {
@@ -137,7 +168,7 @@ export default class HistoriesViewSelector extends Vue {
 
             &.top-right {
                 top: -37.5%;
-                left: 101.5%;
+                left: 102%;
             }
 
             &.right {
@@ -150,11 +181,24 @@ export default class HistoriesViewSelector extends Vue {
     .date {
         @include flex-row(center, center);
         font-size: var(--font-sizes-600);
+        @include animate-opacity(0, 1, 0.3s);
 
         .icon {
             margin-right: 0.75vh;
             font-size: var(--font-sizes-750);
         }
+    }
+
+    .view-button {
+        display: none;
+        padding-left: 3.5vh;
+        padding-right: 3.5vh;
+        border-radius: 25px;
+        box-shadow: 0 0 10px 3px var(--context-colors-info-4-03);
+        background-color: var(--context-colors-info-4-00);
+        font-size: var(--font-sizes-300);
+        transition: margin-top 0.3s;
+        @include animate-opacity(0, 1, 0.4s, 0.2s);
     }
 
     .label {
@@ -167,6 +211,7 @@ export default class HistoriesViewSelector extends Vue {
         box-shadow: 0 0 5px 2px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-7-00);
         font-size: var(--font-sizes-300);
+        @include animate-opacity(0, 1, 0.3s, 0.2s);
     }
 }
 </style>
