@@ -1,8 +1,8 @@
 <template>
     <div class="histories-view-selector-container" :class="{ hovered: isHovered }" @mouseover="isHovered = true">
         <div class="background">
-            <component class="top-right" :is="notWorkingTypeIcon.component"></component>
-            <component class="bottom-left" :is="workingTypeIcon.component"></component>
+            <component class="icon top-right" :is="notWorkingTypeIcon.component"></component>
+            <component class="icon bottom-left" :is="workingTypeIcon.component"></component>
             <div class="glare top-right"></div>
             <div class="glare bottom-left"></div>
         </div>
@@ -113,7 +113,6 @@ export default class HistoriesViewSelector extends Vue {
         left: 0;
         width: 100%;
         height: 100%;
-        overflow: hidden;
         color: var(--font-colors-0-01);
         font-size: var(--font-sizes-2000);
 
@@ -124,11 +123,11 @@ export default class HistoriesViewSelector extends Vue {
             @include animate-opacity(0, 1, 0.6s, 0.1s);
 
             &.top-right {
-                left: -20%;
-                top: -230%;
-                width: 140%;
-                height: 350%;
-                transform: rotate(-45deg);
+                left: -10%;
+                right: -45%;
+                top: -160%;
+                bottom: 5%;
+                transform: rotate(-55deg);
 
                 background: radial-gradient(
                     50% 50% at 50% 50%,
@@ -141,7 +140,7 @@ export default class HistoriesViewSelector extends Vue {
                 left: -75%;
                 right: 35%;
                 top: -60%;
-                bottom: -167.61%;
+                bottom: -165%;
                 transform: rotate(-10deg);
 
                 background: radial-gradient(
@@ -152,13 +151,13 @@ export default class HistoriesViewSelector extends Vue {
             }
         }
 
-        .top-right {
+        .icon.top-right {
             position: absolute;
             top: -15%;
             right: -10%;
         }
 
-        .bottom-left {
+        .icon.bottom-left {
             position: absolute;
             bottom: -7.5%;
             left: -22.5%;
