@@ -1,7 +1,7 @@
 <template>
     <div class="view-selector-container">
         <div class="column">
-            <div class="selector"></div>
+            <items-view-selector class="selector"></items-view-selector>
         </div>
 
         <div class="column">
@@ -14,10 +14,12 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
+import ItemsViewSelector from './items-view-selector/items-view-selector.vue';
 import HistoriesViewSelector from './histories-view-selector/histories-view-selector.vue';
 
 @Options({
     components: {
+        ItemsViewSelector,
         HistoriesViewSelector
     }
 })
