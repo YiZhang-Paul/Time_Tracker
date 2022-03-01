@@ -87,7 +87,7 @@ export default class HistoriesViewSelector extends Vue {
 
         .top-right {
             position: absolute;
-            top: -20%;
+            top: -15%;
             right: -10%;
         }
 
@@ -101,7 +101,7 @@ export default class HistoriesViewSelector extends Vue {
     .icons {
         @include flex-row(flex-start, space-between);
         position: relative;
-        margin-bottom: 2.5vh;
+        margin-bottom: 1.5vh;
         width: 42.5%;
 
         .main-icon, .sub-icon {
