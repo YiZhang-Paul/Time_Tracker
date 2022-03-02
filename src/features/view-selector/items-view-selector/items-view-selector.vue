@@ -6,22 +6,102 @@
         </div>
 
         <flat-button class="view-button">View All Items</flat-button>
+
+        <div class="completions">
+            <category-summary-display class="summary" :title="'Interruptions'" :icon="interruptionTypeIcon">
+                <completion-indicator class="completion-indicator"
+                    :description="interruptionCompletionTitle"
+                    :percentage="interruptionCompletion"
+                    :isDisabled="isInterruptionCompletionDisabled">
+                </completion-indicator>
+            </category-summary-display>
+
+            <category-summary-display class="summary" :title="'Tasks'" :icon="taskTypeIcon">
+                <completion-indicator class="completion-indicator"
+                    :description="taskCompletionTitle"
+                    :percentage="taskCompletion"
+                    :isDisabled="isTaskCompletionDisabled">
+                </completion-indicator>
+            </category-summary-display>
+        </div>
+
         <div class="label">items</div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
+import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
+import { useTaskStore } from '../../../stores/task/task.store';
+import { ItemSummariesDto } from '../../../core/dtos/item-summaries-dto';
+import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
+import CategorySummaryDisplay from '../../../shared/displays/category-summary-display/category-summary-display.vue';
+import CompletionIndicator from '../../../shared/indicators/completion-indicator/completion-indicator.vue';
 
 @Options({
     components: {
-        FlatButton
+        FlatButton,
+        CategorySummaryDisplay,
+        CompletionIndicator
+    },
+    computed: {
+        ...mapStores(useInterruptionStore, useTaskStore)
     }
 })
 export default class ItemsViewSelector extends Vue {
+    public readonly interruptionTypeIcon = IconUtility.getInterruptionTypeIcon();
+    public readonly taskTypeIcon = IconUtility.getTaskTypeIcon();
     public isHovered = false;
+    private interruptionStore!: ReturnType<typeof useInterruptionStore>;
+    private taskStore!: ReturnType<typeof useTaskStore>;
+
+    get interruptionCompletionTitle(): string {
+        return this.getCompletionTitle(this.interruptionStore.summaries);
+    }
+
+    get interruptionCompletion(): number {
+        return this.getCompletionRate(this.interruptionStore.summaries);
+    }
+
+    get isInterruptionCompletionDisabled(): boolean {
+        return this.isCompletionDisabled(this.interruptionStore.summaries);
+    }
+
+    get taskCompletionTitle(): string {
+        return this.getCompletionTitle(this.taskStore.summaries);
+    }
+
+    get taskCompletion(): number {
+        return this.getCompletionRate(this.taskStore.summaries);
+    }
+
+    get isTaskCompletionDisabled(): boolean {
+        return this.isCompletionDisabled(this.taskStore.summaries);
+    }
+
+    public async created(): Promise<void> {
+        await Promise.all([
+            this.interruptionStore.loadSummaries(),
+            this.taskStore.loadSummaries()
+        ]);
+    }
+
+    private getCompletionTitle<T>({ resolved, unresolved }: ItemSummariesDto<T>): string {
+        return `Completed - ${resolved.length} of ${resolved.length + unresolved.length}`;
+    }
+
+    private getCompletionRate<T>({ resolved, unresolved }: ItemSummariesDto<T>): number {
+        const total = resolved.length + unresolved.length;
+
+        return total ? resolved.length / total : 0;
+    }
+
+    private isCompletionDisabled<T>({ resolved, unresolved }: ItemSummariesDto<T>): boolean {
+        return resolved.length + unresolved.length === 0;
+    }
 }
 </script>
 
@@ -105,6 +185,35 @@ export default class ItemsViewSelector extends Vue {
         background-color: var(--context-colors-info-6-00);
         transition: margin-top 0.3s;
         @include animate-opacity(0, 1, 0.4s, 0.2s);
+    }
+
+    .completions {
+        width: 60%;
+
+        .summary {
+            width: 100%;
+
+            &:not(:first-of-type) {
+                margin-top: 2.5vh;
+            }
+
+            ::v-deep(.content) {
+                font-size: var(--font-sizes-400);
+
+                .title {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .completion-indicator {
+            width: 90%;
+            font-size: var(--font-sizes-200);
+
+            ::v-deep(.description) {
+                margin-bottom: 3px;
+            }
+        }
     }
 
     .label {

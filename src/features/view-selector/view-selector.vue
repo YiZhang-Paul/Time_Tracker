@@ -1,7 +1,7 @@
 <template>
     <div class="view-selector-container">
         <div class="column">
-            <items-view-selector class="selector"></items-view-selector>
+            <items-view-selector class="selector" @click="openWorkItems()"></items-view-selector>
         </div>
 
         <div class="column">
@@ -24,6 +24,10 @@ import HistoriesViewSelector from './histories-view-selector/histories-view-sele
     }
 })
 export default class ViewSelector extends Vue {
+    public openWorkItems(): void {
+        this.$router.push('/works');
+    }
+
     public openHistories(): void {
         this.$router.push('/histories');
     }

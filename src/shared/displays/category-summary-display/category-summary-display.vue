@@ -28,12 +28,15 @@ export default class CategorySummaryDisplay extends Vue.with(CategorySummaryDisp
 .category-summary-display-container {
     @import '../../../styles/presets.scss';
 
+    $icon-dimension: 5.75vh;
+    $gap: 1.5vh;
+
     @include flex-row(center);
 
     .icon {
         @include flex-row(center, center);
-        width: 5.75vh;
-        height: 5.75vh;
+        width: $icon-dimension;
+        height: $icon-dimension;
         border-radius: 10px;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.35);
         background-color: var(--context-colors-info-8-00);
@@ -42,7 +45,8 @@ export default class CategorySummaryDisplay extends Vue.with(CategorySummaryDisp
 
     .content {
         @include flex-column(flex-start, space-between);
-        margin-left: 1.5vh;
+        margin-left: $gap;
+        width: calc(100% - #{$gap} - #{$icon-dimension});
         font-size: var(--font-sizes-450);
 
         .title {
