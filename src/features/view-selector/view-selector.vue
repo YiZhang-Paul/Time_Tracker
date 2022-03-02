@@ -49,7 +49,7 @@ export default class ViewSelector extends Vue {
     .column {
         @include flex-column(center, space-between);
         width: 20%;
-        height: 72.5%;
+        height: 75%;
 
         &:not(:first-of-type) {
             margin-left: $gap;

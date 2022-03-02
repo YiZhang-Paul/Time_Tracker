@@ -5,6 +5,18 @@
             <div class="glare bottom-left"></div>
         </div>
 
+        <div class="active-item" :class="{ active: activeItemName }">
+            <template v-if="activeItemName">
+                <lightbulb-on class="icon" />
+                <span>{{ activeItemName }}</span>
+            </template>
+
+            <template v-if="!activeItemName">
+                <alarm-snooze class="icon" />
+                <span>no ongoing item</span>
+            </template>
+        </div>
+
         <flat-button class="view-button">View All Items</flat-button>
 
         <div class="completions">
@@ -31,8 +43,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { AlarmSnooze, LightbulbOn } from 'mdue';
 import { mapStores } from 'pinia';
 
+import { useEventStore } from '../../../stores/event/event.store';
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
 import { ItemSummariesDto } from '../../../core/dtos/item-summaries-dto';
@@ -43,20 +57,29 @@ import CompletionIndicator from '../../../shared/indicators/completion-indicator
 
 @Options({
     components: {
+        AlarmSnooze,
+        LightbulbOn,
         FlatButton,
         CategorySummaryDisplay,
         CompletionIndicator
     },
     computed: {
-        ...mapStores(useInterruptionStore, useTaskStore)
+        ...mapStores(useEventStore, useInterruptionStore, useTaskStore)
     }
 })
 export default class ItemsViewSelector extends Vue {
     public readonly interruptionTypeIcon = IconUtility.getInterruptionTypeIcon();
     public readonly taskTypeIcon = IconUtility.getTaskTypeIcon();
     public isHovered = false;
+    private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
+
+    get activeItemName(): string {
+        const item = this.interruptionStore.activeSummary || this.taskStore.activeSummary;
+
+        return item?.name ?? '';
+    }
 
     get interruptionCompletionTitle(): string {
         return this.getCompletionTitle(this.interruptionStore.summaries);
@@ -84,6 +107,7 @@ export default class ItemsViewSelector extends Vue {
 
     public async created(): Promise<void> {
         await Promise.all([
+            this.eventStore.loadOngoingEventSummary(),
             this.interruptionStore.loadSummaries(),
             this.taskStore.loadSummaries()
         ]);
@@ -176,6 +200,33 @@ export default class ItemsViewSelector extends Vue {
         }
     }
 
+    .active-item {
+        @include flex-row(center, center);
+        color: var(--font-colors-3-00);
+
+        &.active {
+            color: var(--font-colors-0-00);
+
+            .icon {
+                color: var(--context-colors-suggestion-0-00);
+            }
+
+            span {
+                margin-top: 0.4rem;
+            }
+        }
+
+        .icon {
+            margin-right: 1vh;
+            font-size: var(--font-sizes-700);
+        }
+
+        span {
+            width: 80%;
+            @include line-overflow();
+        }
+    }
+
     .view-button {
         display: none;
         padding-left: 3.75vh;
@@ -188,7 +239,9 @@ export default class ItemsViewSelector extends Vue {
     }
 
     .completions {
-        width: 60%;
+        position: absolute;
+        bottom: 12.5%;
+        width: 62.5%;
 
         .summary {
             width: 100%;
