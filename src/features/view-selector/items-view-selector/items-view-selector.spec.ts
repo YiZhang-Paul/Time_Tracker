@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 
 import ItemsViewSelector from './items-view-selector.vue';
 
@@ -7,7 +8,7 @@ describe('items view selector unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(ItemsViewSelector);
+        component = shallowMount(ItemsViewSelector, { global: { plugins: [createTestingPinia()] } });
     });
 
     afterEach(() => {
