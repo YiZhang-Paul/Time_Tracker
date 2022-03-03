@@ -5,6 +5,26 @@
             <div class="glare bottom-left"></div>
         </div>
 
+        <div class="daily-target">
+            <emoticon-cool v-if="workingDuration >= targetHours" class="emoticon-icon" />
+            <emoticon-sad v-if="workingDuration < targetHours" class="emoticon-icon" />
+
+            <div class="summary">
+                <span class="title">Work done today</span>
+                <span class="duration" :style="{ color: durationColor }">{{ workingDurationText }}</span>
+
+                <div v-if="workingDuration >= targetHours" class="delta completed">
+                    <medal class="icon" />
+                    <span>target completed!</span>
+                </div>
+
+                <div v-if="workingDuration < targetHours" class="delta">
+                    <menu-down class="icon" />
+                    <span>{{ dailyTargetStatusText }}</span>
+                </div>
+            </div>
+        </div>
+
         <div class="active-item" :class="{ active: activeItemName }">
             <template v-if="activeItemName">
                 <lightbulb-on class="icon" />
@@ -43,13 +63,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AlarmSnooze, LightbulbOn } from 'mdue';
+import { AlarmSnooze, EmoticonCool, EmoticonSad, LightbulbOn, Medal, MenuDown } from 'mdue';
 import { mapStores } from 'pinia';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';
 import { useTaskStore } from '../../../stores/task/task.store';
 import { ItemSummariesDto } from '../../../core/dtos/item-summaries-dto';
+import { TimeUtility } from '../../../core/utilities/time-utility/time-utility';
 import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 import CategorySummaryDisplay from '../../../shared/displays/category-summary-display/category-summary-display.vue';
@@ -58,7 +79,11 @@ import CompletionIndicator from '../../../shared/indicators/completion-indicator
 @Options({
     components: {
         AlarmSnooze,
+        EmoticonCool,
+        EmoticonSad,
         LightbulbOn,
+        Medal,
+        MenuDown,
         FlatButton,
         CategorySummaryDisplay,
         CompletionIndicator
@@ -68,12 +93,37 @@ import CompletionIndicator from '../../../shared/indicators/completion-indicator
     }
 })
 export default class ItemsViewSelector extends Vue {
+    public readonly targetHours = 8;
     public readonly interruptionTypeIcon = IconUtility.getInterruptionTypeIcon();
     public readonly taskTypeIcon = IconUtility.getTaskTypeIcon();
     public isHovered = false;
     private eventStore!: ReturnType<typeof useEventStore>;
     private interruptionStore!: ReturnType<typeof useInterruptionStore>;
     private taskStore!: ReturnType<typeof useTaskStore>;
+
+    get durationColor(): string {
+        const percentage = this.workingDuration / this.targetHours;
+
+        if (percentage < 0.25) {
+            return 'var(--context-colors-warning-0-00)';
+        }
+
+        return percentage < 0.75 ? 'var(--context-colors-suggestion-0-00)' : 'var(--context-colors-success-0-00)';
+    }
+
+    get workingDurationText(): string {
+        return `${this.workingDuration} hour${this.workingDuration > 1 ? 's' : ''}`;
+    }
+
+    get dailyTargetStatusText(): string {
+        const delta = this.targetHours - this.workingDuration;
+
+        return `${delta} hour${delta > 1 ? 's' : ''} till goal`;
+    }
+
+    get workingDuration(): number {
+        return TimeUtility.convertTime(this.eventStore.getWorkingDuration(), 'millisecond', 'hour');
+    }
 
     get activeItemName(): string {
         const item = this.interruptionStore.activeSummary || this.taskStore.activeSummary;
@@ -134,7 +184,7 @@ export default class ItemsViewSelector extends Vue {
     @import '../../../styles/presets.scss';
     @import '../../../styles/animations.scss';
 
-    @include flex-column(center, center);
+    @include flex-column(center, flex-start);
     position: relative;
     overflow: hidden;
     color: var(--font-colors-1-00);
@@ -142,12 +192,12 @@ export default class ItemsViewSelector extends Vue {
     &:hover {
         cursor: pointer;
 
-        .view-button, .background .glare {
-            display: initial;
+        .daily-target {
+            height: 37.5%;
         }
 
-        .view-button {
-            margin-top: 2vh;
+        .view-button, .background .glare {
+            display: initial;
         }
 
         .label {
@@ -200,6 +250,54 @@ export default class ItemsViewSelector extends Vue {
         }
     }
 
+    .daily-target {
+        @include flex-row(flex-start, center);
+        width: 100%;
+        height: calc(45% - var(--font-sizes-400));
+        transition: height 0.3s;
+
+        .emoticon-icon {
+            margin-top: 7.5%;
+            margin-right: 2vh;
+            color: var(--misc-colors-b-00);
+            font-size: var(--font-sizes-1300);
+        }
+
+        .summary {
+            @include flex-column();
+            margin-top: 17.5%;
+
+            .title {
+                font-size: var(--font-sizes-500);
+            }
+
+            .duration {
+                margin-top: 0.5vh;
+                font-size: var(--font-sizes-700);
+            }
+
+            .delta {
+                @include flex-row(center);
+                color: var(--font-colors-2-00);
+                font-size: var(--font-sizes-200);
+
+                &.completed {
+                    color: var(--font-colors-1-00);
+
+                    .icon {
+                        color: var(--context-colors-info-0-00);
+                    }
+                }
+
+                .icon {
+                    margin: 0 3px 0 1px;
+                    color: var(--context-colors-warning-0-00);
+                    font-size: var(--font-sizes-400);
+                }
+            }
+        }
+    }
+
     .active-item {
         @include flex-row(center, center);
         color: var(--font-colors-3-00);
@@ -229,12 +327,12 @@ export default class ItemsViewSelector extends Vue {
 
     .view-button {
         display: none;
+        margin-top: 2vh;
         padding-left: 3.75vh;
         padding-right: 3.75vh;
         border-radius: 25px;
         box-shadow: 0 0 10px 3px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-6-00);
-        transition: margin-top 0.3s;
         @include animate-opacity(0, 1, 0.4s, 0.2s);
     }
 

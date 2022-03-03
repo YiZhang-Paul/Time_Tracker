@@ -98,10 +98,6 @@ export default class HistoriesViewSelector extends Vue {
             display: initial;
         }
 
-        .view-button {
-            margin-top: 2vh;
-        }
-
         .label {
             display: none;
         }
@@ -243,12 +239,12 @@ export default class HistoriesViewSelector extends Vue {
 
     .view-button {
         display: none;
+        margin-top: 2vh;
         padding-left: 3.75vh;
         padding-right: 3.75vh;
         border-radius: 25px;
         box-shadow: 0 0 10px 3px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-6-00);
-        transition: margin-top 0.3s;
         @include animate-opacity(0, 1, 0.4s, 0.2s);
     }
 
