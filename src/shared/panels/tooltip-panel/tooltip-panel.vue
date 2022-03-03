@@ -49,7 +49,7 @@ export default class TooltipPanel extends Vue.with(TooltipPanelProp) {
         color: var(--font-colors-0-00);
         font-size: var(--font-sizes-300);
         @include line-overflow();
-        @include animate-opacity(0, 1, 0.4s, 0.1s);
+        @include animate-property(opacity, 0, 1, 0.4s, 0.1s);
 
         &.top {
             bottom: calc(100% + #{$gap});

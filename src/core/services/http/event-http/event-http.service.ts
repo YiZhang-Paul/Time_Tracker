@@ -31,10 +31,12 @@ export class EventHttpService {
         try {
             const endpoint = `${this._api}/timesheets/${start.toISOString()}`;
             const { data, headers } = await axios.get(endpoint, { responseType: 'blob' });
-            const name = headers['content-disposition'].split(';').find(_ => /filename=/.test(_));
+            const disposition = headers['content-disposition'].split(';').find(_ => /filename=/.test(_));
+            const date = start.toLocaleDateString('en-CA').replace(/-/g, '_');
+            const name = disposition?.replace(/^.*filename=/, '') ?? `timesheets_${date}`;
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(data);
-            link.setAttribute('download', name?.replace(/^.*filename=/, '') ?? `timesheets_${start.toLocaleDateString()}`);
+            link.setAttribute('download', name);
             link.click();
 
             return true;

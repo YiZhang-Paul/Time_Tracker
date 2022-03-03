@@ -73,7 +73,7 @@ export default class ExpandMenu extends Vue.with(ExpandMenuProp) {
         top: calc(100% + 0.75vh);
         background-color: var(--primary-colors-6-00);
         border-radius: 5px;
-        @include animate-opacity(0, 1, 0.3s, 0.1s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
 
         .option {
             padding: 0.75vh 2vh;

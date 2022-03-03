@@ -48,7 +48,7 @@ export default class ExpandIconButton extends Vue.with(ExpandIconButtonProp) { }
     span {
         display: none;
         font-size: var(--font-sizes-200);
-        @include animate-opacity(0, 1, 0.2s, 0.1s);
+        @include animate-property(opacity, 0, 1, 0.2s, 0.1s);
     }
 }
 </style>

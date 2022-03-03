@@ -369,7 +369,7 @@ export default class WorkItems extends Vue {
             .work-item-creator {
                 width: calc(#{$actions-height} * 0.8);
                 height: calc(#{$actions-height} * 0.8);
-                @include animate-opacity(0, 1, 0.3s, 0.8s);
+                @include animate-property(opacity, 0, 1, 0.3s, 0.8s);
             }
 
             .search-box {

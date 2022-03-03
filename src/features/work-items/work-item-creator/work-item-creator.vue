@@ -96,7 +96,7 @@ export default class WorkItemCreator extends Vue {
         @include flex-row(center, center);
         position: absolute;
         bottom: calc(100% + 1.25vh);
-        @include animate-opacity(0, 1, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.2s);
 
         .type {
             @include flex-column(center, center);

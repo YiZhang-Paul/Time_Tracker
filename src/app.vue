@@ -2,7 +2,11 @@
     <router-view class="main-view"></router-view>
     <time-display class="time-display"></time-display>
     <event-tracker class="event-tracker"></event-tracker>
-    <view-selector class="view-selector" :options="viewOptions"></view-selector>
+
+    <icon-button class="views-button" :tooltip="'main menu'" @click="openViewsSelector()">
+        <apps />
+    </icon-button>
+
     <dialogs-base></dialogs-base>
 
     <div class="build-versions">
@@ -12,24 +16,23 @@
 </template>
 
 <script lang="ts">
-import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { Apps } from 'mdue';
 import { mapStores } from 'pinia';
-import { History, Sword } from 'mdue';
 
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
-import { ViewSelectionOption } from './core/models/options/view-selection-option';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
-import ViewSelector from './shared/inputs/view-selector/view-selector.vue';
+import IconButton from './shared/buttons/icon-button/icon-button.vue';
 import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 
 @Options({
     components: {
+        Apps,
         TimeDisplay,
         EventTracker,
-        ViewSelector,
+        IconButton,
         DialogsBase
     },
     watch: {
@@ -62,11 +65,6 @@ export default class App extends Vue {
     public notificationStore!: ReturnType<typeof useNotificationStore>;
     private eventStore!: ReturnType<typeof useEventStore>;
 
-    public readonly viewOptions = [
-        new ViewSelectionOption('Work', 'works', markRaw(Sword)),
-        new ViewSelectionOption('History', 'histories', markRaw(History))
-    ];
-
     get isWorking(): boolean {
         return this.eventStore.isWorking;
     }
@@ -83,6 +81,10 @@ export default class App extends Vue {
     /* istanbul ignore next */
     get apiBuildVersion(): string {
         return `API_BUILD ${process.env.VUE_APP_API_BUILD_VERSION}`;
+    }
+
+    public openViewsSelector(): void {
+        this.$router.push('/views');
     }
 }
 </script>
@@ -128,7 +130,7 @@ html, body, #app {
     top: calc(#{$content-top} + 1.5vh);
     right: 20vw;
     height: 5vh;
-    @include animate-opacity(0, 1, 0.4s, 1.5s);
+    @include animate-property(opacity, 0, 1, 0.4s, 1.5s);
 }
 
 .time-display {
@@ -137,9 +139,20 @@ html, body, #app {
     right: $border-gap;
 }
 
-.view-selector {
+.views-button.icon-button-container {
     position: absolute;
-    bottom: 1vh;
+    bottom: $border-gap;
+    width: 5vh;
+    height: 5vh;
+    background-color: var(--context-colors-info-7-00);
+    font-size: var(--font-sizes-600);
+    transition: box-shadow 0.3s, background-color 0.3s, color 0.3s;
+
+    &:hover {
+        box-shadow: 0 0 7px 2px var(--context-colors-info-6-03);
+        background-color: var(--context-colors-info-6-00);
+        color: var(--font-colors-0-00);
+    }
 }
 
 .build-versions {

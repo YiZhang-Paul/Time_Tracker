@@ -8,7 +8,7 @@ const months = [
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
-const defaultLocale = 'en-US';
+const defaultLocale = 'en-CA';
 
 const conversions = {
     millisecond: 1,

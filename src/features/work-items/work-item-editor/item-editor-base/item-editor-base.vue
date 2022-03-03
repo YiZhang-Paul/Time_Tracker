@@ -256,7 +256,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     border-radius: $border-radius;
     background-color: var(--primary-colors-9-00);
     box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-    @include animate-opacity(0, 1, 0.3s, 0.2s);
+    @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
     .header {
         @include flex-row(center);
@@ -337,7 +337,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
             }
 
             .icon, span {
-                @include animate-opacity(0, 1, 0.3s);
+                @include animate-property(opacity, 0, 1, 0.3s);
             }
 
             .icon {
@@ -360,7 +360,7 @@ export default class ItemEditorBase extends Vue.with(ItemEditorBaseProp) {
     .status-toggles {
         @include flex-row(center);
         width: 100%;
-        @include animate-opacity(0, 1, 0.3s);
+        @include animate-property(opacity, 0, 1, 0.3s);
 
         .status-toggle {
             color: var(--font-colors-1-00);

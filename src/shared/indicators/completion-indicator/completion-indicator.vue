@@ -114,7 +114,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
         .percentage {
             position: absolute;
             left: calc(100% + 1vh);
-            @include animate-opacity(0, 1, 0.5s, 0.5s);
+            @include animate-property(opacity, 0, 1, 0.5s, 0.5s);
         }
     }
 
@@ -123,7 +123,7 @@ export default class CompletionIndicator extends Vue.with(CompletionIndicatorPro
         position: absolute;
         top: 0;
         transition: left 0.3s 0.2s;
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
         div {
             width: 1px;

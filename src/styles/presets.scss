@@ -7,11 +7,15 @@
     --font-sizes-400: 1rem; // 16px
     --font-sizes-450: 1.125rem; // 18px
     --font-sizes-500: 1.25rem; // 20px
+    --font-sizes-550: 1.375rem; // 22px
     --font-sizes-600: 1.5rem; // 24px
     --font-sizes-700: 1.75rem; // 28px
+    --font-sizes-750: 2.375rem; // 38px
     --font-sizes-800: 3rem; // 48px
     --font-sizes-900: 4.5rem; // 72px
     --font-sizes-1000: 6.75rem; // 108px
+    --font-sizes-1300: 8.775rem; // 140px
+    --font-sizes-2000: 13.5rem; // 216px
     // font colors
     --font-colors-0-00: rgb(255, 255, 255);
     --font-colors-0-01: rgba(255, 255, 255, 0.1);
@@ -39,9 +43,11 @@
     --item-type-colors-idling-0-00: rgb(178, 178, 178);
     --item-type-colors-break-0-00: rgb(236, 130, 30);
     --item-type-colors-task-0-00: rgb(40, 207, 216);
+    --item-type-colors-task-0-05: rgba(40, 207, 216, 0.5);
     --item-type-colors-task-1-00: rgb(23, 135, 141);
     --item-type-colors-task-2-01: rgba(25, 184, 247, 0.1);
-    --item-type-colors-interruption-0-00: rgb(219, 177, 70);
+    --item-type-colors-interruption-0-00: rgb(238, 193, 79);
+    --item-type-colors-interruption-0-05: rgba(238, 193, 79, 0.5);
     --item-type-colors-interruption-1-00: rgb(157, 125, 42);
     --item-type-colors-interruption-2-01: rgba(228, 188, 87, 0.1);
     // priority colors
@@ -75,6 +81,10 @@
     --context-colors-info-4-00: rgb(40, 146, 160);
     --context-colors-info-4-03: rgba(40, 146, 160, 0.3);
     --context-colors-info-5-00: rgb(47, 118, 128);
+    --context-colors-info-6-00: rgb(25, 125, 193);
+    --context-colors-info-6-03: rgba(25, 125, 193, 0.3);
+    --context-colors-info-7-00: rgb(16, 88, 139);
+    --context-colors-info-7-03: rgba(16, 88, 139, 0.3);
     --context-colors-info-8-00: rgb(53, 76, 92);
     --context-colors-disabled-0-00: rgb(145, 145, 145);
     --context-colors-disabled-1-00: rgb(85, 85, 85);
@@ -82,6 +92,10 @@
     --context-colors-disabled-2-00: rgb(60, 60, 60);
     // scrollbar colors
     --scrollbar-color: rgba(180, 180, 180, 0.6);
+    // misc colors
+    --misc-colors-a-00: rgb(51, 164, 245);
+    --misc-colors-a-03: rgba(51, 164, 245, 0.3);
+    --misc-colors-b-00: rgb(231, 228, 27);
 }
 
 @mixin flex-row($align: initial, $justify: initial) {

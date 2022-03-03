@@ -83,6 +83,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
     public panelDate = this.selected ? new Date(this.selected) : new Date();
     public showOptions = false;
     public rows = 0;
+    private readonly locale = 'en-CA';
     private columnOffset = 0;
     private rowOffset = 0;
 
@@ -137,8 +138,8 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
 
         return {
             'unselectable-day': !this.isSelectable(date),
-            today: new Date().toLocaleDateString() === date.toLocaleDateString(),
-            'selected-day': this.selected?.toLocaleDateString() === date.toLocaleDateString()
+            today: new Date().toLocaleDateString(this.locale) === date.toLocaleDateString(this.locale),
+            'selected-day': this.selected?.toLocaleDateString(this.locale) === date.toLocaleDateString(this.locale)
         };
     }
 
@@ -215,8 +216,8 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
             return false;
         }
 
-        const target = date.toLocaleDateString().split('/').reverse().join('/');
-        const current = new Date().toLocaleDateString().split('/').reverse().join('/');
+        const target = date.toLocaleDateString(this.locale);
+        const current = new Date().toLocaleDateString(this.locale);
 
         return target <= current;
     }
@@ -283,7 +284,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
         border-radius: 3px;
         background-color: var(--primary-colors-7-00);
         box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.35);
-        @include animate-opacity(0, 1, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.2s);
 
         .month-selection {
             @include flex-row(center, center);
@@ -341,7 +342,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
                 width: $grid-dimension;
                 height: $grid-dimension;
                 color: var(--context-colors-info-1-00);
-                @include animate-opacity(0, 1, 0.2s);
+                @include animate-property(opacity, 0, 1, 0.2s);
 
                 &:not(:first-of-type) {
                     margin-left: $grid-gap;
@@ -355,7 +356,7 @@ export default class DateSelector extends Vue.with(DateSelectorProp) {
 
         .row {
             margin-bottom: $grid-gap;
-            @include animate-opacity(0, 1, 0.3s, 0.1s);
+            @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
 
             .day {
                 @include flex-row(center, center);
