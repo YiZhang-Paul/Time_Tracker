@@ -62,7 +62,6 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
     }
 })
 export default class App extends Vue {
-    public showViewSelection = false;
     public notificationStore!: ReturnType<typeof useNotificationStore>;
     private eventStore!: ReturnType<typeof useEventStore>;
 
