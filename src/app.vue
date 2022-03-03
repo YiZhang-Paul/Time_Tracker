@@ -118,7 +118,7 @@ html, body, #app {
     top: calc(#{$content-top} + 1.5vh);
     right: 20vw;
     height: 5vh;
-    @include animate-opacity(0, 1, 0.4s, 1.5s);
+    @include animate-property(opacity, 0, 1, 0.4s, 1.5s);
 }
 
 .time-display {

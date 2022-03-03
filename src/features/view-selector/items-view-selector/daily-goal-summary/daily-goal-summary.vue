@@ -5,16 +5,21 @@
 
         <div class="summary">
             <span class="title">Work done today</span>
-            <span class="duration" :style="{ color: durationColor }">{{ workingDurationText }}</span>
 
-            <div v-if="workingDuration >= targetHours" class="delta completed">
-                <medal class="icon" />
-                <span>target completed!</span>
+            <div class="duration">
+                <span :style="{ color: durationColor }">{{ workingDurationText }}</span>
             </div>
 
-            <div v-if="workingDuration < targetHours" class="delta">
-                <menu-down class="icon" />
-                <span>{{ dailyTargetStatusText }}</span>
+            <div class="delta-wrapper">
+                <div v-if="workingDuration >= targetHours" class="delta completed">
+                    <medal class="icon" />
+                    <span>target completed!</span>
+                </div>
+
+                <div v-if="workingDuration < targetHours" class="delta">
+                    <menu-down class="icon" />
+                    <span>{{ dailyTargetStatusText }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -64,6 +69,7 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
 <style lang="scss" scoped>
 .daily-goal-summary-container {
     @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     @include flex-row(flex-start, center);
 
@@ -76,34 +82,57 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
 
     .summary {
         @include flex-column();
-        margin-top: 17.5%;
+        margin-top: 15%;
 
         .title {
             font-size: var(--font-sizes-500);
         }
 
         .duration {
-            margin-top: 0.5vh;
-            font-size: var(--font-sizes-700);
+            $font-size: var(--font-sizes-750);
+
+            position: relative;
+            margin-top: 0.25vh;
+            height: calc(#{$font-size} * 1.35);
+            font-size: $font-size;
+            @include animate-property(opacity, 0, 1, 0.45s, 0.5s);
+
+            span {
+                position: absolute;
+                left: 50%;
+                @include line-overflow();
+                @include animate-property(left, 40%, 10%, 0.45s, 0.5s);
+            }
         }
 
-        .delta {
-            @include flex-row(center);
-            color: var(--font-colors-2-00);
-            font-size: var(--font-sizes-200);
+        .delta-wrapper {
+            $font-size: var(--font-sizes-200);
 
-            &.completed {
-                color: var(--font-colors-1-00);
+            @include flex-row(center);
+            position: relative;
+            height: calc(#{$font-size} * 1.5);
+            color: var(--font-colors-2-00);
+            font-size: $font-size;
+            @include animate-property(opacity, 0, 1, 0.4s, 0.9s);
+
+            .delta {
+                @include flex-row(center);
+                position: absolute;
+                @include animate-property(left, -10%, 10%, 0.4s, 0.9s);
+
+                &.completed {
+                    color: var(--font-colors-1-00);
+
+                    .icon {
+                        color: var(--context-colors-info-0-00);
+                    }
+                }
 
                 .icon {
-                    color: var(--context-colors-info-0-00);
+                    margin-right: 3px;
+                    color: var(--context-colors-warning-0-00);
+                    font-size: var(--font-sizes-400);
                 }
-            }
-
-            .icon {
-                margin: 0 3px 0 1px;
-                color: var(--context-colors-warning-0-00);
-                font-size: var(--font-sizes-400);
             }
         }
     }

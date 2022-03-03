@@ -66,7 +66,7 @@ export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp)
 
     .title {
         @include flex-row(center, center);
-        @include animate-opacity(0, 1, 0.3s, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         .icon {
             margin-right: 12px;
@@ -79,7 +79,7 @@ export default class ConfirmationDialog extends Vue.with(ConfirmationDialogProp)
         margin-top: 5vh;
         width: 90%;
         font-size: var(--font-sizes-500);
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
         .cancel-button {
             background-color: transparent;

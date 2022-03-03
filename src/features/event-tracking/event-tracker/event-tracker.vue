@@ -143,7 +143,7 @@ export default class EventTracker extends Vue {
         @include flex-row(center);
         width: 50%;
         color: var(--context-colors-suggestion-0-00);
-        @include animate-opacity(0, 1, 0.4s);
+        @include animate-property(opacity, 0, 1, 0.4s);
     }
 
     .working-duration, .non-working-duration {

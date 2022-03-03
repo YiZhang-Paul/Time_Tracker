@@ -188,7 +188,7 @@ export default class EventHistory extends Vue {
         width: $summaries-width;
         height: 15%;
         color: var(--font-colors-1-00);
-        @include animate-opacity(0, 1, 0.3s, 0.3s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.3s);
 
         .date-wrapper {
             @include flex-row(center);
@@ -219,7 +219,7 @@ export default class EventHistory extends Vue {
 
                 .filter-group {
                     margin-left: 1.5vh;
-                    @include animate-opacity(0, 1, 0.3s, 0.1s);
+                    @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
                 }
             }
 
@@ -236,7 +236,7 @@ export default class EventHistory extends Vue {
                 .action-button {
                     margin-left: 1vh;
                     transition: all 0.3s;
-                    @include animate-opacity(0, 1, 0.3s, 0.1s);
+                    @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
 
                     &:hover {
                         background-color: var(--primary-colors-4-00);
@@ -250,7 +250,7 @@ export default class EventHistory extends Vue {
     .separator {
         width: calc(#{$summaries-width} * 0.975);
         height: 1px;
-        @include animate-opacity(0, 1, 0.3s, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         background: linear-gradient(
             90deg,
@@ -264,13 +264,13 @@ export default class EventHistory extends Vue {
         @include flex-row(flex-start, space-between);
         width: 100%;
         height: 85%;
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
         .working-time-breakdown, .not-working-time-breakdown {
             @include flex-column(center);
             width: calc(50% - #{$summaries-width} / 2);
             height: 100%;
-            @include animate-opacity(0, 1, 0.4s, 0.5s);
+            @include animate-property(opacity, 0, 1, 0.4s, 0.5s);
 
             .time-summary {
                 margin-top: 3.5vh;
@@ -284,7 +284,7 @@ export default class EventHistory extends Vue {
             margin-top: 3.5vh;
             width: $summaries-width;
             height: $summaries-height;
-            @include animate-opacity(0, 1, 0.3s, 0.3s);
+            @include animate-property(opacity, 0, 1, 0.3s, 0.3s);
         }
 
         .event-summaries {
@@ -294,7 +294,7 @@ export default class EventHistory extends Vue {
             .event-summary-card {
                 margin-bottom: 1.25vh;
                 scroll-snap-align: start;
-                @include animate-opacity(0, 1, 0.3s);
+                @include animate-property(opacity, 0, 1, 0.3s);
             }
         }
     }

@@ -281,7 +281,7 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
         scroll-snap-align: start;
 
         .item-card {
-            @include animate-opacity(0, 1, 0.3s);
+            @include animate-property(opacity, 0, 1, 0.3s);
         }
     }
 }

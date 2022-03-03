@@ -169,7 +169,7 @@ export default class ItemChecklists extends Vue.with(ItemChecklistsProp) {
             position: relative;
             margin: 0 $gap 0.75vh $gap;
             width: calc(100% - #{$gap} * 2);
-            @include animate-opacity(0, 1, 0.3s);
+            @include animate-property(opacity, 0, 1, 0.3s);
 
             &:hover .list-handle {
                 opacity: 1;

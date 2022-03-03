@@ -164,7 +164,7 @@ export default class WorkItemEditor extends Vue.with(WorkItemEditorProp) {
         @include flex-row(center, center);
         color: var(--font-colors-2-00);
         font-size: var(--font-sizes-700);
-        @include animate-opacity(0, 1, 0.3s, 0.5s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
     }
 
     .priority-selector, .effort-selector {

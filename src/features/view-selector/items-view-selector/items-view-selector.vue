@@ -178,7 +178,7 @@ export default class ItemsViewSelector extends Vue {
             display: none;
             position: absolute;
             border-radius: 200px;
-            @include animate-opacity(0, 1, 0.6s, 0.1s);
+            @include animate-property(opacity, 0, 1, 0.6s, 0.1s);
 
             &.top-right {
                 left: -5%;
@@ -214,11 +214,13 @@ export default class ItemsViewSelector extends Vue {
         width: 100%;
         height: calc(45% - var(--font-sizes-400));
         transition: height 0.3s;
+        @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
     }
 
     .active-item {
         @include flex-row(center, center);
         color: var(--font-colors-3-00);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
         &.active {
             color: var(--font-colors-0-00);
@@ -251,13 +253,14 @@ export default class ItemsViewSelector extends Vue {
         border-radius: 25px;
         box-shadow: 0 0 10px 3px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-6-00);
-        @include animate-opacity(0, 1, 0.4s, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.4s, 0.2s);
     }
 
     .completions {
         position: absolute;
         bottom: 12.5%;
         width: 62.5%;
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         .summary {
             width: 100%;
@@ -295,7 +298,7 @@ export default class ItemsViewSelector extends Vue {
         box-shadow: 0 0 5px 2px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-7-00);
         font-size: var(--font-sizes-300);
-        @include animate-opacity(0, 1, 0.4s, 1s);
+        @include animate-property(opacity, 0, 1, 0.4s, 1s);
     }
 
     &.hovered .label {

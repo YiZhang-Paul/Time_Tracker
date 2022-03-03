@@ -131,7 +131,7 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
 
         .incomplete-button, .complete-button {
             transition: color 0.4s;
-            @include animate-opacity(0, 1, 0.3s, 0.1s);
+            @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
         }
 
         .incomplete-button {
@@ -149,7 +149,7 @@ export default class ChecklistEntryCard extends Vue.with(ChecklistEntryCardProp)
         width: 82.5%;
         font-size: var(--font-sizes-300);
         font-family: inherit;
-        @include animate-opacity(0, 1, 0.1s);
+        @include animate-property(opacity, 0, 1, 0.1s);
 
         &:hover {
             cursor: pointer;

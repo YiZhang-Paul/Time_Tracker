@@ -103,14 +103,14 @@ export default class SearchBox extends Vue {
         border-radius: $border-radius;
         border: 1px solid var(--primary-colors-7-00);
         transition: border-color 0.3s;
-        @include animate-opacity(0, 1, 0.3s, 0.85s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.85s);
 
         .icon, input {
             transition: color 0.3s;
         }
 
         .icon {
-            @include animate-opacity(0, 1, 0.15s, 0.15s);
+            @include animate-property(opacity, 0, 1, 0.15s, 0.15s);
         }
 
         .reset-button {

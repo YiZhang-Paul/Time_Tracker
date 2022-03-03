@@ -90,7 +90,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
         }
 
         .indicator-content {
-            @include animate-opacity(0, 1, 0.3s);
+            @include animate-property(opacity, 0, 1, 0.3s);
         }
 
         .resolved-icon {

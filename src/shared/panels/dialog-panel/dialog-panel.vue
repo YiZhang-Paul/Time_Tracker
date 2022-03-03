@@ -42,6 +42,6 @@ export default class DialogPanel extends Vue.with(DialogPanelProp) { }
     width: 100vw;
     height: 100vh;
     background-color: var(--primary-colors-10-00);
-    @include animate-opacity(0, 1, 0.2s);
+    @include animate-property(opacity, 0, 1, 0.2s);
 }
 </style>

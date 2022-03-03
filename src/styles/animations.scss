@@ -1,19 +1,23 @@
-@mixin animate-opacity($start, $end, $duration, $delay: 0s) {
-    opacity: $start;
-    animation: animate-opacity $duration ease $delay forwards;
+@mixin animate-property($property, $start, $end, $duration, $delay: 0s) {
+    $animation-name: unique-id();
 
-    @keyframes animate-opacity {
-        from { opacity: $start; }
-        to { opacity: $end; }
+    #{$property}: $start;
+    animation: $animation-name $duration ease $delay forwards;
+
+    @keyframes #{$animation-name} {
+        from { #{$property}: $start; }
+        to { #{$property}: $end; }
     }
 }
 
 @mixin raise($startBackground, $endBackground, $startShadow, $endShadow, $duration, $delay: 0s, $fillMode: forwards) {
+    $animation-name: unique-id();
+
     background-color: $startBackground;
     box-shadow: $startShadow;
-    animation: raise $duration ease $delay $fillMode;
+    animation: $animation-name $duration ease $delay $fillMode;
 
-    @keyframes raise {
+    @keyframes #{$animation-name} {
         from {
             background-color: $startBackground;
             box-shadow: $startShadow;

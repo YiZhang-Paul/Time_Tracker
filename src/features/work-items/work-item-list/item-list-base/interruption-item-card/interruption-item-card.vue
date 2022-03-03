@@ -104,7 +104,7 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         }
 
         .indicator-content {
-            @include animate-opacity(0, 1, 0.3s);
+            @include animate-property(opacity, 0, 1, 0.3s);
         }
 
         .resolved-icon {

@@ -116,7 +116,7 @@ export default class HistoriesViewSelector extends Vue {
             display: none;
             position: absolute;
             border-radius: 200px;
-            @include animate-opacity(0, 1, 0.6s, 0.1s);
+            @include animate-property(opacity, 0, 1, 0.6s, 0.1s);
 
             &.top-right {
                 left: -10%;
@@ -173,7 +173,7 @@ export default class HistoriesViewSelector extends Vue {
         .main-icon, .sub-icon {
             @include flex-row(center, center);
             border-radius: 50%;
-            @include animate-opacity(0, 1, 0.4s);
+            @include animate-property(opacity, 0, 1, 0.4s);
         }
 
         .main-icon {
@@ -229,7 +229,7 @@ export default class HistoriesViewSelector extends Vue {
     .date {
         @include flex-row(center, center);
         font-size: var(--font-sizes-600);
-        @include animate-opacity(0, 1, 0.3s, 0.1s);
+        @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
 
         .icon {
             margin-right: 0.75vh;
@@ -245,7 +245,7 @@ export default class HistoriesViewSelector extends Vue {
         border-radius: 25px;
         box-shadow: 0 0 10px 3px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-6-00);
-        @include animate-opacity(0, 1, 0.4s, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.4s, 0.2s);
     }
 
     .label {
@@ -258,7 +258,7 @@ export default class HistoriesViewSelector extends Vue {
         box-shadow: 0 0 5px 2px var(--context-colors-info-6-03);
         background-color: var(--context-colors-info-7-00);
         font-size: var(--font-sizes-300);
-        @include animate-opacity(0, 1, 0.4s, 1s);
+        @include animate-property(opacity, 0, 1, 0.4s, 1s);
     }
 
     &.hovered {

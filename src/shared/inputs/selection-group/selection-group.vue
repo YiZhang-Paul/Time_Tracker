@@ -89,7 +89,7 @@ export default class SelectionGroup extends Vue.with(SelectionGroupProp) {
         @include flex-row(center, center);
         position: absolute;
         bottom: calc(100% + 1.75vh);
-        @include animate-opacity(0, 1, 0.2s);
+        @include animate-property(opacity, 0, 1, 0.2s);
 
         .option {
             $dimension: 3.5vh;
