@@ -1,10 +1,10 @@
 <template>
     <div class="working-time-summary-container">
         <div class="summaries">
-            <event-time-summary-card :title="'You worked'"
+            <event-type-summary-card :title="'You worked'"
                 :duration="totalDuration"
                 :icon="workingTypeIcon">
-            </event-time-summary-card>
+            </event-type-summary-card>
 
             <completion-indicator class="completion-indicator"
                 :description="targetTitle"
@@ -13,10 +13,10 @@
         </div>
 
         <div class="summaries">
-            <event-time-summary-card :title="'Interruptions'"
+            <event-type-summary-card :title="'Interruptions'"
                 :duration="interruptionDuration"
                 :icon="interruptionIcon">
-            </event-time-summary-card>
+            </event-type-summary-card>
 
             <completion-indicator class="completion-indicator"
                 :description="interruptionCompletionTitle"
@@ -32,10 +32,10 @@
         </div>
 
         <div class="summaries">
-            <event-time-summary-card :title="'Tasks'"
+            <event-type-summary-card :title="'Tasks'"
                 :duration="taskDuration"
                 :icon="taskIcon">
-            </event-time-summary-card>
+            </event-type-summary-card>
 
             <completion-indicator class="completion-indicator"
                 :description="taskCompletionTitle"
@@ -59,7 +59,7 @@ import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import CompletionIndicator from '../../../../shared/indicators/completion-indicator/completion-indicator.vue';
-import EventTimeSummaryCard from '../event-time-summary-card/event-time-summary-card.vue';
+import EventTypeSummaryCard from '../event-type-summary-card/event-type-summary-card.vue';
 
 class WorkingTimeSummaryProp {
     public summaries = prop<EventSummariesDto>({ default: new EventSummariesDto() });
@@ -68,7 +68,7 @@ class WorkingTimeSummaryProp {
 @Options({
     components: {
         CompletionIndicator,
-        EventTimeSummaryCard
+        EventTypeSummaryCard
     }
 })
 export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp) {

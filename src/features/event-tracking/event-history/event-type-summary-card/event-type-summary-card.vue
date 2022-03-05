@@ -11,7 +11,7 @@ import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import CategorySummaryDisplay from '../../../../shared/displays/category-summary-display/category-summary-display.vue';
 
-class EventTimeSummaryCardProp {
+class EventTypeSummaryCardProp {
     public title = prop<string>({ default: '' });
     public duration = prop<number>({ default: -1 });
     public icon = prop<IconConfig>({ default: null });
@@ -22,7 +22,7 @@ class EventTimeSummaryCardProp {
         CategorySummaryDisplay
     }
 })
-export default class EventTimeSummaryCard extends Vue.with(EventTimeSummaryCardProp) {
+export default class EventTypeSummaryCard extends Vue.with(EventTypeSummaryCardProp) {
     get durationText(): string {
         if (this.duration && this.duration < 60 * 1000) {
             return 'less than 1 min';

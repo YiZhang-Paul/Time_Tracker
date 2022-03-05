@@ -1,13 +1,13 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
-import EventTimeSummaryCard from './event-time-summary-card.vue';
+import EventTypeSummaryCard from './event-type-summary-card.vue';
 
-describe('event time summary card unit test', () => {
+describe('event type summary card unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(EventTimeSummaryCard);
+        component = shallowMount(EventTypeSummaryCard);
     });
 
     afterEach(() => {
