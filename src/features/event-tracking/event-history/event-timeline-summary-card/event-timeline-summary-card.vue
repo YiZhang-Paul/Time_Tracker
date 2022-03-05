@@ -1,18 +1,24 @@
 <template>
-    <div class="event-timeline-summary-card-container">
-        <div class="type">
-            <component :is="icon.component" :style="{ color: icon.color }"></component>
+    <div class="event-timeline-summary-card-container" ref="container" @click="isExpanded = !isExpanded">
+        <div class="summary">
+            <div class="type">
+                <component :is="icon.component" :style="{ color: icon.color }"></component>
+            </div>
+
+            <span class="name">{{ name }}</span>
+            <div class="range">{{ timeRange }}</div>
+
+            <activity-indicator class="breakdown"
+                :periods="timePeriods"
+                :color="icon.color">
+            </activity-indicator>
+
+            <div class="duration">{{ duration }}</div>
         </div>
 
-        <span class="name">{{ name }}</span>
-        <div class="range">{{ timeRange }}</div>
+        <div v-if="isExpanded" class="editor" @click.stop>
 
-        <activity-indicator class="breakdown"
-            :periods="timePeriods"
-            :color="icon.color">
-        </activity-indicator>
-
-        <div class="duration">{{ duration }}</div>
+        </div>
     </div>
 </template>
 
@@ -23,6 +29,7 @@ import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { TimePeriod } from '../../../../core/models/generic/time-period';
 import { EventType } from '../../../../core/enums/event-type.enum';
+import { DomUtility } from '../../../../core/utilities/dom-utility/dom-utility';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import ActivityIndicator from '../../../../shared/indicators/activity-indicator/activity-indicator.vue';
@@ -38,6 +45,8 @@ class EventTimelineSummaryCardProp {
     }
 })
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
+    public isExpanded = false;
+
     private readonly icons = {
         [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
         [EventType.Break]: IconUtility.getBreakTypeIcon(),
@@ -98,54 +107,87 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
 
         return duration < 60 * 1000 ? '< 1m' : TimeUtility.getDurationString(duration, 'short');
     }
+
+    public mounted(): void {
+        document.addEventListener('click', this.checkClickOutside);
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('click', this.checkClickOutside);
+    }
+
+    private checkClickOutside(event: Event): void {
+        if (DomUtility.isClickOutside(event, this.$refs.container as HTMLElement)) {
+            this.isExpanded = false;
+        }
+    }
 }
 </script>
 
 <style lang="scss" scoped>
 .event-timeline-summary-card-container {
     @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
-    @include flex-row(center, center);
-    box-sizing: border-box;
-    padding: 1.5vh 2.5vh;
-    border-radius: 5vh;
-    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-    background-color: var(--primary-colors-9-00);
-    font-size: var(--font-sizes-400);
+    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
+    $background-color: var(--primary-colors-9-00);
 
-    .type {
-        @include flex-row(center);
-        margin-right: 1.5%;
-        width: 3.5%;
-        font-size: var(--font-sizes-700);
-    }
+    @include flex-column(center);
 
-    .name {
-        width: 37.5%;
-        @include line-overflow();
-    }
-
-    .range {
-        width: 15%;
-        text-align: center;
-    }
-
-    .breakdown {
-        margin-left: 5%;
-        margin-right: 7.5%;
-        width: 20%;
-        height: 0.75vh;
-    }
-
-    .duration {
+    .summary {
         @include flex-row(center, center);
-        padding: 0.35vh 0;
-        width: 10%;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 1.5vh 2.5vh;
         border-radius: 5vh;
-        box-shadow: 0 0 4px 1px var(--context-colors-info-4-03);
-        background-color: var(--context-colors-info-4-00);
-        color: var(--font-colors-1-00);
-        font-size: var(--font-sizes-300);
+        box-shadow: $box-shadow;
+        background-color: $background-color;
+        font-size: var(--font-sizes-400);
+
+        .type {
+            @include flex-row(center);
+            margin-right: 1.5%;
+            width: 3.5%;
+            font-size: var(--font-sizes-700);
+        }
+
+        .name {
+            width: 37.5%;
+            @include line-overflow();
+        }
+
+        .range {
+            width: 15%;
+            text-align: center;
+        }
+
+        .breakdown {
+            margin-left: 5%;
+            margin-right: 7.5%;
+            width: 20%;
+            height: 0.75vh;
+        }
+
+        .duration {
+            @include flex-row(center, center);
+            padding: 0.35vh 0;
+            width: 10%;
+            border-radius: 5vh;
+            box-shadow: 0 0 4px 1px var(--context-colors-info-4-03);
+            background-color: var(--context-colors-info-4-00);
+            color: var(--font-colors-1-00);
+            font-size: var(--font-sizes-300);
+        }
+    }
+
+    .editor {
+        margin-top: 1vh;
+        width: 95%;
+        border-radius: 15px;
+        box-shadow: $box-shadow;
+        background-color: $background-color;
+        @include animate-property(height, 0, 20vh, 0.2s);
     }
 }
 </style>
