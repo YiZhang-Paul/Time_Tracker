@@ -1,6 +1,6 @@
 <template>
     <div class="event-timeline-summary-card-container" ref="container" @click="isExpanded = !isExpanded">
-        <div class="summary">
+        <div class="summary" :class="{ active: isExpanded }">
             <div class="type">
                 <component :is="icon.component" :style="{ color: icon.color }"></component>
             </div>
@@ -16,9 +16,11 @@
             <div class="duration">{{ duration }}</div>
         </div>
 
-        <div v-if="isExpanded" class="editor" @click.stop>
-
-        </div>
+        <event-timeline-editor v-if="isExpanded"
+            class="editor"
+            :option="editorOption"
+            @click.stop>
+        </event-timeline-editor>
     </div>
 </template>
 
@@ -28,11 +30,14 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { TimePeriod } from '../../../../core/models/generic/time-period';
+import { EventTimelineEditorOption } from '../../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { DomUtility } from '../../../../core/utilities/dom-utility/dom-utility';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import ActivityIndicator from '../../../../shared/indicators/activity-indicator/activity-indicator.vue';
+
+import EventTimelineEditor from './event-timeline-editor/event-timeline-editor.vue';
 
 class EventTimelineSummaryCardProp {
     public current = prop<EventTimelineDto>({ default: new EventTimelineDto() });
@@ -41,7 +46,8 @@ class EventTimelineSummaryCardProp {
 
 @Options({
     components: {
-        ActivityIndicator
+        ActivityIndicator,
+        EventTimelineEditor
     }
 })
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
@@ -53,6 +59,13 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         [EventType.Interruption]: IconUtility.getInterruptionTypeIcon(),
         [EventType.Task]: IconUtility.getTaskTypeIcon()
     };
+
+    get editorOption(): EventTimelineEditorOption {
+        const { eventType, name, startTime } = this.current;
+        const endTime = Math.min(this.endTime.getTime(), Date.now());
+
+        return new EventTimelineEditorOption(eventType, name, new Date(startTime), new Date(endTime));
+    }
 
     get icon(): IconConfig {
         return this.icons[this.current.eventType];
@@ -129,9 +142,6 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.35);
-    $background-color: var(--primary-colors-9-00);
-
     @include flex-column(center);
 
     .summary {
@@ -141,9 +151,15 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         box-sizing: border-box;
         padding: 1.5vh 2.5vh;
         border-radius: 5vh;
-        box-shadow: $box-shadow;
-        background-color: $background-color;
+        box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+        background-color: var(--primary-colors-9-00);
         font-size: var(--font-sizes-400);
+        transition: background-color 0.2s;
+
+        &:hover, &.active {
+            cursor: pointer;
+            background-color: var(--primary-colors-6-00);
+        }
 
         .type {
             @include flex-row(center);
@@ -184,9 +200,6 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     .editor {
         margin-top: 1vh;
         width: 95%;
-        border-radius: 15px;
-        box-shadow: $box-shadow;
-        background-color: $background-color;
         @include animate-property(height, 0, 20vh, 0.2s);
     }
 }

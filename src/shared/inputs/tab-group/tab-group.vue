@@ -7,7 +7,7 @@
             @click="onSelect(index)">
 
             <component :is="option.icon.component"></component>
-            <span>{{ option.name }}</span>
+            <span v-if="option.name">{{ option.name }}</span>
         </button>
     </div>
 </template>

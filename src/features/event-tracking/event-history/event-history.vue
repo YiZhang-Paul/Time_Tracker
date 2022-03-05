@@ -43,7 +43,7 @@
 
                 <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-summaries">
                     <event-timeline-summary-card v-for="(timeline, index) in summaries.timeline"
-                        class="event-summary-card timeline-card"
+                        class="event-summary-card"
                         :current="timeline"
                         :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
                         :key="index">
@@ -147,8 +147,8 @@ export default class EventHistory extends Vue {
 
     public created(): void {
         this.tabOptions = [
-            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
-            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
+            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant)), null, true),
+            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)))
         ];
 
         this.filterOptions = [
@@ -295,12 +295,6 @@ export default class EventHistory extends Vue {
                 margin-bottom: 1.25vh;
                 scroll-snap-align: start;
                 @include animate-property(opacity, 0, 1, 0.3s);
-            }
-
-            .timeline-card ::v-deep(.summary):hover {
-                cursor: pointer;
-                background-color: var(--primary-colors-6-00);
-                transition: background-color 0.2s;
             }
         }
     }
