@@ -1,18 +1,22 @@
 <template>
     <div v-if="option" class="event-timeline-editor-container">
         <div class="basic-inputs">
-            <tab-group v-model="typeOptions" class="type-group"></tab-group>
+            <tab-group v-model="typeOptions" class="type-group" @update:modelValue="onTypeSelect()"></tab-group>
 
             <div class="time-range">
                 <span>from</span>
-                <div>{{ start }}</div>
+                <div class="value-tag">{{ start }}</div>
                 <span>to</span>
-                <div>{{ end }}</div>
+                <div class="value-tag">{{ end }}</div>
             </div>
 
             <div class="target">
-                <component class="icon" :is="icon.component" :style="{ color: icon.color }"></component>
-                <span>{{ name }}</span>
+                <span>for</span>
+
+                <div class="value-tag">
+                    <component class="icon" :is="icon.component" :style="{ color: icon.color }"></component>
+                    <span>{{ name }}</span>
+                </div>
             </div>
         </div>
 
@@ -22,6 +26,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { ref } from '@vue/reactivity';
 
 import { IconConfig } from '../../../../../core/models/generic/icon-config';
 import { ActionGroupOption } from '../../../../../core/models/options/action-group-option';
@@ -44,7 +49,7 @@ class EventTimelineEditorProp {
 })
 export default class EventTimelineEditor extends Vue.with(EventTimelineEditorProp) {
     public editingOption!: EventTimelineEditorOption;
-    public typeOptions: ActionGroupOption[] = [];
+    public typeOptions: ActionGroupOption<EventType>[] = [];
 
     private readonly icons = {
         [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
@@ -72,7 +77,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             return name;
         }
 
-        return eventType === EventType.Idling ? 'Untracked' : 'Break';
+        return eventType === EventType.Idling ? 'Untracked' : 'Sleep & Break';
     }
 
     public created(): void {
@@ -80,15 +85,25 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             return;
         }
 
-        this.editingOption = { ...this.option };
+        this.editingOption = ref({ ...this.option }).value;
         const { eventType } = this.editingOption;
 
         this.typeOptions = [
-            new ActionGroupOption('', IconUtility.getIdlingTypeIcon(), null, eventType === EventType.Idling),
-            new ActionGroupOption('', IconUtility.getBreakTypeIcon(), null, eventType === EventType.Break),
-            new ActionGroupOption('', IconUtility.getInterruptionTypeIcon(), null, eventType === EventType.Interruption),
-            new ActionGroupOption('', IconUtility.getTaskTypeIcon(), null, eventType === EventType.Task)
+            new ActionGroupOption('', IconUtility.getIdlingTypeIcon(), EventType.Idling, eventType === EventType.Idling),
+            new ActionGroupOption('', IconUtility.getBreakTypeIcon(), EventType.Break, eventType === EventType.Break),
+            new ActionGroupOption('', IconUtility.getInterruptionTypeIcon(), EventType.Interruption, eventType === EventType.Interruption),
+            new ActionGroupOption('', IconUtility.getTaskTypeIcon(), EventType.Task, eventType === EventType.Task)
         ];
+    }
+
+    public onTypeSelect(): void {
+        const { data } = this.typeOptions.find(_ => _.isActive)!;
+        this.editingOption.eventType = data!;
+
+        if (data === EventType.Idling) {
+            this.editingOption.start = this.option.start;
+            this.editingOption.end = this.option.end;
+        }
     }
 }
 </script>
@@ -107,6 +122,8 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     font-size: var(--font-sizes-300);
 
     .basic-inputs {
+        $gap: 1vh;
+
         @include flex-row(center);
         margin-left: 1.5%;
         width: 100%;
@@ -117,33 +134,34 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             margin-left: 3.5%;
 
             span:not(:first-of-type) {
-                margin-left: 1vh;
-            }
-
-            div {
-                padding: 3px 10px;
-                margin-left: 0.75vh;
-                border-radius: 25px;
-                background-color: var(--primary-colors-6-00);
+                margin-left: $gap;
             }
         }
 
         .target {
             @include flex-row(center);
+            margin-left: $gap;
+
+            div {
+                @include flex-row(center);
+
+                .icon {
+                    font-size: var(--font-sizes-400);
+                }
+
+                span {
+                    margin-left: 0.5vh;
+                    max-width: 15vw;
+                    @include line-overflow();
+                }
+            }
+        }
+
+        .value-tag {
             padding: 3px 10px;
-            margin-left: 3.5%;
+            margin-left: 0.75vh;
             border-radius: 25px;
             background-color: var(--primary-colors-6-00);
-
-            .icon {
-                font-size: var(--font-sizes-400);
-            }
-
-            span {
-                margin-left: 0.5vh;
-                max-width: 15vw;
-                @include line-overflow();
-            }
         }
     }
 
