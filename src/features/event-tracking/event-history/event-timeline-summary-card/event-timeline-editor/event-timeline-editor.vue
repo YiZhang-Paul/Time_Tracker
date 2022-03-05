@@ -11,7 +11,7 @@
             </div>
 
             <div class="target">
-                <component :is="icon.component" :style="{ color: icon.color }"></component>
+                <component class="icon" :is="icon.component" :style="{ color: icon.color }"></component>
                 <span>{{ name }}</span>
             </div>
         </div>
@@ -96,6 +96,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 <style lang="scss" scoped>
 .event-timeline-editor-container {
     @import '../../../../../styles/presets.scss';
+    @import '../../../../../styles/animations.scss';
 
     @include flex-column(center, space-between);
     box-sizing: border-box;
@@ -107,11 +108,13 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
     .basic-inputs {
         @include flex-row(center);
+        margin-left: 1.5%;
         width: 100%;
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         .time-range {
             @include flex-row(center);
-            margin-left: 2.5%;
+            margin-left: 3.5%;
 
             span:not(:first-of-type) {
                 margin-left: 1vh;
@@ -121,25 +124,32 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
                 padding: 3px 10px;
                 margin-left: 0.75vh;
                 border-radius: 25px;
-                background-color: var(--primary-colors-10-00);
+                background-color: var(--primary-colors-6-00);
             }
         }
 
         .target {
             @include flex-row(center);
             padding: 3px 10px;
-            margin-left: 2.5%;
+            margin-left: 3.5%;
             border-radius: 25px;
-            background-color: var(--primary-colors-10-00);
+            background-color: var(--primary-colors-6-00);
+
+            .icon {
+                font-size: var(--font-sizes-400);
+            }
 
             span {
-                margin-left: 0.75vh;
+                margin-left: 0.5vh;
+                max-width: 15vw;
+                @include line-overflow();
             }
         }
     }
 
     .confirm-button {
         align-self: flex-end;
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         &:not(.disabled) {
             box-shadow: 0 0 5px 2px var(--context-colors-success-1-03);
