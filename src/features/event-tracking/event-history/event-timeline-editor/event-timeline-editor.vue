@@ -12,16 +12,7 @@
 
             <div class="target">
                 <span>for</span>
-
-                <div class="value-tag">
-                    <component v-if="name"
-                        class="icon"
-                        :is="icon.component"
-                        :style="{ color: icon.color }">
-                    </component>
-
-                    <span>{{ name ?? '?' }}</span>
-                </div>
+                <event-selector class="value-tag" :selected="selectedEvent"></event-selector>
             </div>
         </div>
 
@@ -47,15 +38,17 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { ref } from '@vue/reactivity';
 
 import { Range } from '../../../../core/models/generic/range';
-import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { ActionGroupOption } from '../../../../core/models/options/action-group-option';
 import { EventTimelineEditorOption } from '../../../../core/models/options/event-timeline-editor-option';
+import { EventSelection } from '../../../../core/models/event/event-selection';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import RangeSlider from '../../../../shared/inputs/range-slider/range-slider.vue';
 import TabGroup from '../../../../shared/inputs/tab-group/tab-group.vue';
+
+import EventSelector from './event-selector/event-selector.vue';
 
 class EventTimelineEditorProp {
     public source = prop<EventTimelineEditorOption>({ default: null });
@@ -65,7 +58,8 @@ class EventTimelineEditorProp {
     components: {
         FlatButton,
         RangeSlider,
-        TabGroup
+        TabGroup,
+        EventSelector
     },
     emits: [
         'update'
@@ -76,13 +70,6 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     public target = ref({ ...this.source }).value;
     public isSaved = true;
 
-    private readonly icons = {
-        [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
-        [EventType.Break]: IconUtility.getBreakTypeIcon(),
-        [EventType.Interruption]: IconUtility.getInterruptionTypeIcon(),
-        [EventType.Task]: IconUtility.getTaskTypeIcon()
-    };
-
     get start(): string {
         return TimeUtility.getTimeString(this.target.start, false);
     }
@@ -91,28 +78,18 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         return TimeUtility.getTimeString(this.target.end, false);
     }
 
-    get icon(): IconConfig {
-        return this.icons[this.target.eventType];
-    }
-
-    get name(): string {
-        const { name, eventType } = this.target;
-
-        if (eventType !== EventType.Idling && eventType !== EventType.Break) {
-            return name;
-        }
-
-        return eventType === EventType.Idling ? 'Untracked' : 'Sleep & Break';
-    }
-
-    get rangeBoundary(): Range<number> {
-        const { start, end } = this.source;
-
-        return new Range(start.getTime(), end.getTime());
+    get selectedEvent(): EventSelection {
+        return new EventSelection(-1, this.target.eventType, this.target.name);
     }
 
     get selectedRange(): Range<number> {
         const { start, end } = this.target;
+
+        return new Range(start.getTime(), end.getTime());
+    }
+
+    get rangeBoundary(): Range<number> {
+        const { start, end } = this.source;
 
         return new Range(start.getTime(), end.getTime());
     }
@@ -128,14 +105,14 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     }
 
     public created(): void {
-        const { eventType } = this.target;
-
-        this.typeOptions = [
-            new ActionGroupOption('', IconUtility.getIdlingTypeIcon(), EventType.Idling, eventType === EventType.Idling),
-            new ActionGroupOption('', IconUtility.getBreakTypeIcon(), EventType.Break, eventType === EventType.Break),
-            new ActionGroupOption('', IconUtility.getInterruptionTypeIcon(), EventType.Interruption, eventType === EventType.Interruption),
-            new ActionGroupOption('', IconUtility.getTaskTypeIcon(), EventType.Task, eventType === EventType.Task)
+        const icons = [
+            { type: EventType.Idling, icon: IconUtility.getIdlingTypeIcon() },
+            { type: EventType.Break, icon: IconUtility.getBreakTypeIcon() },
+            { type: EventType.Interruption, icon: IconUtility.getInterruptionTypeIcon() },
+            { type: EventType.Task, icon: IconUtility.getTaskTypeIcon() }
         ];
+
+        this.typeOptions = icons.map(_ => new ActionGroupOption('', _.icon, _.type, this.target.eventType === _.type));
     }
 
     public onTypeSelect(): void {
@@ -205,20 +182,6 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         .target {
             @include flex-row(center);
             margin-left: $gap;
-
-            div {
-                @include flex-row(center);
-
-                .icon {
-                    margin-right: 0.5vh;
-                    font-size: var(--font-sizes-400);
-                }
-
-                span {
-                    max-width: 15vw;
-                    @include line-overflow();
-                }
-            }
         }
     }
 
