@@ -21,12 +21,18 @@
         </div>
 
         <range-slider class="range-slider"
+            :modelValue="selectedRange"
             :boundary="rangeBoundary"
-            :selected="selectedRange"
-            :transform="transformRange">
+            :transform="transformRange"
+            @update:modelValue="onRangeSelect($event)">
         </range-slider>
 
-        <flat-button class="confirm-button" :isDisabled="true">Confirm</flat-button>
+        <flat-button class="confirm-button"
+            :isDisabled="isSaved"
+            @click="$emit('update', editingOption)">
+
+            Confirm
+        </flat-button>
     </div>
 </template>
 
@@ -54,9 +60,13 @@ class EventTimelineEditorProp {
         FlatButton,
         RangeSlider,
         TabGroup
-    }
+    },
+    emits: [
+        'update'
+    ]
 })
 export default class EventTimelineEditor extends Vue.with(EventTimelineEditorProp) {
+    public isSaved = true;
     public editingOption!: EventTimelineEditorOption;
     public typeOptions: ActionGroupOption<EventType>[] = [];
 
@@ -130,6 +140,12 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     public transformRange(time: number): string {
         return TimeUtility.getTimeString(new Date(time), false);
     }
+
+    public onRangeSelect({ start, end }: Range<number>): void {
+        this.editingOption.start = new Date(start);
+        this.editingOption.end = new Date(end);
+        this.isSaved = false;
+    }
 }
 </script>
 
@@ -150,16 +166,28 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         $gap: 1vh;
 
         @include flex-row(center);
-        margin-left: 1.5%;
+        margin-left: 2.5%;
         width: 100%;
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
+        .value-tag {
+            padding: 3px 10px;
+            margin-left: $gap;
+            border-radius: 25px;
+            background-color: var(--primary-colors-6-00);
+        }
+
         .time-range {
             @include flex-row(center);
-            margin-left: 3.5%;
+            margin-left: 10%;
 
             span:not(:first-of-type) {
                 margin-left: $gap;
+            }
+
+            .value-tag {
+                min-width: 2.5rem;
+                text-align: center;
             }
         }
 
@@ -181,13 +209,6 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
                 }
             }
         }
-
-        .value-tag {
-            padding: 3px 10px;
-            margin-left: 0.75vh;
-            border-radius: 25px;
-            background-color: var(--primary-colors-6-00);
-        }
     }
 
     .range-slider {
@@ -197,6 +218,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
     .confirm-button {
         align-self: flex-end;
+        transition: all 0.3s;
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
         &:not(.disabled) {

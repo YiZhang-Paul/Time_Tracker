@@ -2,15 +2,21 @@
     <div class="range-slider-container">
         <span>{{ boundaryStart }}</span>
 
-        <div class="slider-base">
+        <div class="slider-base" ref="sliderBase">
             <div class="selection" :style="selectionStyle"></div>
 
-            <div class="handle handle-start" :style="{ left: `calc(${selectionStyle.left} - 1rem)` }">
+            <div class="handle handle-start"
+                :style="{ left: `calc(${selectionStyle.left} - 1rem)` }"
+                @mousedown="onHandleClick('start')">
+
                 <menu-up class="icon" />
                 <span>{{ selectionStart }}</span>
             </div>
 
-            <div class="handle handle-end" :style="{ right: `calc(${selectionStyle.right} - 1rem)` }">
+            <div class="handle handle-end"
+                :style="{ right: `calc(${selectionStyle.right} - 1rem)` }"
+                @mousedown="onHandleClick('end')">
+
                 <span>{{ selectionEnd }}</span>
                 <menu-down class="icon" />
             </div>
@@ -22,14 +28,15 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { ref } from '@vue/reactivity';
 import { MenuDown, MenuUp } from 'mdue';
 
 import { Range } from '../../../core/models/generic/range';
 import { StyleConfigs } from '../../../core/models/generic/style-configs';
 
 class RangeSliderProp {
+    public modelValue = prop<Range<number>>({ default: new Range(0, 100) });
     public boundary = prop<Range<number>>({ default: new Range(0, 100) });
-    public selected = prop<Range<number>>({ default: new Range(0, 100) });
     public transform = prop<(_: number) => string>({ default: null });
 }
 
@@ -37,10 +44,19 @@ class RangeSliderProp {
     components: {
         MenuDown,
         MenuUp
-    }
+    },
+    watch: {
+        modelValue(): void {
+            this.selection = ref({ ...this.modelValue }).value;
+        }
+    },
+    emits: [
+        'update:modelValue'
+    ]
 })
 export default class RangeSlider extends Vue.with(RangeSliderProp) {
-    public selection = { ...this.selected };
+    public selection = ref({ ...this.modelValue }).value;
+    public activeHandle: 'start' | 'end' | null = null;
 
     get boundaryStart(): string {
         return this.transform ? this.transform(this.boundary.start) : this.boundary.start.toString();
@@ -68,14 +84,44 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
         };
     }
 
-    public created(): void {
-        if (this.boundary.start > this.boundary.end || this.selected.start > this.selected.end) {
-            throw new Error('Invalid range.');
+    public mounted(): void {
+        document.addEventListener('mouseup', this.onMouseUp);
+        document.addEventListener('mousemove', this.onMouseMove);
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('mouseup', this.onMouseUp);
+        document.removeEventListener('mousemove', this.onMouseMove);
+    }
+
+    public onHandleClick(type: 'start' | 'end'): void {
+        this.activeHandle = type;
+    }
+
+    public onMouseMove({ clientX }: MouseEvent): void {
+        if (!this.activeHandle) {
+            return;
         }
 
-        if (this.selected.end > this.boundary.end || this.selected.start < this.boundary.start) {
-            throw new Error('Selection must fall within boundary.');
+        const { start, end } = this.boundary;
+        const { width, left } = (this.$refs.sliderBase as HTMLElement).getBoundingClientRect();
+        const total = end - start;
+        const percentage = Math.min(Math.max(0, clientX - left), width) / width;
+
+        if (this.activeHandle === 'start') {
+            const max = (this.selection.end - start) / total;
+            this.selection.start = total * Math.min(max, percentage) + start;
         }
+        else {
+            const min = (this.selection.start - start) / total;
+            this.selection.end = total * Math.max(min, percentage) + start;
+        }
+
+        this.$emit('update:modelValue', this.selection);
+    }
+
+    public onMouseUp(): void {
+        this.activeHandle = null;
     }
 }
 </script>
@@ -85,7 +131,7 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
     @import '../../../styles/presets.scss';
 
     $container-height: 9vh;
-    $base-height: 2vh;
+    $base-height: 1.5vh;
     $handle-height: calc((#{$container-height} - #{$base-height}) / 2);
 
     @include flex-row(center, space-between);
