@@ -37,8 +37,7 @@ import { DomUtility } from '../../../../core/utilities/dom-utility/dom-utility';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import ActivityIndicator from '../../../../shared/indicators/activity-indicator/activity-indicator.vue';
-
-import EventTimelineEditor from './event-timeline-editor/event-timeline-editor.vue';
+import EventTimelineEditor from '../event-timeline-editor/event-timeline-editor.vue';
 
 class EventTimelineSummaryCardProp {
     public current = prop<EventTimelineDto>({ default: new EventTimelineDto() });

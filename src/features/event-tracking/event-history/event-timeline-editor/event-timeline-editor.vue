@@ -46,16 +46,16 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ref } from '@vue/reactivity';
 
-import { Range } from '../../../../../core/models/generic/range';
-import { IconConfig } from '../../../../../core/models/generic/icon-config';
-import { ActionGroupOption } from '../../../../../core/models/options/action-group-option';
-import { EventTimelineEditorOption } from '../../../../../core/models/options/event-timeline-editor-option';
-import { EventType } from '../../../../../core/enums/event-type.enum';
-import { IconUtility } from '../../../../../core/utilities/icon-utility/icon-utility';
-import { TimeUtility } from '../../../../../core/utilities/time-utility/time-utility';
-import FlatButton from '../../../../../shared/buttons/flat-button/flat-button.vue';
-import RangeSlider from '../../../../../shared/inputs/range-slider/range-slider.vue';
-import TabGroup from '../../../../../shared/inputs/tab-group/tab-group.vue';
+import { Range } from '../../../../core/models/generic/range';
+import { IconConfig } from '../../../../core/models/generic/icon-config';
+import { ActionGroupOption } from '../../../../core/models/options/action-group-option';
+import { EventTimelineEditorOption } from '../../../../core/models/options/event-timeline-editor-option';
+import { EventType } from '../../../../core/enums/event-type.enum';
+import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
+import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
+import RangeSlider from '../../../../shared/inputs/range-slider/range-slider.vue';
+import TabGroup from '../../../../shared/inputs/tab-group/tab-group.vue';
 
 class EventTimelineEditorProp {
     public option = prop<EventTimelineEditorOption>({ default: null });
@@ -167,8 +167,8 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
 <style lang="scss" scoped>
 .event-timeline-editor-container {
-    @import '../../../../../styles/presets.scss';
-    @import '../../../../../styles/animations.scss';
+    @import '../../../../styles/presets.scss';
+    @import '../../../../styles/animations.scss';
 
     @include flex-column(center, space-between);
     box-sizing: border-box;
