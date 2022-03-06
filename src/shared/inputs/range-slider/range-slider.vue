@@ -1,5 +1,5 @@
 <template>
-    <div class="range-slider-container">
+    <div class="range-slider-container" :class="{ disabled: isDisabled }">
         <span>{{ boundaryStart }}</span>
 
         <div class="slider-base" ref="sliderBase">
@@ -38,6 +38,7 @@ class RangeSliderProp {
     public modelValue = prop<Range<number>>({ default: new Range(0, 100) });
     public boundary = prop<Range<number>>({ default: new Range(0, 100) });
     public transform = prop<(_: number) => string>({ default: null });
+    public isDisabled = prop<boolean>({ default: false });
 }
 
 @Options({
@@ -139,6 +140,21 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
     color: var(--font-colors-5-00);
     font-size: var(--font-sizes-200);
 
+    &.disabled {
+        pointer-events: none;
+
+        .slider-base {
+
+            .selection {
+                background-color: var(--primary-colors-3-00);
+            }
+
+            .handle {
+                opacity: 0;
+            }
+        }
+    }
+
     .slider-base {
         position: relative;
         margin: 0 1vh;
@@ -151,6 +167,7 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
             height: 100%;
             box-shadow: 0 0 6px 1px var(--primary-colors-2-03);
             background-color: var(--primary-colors-1-00);
+            transition: background-color 0.3s;
         }
 
         .handle {
@@ -159,7 +176,7 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
             width: 2rem;
             height: $handle-height;
             color: var(--font-colors-3-00);
-            transition: color 0.3s;
+            transition: opacity 0.3s, color 0.3s;
 
             &:hover {
                 cursor: pointer;

@@ -14,8 +14,13 @@
                 <span>for</span>
 
                 <div class="value-tag">
-                    <component class="icon" :is="icon.component" :style="{ color: icon.color }"></component>
-                    <span>{{ name }}</span>
+                    <component v-if="name"
+                        class="icon"
+                        :is="icon.component"
+                        :style="{ color: icon.color }">
+                    </component>
+
+                    <span>{{ name ?? '?' }}</span>
                 </div>
             </div>
         </div>
@@ -24,6 +29,7 @@
             :modelValue="selectedRange"
             :boundary="rangeBoundary"
             :transform="transformRange"
+            :isDisabled="!canSelectRange"
             @update:modelValue="onRangeSelect($event)">
         </range-slider>
 
@@ -109,6 +115,16 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         const { start, end } = this.editingOption;
 
         return new Range(start.getTime(), end.getTime());
+    }
+
+    get canSelectRange(): boolean {
+        if (this.editingOption.eventType === EventType.Idling) {
+            return false;
+        }
+
+        const { start, end } = this.selectedRange;
+
+        return end - start >= TimeUtility.convertTime(5, 'minute', 'millisecond');
     }
 
     public created(): void {
@@ -199,11 +215,11 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
                 @include flex-row(center);
 
                 .icon {
+                    margin-right: 0.5vh;
                     font-size: var(--font-sizes-400);
                 }
 
                 span {
-                    margin-left: 0.5vh;
                     max-width: 15vw;
                     @include line-overflow();
                 }
@@ -218,6 +234,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
     .confirm-button {
         align-self: flex-end;
+        font-size: var(--font-sizes-200);
         transition: all 0.3s;
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
