@@ -1,5 +1,5 @@
 <template>
-    <div v-if="option" class="event-timeline-editor-container">
+    <div v-if="source" class="event-timeline-editor-container">
         <div class="basic-inputs">
             <tab-group v-model="typeOptions" class="type-group" @update:modelValue="onTypeSelect()"></tab-group>
 
@@ -35,7 +35,7 @@
 
         <flat-button class="confirm-button"
             :isDisabled="isSaved"
-            @click="$emit('update', editingOption)">
+            @click="$emit('update', target)">
 
             Confirm
         </flat-button>
@@ -58,7 +58,7 @@ import RangeSlider from '../../../../shared/inputs/range-slider/range-slider.vue
 import TabGroup from '../../../../shared/inputs/tab-group/tab-group.vue';
 
 class EventTimelineEditorProp {
-    public option = prop<EventTimelineEditorOption>({ default: null });
+    public source = prop<EventTimelineEditorOption>({ default: null });
 }
 
 @Options({
@@ -72,9 +72,9 @@ class EventTimelineEditorProp {
     ]
 })
 export default class EventTimelineEditor extends Vue.with(EventTimelineEditorProp) {
-    public isSaved = true;
-    public editingOption!: EventTimelineEditorOption;
     public typeOptions: ActionGroupOption<EventType>[] = [];
+    public target = ref({ ...this.source }).value;
+    public isSaved = true;
 
     private readonly icons = {
         [EventType.Idling]: IconUtility.getIdlingTypeIcon(),
@@ -84,19 +84,19 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     };
 
     get start(): string {
-        return TimeUtility.getTimeString(this.editingOption.start, false);
+        return TimeUtility.getTimeString(this.target.start, false);
     }
 
     get end(): string {
-        return TimeUtility.getTimeString(this.editingOption.end, false);
+        return TimeUtility.getTimeString(this.target.end, false);
     }
 
     get icon(): IconConfig {
-        return this.icons[this.editingOption.eventType];
+        return this.icons[this.target.eventType];
     }
 
     get name(): string {
-        const { name, eventType } = this.editingOption;
+        const { name, eventType } = this.target;
 
         if (eventType !== EventType.Idling && eventType !== EventType.Break) {
             return name;
@@ -106,19 +106,19 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     }
 
     get rangeBoundary(): Range<number> {
-        const { start, end } = this.option;
+        const { start, end } = this.source;
 
         return new Range(start.getTime(), end.getTime());
     }
 
     get selectedRange(): Range<number> {
-        const { start, end } = this.editingOption;
+        const { start, end } = this.target;
 
         return new Range(start.getTime(), end.getTime());
     }
 
     get canSelectRange(): boolean {
-        if (this.editingOption.eventType === EventType.Idling) {
+        if (this.target.eventType === EventType.Idling) {
             return false;
         }
 
@@ -128,12 +128,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     }
 
     public created(): void {
-        if (!this.option) {
-            return;
-        }
-
-        this.editingOption = ref({ ...this.option }).value;
-        const { eventType } = this.editingOption;
+        const { eventType } = this.target;
 
         this.typeOptions = [
             new ActionGroupOption('', IconUtility.getIdlingTypeIcon(), EventType.Idling, eventType === EventType.Idling),
@@ -145,11 +140,11 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
     public onTypeSelect(): void {
         const { data } = this.typeOptions.find(_ => _.isActive)!;
-        this.editingOption.eventType = data!;
+        this.target.eventType = data!;
 
         if (data === EventType.Idling) {
-            this.editingOption.start = this.option.start;
-            this.editingOption.end = this.option.end;
+            this.target.start = this.source.start;
+            this.target.end = this.source.end;
         }
     }
 
@@ -158,8 +153,8 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     }
 
     public onRangeSelect({ start, end }: Range<number>): void {
-        this.editingOption.start = new Date(start);
-        this.editingOption.end = new Date(end);
+        this.target.start = new Date(start);
+        this.target.end = new Date(end);
         this.isSaved = false;
     }
 }

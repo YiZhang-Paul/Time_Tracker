@@ -18,7 +18,7 @@
 
         <event-timeline-editor v-if="isExpanded"
             class="editor"
-            :option="editorOption"
+            :source="editorOption"
             @update="onUpdate($event)"
             @click.stop>
         </event-timeline-editor>
