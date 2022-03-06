@@ -122,7 +122,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             return false;
         }
 
-        const { start, end } = this.selectedRange;
+        const { start, end } = this.rangeBoundary;
 
         return end - start >= TimeUtility.convertTime(5, 'minute', 'millisecond');
     }
