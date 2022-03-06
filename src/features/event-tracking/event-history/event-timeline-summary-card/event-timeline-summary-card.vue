@@ -29,7 +29,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
-import { TimePeriod } from '../../../../core/models/generic/time-period';
+import { Range } from '../../../../core/models/generic/range';
 import { EventTimelineEditorOption } from '../../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { DomUtility } from '../../../../core/utilities/dom-utility/dom-utility';
@@ -88,7 +88,7 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         return `${start} - ${end}`;
     }
 
-    get timePeriods(): TimePeriod<number>[] {
+    get timePeriods(): Range<number>[] {
         return [{
             start: new Date(this.current.startTime).getTime(),
             end: Math.min(this.endTime.getTime(), Date.now())
@@ -199,7 +199,7 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
 
     .editor {
         margin-top: 1vh;
-        width: 95%;
+        width: 97.5%;
         @include animate-property(height, 0, 20vh, 0.2s);
     }
 }

@@ -20,6 +20,12 @@
             </div>
         </div>
 
+        <range-slider class="range-slider"
+            :boundary="rangeBoundary"
+            :selected="selectedRange"
+            :transform="transformRange">
+        </range-slider>
+
         <flat-button class="confirm-button" :isDisabled="true">Confirm</flat-button>
     </div>
 </template>
@@ -28,6 +34,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { ref } from '@vue/reactivity';
 
+import { Range } from '../../../../../core/models/generic/range';
 import { IconConfig } from '../../../../../core/models/generic/icon-config';
 import { ActionGroupOption } from '../../../../../core/models/options/action-group-option';
 import { EventTimelineEditorOption } from '../../../../../core/models/options/event-timeline-editor-option';
@@ -35,6 +42,7 @@ import { EventType } from '../../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../../shared/buttons/flat-button/flat-button.vue';
+import RangeSlider from '../../../../../shared/inputs/range-slider/range-slider.vue';
 import TabGroup from '../../../../../shared/inputs/tab-group/tab-group.vue';
 
 class EventTimelineEditorProp {
@@ -44,6 +52,7 @@ class EventTimelineEditorProp {
 @Options({
     components: {
         FlatButton,
+        RangeSlider,
         TabGroup
     }
 })
@@ -80,6 +89,18 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         return eventType === EventType.Idling ? 'Untracked' : 'Sleep & Break';
     }
 
+    get rangeBoundary(): Range<number> {
+        const { start, end } = this.option;
+
+        return new Range(start.getTime(), end.getTime());
+    }
+
+    get selectedRange(): Range<number> {
+        const { start, end } = this.editingOption;
+
+        return new Range(start.getTime(), end.getTime());
+    }
+
     public created(): void {
         if (!this.option) {
             return;
@@ -105,6 +126,10 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             this.editingOption.end = this.option.end;
         }
     }
+
+    public transformRange(time: number): string {
+        return TimeUtility.getTimeString(new Date(time), false);
+    }
 }
 </script>
 
@@ -117,7 +142,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     box-sizing: border-box;
     padding: 1.5vh;
     border-radius: 10px;
-    box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 3px 2px rgba(0, 0, 0, 0.1);
     background-color: var(--primary-colors-9-00);
     font-size: var(--font-sizes-300);
 
@@ -163,6 +188,11 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             border-radius: 25px;
             background-color: var(--primary-colors-6-00);
         }
+    }
+
+    .range-slider {
+        width: 95%;
+        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
     }
 
     .confirm-button {

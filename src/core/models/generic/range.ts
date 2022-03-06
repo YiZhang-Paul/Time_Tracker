@@ -1,4 +1,4 @@
-export class TimePeriod<T> {
+export class Range<T> {
     public start: T;
     public end: T;
 

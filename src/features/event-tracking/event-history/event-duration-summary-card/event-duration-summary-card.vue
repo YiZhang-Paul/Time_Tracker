@@ -28,7 +28,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Trophy } from 'mdue';
 
 import { EventDurationDto } from '../../../../core/dtos/event-duration-dto';
-import { TimePeriod } from '../../../../core/models/generic/time-period';
+import { Range } from '../../../../core/models/generic/range';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
@@ -53,11 +53,11 @@ export default class EventDurationSummaryCard extends Vue.with(EventDurationSumm
         [EventType.Task]: IconUtility.getTaskTypeIcon()
     };
 
-    get timePeriods(): TimePeriod<number>[] {
+    get timePeriods(): Range<number>[] {
         return this.summary.periods.map(({ start, end }) => {
             const [startTime, endTime] = [new Date(start), new Date(end)];
 
-            return new TimePeriod(startTime.getTime(), endTime.getTime());
+            return new Range(startTime.getTime(), endTime.getTime());
         });
     }
 
