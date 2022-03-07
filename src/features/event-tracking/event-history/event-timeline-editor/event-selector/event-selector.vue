@@ -7,7 +7,9 @@
                 :style="{ color: icon.color }">
             </component>
 
-            <span>{{ name ?? '?' }}</span>
+            <crosshairs-question v-if="!name" class="icon empty" />
+            <span>{{ name ?? 'nothing selected' }}</span>
+            <menu-down v-if="!isReadonly" class="dropdown-arrow" />
         </div>
 
         <div v-if="showSelector" class="selector">
@@ -34,6 +36,7 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { CrosshairsQuestion, MenuDown } from 'mdue';
 
 import { types } from '../../../../../core/ioc/types';
 import { container } from '../../../../../core/ioc/container';
@@ -55,6 +58,8 @@ class EventSelectorProp {
 
 @Options({
     components: {
+        CrosshairsQuestion,
+        MenuDown,
         SearchBox,
         OverlayScrollbarPanel
     },
@@ -174,11 +179,20 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
         .icon {
             margin-right: 0.5vh;
             font-size: var(--font-sizes-400);
+
+            &.empty {
+                color: var(--context-colors-suggestion-0-00);
+            }
         }
 
         span {
             max-width: $selector-width;
             @include line-overflow();
+        }
+
+        .dropdown-arrow {
+            margin-left: 0.75vh;
+            font-size: var(--font-sizes-400);
         }
     }
 
