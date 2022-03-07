@@ -192,6 +192,7 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
         .icon {
             margin-right: 0.5vh;
             font-size: var(--font-sizes-400);
+            transition: color 0.3s;
         }
 
         span {
