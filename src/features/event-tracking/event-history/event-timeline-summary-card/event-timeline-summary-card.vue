@@ -1,6 +1,6 @@
 <template>
-    <div class="event-timeline-summary-card-container" ref="container" @click="isExpanded = !isExpanded">
-        <div class="summary" :class="{ active: isExpanded }">
+    <div class="event-timeline-summary-card-container" ref="container">
+        <div class="summary" :class="{ active: isExpanded }" @click="isExpanded = !isExpanded">
             <div class="type">
                 <component :is="icon.component" :style="{ color: icon.color }"></component>
             </div>
@@ -19,8 +19,7 @@
         <event-timeline-editor v-if="isExpanded"
             class="editor"
             :source="editorOption"
-            @update="onUpdate($event)"
-            @click.stop>
+            @update="onUpdate($event)">
         </event-timeline-editor>
     </div>
 </template>
