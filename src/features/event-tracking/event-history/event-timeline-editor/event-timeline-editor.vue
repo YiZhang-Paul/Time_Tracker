@@ -122,16 +122,20 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     public onTypeSelect(): void {
         const { data } = this.typeOptions.find(_ => _.isActive)!;
         this.target.eventType = data!;
+        this.target.name = '';
 
         if (data === EventType.Idling) {
             this.target.start = this.source.start;
             this.target.end = this.source.end;
         }
+
+        this.isSaved = false;
     }
 
     public onEventSelect(event: EventSelection): void {
         this.target.eventType = event.eventType;
         this.target.name = event.name;
+        this.isSaved = false;
     }
 
     public transformRange(time: number): string {
