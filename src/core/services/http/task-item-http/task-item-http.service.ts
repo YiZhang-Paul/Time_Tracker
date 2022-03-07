@@ -19,6 +19,15 @@ export class TaskItemHttpService {
         }
     }
 
+    public async searchSummaries(searchText: string): Promise<TaskItemSummaryDto[]> {
+        try {
+            return (await axios.get(`${this._api}/summaries?searchText=${searchText}`)).data;
+        }
+        catch {
+            return [];
+        }
+    }
+
     public async getSummaries(start: Date): Promise<ItemSummariesDto<TaskItemSummaryDto>> {
         try {
             return (await axios.get(`${this._api}/summaries/${start.toISOString()}`)).data;
