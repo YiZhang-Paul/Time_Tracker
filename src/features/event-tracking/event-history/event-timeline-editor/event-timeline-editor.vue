@@ -12,7 +12,11 @@
 
             <div class="target">
                 <span>for</span>
-                <event-selector class="value-tag" :selected="selectedEvent"></event-selector>
+
+                <event-selector class="event-selector"
+                    :selected="selectedEvent"
+                    @select="onEventSelect($event)">
+                </event-selector>
             </div>
         </div>
 
@@ -125,6 +129,11 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         }
     }
 
+    public onEventSelect(event: EventSelection): void {
+        this.target.eventType = event.eventType;
+        this.target.name = event.name;
+    }
+
     public transformRange(time: number): string {
         return TimeUtility.getTimeString(new Date(time), false);
     }
@@ -154,12 +163,12 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         $gap: 1vh;
 
         @include flex-row(center);
+        z-index: 1;
         margin-left: 2.5%;
         width: 100%;
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
-        .value-tag {
-            padding: 3px 10px;
+        .value-tag, .event-selector {
             margin-left: $gap;
             border-radius: 25px;
             background-color: var(--primary-colors-6-00);
@@ -174,6 +183,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             }
 
             .value-tag {
+                padding: 3px 10px;
                 min-width: 2.5rem;
                 text-align: center;
             }
