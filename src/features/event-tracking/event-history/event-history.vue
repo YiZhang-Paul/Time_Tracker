@@ -44,6 +44,7 @@
                 <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-summaries">
                     <event-timeline-summary-card v-for="(timeline, index) in summaries.timeline"
                         class="event-summary-card"
+                        :style="{ 'z-index': summaries.timeline.length - index }"
                         :current="timeline"
                         :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
                         :key="index">
@@ -57,6 +58,7 @@
                 <overlay-scrollbar-panel v-if="workingDurations.length" class="event-summaries">
                     <event-duration-summary-card v-for="(duration, index) in workingDurations"
                         class="event-summary-card"
+                        :style="{ 'z-index': workingDurations.length - index }"
                         :summary="duration"
                         :rank="index + 1"
                         :key="index">
@@ -292,6 +294,7 @@ export default class EventHistory extends Vue {
             padding: 0 3.5%;
 
             .event-summary-card {
+                position: relative;
                 margin-bottom: 1.25vh;
                 scroll-snap-align: start;
                 @include animate-property(opacity, 0, 1, 0.3s);
