@@ -5,8 +5,9 @@
             <close v-if="searchText" class="icon reset-button" @click="onReset()" />
 
             <input type="text"
-                placeholder="search items here..."
                 v-model="searchText"
+                ref="input"
+                placeholder="search items here..."
                 @keyup="onSearch()"
                 @focus="isFocused = true"
                 @blur="isFocused = false" />
@@ -19,6 +20,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 import { Close, Magnify } from 'mdue';
 
 class SearchBoxProp {
+    public autoFocus = prop<boolean>({ default: false });
     public useCustomStyle = prop<boolean>({ default: false });
 }
 
@@ -36,6 +38,12 @@ export default class SearchBox extends Vue.with(SearchBoxProp) {
     public searchText = '';
     private debounce: number | null = null;
     private previous = '';
+
+    public mounted(): void {
+        if (this.autoFocus) {
+            (this.$refs.input as HTMLElement).focus();
+        }
+    }
 
     public onReset(): void {
         this.searchText = '';
