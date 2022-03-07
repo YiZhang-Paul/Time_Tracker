@@ -6,18 +6,18 @@
             <div class="selection" :style="selectionStyle"></div>
 
             <div class="handle handle-start"
-                :style="{ left: `calc(${selectionStyle.left} - 1rem)` }"
+                :class="{ active: activeHandle === 'start' }"
+                :style="{ left: `calc(${selectionStyle.left} - 0.75rem)` }"
                 @mousedown="onHandleClick('start')">
 
                 <menu-up class="icon" />
-                <span>{{ selectionStart }}</span>
             </div>
 
             <div class="handle handle-end"
-                :style="{ right: `calc(${selectionStyle.right} - 1rem)` }"
+                :class="{ active: activeHandle === 'end' }"
+                :style="{ right: `calc(${selectionStyle.right} - 0.75rem)` }"
                 @mousedown="onHandleClick('end')">
 
-                <span>{{ selectionEnd }}</span>
                 <menu-down class="icon" />
             </div>
         </div>
@@ -65,14 +65,6 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
 
     get boundaryEnd(): string {
         return this.transform ? this.transform(this.boundary.end) : this.boundary.end.toString();
-    }
-
-    get selectionStart(): string {
-        return this.transform ? this.transform(this.selection.start) : this.selection.start.toString();
-    }
-
-    get selectionEnd(): string {
-        return this.transform ? this.transform(this.selection.end) : this.selection.end.toString();
     }
 
     get selectionStyle(): StyleConfigs {
@@ -131,7 +123,7 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
 .range-slider-container {
     @import '../../../styles/presets.scss';
 
-    $container-height: 9vh;
+    $container-height: 6vh;
     $base-height: 1.5vh;
     $handle-height: calc((#{$container-height} - #{$base-height}) / 2);
 
@@ -173,34 +165,26 @@ export default class RangeSlider extends Vue.with(RangeSliderProp) {
         .handle {
             @include flex-column(center, center);
             position: absolute;
-            width: 2rem;
+            width: 1.5rem;
             height: $handle-height;
             color: var(--font-colors-3-00);
             transition: opacity 0.3s, color 0.3s;
 
-            &:hover {
+            &:hover, &.active {
                 cursor: pointer;
                 color: var(--context-colors-info-0-00);
             }
 
             .icon {
-                font-size: var(--font-sizes-500);
+                font-size: var(--font-sizes-600);
             }
 
             &.handle-start {
                 top: 100%;
-
-                span {
-                    margin-top: -0.5vh;
-                }
             }
 
             &.handle-end {
                 bottom: 100%;
-
-                span {
-                    margin-bottom: -0.5vh;
-                }
             }
         }
     }
