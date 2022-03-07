@@ -25,7 +25,12 @@
                     :key="index"
                     @click="onResultSelect(result)">
 
-                    {{ result.name }}
+                    <div class="status" :class="{ resolved: result.isResolved, deleted: result.isDeleted }">
+                        <span v-if="result.isDeleted">deleted</span>
+                        <span v-if="!result.isDeleted">{{ result.isResolved ? 'done' : 'ongoing' }}</span>
+                    </div>
+
+                    <span class="name">{{ result.name }}</span>
                 </div>
 
                 <div v-if="!searchResult.length" class="result placeholder">no results.</div>
@@ -44,6 +49,7 @@ import { InterruptionItemSummaryDto } from '../../../../../core/dtos/interruptio
 import { TaskItemSummaryDto } from '../../../../../core/dtos/task-item-summary-dto';
 import { IconConfig } from '../../../../../core/models/generic/icon-config';
 import { EventSelection } from '../../../../../core/models/event/event-selection';
+import { EventSearchResult } from '../../../../../core/models/event/event-search-result';
 import { EventType } from '../../../../../core/enums/event-type.enum';
 import { DomUtility } from '../../../../../core/utilities/dom-utility/dom-utility';
 import { IconUtility } from '../../../../../core/utilities/icon-utility/icon-utility';
@@ -77,7 +83,7 @@ class EventSelectorProp {
 export default class EventSelector extends Vue.with(EventSelectorProp) {
     public showSelector = false;
     public isSearchCompleted = false;
-    public searchResult: EventSelection[] = [];
+    public searchResult: EventSearchResult[] = [];
     private readonly interruptionItemHttpService = container.get<InterruptionItemHttpService>(types.InterruptionItemHttpService);
     private readonly taskItemHttpService = container.get<TaskItemHttpService>(types.TaskItemHttpService);
 
@@ -139,7 +145,7 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
             result = await this.taskItemHttpService.searchSummaries(searchText);
         }
 
-        this.searchResult = result.map(_ => new EventSelection(_.id, eventType, _.name));
+        this.searchResult = result.map(_ => new EventSearchResult(_.id, eventType, _.name, _.isDeleted, _.isResolved));
         this.isSearchCompleted = true;
     }
 
@@ -229,8 +235,10 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
             @include animate-property(opacity, 0, 1, 0.2s, 0.5s);
 
             .result {
-                padding: 0.5vh 1.25vh;
-                @include line-overflow();
+                $gap: 8px;
+
+                @include flex-row(center);
+                padding: 0.75vh;
                 scroll-snap-align: start;
                 transition: background-color 0.3s;
                 @include animate-property(opacity, 0, 1, 0.15s);
@@ -248,6 +256,33 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
                 &:last-of-type {
                     border-bottom-left-radius: $border-radius;
                     border-bottom-right-radius: $border-radius;
+                }
+
+                .status {
+                    @include flex-row(center, center);
+                    margin-right: $gap;
+                    padding: 1px 0;
+                    width: calc(#{$selector-width} / 5);
+                    border-radius: 3px;
+                    box-shadow: 0 0 4px 1px var(--context-colors-suggestion-1-03);
+                    background-color: var(--context-colors-suggestion-1-00);
+                    color: var(--font-colors-0-00);
+                    font-size: var(--font-sizes-200);
+
+                    &.resolved {
+                        box-shadow: 0 0 4px 1px var(--context-colors-success-1-03);
+                        background-color: var(--context-colors-success-1-00);
+                    }
+
+                    &.deleted {
+                        box-shadow: 0 0 4px 1px var(--context-colors-disabled-1-03);
+                        background-color: var(--context-colors-disabled-0-00);
+                    }
+                }
+
+                .name {
+                    width: calc(#{$selector-width} * 0.8 - #{$gap});
+                    @include line-overflow();
                 }
             }
         }
