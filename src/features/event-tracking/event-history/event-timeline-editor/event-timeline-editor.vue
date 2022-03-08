@@ -29,7 +29,7 @@
         </range-slider>
 
         <flat-button class="confirm-button"
-            :isDisabled="isSaved"
+            :isDisabled="!canSave"
             @click="$emit('update', target)">
 
             Confirm
@@ -106,6 +106,16 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         const { start, end } = this.rangeBoundary;
 
         return end - start >= TimeUtility.convertTime(5, 'minute', 'millisecond');
+    }
+
+    get canSave(): boolean {
+        if (this.isSaved) {
+            return false;
+        }
+
+        const { name, eventType } = this.target;
+
+        return eventType === EventType.Idling || eventType === EventType.Break || Boolean(name);
     }
 
     public created(): void {
