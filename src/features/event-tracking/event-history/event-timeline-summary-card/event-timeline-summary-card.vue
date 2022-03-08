@@ -29,6 +29,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 
 import { EventTimelineDto } from '../../../../core/dtos/event-timeline-dto';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
+import { Change } from '../../../../core/models/generic/change';
 import { Range } from '../../../../core/models/generic/range';
 import { EventTimelineEditorOption } from '../../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../../core/enums/event-type.enum';
@@ -47,7 +48,10 @@ class EventTimelineSummaryCardProp {
     components: {
         ActivityIndicator,
         EventTimelineEditor
-    }
+    },
+    emits: [
+        'update'
+    ]
 })
 export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSummaryCardProp) {
     public isExpanded = false;
@@ -129,8 +133,8 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
         document.removeEventListener('click', this.checkClickOutside);
     }
 
-    public onUpdate(option: EventTimelineEditorOption): void {
-        console.log(option);
+    public onUpdate(updated: EventTimelineEditorOption): void {
+        this.$emit('update', new Change(this.editorOption, updated));
     }
 
     private checkClickOutside(event: Event): void {

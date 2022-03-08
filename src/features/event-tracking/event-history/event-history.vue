@@ -47,7 +47,8 @@
                         :style="{ 'z-index': summaries.timeline.length - index }"
                         :current="timeline"
                         :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
-                        :key="index">
+                        :key="index"
+                        @update="onTimeRangeUpdate($event)">
                     </event-timeline-summary-card>
                 </overlay-scrollbar-panel>
             </template>
@@ -85,7 +86,9 @@ import { container } from '../../../core/ioc/container';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { IconConfig } from '../../../core/models/generic/icon-config';
+import { Change } from '../../../core/models/generic/change';
 import { ActionGroupOption } from '../../../core/models/options/action-group-option';
+import { EventTimelineEditorOption } from '../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
 import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
@@ -164,6 +167,12 @@ export default class EventHistory extends Vue {
 
     public async onDaySelect(): Promise<void> {
         this.summaries = await this.eventHttpService.getEventSummariesByDay(this.day);
+    }
+
+    public async onTimeRangeUpdate(change: Change<EventTimelineEditorOption>): Promise<void> {
+        if (await this.eventHttpService.updateTimeRange(change)) {
+            this.onDaySelect();
+        }
     }
 
     public downloadTimesheets(): void {
