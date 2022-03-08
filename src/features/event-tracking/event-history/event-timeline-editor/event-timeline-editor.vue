@@ -28,12 +28,17 @@
             @update:modelValue="onRangeSelect($event)">
         </range-slider>
 
-        <flat-button class="confirm-button"
-            :isDisabled="!canSave"
-            @click="$emit('update', target)">
+        <div class="action">
+            <span v-if="isSaved" class="saved-message">Saved.</span>
+            <span v-if="!isSaved && !canSave" class="warning-message">* must choose an item</span>
 
-            Confirm
-        </flat-button>
+            <flat-button class="confirm-button"
+                :isDisabled="!canSave"
+                @click="$emit('update', target)">
+
+                Confirm
+            </flat-button>
+        </div>
     </div>
 </template>
 
@@ -214,15 +219,29 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
     }
 
-    .confirm-button {
+    .action {
+        @include flex-row(center);
         align-self: flex-end;
         font-size: var(--font-sizes-200);
-        transition: all 0.3s;
-        @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
-        &:not(.disabled) {
-            box-shadow: 0 0 5px 2px var(--context-colors-success-1-03);
-            background-color: var(--context-colors-success-1-00);
+        .saved-message, .warning-message {
+            margin-right: 2vh;
+            color: var(--font-colors-3-00);
+            @include animate-property(opacity, 0, 1, 0.3s, 0.1s);
+        }
+
+        .warning-message {
+            color: var(--context-colors-warning-0-00);
+        }
+
+        .confirm-button {
+            transition: all 0.3s;
+            @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
+
+            &:not(.disabled) {
+                box-shadow: 0 0 5px 2px var(--context-colors-success-1-03);
+                background-color: var(--context-colors-success-1-00);
+            }
         }
     }
 }

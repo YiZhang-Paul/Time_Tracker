@@ -211,7 +211,7 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
 
         @include flex-column(center);
         position: relative;
-        @include animate-property(width, 7.5vw, $selector-width, 0.5s);
+        @include animate-property(width, 7.5vw, $selector-width, 0.3s);
 
         .search-box {
             align-self: flex-start;
@@ -233,7 +233,7 @@ export default class EventSelector extends Vue.with(EventSelectorProp) {
             box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.2);
             background-color: var(--primary-colors-6-00);
             font-size: $font-size;
-            @include animate-property(opacity, 0, 1, 0.2s, 0.5s);
+            @include animate-property(opacity, 0, 1, 0.2s, 0.4s);
 
             .result {
                 $gap: 8px;

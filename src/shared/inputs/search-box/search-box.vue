@@ -144,6 +144,7 @@ export default class SearchBox extends Vue.with(SearchBoxProp) {
 
         input {
             flex-grow: 1;
+            padding: 0;
             border: none;
             outline: none;
             background-color: inherit;
