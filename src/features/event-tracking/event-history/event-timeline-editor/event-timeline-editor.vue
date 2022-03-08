@@ -88,7 +88,7 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
     }
 
     get selectedEvent(): EventSelection {
-        return new EventSelection(-1, this.target.eventType, this.target.name);
+        return new EventSelection(this.target.id, this.target.eventType, this.target.name);
     }
 
     get selectedRange(): Range<number> {
@@ -136,18 +136,23 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
 
     public onTypeSelect(): void {
         const { data } = this.typeOptions.find(_ => _.isActive)!;
-        this.target.eventType = data!;
-        this.target.name = '';
 
         if (data === EventType.Idling) {
             this.target.start = this.source.start;
             this.target.end = this.source.end;
         }
 
+        if (data === EventType.Idling || data === EventType.Break) {
+            this.target.id = -1;
+        }
+
+        this.target.eventType = data!;
+        this.target.name = '';
         this.isSaved = false;
     }
 
     public onEventSelect(event: EventSelection): void {
+        this.target.id = event.id;
         this.target.eventType = event.eventType;
         this.target.name = event.name;
         this.isSaved = false;

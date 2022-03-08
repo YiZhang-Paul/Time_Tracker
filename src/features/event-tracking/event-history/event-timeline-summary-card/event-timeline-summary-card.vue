@@ -60,10 +60,10 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
     };
 
     get editorOption(): EventTimelineEditorOption {
-        const { eventType, name, startTime } = this.current;
+        const { id, eventType, name, startTime } = this.current;
         const endTime = Math.min(this.endTime.getTime(), Date.now());
 
-        return new EventTimelineEditorOption(eventType, name, new Date(startTime), new Date(endTime));
+        return new EventTimelineEditorOption(id, eventType, name, new Date(startTime), new Date(endTime));
     }
 
     get icon(): IconConfig {
