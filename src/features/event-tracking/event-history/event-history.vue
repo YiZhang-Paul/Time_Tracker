@@ -86,7 +86,6 @@ import { container } from '../../../core/ioc/container';
 import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { IconConfig } from '../../../core/models/generic/icon-config';
-import { Change } from '../../../core/models/generic/change';
 import { ActionGroupOption } from '../../../core/models/options/action-group-option';
 import { EventTimelineEditorOption } from '../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../core/enums/event-type.enum';
@@ -169,8 +168,8 @@ export default class EventHistory extends Vue {
         this.summaries = await this.eventHttpService.getEventSummariesByDay(this.day);
     }
 
-    public async onTimeRangeUpdate(change: Change<EventTimelineEditorOption>): Promise<void> {
-        if (await this.eventHttpService.updateTimeRange(change)) {
+    public async onTimeRangeUpdate(updated: EventTimelineEditorOption): Promise<void> {
+        if (await this.eventHttpService.updateTimeRange(updated)) {
             this.onDaySelect();
         }
     }
