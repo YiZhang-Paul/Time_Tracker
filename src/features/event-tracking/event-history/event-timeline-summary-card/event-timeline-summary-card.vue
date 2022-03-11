@@ -19,7 +19,7 @@
         <event-timeline-editor v-if="isExpanded"
             class="editor"
             :source="editorOption"
-            @update="$emit('update', $event)">
+            @update="onUpdate($event)">
         </event-timeline-editor>
     </div>
 </template>
@@ -130,6 +130,11 @@ export default class EventTimelineSummaryCard extends Vue.with(EventTimelineSumm
 
     public beforeUnmount(): void {
         document.removeEventListener('click', this.checkClickOutside);
+    }
+
+    public onUpdate(updated: EventTimelineEditorOption): void {
+        this.$emit('update', updated);
+        this.isExpanded = false;
     }
 
     private checkClickOutside(event: Event): void {
