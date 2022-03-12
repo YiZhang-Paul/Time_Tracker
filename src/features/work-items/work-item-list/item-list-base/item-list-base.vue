@@ -142,6 +142,10 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
         this.animateItemCards();
     }
 
+    public beforeUnmount(): void {
+        this.resetAnimation();
+    }
+
     public selectUnresolved(): void {
         if (!this.showUnresolved) {
             this.resetAnimation();
