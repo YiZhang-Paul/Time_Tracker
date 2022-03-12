@@ -61,7 +61,7 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
     get dailyTargetStatusText(): string {
         const delta = this.targetHours - this.workingDuration;
 
-        return `${delta} hour${delta > 1 ? 's' : ''} till goal`;
+        return `${Math.round(delta * 10) / 10} hour${delta > 1 ? 's' : ''} till goal`;
     }
 }
 </script>
