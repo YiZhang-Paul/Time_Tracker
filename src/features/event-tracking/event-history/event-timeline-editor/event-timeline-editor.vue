@@ -5,9 +5,20 @@
 
             <div class="time-range">
                 <span>from</span>
-                <div class="value-tag">{{ start }}</div>
+
+                <time-input class="value-tag"
+                    v-model="target.start"
+                    :min="source.start"
+                    :max="target.end">
+                </time-input>
+
                 <span>to</span>
-                <div class="value-tag">{{ end }}</div>
+
+                <time-input class="value-tag"
+                    v-model="target.end"
+                    :min="target.start"
+                    :max="source.end">
+                </time-input>
             </div>
 
             <div class="target">
@@ -55,6 +66,7 @@ import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utilit
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import RangeSlider from '../../../../shared/inputs/range-slider/range-slider.vue';
+import TimeInput from '../../../../shared/inputs/time-input/time-input.vue';
 import TabGroup from '../../../../shared/inputs/tab-group/tab-group.vue';
 
 import EventSelector from './event-selector/event-selector.vue';
@@ -67,6 +79,7 @@ class EventTimelineEditorProp {
     components: {
         FlatButton,
         RangeSlider,
+        TimeInput,
         TabGroup,
         EventSelector
     },
@@ -192,12 +205,6 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
         width: 100%;
         @include animate-property(opacity, 0, 1, 0.3s, 0.2s);
 
-        .value-tag, .event-selector {
-            margin-left: $gap;
-            border-radius: 25px;
-            background-color: var(--primary-colors-6-00);
-        }
-
         .time-range {
             @include flex-row(center);
             margin-left: 10%;
@@ -205,17 +212,17 @@ export default class EventTimelineEditor extends Vue.with(EventTimelineEditorPro
             span:not(:first-of-type) {
                 margin-left: $gap;
             }
-
-            .value-tag {
-                padding: 3px 10px;
-                min-width: 2.5rem;
-                text-align: center;
-            }
         }
 
         .target {
             @include flex-row(center);
             margin-left: $gap;
+        }
+
+        .value-tag, .event-selector {
+            margin-left: $gap;
+            border-radius: 25px;
+            background-color: var(--primary-colors-6-00);
         }
     }
 
