@@ -1,4 +1,4 @@
-import { TimePeriod } from '../models/generic/time-period';
+import { Range } from '../models/generic/range';
 import { EventType } from '../enums/event-type.enum';
 
 export class EventDurationDto {
@@ -8,5 +8,5 @@ export class EventDurationDto {
     public name = '';
     public isDeleted = false;
     public isResolved = false;
-    public periods: TimePeriod<string>[] = [];
+    public periods: Range<string>[] = [];
 }

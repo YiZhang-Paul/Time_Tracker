@@ -3,4 +3,6 @@ export class TaskItemSummaryDto {
     public name!: string;
     public effort!: number;
     public progress!: number;
+    public isDeleted!: boolean;
+    public isResolved!: boolean;
 }

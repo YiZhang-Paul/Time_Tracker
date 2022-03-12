@@ -83,7 +83,7 @@ export default class EventTracker extends Vue {
             return;
         }
 
-        const limit = this.eventStore.workDurationLimit / 60 / 1000;
+        const limit = TimeUtility.convertTime(this.eventStore.workDurationLimit, 'millisecond', 'minute');
         const title = `You have worked more than ${limit} minutes. Time to take a break.`;
         const data = new ConfirmationDialogOption(title, 'Take a break', 'Skip', ButtonType.Confirm);
         const preCancel = this.skipBreak.bind(this);

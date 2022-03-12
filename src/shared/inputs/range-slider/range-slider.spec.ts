@@ -1,13 +1,13 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
-import EventTimeSummaryCard from './event-time-summary-card.vue';
+import RangeSlider from './range-slider.vue';
 
-describe('event time summary card unit test', () => {
+describe('range slider unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(EventTimeSummaryCard);
+        component = shallowMount(RangeSlider);
     });
 
     afterEach(() => {

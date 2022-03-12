@@ -6,7 +6,7 @@ export class ActionGroupOption<T = unknown> {
     public data: T | null;
     public isActive: boolean;
 
-    constructor(name: string, icon: IconConfig, data: T | null = null, isActive = true) {
+    constructor(name: string, icon: IconConfig, data: T | null = null, isActive = false) {
         this.name = name;
         this.icon = icon;
         this.data = data;

@@ -44,9 +44,11 @@
                 <overlay-scrollbar-panel v-if="summaries.timeline.length" class="event-summaries">
                     <event-timeline-summary-card v-for="(timeline, index) in summaries.timeline"
                         class="event-summary-card"
+                        :style="{ 'z-index': summaries.timeline.length - index }"
                         :current="timeline"
                         :next="index === summaries.timeline.length - 1 ? null : summaries.timeline[index + 1]"
-                        :key="index">
+                        :key="index"
+                        @update="onTimeRangeUpdate($event)">
                     </event-timeline-summary-card>
                 </overlay-scrollbar-panel>
             </template>
@@ -57,6 +59,7 @@
                 <overlay-scrollbar-panel v-if="workingDurations.length" class="event-summaries">
                     <event-duration-summary-card v-for="(duration, index) in workingDurations"
                         class="event-summary-card"
+                        :style="{ 'z-index': workingDurations.length - index }"
                         :summary="duration"
                         :rank="index + 1"
                         :key="index">
@@ -84,6 +87,7 @@ import { EventDurationDto } from '../../../core/dtos/event-duration-dto';
 import { EventSummariesDto } from '../../../core/dtos/event-summaries-dto';
 import { IconConfig } from '../../../core/models/generic/icon-config';
 import { ActionGroupOption } from '../../../core/models/options/action-group-option';
+import { EventTimelineEditorOption } from '../../../core/models/options/event-timeline-editor-option';
 import { EventType } from '../../../core/enums/event-type.enum';
 import { EventHttpService } from '../../../core/services/http/event-http/event-http.service';
 import { IconUtility } from '../../../core/utilities/icon-utility/icon-utility';
@@ -147,8 +151,8 @@ export default class EventHistory extends Vue {
 
     public created(): void {
         this.tabOptions = [
-            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant))),
-            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)), null, false)
+            new ActionGroupOption('timeline', new IconConfig(markRaw(ChartTimelineVariant)), null, true),
+            new ActionGroupOption('ranked', new IconConfig(markRaw(TrophyAward)))
         ];
 
         this.filterOptions = [
@@ -162,6 +166,12 @@ export default class EventHistory extends Vue {
 
     public async onDaySelect(): Promise<void> {
         this.summaries = await this.eventHttpService.getEventSummariesByDay(this.day);
+    }
+
+    public async onTimeRangeUpdate(updated: EventTimelineEditorOption): Promise<void> {
+        if (await this.eventHttpService.updateTimeRange(updated)) {
+            this.onDaySelect();
+        }
     }
 
     public downloadTimesheets(): void {
@@ -292,6 +302,7 @@ export default class EventHistory extends Vue {
             padding: 0 3.5%;
 
             .event-summary-card {
+                position: relative;
                 margin-bottom: 1.25vh;
                 scroll-snap-align: start;
                 @include animate-property(opacity, 0, 1, 0.3s);

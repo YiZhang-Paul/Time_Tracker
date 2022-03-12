@@ -19,6 +19,15 @@ export class InterruptionItemHttpService {
         }
     }
 
+    public async searchSummaries(searchText: string): Promise<InterruptionItemSummaryDto[]> {
+        try {
+            return (await axios.get(`${this._api}/summaries?searchText=${searchText}`)).data;
+        }
+        catch {
+            return [];
+        }
+    }
+
     public async getSummaries(start: Date): Promise<ItemSummariesDto<InterruptionItemSummaryDto>> {
         try {
             return (await axios.get(`${this._api}/summaries/${start.toISOString()}`)).data;

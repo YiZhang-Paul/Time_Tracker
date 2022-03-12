@@ -4,6 +4,7 @@ import { injectable } from 'inversify';
 import { BreakSessionConfirmationDto } from '../../../dtos/break-session-confirmation-dto';
 import { OngoingEventTimeSummaryDto } from '../../../dtos/ongoing-event-time-summary-dto';
 import { EventSummariesDto } from '../../../dtos/event-summaries-dto';
+import { EventTimelineEditorOption } from '../../../models/options/event-timeline-editor-option';
 
 @injectable()
 export class EventHttpService {
@@ -89,6 +90,15 @@ export class EventHttpService {
             const endpoint = `${this._api}/scheduled-break-prompts`;
 
             return (await axios.post(endpoint, new BreakSessionConfirmationDto())).data;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    public async updateTimeRange(updated: EventTimelineEditorOption): Promise<boolean> {
+        try {
+            return (await axios.put(`${this._api}/time-range`, updated)).data;
         }
         catch {
             return false;

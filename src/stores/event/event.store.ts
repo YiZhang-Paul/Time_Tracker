@@ -4,9 +4,9 @@ import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventType } from '../../core/enums/event-type.enum';
+import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
-const oneMinute = 1000 * 60;
 let eventHttpService = container.get<EventHttpService>(types.EventHttpService);
 
 export const setServices = (eventHttp: EventHttpService): void => {
@@ -16,8 +16,8 @@ export const setServices = (eventHttp: EventHttpService): void => {
 export const useEventStore = defineStore('event', {
     state: () => ({
         ongoingEventSummary: null as OngoingEventTimeSummaryDto | null,
-        workDurationLimit: oneMinute * 50,
-        breakDuration: oneMinute * 10
+        workDurationLimit: TimeUtility.convertTime(50, 'minute', 'millisecond'),
+        breakDuration: TimeUtility.convertTime(10, 'minute', 'millisecond')
     }),
     getters: {
         isWorking(): boolean {

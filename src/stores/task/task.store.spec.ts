@@ -27,15 +27,15 @@ describe('task store unit test', () => {
 
     beforeEach(() => {
         unresolved = [
-            { id: 1, name: 'name_1', effort: 1, progress: 0 },
-            { id: 4, name: 'name_4', effort: 1, progress: 0 },
-            { id: 3, name: 'name_3', effort: 5, progress: 0 },
-            { id: 2, name: 'name_2', effort: 13, progress: 0 }
+            { id: 1, name: 'name_1', effort: 1, progress: 0 } as TaskItemSummaryDto,
+            { id: 4, name: 'name_4', effort: 1, progress: 0 } as TaskItemSummaryDto,
+            { id: 3, name: 'name_3', effort: 5, progress: 0 } as TaskItemSummaryDto,
+            { id: 2, name: 'name_2', effort: 13, progress: 0 } as TaskItemSummaryDto
         ];
 
         resolved = [
-            { id: 41, name: 'name_41', effort: 5, progress: 0 },
-            { id: 60, name: 'name_60', effort: 13, progress: 0 }
+            { id: 41, name: 'name_41', effort: 5, progress: 0 } as TaskItemSummaryDto,
+            { id: 60, name: 'name_60', effort: 13, progress: 0 } as TaskItemSummaryDto
         ];
 
         taskItemHttpStub.getSummaries.resolves({ unresolved: unresolved.slice(), resolved: resolved.slice() });
