@@ -8,6 +8,7 @@
 
                 <time-input class="value-tag"
                     v-model="target.start"
+                    :isDisabled="!canSelectRange"
                     :min="source.start"
                     :max="target.end">
                 </time-input>
@@ -16,6 +17,7 @@
 
                 <time-input class="value-tag"
                     v-model="target.end"
+                    :isDisabled="!canSelectRange"
                     :min="target.start"
                     :max="source.end">
                 </time-input>

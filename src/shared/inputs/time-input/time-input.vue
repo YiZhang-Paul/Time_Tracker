@@ -1,8 +1,18 @@
 <template>
     <div class="time-input-container">
-        <input type="text" v-model="hour" @input="setHour($event.target.value)" maxlength="2" />
+        <input type="text"
+            v-model="hour"
+            :disabled="isDisabled"
+            @input="setHour($event.target.value)"
+            maxlength="2" />
+
         <span>:</span>
-        <input type="text" v-model="minute" @input="setMinute($event.target.value)" maxlength="2" />
+
+        <input type="text"
+            v-model="minute"
+            :disabled="isDisabled"
+            @input="setMinute($event.target.value)"
+            maxlength="2" />
     </div>
 </template>
 
@@ -11,6 +21,7 @@ import { Options, Vue, prop } from 'vue-class-component';
 
 class TimeInputProp {
     public modelValue = prop<Date>({ default: new Date() });
+    public isDisabled = prop<boolean>({ default: false });
     public min = prop<Date>({ default: null });
     public max = prop<Date>({ default: null });
 }
