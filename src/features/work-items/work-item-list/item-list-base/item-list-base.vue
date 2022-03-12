@@ -142,10 +142,6 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
         this.animateItemCards();
     }
 
-    public beforeUnmount(): void {
-        this.resetAnimation();
-    }
-
     public selectUnresolved(): void {
         if (!this.showUnresolved) {
             this.resetAnimation();
@@ -182,10 +178,8 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
     private animateItemCards(): void {
         let total = 0;
 
-        if (this.activeSummary) {
-            const { id } = this.activeSummary;
-            this.animated.delete(id);
-            setTimeout(() => this.animated.add(id));
+        if (this.activeSummary && !this.animated.has(this.activeSummary.id)) {
+            setTimeout(() => this.animated.add(this.activeSummary.id));
         }
 
         for (const { id } of this.items) {

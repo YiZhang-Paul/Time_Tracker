@@ -61,7 +61,7 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
     get dailyTargetStatusText(): string {
         const delta = this.targetHours - this.workingDuration;
 
-        return `${delta} hour${delta > 1 ? 's' : ''} till goal`;
+        return `${Math.round(delta * 10) / 10} hour${delta > 1 ? 's' : ''} till goal`;
     }
 }
 </script>
@@ -71,11 +71,13 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
-    @include flex-row(flex-start, center);
+    @include flex-row(flex-start, space-between);
+    box-sizing: border-box;
+    padding-left: 2.5vh;
+    padding-right: 6vh;
 
     .emoticon-icon {
         margin-top: 7.5%;
-        margin-right: 2vh;
         color: var(--misc-colors-b-00);
         font-size: var(--font-sizes-1300);
     }
@@ -101,7 +103,7 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
                 position: absolute;
                 left: 50%;
                 @include line-overflow();
-                @include animate-property(left, 40%, 10%, 0.45s, 0.5s);
+                @include animate-property(left, 40%, 2.5%, 0.45s, 0.5s);
             }
         }
 
@@ -113,12 +115,12 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
             height: calc(#{$font-size} * 1.5);
             color: var(--font-colors-2-00);
             font-size: $font-size;
-            @include animate-property(opacity, 0, 1, 0.4s, 0.9s);
+            @include animate-property(opacity, 0, 1, 0.5s, 1s);
 
             .delta {
                 @include flex-row(center);
                 position: absolute;
-                @include animate-property(left, -10%, 10%, 0.4s, 0.9s);
+                @include animate-property(left, -10%, 6%, 0.5s, 1s);
 
                 &.completed {
                     color: var(--font-colors-1-00);
