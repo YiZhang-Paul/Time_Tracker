@@ -1,6 +1,6 @@
 <template>
     <div v-if="summaries && type" class="item-list-base-container" :class="{ 'right-to-left': isRightToLeft }">
-        <span v-if="totalUnresolved || totalResolved" class="list-tabs">
+        <div v-if="totalUnresolved || totalResolved" class="list-tabs">
             <tab-button class="unresolved-tab-button"
                 :isActive="showUnresolved"
                 :badgeCount="totalUnresolved"
@@ -17,7 +17,7 @@
 
                 Done
             </tab-button>
-        </span>
+        </div>
 
         <div class="card-wrapper" v-if="activeSummary">
             <interruption-item-card v-if="type === eventType.Interruption"
@@ -197,6 +197,8 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
+    $tabs-height: 5vh;
+
     @include flex-column(flex-end);
 
     &:not(.right-to-left) .card-wrapper {
@@ -245,7 +247,8 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
 
     .list-tabs {
         @include flex-row(center);
-        margin-bottom: 1vh;
+        min-height: $tabs-height;
+        height: $tabs-height;
 
         .unresolved-tab-button {
             margin-right: 0.75vh;
@@ -267,14 +270,15 @@ export default class ItemListBase extends Vue.with(ItemListBaseProp) {
     .card-wrappers {
         @include flex-column();
         width: 100%;
-        height: 100%;
+        height: calc(100% - #{$tabs-height});
     }
 
     .card-wrapper {
+        @include flex-row(center);
         box-sizing: border-box;
-        margin-bottom: 1rem;
         width: 100%;
-        min-height: 5.25rem;
+        min-height: 6rem;
+        height: 6rem;
         overflow-x: hidden;
         scroll-snap-align: start;
 
