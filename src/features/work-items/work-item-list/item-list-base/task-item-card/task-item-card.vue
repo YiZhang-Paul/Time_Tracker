@@ -73,10 +73,6 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
         color: var(--context-colors-suggestion-0-00);
     }
 
-    &.selected .name {
-        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
-    }
-
     .progress-indicator {
         margin-left: $indicator-margin;
         width: $indicator-dimension;
@@ -106,7 +102,7 @@ export default class TaskItemCard extends Vue.with(TaskItemCardProp) {
     .name {
         @include line-clamp-vertical();
         margin-left: $name-margin;
-        max-width: calc(80% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
         transition: max-width 0.3s;
     }
 }

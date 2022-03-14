@@ -79,14 +79,10 @@ export default class InterruptionItemCard extends Vue.with(InterruptionItemCardP
         color: var(--context-colors-suggestion-0-00);
     }
 
-    &.selected .name {
-        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
-    }
-
     .name {
         @include line-clamp-vertical();
         margin-right: $name-margin;
-        max-width: calc(80% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
+        max-width: calc(92.5% - #{$name-margin} - #{$indicator-dimension} - #{$indicator-margin} * 2);
         transition: max-width 0.3s;
     }
 
