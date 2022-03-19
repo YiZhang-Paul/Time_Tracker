@@ -2,6 +2,7 @@
     <div class="sign-in-panel-container">
         <div class="inputs">
             <form-input class="form-input"
+                ref="emailInput"
                 v-model="email"
                 :icon="emailIcon"
                 :type="'email'"
@@ -11,6 +12,7 @@
             </form-input>
 
             <form-input class="form-input"
+                ref="passwordInput"
                 v-model="password"
                 :icon="passwordIcon"
                 :type="'password'"
@@ -25,7 +27,7 @@
         <div class="fill"></div>
 
         <div class="actions">
-            <flat-button class="login-button">Login</flat-button>
+            <flat-button class="login-button" :isDisabled="isLoginDisabled()">Login</flat-button>
 
             <div class="sign-up-message">
                 <span>New to ticking?</span>
@@ -70,6 +72,14 @@ export default class SignInPanel extends Vue {
 
     public validatePassword(password: string): string {
         return password?.trim() ? '' : 'password not provided';
+    }
+
+    public isLoginDisabled(): boolean {
+        const { emailInput, passwordInput } = this.$refs as { emailInput: FormInput, passwordInput: FormInput };
+        const isValidEmail = Boolean(emailInput) && !emailInput.isInvalid;
+        const isValidPassword = Boolean(passwordInput) && !passwordInput.isInvalid;
+
+        return !isValidEmail || !isValidPassword;
     }
 }
 </script>
@@ -133,13 +143,16 @@ export default class SignInPanel extends Vue {
             padding: 1vh 0;
             width: 42.5%;
             border-radius: 50px;
-            box-shadow: 0 0 4px 1px var(--form-colors-login-button-0-02);
-            background-color: var(--form-colors-login-button-1-00);
-            color: var(--font-colors-0-00);
             transition: background-color 0.3s;
 
             &:hover {
                 background-color: var(--form-colors-login-button-0-00);
+            }
+
+            &:not(.disabled) {
+                box-shadow: 0 0 4px 1px var(--form-colors-login-button-0-02);
+                background-color: var(--form-colors-login-button-1-00);
+                color: var(--font-colors-0-00);
             }
         }
 

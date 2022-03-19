@@ -4,12 +4,12 @@
             <form-input class="form-input"
                 ref="emailInput"
                 v-model="email"
-                @update:modelValue="showSuccessMessage = false"
                 :icon="emailIcon"
                 :type="'email'"
                 :maxLength="320"
                 :placeholder="'Enter your registered email'"
-                :validator="validateEmail">
+                :validator="validateEmail"
+                @update:modelValue="showSuccessMessage = false">
             </form-input>
 
             <div v-if="showSuccessMessage" class="success-message">
@@ -22,7 +22,7 @@
 
         <div class="actions">
             <flat-button class="recover-button"
-                :isDisabled="!$refs.emailInput || $refs.emailInput.isInvalid"
+                :isDisabled="isRecoverDisabled()"
                 @click="onRecover()">
 
                 Recover
@@ -67,6 +67,12 @@ export default class AccountRecoverPanel extends Vue {
         }
 
         return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email) ? '' : 'invalid email address';
+    }
+
+    public isRecoverDisabled(): boolean {
+        const { emailInput } = this.$refs as { emailInput: FormInput };
+
+        return !emailInput || emailInput.isInvalid;
     }
 
     public onRecover(): void {
