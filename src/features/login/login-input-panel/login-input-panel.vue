@@ -2,7 +2,16 @@
     <div class="login-input-panel-container">
         <img class="logo" src="../../../assets/icons/logo.png" />
         <span class="name">Ticking</span>
-        <sign-in-panel class="sign-in-panel"></sign-in-panel>
+
+        <sign-in-panel v-if="active === 'signIn'"
+            class="sign-in-panel"
+            @recover="active = 'recover'">
+        </sign-in-panel>
+
+        <account-recover-panel v-if="active === 'recover'"
+            class="account-recover-panel"
+            @signIn="active = 'signIn'">
+        </account-recover-panel>
     </div>
 </template>
 
@@ -10,13 +19,17 @@
 import { Options, Vue } from 'vue-class-component';
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
+import AccountRecoverPanel from './account-recover-panel/account-recover-panel.vue';
 
 @Options({
     components: {
-        SignInPanel
+        SignInPanel,
+        AccountRecoverPanel
     }
 })
-export default class LoginInputPanel extends Vue { }
+export default class LoginInputPanel extends Vue {
+    public active = 'signIn';
+}
 </script>
 
 <style lang="scss" scoped>
@@ -38,7 +51,7 @@ export default class LoginInputPanel extends Vue { }
         font-size: var(--font-sizes-600);
     }
 
-    .sign-in-panel {
+    .sign-in-panel, .account-recover-panel {
         width: 100%;
         height: 100%;
     }
