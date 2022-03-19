@@ -1,20 +1,25 @@
 <template>
     <div class="login-input-panel-container">
         <img class="logo" src="../../../assets/icons/logo.png" />
+        <span class="name">Ticking</span>
 
         <div class="inputs">
             <form-input class="form-input"
                 v-model="email"
                 :icon="emailIcon"
                 :type="'email'"
-                :placeholder="'Email'">
+                :maxLength="320"
+                :placeholder="'Email'"
+                :validator="validateEmail">
             </form-input>
 
             <form-input class="form-input"
                 v-model="password"
                 :icon="passwordIcon"
                 :type="'password'"
-                :placeholder="'Password'">
+                :maxLength="20"
+                :placeholder="'Password'"
+                :validator="validatePassword">
             </form-input>
 
             <a>Forgot your password?</a>
@@ -49,20 +54,33 @@ import FormInput from '../../../shared/inputs/form-input/form-input.vue';
     }
 })
 export default class LoginInputPanel extends Vue {
-    public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-8-00)');
-    public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-8-00)');
+    public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
+    public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
     public email = '';
     public password = '';
+
+    public validateEmail(email: string): string {
+        if (!email?.trim()) {
+            return 'email not provided';
+        }
+
+        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email) ? '' : 'invalid email address';
+    }
+
+    public validatePassword(password: string): string {
+        return password?.trim() ? '' : 'password not provided';
+    }
 }
 </script>
 
 <style lang="scss" scoped>
 .login-input-panel-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-column(center, space-between);
     box-sizing: border-box;
-    padding: 5% 0 7.5% 0;
+    padding: 5% 0 9.5% 0;
     box-shadow: -1px 0 5px 2px var(--form-colors-login-panel-0-02);
     background-color: var(--form-colors-login-panel-0-00);
 
@@ -78,7 +96,12 @@ export default class LoginInputPanel extends Vue {
     }
 
     .logo {
-        width: 35%;
+        width: 30%;
+    }
+
+    .name {
+        color: var(--font-colors-0-00);
+        font-size: var(--font-sizes-600);
     }
 
     .inputs, .actions {
@@ -86,14 +109,18 @@ export default class LoginInputPanel extends Vue {
     }
 
     .inputs {
-        margin-top: 5vh;
+        margin-top: 0.75vh;
         width: 67.5%;
 
         .form-input {
             width: 100%;
 
             &:first-of-type {
-                margin-bottom: 3.5vh;
+                margin-bottom: 0.25vh;
+            }
+
+            &::v-deep(.error-text) {
+                color: var(--font-colors-1-00);
             }
         }
 
@@ -101,7 +128,8 @@ export default class LoginInputPanel extends Vue {
             align-self: flex-end;
             margin-top: 1vh;
             margin-right: 1.25vh;
-            font-size: var(--font-sizes-300);
+            font-size: var(--font-sizes-200);
+            @include animate-property(opacity, 0, 1, 0.5s, 0.5s);
         }
     }
 
@@ -114,12 +142,11 @@ export default class LoginInputPanel extends Vue {
 
         .login-button {
             padding: 1vh 0;
-            width: 47.5%;
+            width: 42.5%;
             border-radius: 50px;
             box-shadow: 0 0 4px 1px var(--form-colors-login-button-0-02);
             background-color: var(--form-colors-login-button-1-00);
             color: var(--font-colors-0-00);
-            font-size: var(--font-sizes-500);
             transition: background-color 0.3s;
 
             &:hover {

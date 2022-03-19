@@ -1,8 +1,8 @@
-@mixin animate-property($property, $start, $end, $duration, $delay: 0s) {
+@mixin animate-property($property, $start, $end, $duration, $delay: 0s, $function: ease) {
     $animation-name: unique-id();
 
     #{$property}: $start;
-    animation: $animation-name $duration ease $delay forwards;
+    animation: $animation-name $duration $function $delay forwards;
 
     @keyframes #{$animation-name} {
         from { #{$property}: $start; }

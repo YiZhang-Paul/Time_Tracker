@@ -40,12 +40,12 @@ export default class Login extends Vue { }
         @include animate-property(opacity, 0, 1, 0.75s);
 
         .show-case {
-            width: 65%;
+            width: 67.5%;
             height: 100%;
         }
 
         .login-input {
-            width: 35%;
+            width: 32.5%;
             height: 100%;
         }
     }
