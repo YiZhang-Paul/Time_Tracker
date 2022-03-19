@@ -67,11 +67,25 @@ export default class ShowCasePanel extends Vue {
 
         .icon {
             @include flex-row(center, center);
+            position: relative;
             width: $icon-dimension;
             height: $icon-dimension;
             border-radius: 5px;
+            overflow: hidden;
             font-size: var(--font-sizes-850);
             @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
+
+            &::before {
+                content: '';
+                background-color: var(--primary-colors-1-08);
+                @include gloss-effect(45%, 200%, 6s);
+            }
+
+            &::after {
+                content: '';
+                background-color: var(--primary-colors-1-08);
+                @include gloss-effect(7.5%, 200%, 6s, 55%);
+            }
 
             background: linear-gradient(
                 45deg,
