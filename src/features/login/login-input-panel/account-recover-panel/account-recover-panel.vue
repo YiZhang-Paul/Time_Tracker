@@ -2,6 +2,7 @@
     <div class="account-recover-panel-container">
         <div class="inputs">
             <form-input class="form-input"
+                ref="emailInput"
                 v-model="email"
                 @update:modelValue="showSuccessMessage = false"
                 :icon="emailIcon"
@@ -20,7 +21,12 @@
         <div class="fill"></div>
 
         <div class="actions">
-            <flat-button class="reset-button" @click="onRecover()">Reset</flat-button>
+            <flat-button class="recover-button"
+                :isDisabled="!$refs.emailInput || $refs.emailInput.isInvalid"
+                @click="onRecover()">
+
+                Recover
+            </flat-button>
 
             <div class="sign-in-message">
                 <span>Have an account?</span>
@@ -115,17 +121,20 @@ export default class AccountRecoverPanel extends Vue {
     .actions {
         width: 100%;
 
-        .reset-button {
+        .recover-button {
             padding: 1vh 0;
             width: 42.5%;
             border-radius: 50px;
-            box-shadow: 0 0 4px 1px var(--form-colors-recover-button-0-02);
-            background-color: var(--form-colors-recover-button-1-00);
-            color: var(--font-colors-0-00);
             transition: background-color 0.3s;
 
             &:hover {
                 background-color: var(--form-colors-recover-button-0-00);
+            }
+
+            &:not(.disabled) {
+                box-shadow: 0 0 4px 1px var(--form-colors-recover-button-0-02);
+                background-color: var(--form-colors-recover-button-1-00);
+                color: var(--font-colors-0-00);
             }
         }
 

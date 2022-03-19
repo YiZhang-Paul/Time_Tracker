@@ -58,6 +58,10 @@ export default class FormInput extends Vue.with(FormInputProp) {
 
         return this.validator ? this.validator(this.content) : '';
     }
+
+    get isInvalid(): boolean {
+        return Boolean(this.validator ? this.validator(this.content) : '');
+    }
 }
 </script>
 
