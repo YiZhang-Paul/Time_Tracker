@@ -2,6 +2,7 @@
     <div class="login-container">
         <div class="login-panel">
             <show-case-panel class="show-case"></show-case-panel>
+            <login-input-panel class="login-input"></login-input-panel>
         </div>
     </div>
 </template>
@@ -10,10 +11,12 @@
 import { Options, Vue } from 'vue-class-component';
 
 import ShowCasePanel from './show-case-panel/show-case-panel.vue';
+import LoginInputPanel from './login-input-panel/login-input-panel.vue';
 
 @Options({
     components: {
-        ShowCasePanel
+        ShowCasePanel,
+        LoginInputPanel
     }
 })
 export default class Login extends Vue { }
@@ -38,6 +41,11 @@ export default class Login extends Vue { }
 
         .show-case {
             width: 65%;
+            height: 100%;
+        }
+
+        .login-input {
+            width: 35%;
             height: 100%;
         }
     }

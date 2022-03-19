@@ -51,7 +51,7 @@ export default class ShowCasePanel extends Vue {
     background: linear-gradient(
         115deg,
         var(--primary-colors-5-00) -10%,
-        var(--primary-colors-10-00) 62.5%
+        var(--primary-colors-10-00) 52.5%
     );
 
     .item {
