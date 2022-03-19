@@ -1,6 +1,8 @@
 <template>
     <div class="login-input-panel-container">
         <img src="../../../assets/icons/logo.png" />
+        <form-input class="form-input" :placeholder="'Email'"></form-input>
+        <form-input class="form-input" :type="'password'" :placeholder="'Password'"></form-input>
 
         <div class="actions">
             <flat-button class="login-button">Login</flat-button>
@@ -17,10 +19,12 @@
 import { Options, Vue } from 'vue-class-component';
 
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
+import FormInput from '../../../shared/inputs/form-input/form-input.vue';
 
 @Options({
     components: {
-        FlatButton
+        FlatButton,
+        FormInput
     }
 })
 export default class LoginInputPanel extends Vue { }
@@ -38,12 +42,16 @@ export default class LoginInputPanel extends Vue { }
         width: 35%;
     }
 
+    .form-input {
+        width: 65%;
+    }
+
     .actions {
         @include flex-column(center);
         width: 100%;
 
         .login-button {
-            padding: 1.25vh 0;
+            padding: 1vh 0;
             width: 47.5%;
             border-radius: 50px;
             box-shadow: 0 0 4px 1px var(--form-colors-login-button-0-02);
