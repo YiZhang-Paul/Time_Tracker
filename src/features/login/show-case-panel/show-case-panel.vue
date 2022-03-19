@@ -1,29 +1,25 @@
 <template>
     <div class="show-case-panel-container">
-        <category-summary-display v-for="(item, index) in items"
-            class="item"
-            :title="item.title"
-            :icon="item.icon"
-            :key="index">
+        <div v-for="(item, index) in items" class="item" :key="index">
+            <div class="icon">
+                <component :is="item.icon.component" :style="{ color: item.icon.color }"></component>
+            </div>
 
-            <span class="description">{{ item.description }}</span>
-        </category-summary-display>
+            <div class="content">
+                <span class="title">{{ item.title }}</span>
+                <span class="description">{{ item.description }}</span>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
-import { Options, Vue } from 'vue-class-component';
+import { Vue } from 'vue-class-component';
 import { ChartTimelineVariant, Flash, Heart } from 'mdue';
 
 import { IconConfig } from '../../../core/models/generic/icon-config';
-import CategorySummaryDisplay from '../../../shared/displays/category-summary-display/category-summary-display.vue';
 
-@Options({
-    components: {
-        CategorySummaryDisplay
-    }
-})
 export default class ShowCasePanel extends Vue {
     public readonly items = [
         {
@@ -61,18 +57,19 @@ export default class ShowCasePanel extends Vue {
         $icon-dimension: 9.5vh;
         $gap: 3.5vh;
 
+        @include flex-row(center);
         width: 67.5%;
 
         &:not(:last-of-type) {
             margin-bottom: 10%;
         }
 
-        &::v-deep(.icon) {
+        .icon {
+            @include flex-row(center, center);
             width: $icon-dimension;
             height: $icon-dimension;
             border-radius: 5px;
-            box-shadow: none;
-            font-size: var(--font-sizes-800);
+            font-size: var(--font-sizes-850);
 
             background: linear-gradient(
                 45deg,
@@ -83,17 +80,21 @@ export default class ShowCasePanel extends Vue {
             );
         }
 
-        &::v-deep(.content) {
+        .content {
+            @include flex-column(flex-start, space-between);
             margin-left: $gap;
             width: calc(100% - #{$gap} - #{$icon-dimension});
-        }
+            font-size: var(--font-sizes-450);
 
-        &::v-deep(.title) {
-            font-size: var(--font-sizes-600);
-        }
+            .title {
+                margin-bottom: 4px;
+                color: var(--font-colors-0-00);
+                font-size: var(--font-sizes-600);
+            }
 
-        .description {
-            color: var(--font-colors-4-00);
+            .description {
+                color: var(--font-colors-4-00);
+            }
         }
     }
 }
