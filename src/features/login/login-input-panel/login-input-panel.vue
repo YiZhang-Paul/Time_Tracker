@@ -5,8 +5,14 @@
 
         <sign-in-panel v-if="active === 'signIn'"
             class="sign-in-panel"
-            @recover="active = 'recover'">
+            @recover="active = 'recover'"
+            @signUp="active = 'signUp'">
         </sign-in-panel>
+
+        <sign-up-panel v-if="active === 'signUp'"
+            class="sign-up-panel"
+            @signIn="active = 'signIn'">
+        </sign-up-panel>
 
         <account-recover-panel v-if="active === 'recover'"
             class="account-recover-panel"
@@ -19,11 +25,13 @@
 import { Options, Vue } from 'vue-class-component';
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
+import SignUpPanel from './sign-up-panel/sign-up-panel.vue';
 import AccountRecoverPanel from './account-recover-panel/account-recover-panel.vue';
 
 @Options({
     components: {
         SignInPanel,
+        SignUpPanel,
         AccountRecoverPanel
     }
 })
@@ -51,7 +59,7 @@ export default class LoginInputPanel extends Vue {
         font-size: var(--font-sizes-600);
     }
 
-    .sign-in-panel, .account-recover-panel {
+    .sign-in-panel, .sign-up-panel, .account-recover-panel {
         width: 100%;
         height: 100%;
     }
