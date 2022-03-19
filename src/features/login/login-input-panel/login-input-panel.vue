@@ -1,20 +1,26 @@
 <template>
     <div class="login-input-panel-container">
-        <img src="../../../assets/icons/logo.png" />
+        <img class="logo" src="../../../assets/icons/logo.png" />
 
-        <form-input class="form-input"
-            v-model="email"
-            :icon="emailIcon"
-            :type="'email'"
-            :placeholder="'Email'">
-        </form-input>
+        <div class="inputs">
+            <form-input class="form-input"
+                v-model="email"
+                :icon="emailIcon"
+                :type="'email'"
+                :placeholder="'Email'">
+            </form-input>
 
-        <form-input class="form-input"
-            v-model="password"
-            :icon="passwordIcon"
-            :type="'password'"
-            :placeholder="'Password'">
-        </form-input>
+            <form-input class="form-input"
+                v-model="password"
+                :icon="passwordIcon"
+                :type="'password'"
+                :placeholder="'Password'">
+            </form-input>
+
+            <a>Forgot your password?</a>
+        </div>
+
+        <div class="fill"></div>
 
         <div class="actions">
             <flat-button class="login-button">Login</flat-button>
@@ -60,16 +66,50 @@ export default class LoginInputPanel extends Vue {
     box-shadow: -1px 0 5px 2px var(--form-colors-login-panel-0-02);
     background-color: var(--form-colors-login-panel-0-00);
 
-    img {
+    a {
+        text-decoration: underline;
+        color: var(--font-colors-1-00);
+        transition: color 0.3s;
+
+        &:hover {
+            cursor: pointer;
+            color: var(--font-colors-0-00);
+        }
+    }
+
+    .logo {
         width: 35%;
     }
 
-    .form-input {
-        width: 65%;
+    .inputs, .actions {
+        @include flex-column(center);
+    }
+
+    .inputs {
+        margin-top: 5vh;
+        width: 67.5%;
+
+        .form-input {
+            width: 100%;
+
+            &:first-of-type {
+                margin-bottom: 3.5vh;
+            }
+        }
+
+        a {
+            align-self: flex-end;
+            margin-top: 1vh;
+            margin-right: 1.25vh;
+            font-size: var(--font-sizes-300);
+        }
+    }
+
+    .fill {
+        height: 100%;
     }
 
     .actions {
-        @include flex-column(center);
         width: 100%;
 
         .login-button {
@@ -94,13 +134,6 @@ export default class LoginInputPanel extends Vue {
 
             a {
                 margin-left: 0.5vh;
-                text-decoration: underline;
-                transition: color 0.3s;
-
-                &:hover {
-                    cursor: pointer;
-                    color: var(--font-colors-0-00);
-                }
             }
         }
     }
