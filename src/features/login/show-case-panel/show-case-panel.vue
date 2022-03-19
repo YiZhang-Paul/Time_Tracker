@@ -44,6 +44,7 @@ export default class ShowCasePanel extends Vue {
 <style lang="scss" scoped>
 .show-case-panel-container {
     @import '../../../styles/presets.scss';
+    @import '../../../styles/animations.scss';
 
     @include flex-column(center, center);
 
@@ -70,6 +71,7 @@ export default class ShowCasePanel extends Vue {
             height: $icon-dimension;
             border-radius: 5px;
             font-size: var(--font-sizes-850);
+            @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
             background: linear-gradient(
                 45deg,
@@ -87,13 +89,17 @@ export default class ShowCasePanel extends Vue {
             font-size: var(--font-sizes-450);
 
             .title {
-                margin-bottom: 4px;
+                margin-bottom: 8px;
+                overflow: hidden;
+                @include line-overflow(clip);
                 color: var(--font-colors-0-00);
                 font-size: var(--font-sizes-600);
+                @include animate-property(width, 0, 100%, 0.8s, 0.8s);
             }
 
             .description {
                 color: var(--font-colors-4-00);
+                @include animate-property(opacity, 0, 1, 0.3s, 1.5s);
             }
         }
     }
