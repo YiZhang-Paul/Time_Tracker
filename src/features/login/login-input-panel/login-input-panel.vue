@@ -1,8 +1,20 @@
 <template>
     <div class="login-input-panel-container">
         <img src="../../../assets/icons/logo.png" />
-        <form-input class="form-input" :placeholder="'Email'"></form-input>
-        <form-input class="form-input" :type="'password'" :placeholder="'Password'"></form-input>
+
+        <form-input class="form-input"
+            v-model="email"
+            :icon="emailIcon"
+            :type="'email'"
+            :placeholder="'Email'">
+        </form-input>
+
+        <form-input class="form-input"
+            v-model="password"
+            :icon="passwordIcon"
+            :type="'password'"
+            :placeholder="'Password'">
+        </form-input>
 
         <div class="actions">
             <flat-button class="login-button">Login</flat-button>
@@ -16,8 +28,11 @@
 </template>
 
 <script lang="ts">
+import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { At, Lock } from 'mdue';
 
+import { IconConfig } from '../../../core/models/generic/icon-config';
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../shared/inputs/form-input/form-input.vue';
 
@@ -27,14 +42,21 @@ import FormInput from '../../../shared/inputs/form-input/form-input.vue';
         FormInput
     }
 })
-export default class LoginInputPanel extends Vue { }
+export default class LoginInputPanel extends Vue {
+    public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-8-00)');
+    public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-8-00)');
+    public email = '';
+    public password = '';
+}
 </script>
 
 <style lang="scss" scoped>
 .login-input-panel-container {
     @import '../../../styles/presets.scss';
 
-    @include flex-column(center, space-around);
+    @include flex-column(center, space-between);
+    box-sizing: border-box;
+    padding: 5% 0 7.5% 0;
     box-shadow: -1px 0 5px 2px var(--form-colors-login-panel-0-02);
     background-color: var(--form-colors-login-panel-0-00);
 
