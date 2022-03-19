@@ -157,6 +157,7 @@ html, body, #app {
 
 .build-versions {
     @include flex-column(flex-end, center);
+    z-index: 9999;
     position: absolute;
     bottom: 0.5vh;
     right: 0.5vh;
