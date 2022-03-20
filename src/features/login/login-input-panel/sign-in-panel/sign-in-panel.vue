@@ -115,7 +115,7 @@ export default class SignInPanel extends Vue {
             width: 100%;
 
             &:first-of-type {
-                margin-bottom: 0.25vh;
+                margin-bottom: 0.5vh;
             }
 
             &::v-deep(.error-text) {

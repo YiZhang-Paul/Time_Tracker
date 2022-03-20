@@ -22,6 +22,14 @@
             </form-input>
         </div>
 
+        <div class="password-strength">
+            <span class="text">password strength: {{ passwordStrength.value }}</span>
+
+            <div class="bar">
+                <div :class="['level', `level-${passwordStrength.id + 1}`]"></div>
+            </div>
+        </div>
+
         <div class="password-checks">
             <div v-for="(check, index) in passwordChecks" class="check" :key="index">
                 <div class="status" :class="{ valid: check.status }"></div>
@@ -45,6 +53,7 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { passwordStrength, Result as PasswordStrength } from 'check-password-strength';
 import { At, Lock } from 'mdue';
 
 import { IconConfig } from '../../../../core/models/generic/icon-config';
@@ -66,6 +75,10 @@ export default class SignUpPanel extends Vue {
     public email = '';
     public password = '';
     private readonly minPasswordLength = 8;
+
+    get passwordStrength(): PasswordStrength<string> {
+        return passwordStrength(this.password);
+    }
 
     get passwordChecks(): { criterion: string, status: boolean }[] {
         return [
@@ -138,7 +151,7 @@ export default class SignUpPanel extends Vue {
             width: 100%;
 
             &:first-of-type {
-                margin-bottom: 0.25vh;
+                margin-bottom: 0.5vh;
             }
 
             &::v-deep(.error-text) {
@@ -147,11 +160,61 @@ export default class SignUpPanel extends Vue {
         }
     }
 
-    .password-checks {
+    .password-strength, .password-checks {
         @include flex-column();
         width: calc(#{$inputs-width} * 0.9);
         color: var(--font-colors-1-00);
         font-size: var(--font-sizes-300);
+    }
+
+    .password-strength {
+
+        .text {
+            margin: 0.75vh 0;
+        }
+
+        .bar {
+            $border-radius: 15px;
+
+            margin-bottom: 1vh;
+            width: 100%;
+            height: 1vh;
+            border-radius: $border-radius;
+            background-color: var(--primary-colors-1-00);
+
+            .level {
+                height: 100%;
+                border-radius: $border-radius;
+                transition: width 0.5s, background-color 0.5s;
+
+                &.level-1 {
+                    width: 25%;
+                    box-shadow: 0 0 7px 2px var(--context-colors-warning-0-04);
+                    background-color: var(--context-colors-warning-0-00);
+                }
+
+                &.level-2 {
+                    width: 50%;
+                    box-shadow: 0 0 7px 2px var(--context-colors-suggestion-0-04);
+                    background-color: var(--context-colors-suggestion-0-00);
+                }
+
+                &.level-3 {
+                    width: 75%;
+                    box-shadow: 0 0 7px 2px var(--context-colors-info-0-04);
+                    background-color: var(--context-colors-info-0-00);
+                }
+
+                &.level-4 {
+                    width: 100%;
+                    box-shadow: 0 0 7px 2px var(--context-colors-success-0-04);
+                    background-color: var(--context-colors-success-0-00);
+                }
+            }
+        }
+    }
+
+    .password-checks {
 
         .check {
             @include flex-row(center);

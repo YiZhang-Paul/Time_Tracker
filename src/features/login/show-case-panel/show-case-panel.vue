@@ -29,7 +29,7 @@ export default class ShowCasePanel extends Vue {
         },
         {
             icon: new IconConfig(markRaw(ChartTimelineVariant), 'var(--context-colors-info-0-00)'),
-            title: 'Track your time',
+            title: 'Be the master of your time',
             description: 'always feeling short on time? gain more insights on how you are spending your time.'
         },
         {
