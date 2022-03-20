@@ -22,6 +22,13 @@
             </form-input>
         </div>
 
+        <div class="password-checks">
+            <div v-for="(check, index) in passwordChecks" class="check" :key="index">
+                <div class="status" :class="{ valid: check.status }"></div>
+                <span>{{ check.criterion }}</span>
+            </div>
+        </div>
+
         <div class="fill"></div>
 
         <div class="actions">
@@ -58,6 +65,24 @@ export default class SignUpPanel extends Vue {
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
     public email = '';
     public password = '';
+    private readonly minPasswordLength = 8;
+
+    get passwordChecks(): { criterion: string, status: boolean }[] {
+        return [
+            {
+                criterion: 'at least one upper case letter',
+                status: /[A-Z]/.test(this.password)
+            },
+            {
+                criterion: 'at least one special character',
+                status: /\W/.test(this.password.replace(/\s/g, ''))
+            },
+            {
+                criterion: `at least ${this.minPasswordLength} characters without spaces`,
+                status: this.password.length >= this.minPasswordLength && !/\s/.test(this.password)
+            }
+        ];
+    }
 
     public mounted(): void {
         const { emailInput, passwordInput } = this.$refs as { emailInput: FormInput, passwordInput: FormInput };
@@ -74,7 +99,11 @@ export default class SignUpPanel extends Vue {
     }
 
     public validatePassword(password: string): string {
-        return password?.trim() ? '' : 'please provide a password';
+        if (!password?.trim()) {
+            return 'please provide a password';
+        }
+
+        return this.passwordChecks.every(_ => _.status) ? '' : 'password does not meet expectations';
     }
 
     public isSignUpDisabled(): boolean {
@@ -92,6 +121,8 @@ export default class SignUpPanel extends Vue {
     @import '../../../../styles/presets.scss';
     @import '../../../../styles/animations.scss';
 
+    $inputs-width: 67.5%;
+
     @include flex-column(center, space-between);
     @include animate-property(opacity, 0, 1, 0.4s, 0.4s);
 
@@ -101,7 +132,7 @@ export default class SignUpPanel extends Vue {
 
     .inputs {
         margin-top: 0.75vh;
-        width: 67.5%;
+        width: $inputs-width;
 
         .form-input {
             width: 100%;
@@ -112,6 +143,33 @@ export default class SignUpPanel extends Vue {
 
             &::v-deep(.error-text) {
                 color: var(--font-colors-1-00);
+            }
+        }
+    }
+
+    .password-checks {
+        @include flex-column();
+        width: calc(#{$inputs-width} * 0.9);
+        color: var(--font-colors-1-00);
+        font-size: var(--font-sizes-300);
+
+        .check {
+            @include flex-row(center);
+            margin-top: 3px;
+
+            .status {
+                margin-right: 5px;
+                width: 0.75rem;
+                height: 0.75rem;
+                border-radius: 50%;
+                box-shadow: 0 0 4px 1px var(--context-colors-warning-0-04);
+                background-color: var(--context-colors-warning-0-00);
+                transition: box-shadow 0.3s, background-color 0.3s;
+
+                &.valid {
+                    box-shadow: 0 0 4px 1px var(--context-colors-success-0-04);
+                    background-color: var(--context-colors-success-0-00);
+                }
             }
         }
     }
