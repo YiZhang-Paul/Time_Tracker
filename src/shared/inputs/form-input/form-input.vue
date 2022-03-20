@@ -17,7 +17,7 @@
                 :type="type"
                 :placeholder="placeholder"
                 :maxlength="maxLength"
-                @blur="touched = true"
+                @blur="isTouched = true"
                 @update:modelValue="$emit('update:modelValue', $event)" />
         </div>
     </div>
@@ -48,11 +48,11 @@ class FormInputProp {
     ]
 })
 export default class FormInput extends Vue.with(FormInputProp) {
-    public touched = false;
+    public isTouched = false;
     public content = this.modelValue;
 
     get errorText(): string {
-        if (!this.touched) {
+        if (!this.isTouched) {
             return '';
         }
 

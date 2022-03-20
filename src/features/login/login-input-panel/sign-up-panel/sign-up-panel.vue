@@ -59,16 +59,22 @@ export default class SignUpPanel extends Vue {
     public email = '';
     public password = '';
 
+    public mounted(): void {
+        const { emailInput, passwordInput } = this.$refs as { emailInput: FormInput, passwordInput: FormInput };
+        emailInput.isTouched = true;
+        passwordInput.isTouched = true;
+    }
+
     public validateEmail(email: string): string {
         if (!email?.trim()) {
-            return 'email not provided';
+            return 'please provide an email';
         }
 
         return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email) ? '' : 'invalid email address';
     }
 
     public validatePassword(password: string): string {
-        return password?.trim() ? '' : 'password not provided';
+        return password?.trim() ? '' : 'please provide a password';
     }
 
     public isSignUpDisabled(): boolean {

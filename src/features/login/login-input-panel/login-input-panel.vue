@@ -46,7 +46,7 @@ export default class LoginInputPanel extends Vue {
 
     @include flex-column(center, space-between);
     box-sizing: border-box;
-    padding: 5% 0 9.5% 0;
+    padding: 4% 0 9% 0;
     box-shadow: -1px 0 5px 2px var(--form-colors-login-panel-0-02);
     background-color: var(--form-colors-login-panel-0-00);
 

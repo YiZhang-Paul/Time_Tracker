@@ -95,7 +95,7 @@ export default class AccountRecoverPanel extends Vue {
     }
 
     .inputs {
-        margin-top: 5vh;
+        margin-top: 20%;
         width: 67.5%;
 
         .form-input {
