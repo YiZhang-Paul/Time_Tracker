@@ -8,7 +8,8 @@
                 :type="'email'"
                 :maxLength="320"
                 :placeholder="'Email'"
-                :validator="validateEmail">
+                :validator="validateEmail"
+                @update:modelValue="errorMessage = ''">
             </form-input>
 
             <form-input class="form-input"
@@ -18,38 +19,46 @@
                 :type="'password'"
                 :maxLength="20"
                 :placeholder="'Password'"
-                :validator="validatePassword">
+                :validator="validatePassword"
+                @update:modelValue="errorMessage = ''">
             </form-input>
         </div>
 
-        <div class="password-strength">
-            <span class="text">password strength: {{ passwordStrength.value }}</span>
-
-            <div class="bar">
-                <div :class="['level', `level-${passwordStrength.id + 1}`]"></div>
-            </div>
+        <div v-if="errorMessage" class="error-message">
+            <alert class="icon" />
+            <span>{{ errorMessage }}</span>
         </div>
 
-        <div class="password-checks">
-            <div v-for="(check, index) in passwordChecks" class="check" :key="index">
-                <div class="status" :class="{ valid: check.status }"></div>
-                <span>{{ check.criterion }}</span>
+        <template v-if="!errorMessage">
+            <div class="password-strength">
+                <span class="text">password strength: {{ passwordStrength.value }}</span>
+
+                <div class="bar">
+                    <div :class="['level', `level-${passwordStrength.id + 1}`]"></div>
+                </div>
             </div>
-        </div>
+
+            <div class="password-checks">
+                <div v-for="(check, index) in passwordChecks" class="check" :key="index">
+                    <div class="status" :class="{ valid: check.status }"></div>
+                    <span>{{ check.criterion }}</span>
+                </div>
+            </div>
+        </template>
 
         <div class="fill"></div>
 
         <div class="actions">
             <flat-button class="sign-up-button"
                 :isDisabled="isSignUpDisabled()"
-                @click="$emit('signUp', { email, password })">
+                @click="onSignUp(email, password)">
 
                 Sign up
             </flat-button>
 
             <div class="sign-in-message">
                 <span>Have an account?</span>
-                <a @click="$emit('signIn')">Sign in</a>
+                <a @click="$emit('select:signIn')">Sign in</a>
             </div>
         </div>
     </div>
@@ -59,27 +68,32 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { passwordStrength, Result as PasswordStrength } from 'check-password-strength';
-import { At, Lock } from 'mdue';
+import { Alert, At, Lock } from 'mdue';
 
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
+import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
 
 @Options({
     components: {
+        Alert,
         FlatButton,
         FormInput
     },
     emits: [
-        'signUp',
-        'signIn'
+        'select:signIn'
     ]
 })
 export default class SignUpPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
+    public errorMessage = '';
     public email = '';
     public password = '';
+    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
     private readonly minPasswordLength = 8;
 
     get passwordStrength(): PasswordStrength<string> {
@@ -132,6 +146,12 @@ export default class SignUpPanel extends Vue {
 
         return !isValidEmail || !isValidPassword;
     }
+
+    public async onSignUp(email: string, password: string): Promise<void> {
+        if (!await this.authenticationService.signUp(email, password)) {
+            this.errorMessage = 'unable to sign up, please try again.';
+        }
+    }
 }
 </script>
 
@@ -163,6 +183,19 @@ export default class SignUpPanel extends Vue {
             &::v-deep(.error-text) {
                 color: var(--font-colors-1-00);
             }
+        }
+    }
+
+    .error-message {
+        @include flex-row(center);
+        margin-top: 1vh;
+        color: var(--context-colors-suggestion-0-00);
+        font-size: var(--font-sizes-200);
+        @include animate-property(opacity, 0, 1, 0.4s, 0.3s);
+
+        .icon {
+            margin-right: 3px;
+            font-size: var(--font-sizes-300);
         }
     }
 
