@@ -98,6 +98,8 @@ export default class AccountRecoverPanel extends Vue {
     }
 
     public async onRecover(): Promise<void> {
+        this.result = null;
+
         if (await this.authenticationService.recover(this.email)) {
             this.result = { isSuccess: true, message: 'password reset link has been sent to your email.' };
         }

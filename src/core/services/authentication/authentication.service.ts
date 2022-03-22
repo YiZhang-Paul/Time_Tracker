@@ -2,6 +2,8 @@ import axios from 'axios';
 import { injectable } from 'inversify';
 import { ChangePasswordOptions, DbSignUpOptions, WebAuth } from 'auth0-js';
 
+import { Credentials } from '../../../core/models/generic/credentials';
+
 @injectable()
 export class AuthenticationService {
     private readonly authenticator = new WebAuth({
@@ -25,16 +27,19 @@ export class AuthenticationService {
         });
     }
 
-    public async signUp(email: string, password: string): Promise<boolean> {
-        return await new Promise(resolve => {
-            const option: DbSignUpOptions = { connection: this.connection, email, password };
-            this.authenticator.signup(option, _ => resolve(!_));
-        });
+    public async signUp(credentials: Credentials): Promise<boolean> {
+        const option: DbSignUpOptions = {
+            connection: this.connection,
+            email: credentials.email,
+            password: credentials.password
+        };
+
+        return await new Promise(resolve => this.authenticator.signup(option, _ => resolve(!_)));
     }
 
-    public async signIn(email: string, password: string): Promise<boolean> {
+    public async signIn(credentials: Credentials): Promise<boolean> {
         const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-        const { data } = await axios.post(endpoint, { email, password });
+        const { data } = await axios.post(endpoint, credentials);
         this.token = data.access_token;
 
         return Boolean(this.token);

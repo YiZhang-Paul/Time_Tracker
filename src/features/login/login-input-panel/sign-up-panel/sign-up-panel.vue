@@ -3,7 +3,7 @@
         <div class="inputs">
             <form-input class="form-input"
                 ref="emailInput"
-                v-model="email"
+                v-model="credentials.email"
                 :icon="emailIcon"
                 :type="'email'"
                 :maxLength="320"
@@ -14,7 +14,7 @@
 
             <form-input class="form-input"
                 ref="passwordInput"
-                v-model="password"
+                v-model="credentials.password"
                 :icon="passwordIcon"
                 :type="'password'"
                 :maxLength="20"
@@ -51,7 +51,7 @@
         <div class="actions">
             <flat-button class="sign-up-button"
                 :isDisabled="isSignUpDisabled()"
-                @click="onSignUp(email, password)">
+                @click="onSignUp()">
 
                 Sign up
             </flat-button>
@@ -72,6 +72,7 @@ import { Alert, At, Lock } from 'mdue';
 
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
+import { Credentials } from '../../../../core/models/generic/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
@@ -91,28 +92,29 @@ export default class SignUpPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
     public errorMessage = '';
-    public email = '';
-    public password = '';
+    public credentials = new Credentials();
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
     private readonly minPasswordLength = 8;
 
     get passwordStrength(): PasswordStrength<string> {
-        return passwordStrength(this.password);
+        return passwordStrength(this.credentials.password);
     }
 
     get passwordChecks(): { criterion: string, status: boolean }[] {
+        const { password } = this.credentials;
+
         return [
             {
                 criterion: 'at least one upper case letter',
-                status: /[A-Z]/.test(this.password)
+                status: /[A-Z]/.test(password)
             },
             {
                 criterion: 'at least one special character',
-                status: /\W/.test(this.password.replace(/\s/g, ''))
+                status: /\W/.test(password.replace(/\s/g, ''))
             },
             {
                 criterion: `at least ${this.minPasswordLength} characters without spaces`,
-                status: this.password.length >= this.minPasswordLength && !/\s/.test(this.password)
+                status: password.length >= this.minPasswordLength && !/\s/.test(password)
             }
         ];
     }
@@ -121,6 +123,11 @@ export default class SignUpPanel extends Vue {
         const { emailInput, passwordInput } = this.$refs as { emailInput: FormInput, passwordInput: FormInput };
         emailInput.isTouched = true;
         passwordInput.isTouched = true;
+        document.addEventListener('keyup', this.onKeyup);
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('keyup', this.onKeyup);
     }
 
     public validateEmail(email: string): string {
@@ -139,6 +146,12 @@ export default class SignUpPanel extends Vue {
         return this.passwordChecks.every(_ => _.status) ? '' : 'password does not meet expectations';
     }
 
+    public async onKeyup(event: KeyboardEvent): Promise<void> {
+        if (!this.isSignUpDisabled() && event.key === 'Enter') {
+            await this.onSignUp();
+        }
+    }
+
     public isSignUpDisabled(): boolean {
         const { emailInput, passwordInput } = this.$refs as { emailInput: FormInput, passwordInput: FormInput };
         const isValidEmail = Boolean(emailInput) && !emailInput.isInvalid;
@@ -147,8 +160,10 @@ export default class SignUpPanel extends Vue {
         return !isValidEmail || !isValidPassword;
     }
 
-    public async onSignUp(email: string, password: string): Promise<void> {
-        if (!await this.authenticationService.signUp(email, password)) {
+    public async onSignUp(): Promise<void> {
+        this.errorMessage = '';
+
+        if (!await this.authenticationService.signUp(this.credentials)) {
             this.errorMessage = 'unable to sign up, please try again.';
         }
     }

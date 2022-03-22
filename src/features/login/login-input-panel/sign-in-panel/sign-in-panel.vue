@@ -3,7 +3,7 @@
         <div class="inputs">
             <form-input class="form-input"
                 ref="emailInput"
-                v-model="email"
+                v-model="credentials.email"
                 :icon="emailIcon"
                 :type="'email'"
                 :maxLength="320"
@@ -13,7 +13,7 @@
 
             <form-input class="form-input"
                 ref="passwordInput"
-                v-model="password"
+                v-model="credentials.password"
                 :icon="passwordIcon"
                 :type="'password'"
                 :maxLength="20"
@@ -29,7 +29,7 @@
         <div class="actions">
             <flat-button class="login-button"
                 :isDisabled="isLoginDisabled()"
-                @click="$emit('signIn', { email, password })">
+                @click="$emit('signIn', credentials)">
 
                 Login
             </flat-button>
@@ -47,6 +47,7 @@ import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { At, Lock } from 'mdue';
 
+import { Credentials } from '../../../../core/models/generic/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
@@ -65,8 +66,7 @@ import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
 export default class SignInPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
-    public email = '';
-    public password = '';
+    public credentials = new Credentials();
 
     public validateEmail(email: string): string {
         if (!email?.trim()) {

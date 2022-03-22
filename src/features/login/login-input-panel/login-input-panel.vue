@@ -7,7 +7,7 @@
             class="sign-in-panel"
             @recover="active = 'recover'"
             @signUp="active = 'signUp'"
-            @signIn="onSignIn($event.email, $event.password)">
+            @signIn="onSignIn($event)">
         </sign-in-panel>
 
         <sign-up-panel v-if="active === 'signUp'"
@@ -27,6 +27,7 @@ import { Options, Vue } from 'vue-class-component';
 
 import { types } from '../../../core/ioc/types';
 import { container } from '../../../core/ioc/container';
+import { Credentials } from '../../../core/models/generic/credentials';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
@@ -44,8 +45,8 @@ export default class LoginInputPanel extends Vue {
     public active = 'signIn';
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
 
-    public async onSignIn(email: string, password: string): Promise<void> {
-        await this.authenticationService.signIn(email, password);
+    public async onSignIn(credentials: Credentials): Promise<void> {
+        await this.authenticationService.signIn(credentials);
     }
 }
 </script>
