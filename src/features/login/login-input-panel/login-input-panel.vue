@@ -18,8 +18,7 @@
 
         <account-recover-panel v-if="active === 'recover'"
             class="account-recover-panel"
-            @recover="onRecover($event)"
-            @signIn="active = 'signIn'">
+            @select:signIn="active = 'signIn'">
         </account-recover-panel>
     </div>
 </template>
@@ -45,10 +44,6 @@ import AccountRecoverPanel from './account-recover-panel/account-recover-panel.v
 export default class LoginInputPanel extends Vue {
     public active = 'signIn';
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
-
-    public async onRecover(email: string): Promise<void> {
-        await this.authenticationService.recover(email);
-    }
 
     public async onSignUp(email: string, password: string): Promise<void> {
         await this.authenticationService.signUp(email, password);
