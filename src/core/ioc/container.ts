@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 
+import { AuthenticationService } from '../services/authentication/authentication.service';
 import { InterruptionItemHttpService } from '../services/http/interruption-item-http/interruption-item-http.service';
 import { TaskItemHttpService } from '../services/http/task-item-http/task-item-http.service';
 import { EventHttpService } from '../services/http/event-http/event-http.service';
@@ -8,6 +9,11 @@ import { EventHttpService } from '../services/http/event-http/event-http.service
 import { types } from './types';
 
 export const container = new Container();
+
+container
+    .bind<AuthenticationService>(types.AuthenticationService)
+    .to(AuthenticationService)
+    .inSingletonScope();
 
 container
     .bind<InterruptionItemHttpService>(types.InterruptionItemHttpService)
