@@ -6,16 +6,19 @@
         <sign-in-panel v-if="active === 'signIn'"
             class="sign-in-panel"
             @recover="active = 'recover'"
-            @signUp="active = 'signUp'">
+            @signUp="active = 'signUp'"
+            @signIn="onSignIn($event.email, $event.password)">
         </sign-in-panel>
 
         <sign-up-panel v-if="active === 'signUp'"
             class="sign-up-panel"
+            @signUp="onSignUp($event.email, $event.password)"
             @signIn="active = 'signIn'">
         </sign-up-panel>
 
         <account-recover-panel v-if="active === 'recover'"
             class="account-recover-panel"
+            @recover="onRecover($event)"
             @signIn="active = 'signIn'">
         </account-recover-panel>
     </div>
@@ -23,6 +26,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+
+import { types } from '../../../core/ioc/types';
+import { container } from '../../../core/ioc/container';
+import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
 import SignUpPanel from './sign-up-panel/sign-up-panel.vue';
@@ -37,6 +44,19 @@ import AccountRecoverPanel from './account-recover-panel/account-recover-panel.v
 })
 export default class LoginInputPanel extends Vue {
     public active = 'signIn';
+    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+
+    public async onRecover(email: string): Promise<void> {
+        await this.authenticationService.recover(email);
+    }
+
+    public async onSignUp(email: string, password: string): Promise<void> {
+        await this.authenticationService.signUp(email, password);
+    }
+
+    public async onSignIn(email: string, password: string): Promise<void> {
+        await this.authenticationService.signIn(email, password);
+    }
 }
 </script>
 
