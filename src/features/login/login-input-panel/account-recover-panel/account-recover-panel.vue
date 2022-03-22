@@ -69,6 +69,14 @@ export default class AccountRecoverPanel extends Vue {
     public email = '';
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
 
+    public mounted(): void {
+        document.addEventListener('keyup', this.onKeyup);
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('keyup', this.onKeyup);
+    }
+
     public validateEmail(email: string): string {
         if (!email?.trim()) {
             return 'email not provided';
@@ -81,6 +89,12 @@ export default class AccountRecoverPanel extends Vue {
         const { emailInput } = this.$refs as { emailInput: FormInput };
 
         return !emailInput || emailInput.isInvalid;
+    }
+
+    public async onKeyup(event: KeyboardEvent): Promise<void> {
+        if (!this.isRecoverDisabled() && event.key === 'Enter') {
+            await this.onRecover();
+        }
     }
 
     public async onRecover(): Promise<void> {
