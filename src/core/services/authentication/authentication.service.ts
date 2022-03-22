@@ -21,14 +21,14 @@ export class AuthenticationService {
     public async recover(email: string): Promise<boolean> {
         return await new Promise(resolve => {
             const option: ChangePasswordOptions = { connection: this.connection, email };
-            this.authenticator.changePassword(option, _ => resolve(Boolean(_)));
+            this.authenticator.changePassword(option, _ => resolve(!_));
         });
     }
 
     public async signUp(email: string, password: string): Promise<boolean> {
         return await new Promise(resolve => {
             const option: DbSignUpOptions = { connection: this.connection, email, password };
-            this.authenticator.signup(option, _ => resolve(Boolean(_)));
+            this.authenticator.signup(option, _ => resolve(!_));
         });
     }
 
