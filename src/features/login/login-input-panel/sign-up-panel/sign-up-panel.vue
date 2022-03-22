@@ -40,7 +40,12 @@
         <div class="fill"></div>
 
         <div class="actions">
-            <flat-button class="sign-up-button" :isDisabled="isSignUpDisabled()">Sign up</flat-button>
+            <flat-button class="sign-up-button"
+                :isDisabled="isSignUpDisabled()"
+                @click="$emit('signUp', { email, password })">
+
+                Sign up
+            </flat-button>
 
             <div class="sign-in-message">
                 <span>Have an account?</span>
@@ -66,6 +71,7 @@ import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
         FormInput
     },
     emits: [
+        'signUp',
         'signIn'
     ]
 })

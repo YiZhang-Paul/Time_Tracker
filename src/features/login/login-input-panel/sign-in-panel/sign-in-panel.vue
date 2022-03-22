@@ -27,7 +27,12 @@
         <div class="fill"></div>
 
         <div class="actions">
-            <flat-button class="login-button" :isDisabled="isLoginDisabled()">Login</flat-button>
+            <flat-button class="login-button"
+                :isDisabled="isLoginDisabled()"
+                @click="$emit('signIn', { email, password })">
+
+                Login
+            </flat-button>
 
             <div class="sign-up-message">
                 <span>New to ticking?</span>
@@ -53,7 +58,8 @@ import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
     },
     emits: [
         'recover',
-        'signUp'
+        'signUp',
+        'signIn'
     ]
 })
 export default class SignInPanel extends Vue {
