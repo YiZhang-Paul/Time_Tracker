@@ -24,7 +24,7 @@
 
         <div class="fill"></div>
 
-        <div class="actions">
+        <div v-if="!isLoading" class="actions">
             <flat-button class="recover-button"
                 :isDisabled="isRecoverDisabled()"
                 @click="onRecover()">
@@ -37,6 +37,8 @@
                 <a @click="$emit('select:signIn')">Sign in</a>
             </div>
         </div>
+
+        <loading-spinner v-if="isLoading" class="spinner"></loading-spinner>
     </div>
 </template>
 
@@ -49,15 +51,18 @@ import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
+import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
 
 @Options({
     components: {
         Alert,
         Check,
         FlatButton,
-        FormInput
+        FormInput,
+        LoadingSpinner
     },
     emits: [
         'select:signIn'
@@ -65,8 +70,9 @@ import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
 })
 export default class AccountRecoverPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
-    public result: { isSuccess: boolean; message: string } | null = null;
     public email = '';
+    public isLoading = false;
+    public result: { isSuccess: boolean; message: string } | null = null;
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
 
     public mounted(): void {
@@ -98,7 +104,9 @@ export default class AccountRecoverPanel extends Vue {
     }
 
     public async onRecover(): Promise<void> {
+        this.isLoading = true;
         this.result = null;
+        await TimeUtility.wait(2000);
 
         if (await this.authenticationService.recover(this.email)) {
             this.result = { isSuccess: true, message: 'password reset link has been sent to your email.' };
@@ -106,6 +114,8 @@ export default class AccountRecoverPanel extends Vue {
         else {
             this.result = { isSuccess: false, message: 'password reset link was not sent, please try again.' };
         }
+
+        this.isLoading = false;
     }
 }
 </script>
@@ -192,6 +202,10 @@ export default class AccountRecoverPanel extends Vue {
                 }
             }
         }
+    }
+
+    .spinner {
+        margin-bottom: 30%;
     }
 }
 </style>
