@@ -4,19 +4,25 @@
         <span class="name">Ticking</span>
 
         <sign-in-panel v-if="active === 'signIn'"
-            class="sign-in-panel"
+            class="login-panel"
             @recover="active = 'recover'"
             @signUp="active = 'signUp'"
             @signIn="onSignIn($event)">
         </sign-in-panel>
 
         <sign-up-panel v-if="active === 'signUp'"
-            class="sign-up-panel"
+            class="login-panel"
+            @signUp="active = 'signUpSuccess'"
             @select:signIn="active = 'signIn'">
         </sign-up-panel>
 
+        <sign-up-success-panel v-if="active === 'signUpSuccess'"
+            class="login-panel"
+            @select:signIn="active = 'signIn'">
+        </sign-up-success-panel>
+
         <account-recover-panel v-if="active === 'recover'"
-            class="account-recover-panel"
+            class="login-panel"
             @select:signIn="active = 'signIn'">
         </account-recover-panel>
     </div>
@@ -32,12 +38,14 @@ import { AuthenticationService } from '../../../core/services/authentication/aut
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
 import SignUpPanel from './sign-up-panel/sign-up-panel.vue';
+import SignUpSuccessPanel from './sign-up-success-panel/sign-up-success-panel.vue';
 import AccountRecoverPanel from './account-recover-panel/account-recover-panel.vue';
 
 @Options({
     components: {
         SignInPanel,
         SignUpPanel,
+        SignUpSuccessPanel,
         AccountRecoverPanel
     }
 })
@@ -70,7 +78,7 @@ export default class LoginInputPanel extends Vue {
         font-size: var(--font-sizes-600);
     }
 
-    .sign-in-panel, .sign-up-panel, .account-recover-panel {
+    .login-panel {
         width: 100%;
         height: 100%;
     }

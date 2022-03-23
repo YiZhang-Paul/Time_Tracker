@@ -85,6 +85,7 @@ import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
         FormInput
     },
     emits: [
+        'signUp',
         'select:signIn'
     ]
 })
@@ -166,6 +167,11 @@ export default class SignUpPanel extends Vue {
         const isSuccess = await this.authenticationService.signUp(this.credentials);
         this.errorMessage = isSuccess ? '' : 'unable to sign up, please try again.';
         this.isLoading = false;
+
+        if (isSuccess) {
+            this.credentials = new Credentials();
+            this.$emit('signUp');
+        }
     }
 }
 </script>
