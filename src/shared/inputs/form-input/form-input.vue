@@ -17,6 +17,7 @@
                 :type="type"
                 :placeholder="placeholder"
                 :maxlength="maxLength"
+                :readonly="isReadonly"
                 @blur="isTouched = true"
                 @update:modelValue="$emit('update:modelValue', $event)" />
         </div>
@@ -33,6 +34,7 @@ class FormInputProp {
     public icon = prop<IconConfig>({ default: null });
     public type = prop<string>({ default: 'text' });
     public maxLength = prop<number>({ default: 140 });
+    public isReadonly = prop<boolean>({ default: false });
     public placeholder = prop<string>({ default: 'enter here...' });
     public validator = prop<(_: string) => string>({ default: null });
 }

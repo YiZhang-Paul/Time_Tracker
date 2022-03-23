@@ -9,6 +9,7 @@
                 :maxLength="320"
                 :placeholder="'Email'"
                 :validator="validateEmail"
+                :isReadonly="isLoading"
                 @update:modelValue="errorMessage = ''">
             </form-input>
 
@@ -20,6 +21,7 @@
                 :maxLength="20"
                 :placeholder="'Password'"
                 :validator="validatePassword"
+                :isReadonly="isLoading"
                 @update:modelValue="errorMessage = ''">
             </form-input>
         </div>
@@ -48,7 +50,7 @@
 
         <div class="fill"></div>
 
-        <div class="actions">
+        <div v-if="!isLoading" class="actions">
             <flat-button class="sign-up-button"
                 :isDisabled="isSignUpDisabled()"
                 @click="onSignUp()">
@@ -61,6 +63,8 @@
                 <a @click="$emit('select:signIn')">Sign in</a>
             </div>
         </div>
+
+        <loading-spinner v-if="isLoading" class="spinner"></loading-spinner>
     </div>
 </template>
 
@@ -77,12 +81,14 @@ import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
+import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
 
 @Options({
     components: {
         Alert,
         FlatButton,
-        FormInput
+        FormInput,
+        LoadingSpinner
     },
     emits: [
         'signUp',
@@ -337,6 +343,10 @@ export default class SignUpPanel extends Vue {
                 }
             }
         }
+    }
+
+    .spinner {
+        margin-bottom: 30%;
     }
 }
 </style>
