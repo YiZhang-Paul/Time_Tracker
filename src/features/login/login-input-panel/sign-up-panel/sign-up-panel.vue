@@ -79,6 +79,7 @@ import { container } from '../../../../core/ioc/container';
 import { Credentials } from '../../../../core/models/generic/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
 import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
@@ -170,6 +171,7 @@ export default class SignUpPanel extends Vue {
 
     public async onSignUp(): Promise<void> {
         this.isLoading = true;
+        await TimeUtility.wait(2000);
         const isSuccess = await this.authenticationService.signUp(this.credentials);
         this.errorMessage = isSuccess ? '' : 'unable to sign up, please try again.';
         this.isLoading = false;

@@ -93,6 +93,10 @@ export class TimeUtility {
         return Math.round(conversions[from] * time / conversions[to] * modifier) / modifier;
     }
 
+    public static async wait(millisecond: number): Promise<void> {
+        await new Promise(resolve => setTimeout(() => resolve(undefined), millisecond));
+    }
+
     private static prependZero(value: number): string {
         return `${value < 10 ? '0' : ''}${value}`;
     }
