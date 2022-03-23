@@ -24,12 +24,12 @@
             </form-input>
         </div>
 
-        <div v-if="errorMessage" class="error-message">
+        <div v-if="!isLoading && errorMessage" class="error-message">
             <alert class="icon" />
             <span>{{ errorMessage }}</span>
         </div>
 
-        <template v-if="!errorMessage">
+        <template v-if="!isLoading && !errorMessage">
             <div class="password-strength">
                 <span class="text">password strength: {{ passwordStrength.value }}</span>
 
@@ -92,6 +92,7 @@ export default class SignUpPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
     public errorMessage = '';
+    public isLoading = false;
     public credentials = new Credentials();
     private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
     private readonly minPasswordLength = 8;
@@ -161,11 +162,10 @@ export default class SignUpPanel extends Vue {
     }
 
     public async onSignUp(): Promise<void> {
-        this.errorMessage = '';
-
-        if (!await this.authenticationService.signUp(this.credentials)) {
-            this.errorMessage = 'unable to sign up, please try again.';
-        }
+        this.isLoading = true;
+        const isSuccess = await this.authenticationService.signUp(this.credentials);
+        this.errorMessage = isSuccess ? '' : 'unable to sign up, please try again.';
+        this.isLoading = false;
     }
 }
 </script>
