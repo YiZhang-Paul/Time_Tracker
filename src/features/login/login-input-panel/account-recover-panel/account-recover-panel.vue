@@ -9,6 +9,7 @@
                 :maxLength="320"
                 :placeholder="'Enter your registered email'"
                 :validator="validateEmail"
+                :isReadonly="isLoading"
                 @update:modelValue="result = null">
             </form-input>
 

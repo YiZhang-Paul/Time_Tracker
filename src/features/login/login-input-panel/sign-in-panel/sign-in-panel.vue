@@ -8,7 +8,9 @@
                 :type="'email'"
                 :maxLength="320"
                 :placeholder="'Email'"
-                :validator="validateEmail">
+                :validator="validateEmail"
+                :isReadonly="isLoading"
+                @update:modelValue="errorMessage = ''">
             </form-input>
 
             <form-input class="form-input"
@@ -18,55 +20,84 @@
                 :type="'password'"
                 :maxLength="20"
                 :placeholder="'Password'"
-                :validator="validatePassword">
+                :validator="validatePassword"
+                :isReadonly="isLoading"
+                @update:modelValue="errorMessage = ''">
             </form-input>
 
-            <a @click="$emit('recover')">Forgot your password?</a>
+            <a v-if="!isLoading && !errorMessage" @click="$emit('select:recover')">
+                Forgot your password?
+            </a>
+        </div>
+
+        <div v-if="!isLoading && errorMessage" class="error-message">
+            <alert class="icon" />
+            <span>{{ errorMessage }}, did you </span>
+            <a @click="$emit('select:recover')">forget your password?</a>
         </div>
 
         <div class="fill"></div>
 
-        <div class="actions">
+        <div v-if="!isLoading" class="actions">
             <flat-button class="login-button"
                 :isDisabled="isLoginDisabled()"
-                @click="$emit('signIn', credentials)">
+                @click="onSignIn()">
 
                 Login
             </flat-button>
 
             <div class="sign-up-message">
                 <span>New to ticking?</span>
-                <a @click="$emit('signUp')">Sign up</a>
+                <a @click="$emit('select:signUp')">Sign up</a>
             </div>
         </div>
+
+        <loading-spinner v-if="isLoading" class="spinner"></loading-spinner>
     </div>
 </template>
 
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
-import { At, Lock } from 'mdue';
+import { Alert, At, Lock } from 'mdue';
 
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
 import { Credentials } from '../../../../core/models/generic/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
+import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
+import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
 
 @Options({
     components: {
+        Alert,
         FlatButton,
-        FormInput
+        FormInput,
+        LoadingSpinner
     },
     emits: [
-        'recover',
-        'signUp',
-        'signIn'
+        'signIn',
+        'select:recover',
+        'select:signUp'
     ]
 })
 export default class SignInPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly passwordIcon = new IconConfig(markRaw(Lock), 'var(--font-colors-7-00)');
+    public errorMessage = '';
+    public isLoading = false;
     public credentials = new Credentials();
+    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+
+    public mounted(): void {
+        document.addEventListener('keyup', this.onKeyup);
+    }
+
+    public beforeUnmount(): void {
+        document.removeEventListener('keyup', this.onKeyup);
+    }
 
     public validateEmail(email: string): string {
         if (!email?.trim()) {
@@ -86,6 +117,24 @@ export default class SignInPanel extends Vue {
         const isValidPassword = Boolean(passwordInput) && !passwordInput.isInvalid;
 
         return !isValidEmail || !isValidPassword;
+    }
+
+    public async onKeyup(event: KeyboardEvent): Promise<void> {
+        if (!this.isLoginDisabled() && event.key === 'Enter') {
+            await this.onSignIn();
+        }
+    }
+
+    public async onSignIn(): Promise<void> {
+        this.isLoading = true;
+        const isSuccess = await this.authenticationService.signIn(this.credentials);
+        this.errorMessage = isSuccess ? '' : 'invalid credentials';
+        this.isLoading = false;
+
+        if (isSuccess) {
+            this.credentials = new Credentials();
+            this.$emit('signIn');
+        }
     }
 }
 </script>
@@ -138,6 +187,23 @@ export default class SignInPanel extends Vue {
         }
     }
 
+    .error-message {
+        @include flex-row(center);
+        margin-top: 1vh;
+        color: var(--context-colors-suggestion-0-00);
+        font-size: var(--font-sizes-200);
+        @include animate-property(opacity, 0, 1, 0.4s, 0.3s);
+
+        .icon {
+            margin-right: 3px;
+            font-size: var(--font-sizes-300);
+        }
+
+        a {
+            margin-left: 0.5vh;
+        }
+    }
+
     .fill {
         height: 100%;
     }
@@ -171,6 +237,10 @@ export default class SignInPanel extends Vue {
                 margin-left: 0.5vh;
             }
         }
+    }
+
+    .spinner {
+        margin-bottom: 30%;
     }
 }
 </style>
