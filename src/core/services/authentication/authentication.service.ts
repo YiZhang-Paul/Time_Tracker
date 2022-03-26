@@ -57,4 +57,14 @@ export class AuthenticationService {
             return isUnverified ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
         }
     }
+
+    public async sendVerification(idToken: string): Promise<boolean> {
+        if (!idToken) {
+            return false;
+        }
+
+        const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/verification`;
+
+        return (await axios.post<boolean>(endpoint, idToken)).data;
+    }
 }

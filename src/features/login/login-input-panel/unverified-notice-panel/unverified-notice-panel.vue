@@ -20,12 +20,12 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue, prop } from 'vue-class-component';
+import { Options, Vue } from 'vue-class-component';
 import { ShieldAlert } from 'mdue';
 
-class UnverifiedNoticePanelProp {
-    public email = prop<string>({ default: '' });
-}
+import { types } from '../../../../core/ioc/types';
+import { container } from '../../../../core/ioc/container';
+import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 
 @Options({
     components: {
@@ -35,9 +35,11 @@ class UnverifiedNoticePanelProp {
         'select:signIn'
     ]
 })
-export default class UnverifiedNoticePanel extends Vue.with(UnverifiedNoticePanelProp) {
-    public onResend(): void {
-        console.log(this.email);
+export default class UnverifiedNoticePanel extends Vue {
+    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+
+    public async onResend(): Promise<void> {
+        await this.authenticationService.sendVerification(this.authenticationService.idToken);
     }
 }
 </script>
