@@ -48,19 +48,19 @@ export class AuthenticationService {
         return await new Promise(resolve => this.authenticator.signup(option, _ => resolve(!_)));
     }
 
-    public async signIn(credentials: Credentials): Promise<AuthenticationResult> {
+    public async signIn(credentials: Credentials): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
         try {
             const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-            this.signInResponse = (await axios.post(endpoint, credentials)).data;
+            const { data } = await axios.post(endpoint, credentials);
 
-            return AuthenticationResult.Succeed;
+            return { result: AuthenticationResult.Succeed, data };
         }
         catch (error) {
             const { status, data } = (error as AxiosError).response!;
             const isUnverified = status === 403;
-            this.signInResponse = isUnverified ? data : null;
+            const result = isUnverified ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
 
-            return isUnverified ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
+            return { result, data: isUnverified ? data : null };
         }
     }
 
