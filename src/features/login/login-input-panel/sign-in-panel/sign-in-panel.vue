@@ -59,14 +59,13 @@
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { Alert, At, Lock } from 'mdue';
 
-import { types } from '../../../../core/ioc/types';
-import { container } from '../../../../core/ioc/container';
+import { useUserStore } from '../../../../stores/user/user.store';
 import { Credentials } from '../../../../core/models/authentication/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationResult } from '../../../../core/enums/authentication-result.enum';
-import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import FlatButton from '../../../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../../../shared/inputs/form-input/form-input.vue';
 import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
@@ -83,7 +82,10 @@ import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loadin
         'signIn',
         'select:recover',
         'select:signUp'
-    ]
+    ],
+    computed: {
+        ...mapStores(useUserStore)
+    }
 })
 export default class SignInPanel extends Vue {
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
@@ -91,7 +93,7 @@ export default class SignInPanel extends Vue {
     public errorMessage = '';
     public isLoading = false;
     public credentials = new Credentials();
-    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+    private userStore!: ReturnType<typeof useUserStore>;
 
     public mounted(): void {
         document.addEventListener('keyup', this.onKeyup);
@@ -129,7 +131,7 @@ export default class SignInPanel extends Vue {
 
     public async onSignIn(): Promise<void> {
         this.isLoading = true;
-        const result = await this.authenticationService.signIn(this.credentials);
+        const result = await this.userStore.signIn(this.credentials);
 
         if (result !== AuthenticationResult.Failed) {
             this.errorMessage = '';

@@ -21,11 +21,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { ShieldAlert } from 'mdue';
 
-import { types } from '../../../../core/ioc/types';
-import { container } from '../../../../core/ioc/container';
-import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
+import { useUserStore } from '../../../../stores/user/user.store';
 
 @Options({
     components: {
@@ -33,13 +32,16 @@ import { AuthenticationService } from '../../../../core/services/authentication/
     },
     emits: [
         'select:signIn'
-    ]
+    ],
+    computed: {
+        ...mapStores(useUserStore)
+    }
 })
 export default class UnverifiedNoticePanel extends Vue {
-    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+    private userStore!: ReturnType<typeof useUserStore>;
 
     public async onResend(): Promise<void> {
-        await this.authenticationService.sendVerification(this.authenticationService.idToken);
+        await this.userStore.sendVerification();
     }
 }
 </script>

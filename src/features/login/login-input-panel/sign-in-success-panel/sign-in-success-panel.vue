@@ -13,10 +13,9 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
-import { types } from '../../../../core/ioc/types';
-import { container } from '../../../../core/ioc/container';
-import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
+import { useUserStore } from '../../../../stores/user/user.store';
 import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loading-spinner.vue';
 
 @Options({
@@ -25,13 +24,16 @@ import LoadingSpinner from '../../../../shared/indicators/loading-spinner/loadin
     },
     emits: [
         'finished'
-    ]
+    ],
+    computed: {
+        ...mapStores(useUserStore)
+    }
 })
 export default class SignInSuccessPanel extends Vue {
-    private readonly authenticationService = container.get<AuthenticationService>(types.AuthenticationService);
+    private userStore!: ReturnType<typeof useUserStore>;
 
     get name(): string {
-        return this.authenticationService.profile!.displayName;
+        return this.userStore.profile!.displayName;
     }
 
     public mounted(): void {
