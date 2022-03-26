@@ -1,14 +1,22 @@
 <template>
     <div class="login-input-panel-container">
-        <img class="logo" src="../../../assets/icons/logo.png" />
-        <span class="name">Ticking</span>
+        <template v-if="active !== 'signInSuccess'">
+            <img class="logo" src="../../../assets/icons/logo.png" />
+            <span class="name">Ticking</span>
+        </template>
 
         <sign-in-panel v-if="active === 'signIn'"
             class="login-panel"
             @unverified="active = 'unverified'"
+            @signIn="active = 'signInSuccess'"
             @select:recover="active = 'recover'"
             @select:signUp="active = 'signUp'">
         </sign-in-panel>
+
+        <sign-in-success-panel v-if="active === 'signInSuccess'"
+            class="login-panel"
+            @finished="openViewsSelector()">
+        </sign-in-success-panel>
 
         <sign-up-panel v-if="active === 'signUp'"
             class="login-panel"
@@ -37,6 +45,7 @@
 import { Options, Vue } from 'vue-class-component';
 
 import SignInPanel from './sign-in-panel/sign-in-panel.vue';
+import SignInSuccessPanel from './sign-in-success-panel/sign-in-success-panel.vue';
 import SignUpPanel from './sign-up-panel/sign-up-panel.vue';
 import SignUpSuccessPanel from './sign-up-success-panel/sign-up-success-panel.vue';
 import AccountRecoverPanel from './account-recover-panel/account-recover-panel.vue';
@@ -45,6 +54,7 @@ import UnverifiedNoticePanel from './unverified-notice-panel/unverified-notice-p
 @Options({
     components: {
         SignInPanel,
+        SignInSuccessPanel,
         SignUpPanel,
         SignUpSuccessPanel,
         AccountRecoverPanel,
@@ -53,6 +63,10 @@ import UnverifiedNoticePanel from './unverified-notice-panel/unverified-notice-p
 })
 export default class LoginInputPanel extends Vue {
     public active = 'signIn';
+
+    public openViewsSelector(): void {
+        this.$router.push('/views');
+    }
 }
 </script>
 
@@ -67,7 +81,8 @@ export default class LoginInputPanel extends Vue {
     background-color: var(--form-colors-login-panel-0-00);
 
     .logo {
-        width: 30%;
+        width: 12.5vh;
+        min-height: 12.5vh;
     }
 
     .name {
