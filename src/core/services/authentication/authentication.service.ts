@@ -3,6 +3,8 @@ import { injectable } from 'inversify';
 import { ChangePasswordOptions, DbSignUpOptions, WebAuth } from 'auth0-js';
 
 import { Credentials } from '../../models/authentication/credentials';
+import { UserProfile } from '../../models/authentication/user-profile';
+import { SignInResponse } from '../../models/authentication/sign-in-response';
 import { AuthenticationResult } from '../../enums/authentication-result.enum';
 
 @injectable()
@@ -15,14 +17,18 @@ export class AuthenticationService {
     });
 
     private readonly connection = process.env.VUE_APP_AUTH0_DATABASE;
-    private tokens = { id_token: '', access_token: '' };
+    private signInResponse: SignInResponse | null = null;
 
     get idToken(): string {
-        return this.tokens.id_token;
+        return this.signInResponse?.tokens.id_token ?? '';
     }
 
     get accessToken(): string {
-        return this.tokens.access_token;
+        return this.signInResponse?.tokens.access_token ?? '';
+    }
+
+    get profile(): UserProfile | null {
+        return this.signInResponse?.profile ?? null;
     }
 
     public async recover(email: string): Promise<boolean> {
@@ -45,14 +51,14 @@ export class AuthenticationService {
     public async signIn(credentials: Credentials): Promise<AuthenticationResult> {
         try {
             const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-            this.tokens = (await axios.post(endpoint, credentials)).data;
+            this.signInResponse = (await axios.post(endpoint, credentials)).data;
 
             return AuthenticationResult.Succeed;
         }
         catch (error) {
             const { status, data } = (error as AxiosError).response!;
             const isUnverified = status === 403;
-            this.tokens = isUnverified ? data : { id_token: '', access_token: '' };
+            this.signInResponse = isUnverified ? data : null;
 
             return isUnverified ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
         }
