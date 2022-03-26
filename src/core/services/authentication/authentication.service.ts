@@ -1,8 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { injectable } from 'inversify';
 import { ChangePasswordOptions, DbSignUpOptions, WebAuth } from 'auth0-js';
 
 import { Credentials } from '../../../core/models/generic/credentials';
+import { AuthenticationResult } from '../../../core/enums/authentication-result.enum';
 
 @injectable()
 export class AuthenticationService {
@@ -37,11 +38,18 @@ export class AuthenticationService {
         return await new Promise(resolve => this.authenticator.signup(option, _ => resolve(!_)));
     }
 
-    public async signIn(credentials: Credentials): Promise<boolean> {
-        const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-        const { data } = await axios.post(endpoint, credentials);
-        this.token = data.access_token;
+    public async signIn(credentials: Credentials): Promise<AuthenticationResult> {
+        try {
+            const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
+            this.token = (await axios.post(endpoint, credentials)).data;
 
-        return Boolean(this.token);
+            return AuthenticationResult.Succeed;
+        }
+        catch (error) {
+            const status = (error as AxiosError).response?.status;
+            this.token = '';
+
+            return status === 403 ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
+        }
     }
 }
