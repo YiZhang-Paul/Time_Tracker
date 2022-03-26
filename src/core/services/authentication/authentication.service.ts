@@ -2,8 +2,8 @@ import axios, { AxiosError } from 'axios';
 import { injectable } from 'inversify';
 import { ChangePasswordOptions, DbSignUpOptions, WebAuth } from 'auth0-js';
 
-import { Credentials } from '../../../core/models/generic/credentials';
-import { AuthenticationResult } from '../../../core/enums/authentication-result.enum';
+import { Credentials } from '../../models/authentication/credentials';
+import { AuthenticationResult } from '../../enums/authentication-result.enum';
 
 @injectable()
 export class AuthenticationService {

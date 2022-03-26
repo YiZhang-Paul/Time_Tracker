@@ -76,7 +76,7 @@ import { Alert, At, Lock } from 'mdue';
 
 import { types } from '../../../../core/ioc/types';
 import { container } from '../../../../core/ioc/container';
-import { Credentials } from '../../../../core/models/generic/credentials';
+import { Credentials } from '../../../../core/models/authentication/credentials';
 import { IconConfig } from '../../../../core/models/generic/icon-config';
 import { AuthenticationService } from '../../../../core/services/authentication/authentication.service';
 import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
