@@ -64,7 +64,8 @@ export class AuthenticationService {
         }
 
         const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/verification`;
+        const headers = { 'Content-Type': 'application/json' };
 
-        return (await axios.post<boolean>(endpoint, idToken)).data;
+        return (await axios.post(endpoint, JSON.stringify(idToken), { headers })).data;
     }
 }
