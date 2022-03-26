@@ -15,10 +15,14 @@ export class AuthenticationService {
     });
 
     private readonly connection = process.env.VUE_APP_AUTH0_DATABASE;
-    private token = '';
+    private tokens = { id_token: '', access_token: '' };
+
+    get idToken(): string {
+        return this.tokens.id_token;
+    }
 
     get accessToken(): string {
-        return this.token;
+        return this.tokens.access_token;
     }
 
     public async recover(email: string): Promise<boolean> {
@@ -41,15 +45,16 @@ export class AuthenticationService {
     public async signIn(credentials: Credentials): Promise<AuthenticationResult> {
         try {
             const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-            this.token = (await axios.post(endpoint, credentials)).data;
+            this.tokens = (await axios.post(endpoint, credentials)).data;
 
             return AuthenticationResult.Succeed;
         }
         catch (error) {
-            const status = (error as AxiosError).response?.status;
-            this.token = '';
+            const { status, data } = (error as AxiosError).response!;
+            const isUnverified = status === 403;
+            this.tokens = isUnverified ? data : { id_token: '', access_token: '' };
 
-            return status === 403 ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
+            return isUnverified ? AuthenticationResult.Unverified : AuthenticationResult.Failed;
         }
     }
 }
