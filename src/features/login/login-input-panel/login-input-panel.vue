@@ -5,6 +5,7 @@
 
         <sign-in-panel v-if="active === 'signIn'"
             class="login-panel"
+            @unverified="active = 'unverified'"
             @select:recover="active = 'recover'"
             @select:signUp="active = 'signUp'">
         </sign-in-panel>
@@ -24,6 +25,11 @@
             class="login-panel"
             @select:signIn="active = 'signIn'">
         </account-recover-panel>
+
+        <unverified-notice-panel v-if="active === 'unverified'"
+            class="login-panel"
+            @select:signIn="active = 'signIn'">
+        </unverified-notice-panel>
     </div>
 </template>
 
@@ -34,13 +40,15 @@ import SignInPanel from './sign-in-panel/sign-in-panel.vue';
 import SignUpPanel from './sign-up-panel/sign-up-panel.vue';
 import SignUpSuccessPanel from './sign-up-success-panel/sign-up-success-panel.vue';
 import AccountRecoverPanel from './account-recover-panel/account-recover-panel.vue';
+import UnverifiedNoticePanel from './unverified-notice-panel/unverified-notice-panel.vue';
 
 @Options({
     components: {
         SignInPanel,
         SignUpPanel,
         SignUpSuccessPanel,
-        AccountRecoverPanel
+        AccountRecoverPanel,
+        UnverifiedNoticePanel
     }
 })
 export default class LoginInputPanel extends Vue {

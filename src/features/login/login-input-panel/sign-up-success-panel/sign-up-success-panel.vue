@@ -7,7 +7,7 @@
 
             <div class="sign-in-message">
                 <span>Hit the verification link and</span>
-                <a @click="$emit('select:signIn')">Sign in</a>
+                <a @click="$emit('select:signIn')">sign in</a>
                 <span>!</span>
             </div>
         </div>
