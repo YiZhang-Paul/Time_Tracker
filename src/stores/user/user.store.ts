@@ -19,6 +19,9 @@ export const useUserStore = defineStore('user', {
         signInResponse: null as SignInResponse | null
     }),
     getters: {
+        isLoggedIn(): boolean {
+            return Boolean(this.idToken) && Boolean(this.accessToken) && Boolean(this.profile);
+        },
         idToken(): string {
             return this.signInResponse?.tokens.id_token ?? '';
         },
