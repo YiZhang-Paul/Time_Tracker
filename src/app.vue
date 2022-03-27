@@ -1,11 +1,14 @@
 <template>
     <router-view class="main-view"></router-view>
-    <time-display class="time-display"></time-display>
-    <event-tracker class="event-tracker"></event-tracker>
 
-    <icon-button class="views-button" :tooltip="'main menu'" @click="openViewsSelector()">
-        <apps />
-    </icon-button>
+    <template v-if="isLoggedIn">
+        <time-display class="time-display"></time-display>
+        <event-tracker class="event-tracker"></event-tracker>
+
+        <icon-button class="views-button" :tooltip="'main menu'" @click="openViewsSelector()">
+            <apps />
+        </icon-button>
+    </template>
 
     <dialogs-base></dialogs-base>
 
@@ -20,6 +23,7 @@ import { Options, Vue } from 'vue-class-component';
 import { Apps } from 'mdue';
 import { mapStores } from 'pinia';
 
+import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
 import TimeDisplay from './features/time-display/time-display.vue';
@@ -58,12 +62,17 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
         }
     },
     computed: {
-        ...mapStores(useNotificationStore, useEventStore)
+        ...mapStores(useUserStore, useNotificationStore, useEventStore)
     }
 })
 export default class App extends Vue {
     public notificationStore!: ReturnType<typeof useNotificationStore>;
+    private userStore!: ReturnType<typeof useUserStore>;
     private eventStore!: ReturnType<typeof useEventStore>;
+
+    get isLoggedIn(): boolean {
+        return this.userStore.isLoggedIn && this.$route.name !== 'login';
+    }
 
     get isWorking(): boolean {
         return this.eventStore.isWorking;
@@ -157,6 +166,7 @@ html, body, #app {
 
 .build-versions {
     @include flex-column(flex-end, center);
+    z-index: 9999;
     position: absolute;
     bottom: 0.5vh;
     right: 0.5vh;

@@ -37,6 +37,7 @@ export default class ViewSelector extends Vue {
 <style lang="scss" scoped>
 .view-selector-container {
     @import '../../styles/presets.scss';
+    @import '../../styles/animations.scss';
 
     $gap: 3.5vh;
 
@@ -61,6 +62,7 @@ export default class ViewSelector extends Vue {
             border-radius: 10px;
             background-color: var(--primary-colors-9-00);
             box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.3);
+            @include animate-property(opacity, 0, 1, 0.4s);
         }
 
         .placeholder, .histories {

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import Login from './features/login/login.vue';
 import ViewSelector from './features/view-selector/view-selector.vue';
 import WorkItems from './features/work-items/work-items.vue';
 import EventHistory from './features/event-tracking/event-history/event-history.vue';
@@ -7,7 +8,8 @@ import EventHistory from './features/event-tracking/event-history/event-history.
 export const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: '/views' },
+        { path: '/', redirect: '/login' },
+        { path: '/login', name: 'login', component: Login },
         { path: '/views', name: 'views', component: ViewSelector },
         { path: '/works', name: 'works', component: WorkItems },
         { path: '/histories', name: 'histories', component: EventHistory }

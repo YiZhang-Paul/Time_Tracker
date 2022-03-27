@@ -12,6 +12,7 @@
     --font-sizes-700: 1.75rem; // 28px
     --font-sizes-750: 2.375rem; // 38px
     --font-sizes-800: 3rem; // 48px
+    --font-sizes-850: 3.75rem; // 60px
     --font-sizes-900: 4.5rem; // 72px
     --font-sizes-1000: 6.75rem; // 108px
     --font-sizes-1300: 8.775rem; // 140px
@@ -30,11 +31,12 @@
     --font-colors-9-00: rgb(25, 25, 25);
     // primary colors
     --primary-colors-1-00: rgb(236, 230, 250);
+    --primary-colors-1-08: rgba(236, 230, 250, 0.8);
     --primary-colors-2-00: rgb(193, 184, 214);
     --primary-colors-2-03: rgba(193, 184, 214, 0.3);
     --primary-colors-3-00: rgb(170, 164, 189);
     --primary-colors-4-00: rgb(125, 119, 141);
-    --primary-colors-5-00: rgb(106, 100, 121);
+    --primary-colors-5-00: rgb(104, 97, 122);
     --primary-colors-6-00: rgb(92, 87, 104);
     --primary-colors-7-00: rgb(80, 75, 92);
     --primary-colors-8-00: rgb(65, 61, 75);
@@ -63,6 +65,18 @@
     --creation-button-color-start: rgb(21, 218, 76);
     --creation-button-color-end: rgba(15, 168, 58, 0.3);
     --creation-button-color-shadow: rgba(5, 164, 49, 0.35);
+    // form colors
+    --form-colors-login-panel-0-00: rgb(25, 104, 194);
+    --form-colors-login-panel-0-02: rgba(25, 104, 194, 0.2);
+    --form-colors-login-button-0-00: rgb(19, 42, 250);
+    --form-colors-login-button-0-02: rgba(19, 42, 250, 0.2);
+    --form-colors-login-button-1-00: rgb(22, 40, 206);
+    --form-colors-sign-up-button-0-00: rgb(149, 66, 255);
+    --form-colors-sign-up-button-0-02: rgba(149, 66, 255, 0.2);
+    --form-colors-sign-up-button-1-00: rgb(111, 37, 209);
+    --form-colors-recover-button-0-00: rgb(255, 40, 53);
+    --form-colors-recover-button-0-02: rgba(255, 40, 53, 0.2);
+    --form-colors-recover-button-1-00: rgb(212, 20, 32);
     // context colors
     --context-colors-suggestion-0-00: rgb(233, 201, 23);
     --context-colors-suggestion-0-04: rgba(233, 201, 23, 0.4);
@@ -72,12 +86,14 @@
     --context-colors-success-0-04: rgba(49, 253, 59, 0.4);
     --context-colors-success-1-00: rgb(30, 185, 38);
     --context-colors-success-1-03: rgba(30, 185, 38, 0.3);
+    --context-colors-success-2-00: rgb(25, 177, 33);
     --context-colors-warning-0-00: rgb(253, 49, 49);
     --context-colors-warning-0-04: rgba(253, 49, 49, 0.4);
     --context-colors-warning-0-06: rgba(253, 49, 49, 0.6);
     --context-colors-warning-1-00: rgb(212, 32, 32);
     --context-colors-info-0-00: rgb(34, 198, 219);
     --context-colors-info-0-03: rgba(34, 198, 219, 0.3);
+    --context-colors-info-0-04: rgba(34, 198, 219, 0.4);
     --context-colors-info-1-00: rgb(26, 168, 187);
     --context-colors-info-1-03: rgba(26, 168, 187, 0.3);
     --context-colors-info-4-00: rgb(40, 146, 160);

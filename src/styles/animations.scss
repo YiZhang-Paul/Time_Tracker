@@ -1,12 +1,58 @@
-@mixin animate-property($property, $start, $end, $duration, $delay: 0s) {
+@mixin animate-property($property, $start, $end, $duration, $delay: 0s, $function: ease, $fillMode: forwards) {
     $animation-name: unique-id();
 
     #{$property}: $start;
-    animation: $animation-name $duration ease $delay forwards;
+    animation: $animation-name $duration $function $delay $fillMode;
 
     @keyframes #{$animation-name} {
         from { #{$property}: $start; }
         to { #{$property}: $end; }
+    }
+}
+
+@mixin gloss-effect($width, $height, $duration, $horizontalOffset: 50%, $delay: 3s) {
+    $verticalOffset: calc(#{$height} / -2 + #{$width} / 2);
+    $startTop: calc(#{$verticalOffset} - #{$horizontalOffset});
+    $startLeft: calc(-#{$horizontalOffset});
+    $endTop: calc(100% + #{$verticalOffset} + #{$horizontalOffset});
+    $endLeft: calc(100% + #{$horizontalOffset});
+    $animation-name: unique-id();
+
+    position: absolute;
+    top: $startTop;
+    left: $startLeft;
+    width: $width;
+    height: $height;
+    transform: rotate(45deg);
+    animation: $animation-name $duration ease $delay infinite;
+
+    @keyframes #{$animation-name} {
+        0% {
+            top: $startTop;
+            left: $startLeft;
+        }
+        10% {
+            top: $endTop;
+            left: $endLeft;
+        }
+        11% {
+            opacity: 0;
+        }
+        12% {
+            top: $startTop;
+            left: $startLeft;
+        }
+        13% {
+            opacity: 1;
+        }
+        23% {
+            top: $endTop;
+            left: $endLeft;
+        }
+        100% {
+            top: $endTop;
+            left: $endLeft;
+        }
     }
 }
 
