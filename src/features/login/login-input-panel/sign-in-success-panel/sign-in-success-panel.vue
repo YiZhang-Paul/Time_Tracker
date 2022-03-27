@@ -33,7 +33,7 @@ export default class SignInSuccessPanel extends Vue {
     private userStore!: ReturnType<typeof useUserStore>;
 
     get name(): string {
-        return this.userStore.profile!.displayName;
+        return this.userStore.profile?.displayName ?? '';
     }
 
     public mounted(): void {

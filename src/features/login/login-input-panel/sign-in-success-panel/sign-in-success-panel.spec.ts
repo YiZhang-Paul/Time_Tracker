@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 
 import SignInSuccessPanel from './sign-in-success-panel.vue';
 
@@ -7,7 +8,7 @@ describe('sign in success panel unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(SignInSuccessPanel);
+        component = shallowMount(SignInSuccessPanel, { global: { plugins: [createTestingPinia()] } });
     });
 
     afterEach(() => {

@@ -9,13 +9,18 @@ import { AuthenticationResult } from '../../enums/authentication-result.enum';
 @injectable()
 export class AuthenticationService {
     private readonly connection = process.env.VUE_APP_AUTH0_DATABASE;
+    private authenticatorCache!: WebAuth;
 
-    private readonly authenticator = new WebAuth({
-        audience: process.env.VUE_APP_AUTH0_AUDIENCE,
-        domain: process.env.VUE_APP_AUTH0_DOMAIN,
-        clientID: process.env.VUE_APP_AUTH0_CLIENT_ID,
-        scope: 'openid profile email'
-    });
+    get authenticator(): WebAuth {
+        this.authenticatorCache ??= new WebAuth({
+            audience: process.env.VUE_APP_AUTH0_AUDIENCE,
+            domain: process.env.VUE_APP_AUTH0_DOMAIN,
+            clientID: process.env.VUE_APP_AUTH0_CLIENT_ID,
+            scope: 'openid profile email'
+        });
+
+        return this.authenticatorCache;
+    }
 
     public async recover(email: string): Promise<boolean> {
         return await new Promise(resolve => {
