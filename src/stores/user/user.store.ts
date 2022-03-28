@@ -33,9 +33,24 @@ export const useUserStore = defineStore('user', {
         }
     },
     actions: {
+        async silentSignIn(): Promise<AuthenticationResult> {
+            if (!window.localStorage) {
+                return AuthenticationResult.Failed;
+            }
+
+            const id = window.localStorage.getItem('userId');
+            const { result, data } = await getAuthenticator().silentSignIn(Number(id));
+            this.signInResponse = data;
+
+            return result;
+        },
         async signIn(credentials: Credentials): Promise<AuthenticationResult> {
             const { result, data } = await getAuthenticator().signIn(credentials);
             this.signInResponse = data;
+
+            if (result === AuthenticationResult.Succeed && window.localStorage) {
+                window.localStorage.setItem('userId', `${data!.profile.id}`);
+            }
 
             return result;
         },

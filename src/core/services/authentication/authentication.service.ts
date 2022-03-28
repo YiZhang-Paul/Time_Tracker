@@ -39,6 +39,19 @@ export class AuthenticationService {
         return await new Promise(resolve => this.authenticator.signup(option, _ => resolve(!_)));
     }
 
+    public async silentSignIn(userId: number): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
+        try {
+            const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/silent-sign-in`;
+            const headers = { 'Content-Type': 'application/json' };
+            const { data } = await axios.post(endpoint, JSON.stringify(userId), { headers });
+
+            return { result: AuthenticationResult.Succeed, data };
+        }
+        catch {
+            return { result: AuthenticationResult.Failed, data: null };
+        }
+    }
+
     public async signIn(credentials: Credentials): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
         try {
             const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
