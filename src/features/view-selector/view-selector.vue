@@ -5,7 +5,7 @@
         </div>
 
         <div class="column">
-            <div class="selector placeholder"></div>
+            <settings-view-selector class="selector settings"></settings-view-selector>
             <histories-view-selector class="selector histories" @click="openHistories()"></histories-view-selector>
         </div>
     </div>
@@ -16,11 +16,13 @@ import { Options, Vue } from 'vue-class-component';
 
 import ItemsViewSelector from './items-view-selector/items-view-selector.vue';
 import HistoriesViewSelector from './histories-view-selector/histories-view-selector.vue';
+import SettingsViewSelector from './settings-view-selector/settings-view-selector.vue';
 
 @Options({
     components: {
         ItemsViewSelector,
-        HistoriesViewSelector
+        HistoriesViewSelector,
+        SettingsViewSelector
     }
 })
 export default class ViewSelector extends Vue {
@@ -65,8 +67,12 @@ export default class ViewSelector extends Vue {
             @include animate-property(opacity, 0, 1, 0.4s);
         }
 
-        .placeholder, .histories {
-            height: calc(50% - #{$gap} / 2);
+        .settings {
+            height: calc(45% - #{$gap} / 2);
+        }
+
+        .histories {
+            height: calc(55% - #{$gap} / 2);
         }
     }
 }
