@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { useUserStore } from './stores/user/user.store';
@@ -26,7 +25,6 @@ router.beforeEach(async to => {
     }
 
     await userStore.silentSignIn();
-    axios.defaults.headers.common.Authorization = `Bearer ${userStore.accessToken}`;
 
     if (!userStore.isLoggedIn) {
         router.push('/login');

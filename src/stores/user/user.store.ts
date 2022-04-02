@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { defineStore } from 'pinia';
 
 import { types } from '../../core/ioc/types';
@@ -42,6 +43,10 @@ export const useUserStore = defineStore('user', {
             const { result, data } = await getAuthenticator().silentSignIn(Number(id));
             this.signInResponse = data;
 
+            if (result === AuthenticationResult.Succeed) {
+                axios.defaults.headers.common.Authorization = `Bearer ${this.accessToken}`;
+            }
+
             return result;
         },
         async signIn(credentials: Credentials): Promise<AuthenticationResult> {
@@ -50,6 +55,10 @@ export const useUserStore = defineStore('user', {
 
             if (result === AuthenticationResult.Succeed && window.localStorage) {
                 window.localStorage.setItem('userId', `${data!.profile.id}`);
+            }
+
+            if (result === AuthenticationResult.Succeed) {
+                axios.defaults.headers.common.Authorization = `Bearer ${this.accessToken}`;
             }
 
             return result;
