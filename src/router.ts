@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { useUserStore } from './stores/user/user.store';
@@ -9,7 +10,7 @@ import EventHistory from './features/event-tracking/event-history/event-history.
 export const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: '/login' },
+        { path: '/', redirect: '/views' },
         { path: '/login', name: 'login', component: Login },
         { path: '/views', name: 'views', component: ViewSelector },
         { path: '/works', name: 'works', component: WorkItems },
@@ -25,6 +26,7 @@ router.beforeEach(async to => {
     }
 
     await userStore.silentSignIn();
+    axios.defaults.headers.common.Authorization = `Bearer ${userStore.accessToken}`;
 
     if (!userStore.isLoggedIn) {
         router.push('/login');
