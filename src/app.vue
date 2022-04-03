@@ -2,7 +2,12 @@
     <router-view class="main-view"></router-view>
 
     <template v-if="isLoggedIn">
-        <user-avatar-display class="user-avatar-display" :user="user" @logout="signOut()"></user-avatar-display>
+        <user-widget class="user-widget"
+            :user="user"
+            @select:settings="openSettings()"
+            @select:logout="signOut()">
+        </user-widget>
+
         <time-display class="time-display"></time-display>
         <event-tracker class="event-tracker"></event-tracker>
 
@@ -28,7 +33,7 @@ import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
 import { UserProfile } from './core/models/authentication/user-profile';
-import UserAvatarDisplay from './features/user-avatar-display/user-avatar-display.vue';
+import UserWidget from './features/user-widget/user-widget.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
 import IconButton from './shared/buttons/icon-button/icon-button.vue';
@@ -37,7 +42,7 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 @Options({
     components: {
         Apps,
-        UserAvatarDisplay,
+        UserWidget,
         TimeDisplay,
         EventTracker,
         IconButton,
@@ -104,6 +109,10 @@ export default class App extends Vue {
         this.$router.push('/views');
     }
 
+    public openSettings(): void {
+        this.$router.push('/settings');
+    }
+
     public signOut(): void {
         this.userStore.signOut();
     }
@@ -154,7 +163,7 @@ html, body, #app {
     @include animate-property(opacity, 0, 1, 0.4s, 1.5s);
 }
 
-.user-avatar-display {
+.user-widget {
     position: absolute;
     top: $border-gap;
     left: $border-gap;

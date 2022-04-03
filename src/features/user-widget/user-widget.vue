@@ -1,46 +1,46 @@
 <template>
-    <div v-if="user" class="user-avatar-display-container">
+    <div v-if="user" class="user-widget-container">
         <div class="avatar" :style="{ 'background-image': `url(${avatarUrl})` }"></div>
 
-        <div class="information">
-            <div class="name">
-                <span>{{ displayName }}</span>
+        <div class="content">
+            <span class="name">{{ displayName }}</span>
 
-                <icon-button class="logout-button"
-                    :tooltip="'logout'"
-                    :tooltipPosition="'right'"
-                    @click="$emit('logout')">
+            <div class="actions">
+                <icon-button class="action-button" :tooltip="'settings'" @click="$emit('select:settings')">
+                    <cog />
+                </icon-button>
 
+                <icon-button class="action-button" :tooltip="'logout'" @click="$emit('select:logout')">
                     <logout-variant />
                 </icon-button>
             </div>
-
-            <span class="email">{{ email }}</span>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
-import { LogoutVariant } from 'mdue';
+import { Cog, LogoutVariant } from 'mdue';
 
 import { UserProfile } from '../../core/models/authentication/user-profile';
 import IconButton from '../../shared/buttons/icon-button/icon-button.vue';
 
-class UserAvatarDisplayProp {
+class UserWidgetProp {
     public user = prop<UserProfile>({ default: null });
 }
 
 @Options({
     components: {
+        Cog,
         LogoutVariant,
         IconButton
     },
     emits: [
-        'logout'
+        'select:settings',
+        'select:logout'
     ]
 })
-export default class UserAvatarDisplay extends Vue.with(UserAvatarDisplayProp) {
+export default class UserWidget extends Vue.with(UserWidgetProp) {
     get avatarUrl(): string {
         return this.user.avatarUrl ?? require('../../assets/images/avatar_placeholder.png');
     }
@@ -56,7 +56,7 @@ export default class UserAvatarDisplay extends Vue.with(UserAvatarDisplayProp) {
 </script>
 
 <style lang="scss" scoped>
-.user-avatar-display-container {
+.user-widget-container {
     @import '../../styles/presets.scss';
     @import '../../styles/animations.scss';
 
@@ -72,34 +72,37 @@ export default class UserAvatarDisplay extends Vue.with(UserAvatarDisplayProp) {
         @include animate-property(opacity, 0, 1, 0.6s, 0.2s);
     }
 
-    .information {
+    .content {
         @include flex-column();
         margin-left: 1vh;
         @include animate-property(opacity, 0, 1, 0.4s, 0.4s);
 
         .name {
+            margin-bottom: 0.5vh;
+            max-width: 15vh;
+            @include line-overflow();
+            font-size: var(--font-sizes-300);
+        }
+
+        .actions {
             @include flex-row(center);
-            margin-bottom: 0.25vh;
-            font-size: var(--font-sizes-400);
 
-            span {
-                max-width: 15vh;
-                @include line-overflow();
-            }
-
-            .logout-button {
-                margin-left: 0.75vh;
+            .action-button {
                 transition: background-color 0.3s;
 
                 &:hover {
                     background-color: var(--primary-colors-4-00);
                 }
-            }
-        }
 
-        .email {
-            color: var(--font-colors-3-00);
-            font-size: var(--font-sizes-200);
+                &:first-of-type {
+                    margin-right: 0.75vh;
+                    @include animate-property(opacity, 0, 1, 0.2s, 0.8s);
+                }
+
+                &:last-of-type {
+                    @include animate-property(opacity, 0, 1, 0.2s, 0.9s);
+                }
+            }
         }
     }
 }

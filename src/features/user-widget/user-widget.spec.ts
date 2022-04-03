@@ -1,13 +1,13 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 
-import UserAvatarDisplay from './user-avatar-display.vue';
+import UserWidget from './user-widget.vue';
 
-describe('user avatar display unit test', () => {
+describe('user widget unit test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(UserAvatarDisplay);
+        component = shallowMount(UserWidget);
     });
 
     afterEach(() => {
