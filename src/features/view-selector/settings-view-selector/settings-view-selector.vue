@@ -42,15 +42,15 @@ export default class SettingsViewSelector extends Vue {
     private userStore!: ReturnType<typeof useUserStore>;
 
     get avatarUrl(): string {
-        return this.userStore.profile!.avatarUrl ?? require('../../../assets/images/avatar_placeholder.png');
+        return this.userStore.profile?.avatarUrl ?? require('../../../assets/images/avatar_placeholder.png');
     }
 
     get displayName(): string {
-        return this.userStore.profile!.displayName;
+        return this.userStore.profile?.displayName ?? '';
     }
 
     get email(): string {
-        return this.userStore.profile!.email;
+        return this.userStore.profile?.email ?? '';
     }
 }
 </script>

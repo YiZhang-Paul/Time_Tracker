@@ -68,6 +68,10 @@ export class AuthenticationService {
         }
     }
 
+    public signOut(): void {
+        this.authenticator.logout({ returnTo: `${window.location.origin}/login` });
+    }
+
     public async sendVerification(idToken: string): Promise<boolean> {
         const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/verification`;
         const headers = { 'Content-Type': 'application/json' };

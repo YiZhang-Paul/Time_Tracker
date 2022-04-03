@@ -63,6 +63,14 @@ export const useUserStore = defineStore('user', {
 
             return result;
         },
+        signOut(): void {
+            getAuthenticator().signOut();
+            this.$reset();
+
+            if (window.localStorage) {
+                window.localStorage.removeItem('userId');
+            }
+        },
         async sendVerification(): Promise<boolean> {
             return this.idToken ? await getAuthenticator().sendVerification(this.idToken) : false;
         }

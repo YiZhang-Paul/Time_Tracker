@@ -2,6 +2,7 @@
     <router-view class="main-view"></router-view>
 
     <template v-if="isLoggedIn">
+        <user-avatar-display class="user-avatar-display" :user="user" @logout="signOut()"></user-avatar-display>
         <time-display class="time-display"></time-display>
         <event-tracker class="event-tracker"></event-tracker>
 
@@ -26,6 +27,8 @@ import { mapStores } from 'pinia';
 import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
+import { UserProfile } from './core/models/authentication/user-profile';
+import UserAvatarDisplay from './features/user-avatar-display/user-avatar-display.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
 import IconButton from './shared/buttons/icon-button/icon-button.vue';
@@ -34,6 +37,7 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 @Options({
     components: {
         Apps,
+        UserAvatarDisplay,
         TimeDisplay,
         EventTracker,
         IconButton,
@@ -74,6 +78,10 @@ export default class App extends Vue {
         return this.userStore.isLoggedIn && this.$route.name !== 'login';
     }
 
+    get user(): UserProfile | null {
+        return this.userStore.profile;
+    }
+
     get isWorking(): boolean {
         return this.eventStore.isWorking;
     }
@@ -94,6 +102,10 @@ export default class App extends Vue {
 
     public openViewsSelector(): void {
         this.$router.push('/views');
+    }
+
+    public signOut(): void {
+        this.userStore.signOut();
     }
 }
 </script>
@@ -140,6 +152,12 @@ html, body, #app {
     right: 20vw;
     height: 5vh;
     @include animate-property(opacity, 0, 1, 0.4s, 1.5s);
+}
+
+.user-avatar-display {
+    position: absolute;
+    top: $border-gap;
+    left: $border-gap;
 }
 
 .time-display {
