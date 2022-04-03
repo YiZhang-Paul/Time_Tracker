@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 
 import { AuthenticationService } from '../services/authentication/authentication.service';
+import { UserHttpService } from '../services/http/user-http/user-http.service';
 import { InterruptionItemHttpService } from '../services/http/interruption-item-http/interruption-item-http.service';
 import { TaskItemHttpService } from '../services/http/task-item-http/task-item-http.service';
 import { EventHttpService } from '../services/http/event-http/event-http.service';
@@ -14,6 +15,11 @@ container
     .bind<AuthenticationService>(types.AuthenticationService)
     .to(AuthenticationService)
     .inSingletonScope();
+
+container
+    .bind<UserHttpService>(types.UserHttpService)
+    .to(UserHttpService)
+    .inTransientScope();
 
 container
     .bind<InterruptionItemHttpService>(types.InterruptionItemHttpService)

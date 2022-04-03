@@ -1,14 +1,18 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { injectable } from 'inversify';
 import { ChangePasswordOptions, DbSignUpOptions, WebAuth } from 'auth0-js';
 
+import { types } from '../../ioc/types';
+import { container } from '../../ioc/container';
 import { Credentials } from '../../models/authentication/credentials';
 import { SignInResponse } from '../../models/authentication/sign-in-response';
 import { AuthenticationResult } from '../../enums/authentication-result.enum';
+import { UserHttpService } from '../http/user-http/user-http.service';
 
 @injectable()
 export class AuthenticationService {
     private readonly connection = process.env.VUE_APP_AUTH0_DATABASE;
+    private readonly userHttpService = container.get<UserHttpService>(types.UserHttpService);
     private authenticatorCache!: WebAuth;
 
     get authenticator(): WebAuth {
@@ -41,11 +45,7 @@ export class AuthenticationService {
 
     public async silentSignIn(userId: number): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
         try {
-            const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/silent-sign-in`;
-            const headers = { 'Content-Type': 'application/json' };
-            const { data } = await axios.post(endpoint, JSON.stringify(userId), { headers });
-
-            return { result: AuthenticationResult.Succeed, data };
+            return { result: AuthenticationResult.Succeed, data: await this.userHttpService.silentSignIn(userId) };
         }
         catch {
             return { result: AuthenticationResult.Failed, data: null };
@@ -54,10 +54,7 @@ export class AuthenticationService {
 
     public async signIn(credentials: Credentials): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
         try {
-            const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/sign-in`;
-            const { data } = await axios.post(endpoint, credentials);
-
-            return { result: AuthenticationResult.Succeed, data };
+            return { result: AuthenticationResult.Succeed, data: await this.userHttpService.signIn(credentials) };
         }
         catch (error) {
             const { status, data } = (error as AxiosError).response!;
@@ -73,9 +70,6 @@ export class AuthenticationService {
     }
 
     public async sendVerification(idToken: string): Promise<boolean> {
-        const endpoint = `${process.env.VUE_APP_BASE_API_URL}/users/verification`;
-        const headers = { 'Content-Type': 'application/json' };
-
-        return (await axios.post(endpoint, JSON.stringify(idToken), { headers })).data;
+        return await this.userHttpService.sendEmailVerification(idToken);
     }
 }
