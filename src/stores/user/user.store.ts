@@ -8,11 +8,14 @@ import { UserProfile } from '../../core/models/authentication/user-profile';
 import { SignInResponse } from '../../core/models/authentication/sign-in-response';
 import { AuthenticationResult } from '../../core/enums/authentication-result.enum';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';
+import { UserHttpService } from '../../core/services/http/user-http/user-http.service';
 
 let authenticator: AuthenticationService;
+let userHttpService = container.get<UserHttpService>(types.UserHttpService);
 
-export const setServices = (authenticationService: AuthenticationService): void => {
+export const setServices = (authenticationService: AuthenticationService, userHttp: UserHttpService): void => {
     authenticator = authenticationService;
+    userHttpService = userHttp;
 };
 
 export const useUserStore = defineStore('user', {
@@ -73,6 +76,15 @@ export const useUserStore = defineStore('user', {
         },
         async sendVerification(): Promise<boolean> {
             return this.idToken ? await getAuthenticator().sendVerification(this.idToken) : false;
+        },
+        async updateProfile(profile: UserProfile): Promise<boolean> {
+            const isUpdated = await userHttpService.updateProfile(profile);
+
+            if (isUpdated) {
+                this.signInResponse!.profile = profile;
+            }
+
+            return isUpdated;
         }
     }
 });

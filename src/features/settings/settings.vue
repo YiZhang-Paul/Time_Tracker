@@ -5,6 +5,14 @@
                 <cog class="icon" />
                 <span>Settings & Personalization</span>
             </div>
+
+            <div class="actions-wrapper">
+                <flat-button class="save-button" :isDisabled="!canSave" @click="onSave()">
+                    <cloud-upload v-if="!isSaved" class="icon" />
+                    <span v-if="isSaved">Saved</span>
+                    <span v-if="!isSaved">Save</span>
+                </flat-button>
+            </div>
         </div>
 
         <div class="separator"></div>
@@ -40,16 +48,19 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Account, At, Cog } from 'mdue';
+import { Account, At, CloudUpload, Cog } from 'mdue';
 
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
 import { UserProfile } from '../../core/models/authentication/user-profile';
+import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
 @Options({
     components: {
+        CloudUpload,
         Cog,
+        FlatButton,
         FormInput
     },
     computed: {
@@ -63,6 +74,10 @@ export default class Settings extends Vue {
     public isSaved = true;
     private userStore!: ReturnType<typeof useUserStore>;
 
+    get canSave(): boolean {
+        return !this.isSaved && Boolean(this.profile.displayName.trim());
+    }
+
     public created(): void {
         if (this.userStore.profile) {
             this.profile = JSON.parse(JSON.stringify(this.userStore.profile));
@@ -73,6 +88,10 @@ export default class Settings extends Vue {
         this.profile.displayName = name.trim();
         this.isSaved = false;
     }
+
+    public onSave(): void {
+        this.userStore.updateProfile(this.profile);
+    }
 }
 </script>
 
@@ -81,14 +100,14 @@ export default class Settings extends Vue {
     @import '../../styles/presets.scss';
     @import '../../styles/animations.scss';
 
-    $content-width: 65%;
+    $content-width: 56.5%;
 
     @include flex-column(center);
     color: var(--font-colors-1-00);
     font-size: var(--font-sizes-500);
 
     .header {
-        @include flex-row(flex-start, center);
+        @include flex-column(center, center);
         width: $content-width;
         height: 15%;
         @include animate-property(opacity, 0, 1, 0.3s, 0.3s);
@@ -101,6 +120,46 @@ export default class Settings extends Vue {
             .icon {
                 margin-right: 1vh;
                 font-size: var(--font-sizes-750);
+            }
+        }
+
+        .actions-wrapper {
+            @include flex-row(center, flex-end);
+            box-sizing: border-box;
+            padding-bottom: 1.5vh;
+            width: 100%;
+            height: 40%;
+
+            .save-button {
+                margin-right: 1vh;
+                height: 3vh;
+                color: var(--font-colors-3-00);
+                font-size: var(--font-sizes-200);
+                transition: all 0.3s;
+
+                &:not(.disabled) {
+                    background-color: var(--context-colors-info-1-00);
+                    box-shadow: 0 0 6px 1px var(--context-colors-info-1-03);
+                    color: var(--font-colors-0-00);
+
+                    &:hover {
+                        background-color: var(--context-colors-info-0-00);
+                        box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
+                    }
+                }
+
+                &.disabled {
+                    background-color: transparent;
+                }
+
+                .icon, span {
+                    @include animate-property(opacity, 0, 1, 0.3s);
+                }
+
+                .icon {
+                    margin-right: 0.75vh;
+                    font-size: var(--font-sizes-400);
+                }
             }
         }
     }
