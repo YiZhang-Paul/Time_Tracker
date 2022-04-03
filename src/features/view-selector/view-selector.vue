@@ -5,7 +5,7 @@
         </div>
 
         <div class="column">
-            <settings-view-selector class="selector settings"></settings-view-selector>
+            <settings-view-selector class="selector settings" @click="openSettings()"></settings-view-selector>
             <histories-view-selector class="selector histories" @click="openHistories()"></histories-view-selector>
         </div>
     </div>
@@ -28,6 +28,10 @@ import SettingsViewSelector from './settings-view-selector/settings-view-selecto
 export default class ViewSelector extends Vue {
     public openWorkItems(): void {
         this.$router.push('/works');
+    }
+
+    public openSettings(): void {
+        this.$router.push('/settings');
     }
 
     public openHistories(): void {

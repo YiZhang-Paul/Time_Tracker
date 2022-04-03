@@ -39,7 +39,7 @@
             </category-summary-display>
         </div>
 
-        <div class="label">items</div>
+        <div class="label">to-do</div>
     </div>
 </template>
 

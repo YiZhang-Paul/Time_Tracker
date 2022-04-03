@@ -6,6 +6,15 @@
             <div class="glare bottom-left"></div>
         </div>
 
+        <div class="user-profile">
+            <div class="avatar" :style="{ 'background-image': `url(${avatarUrl})` }"></div>
+
+            <div class="information">
+                <span>{{ displayName }}</span>
+                <span>{{ email }}</span>
+            </div>
+        </div>
+
         <flat-button class="edit-button">Edit Settings</flat-button>
         <div class="label">settings</div>
     </div>
@@ -13,18 +22,36 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { CogOutline } from 'mdue';
 
+import { useUserStore } from '../../../stores/user/user.store';
 import FlatButton from '../../../shared/buttons/flat-button/flat-button.vue';
 
 @Options({
     components: {
         CogOutline,
         FlatButton
+    },
+    computed: {
+        ...mapStores(useUserStore)
     }
 })
 export default class SettingsViewSelector extends Vue {
     public isHovered = false;
+    private userStore!: ReturnType<typeof useUserStore>;
+
+    get avatarUrl(): string {
+        return this.userStore.profile!.avatarUrl ?? require('../../../assets/images/avatar_placeholder.png');
+    }
+
+    get displayName(): string {
+        return this.userStore.profile!.displayName;
+    }
+
+    get email(): string {
+        return this.userStore.profile!.email;
+    }
 }
 </script>
 
@@ -98,6 +125,35 @@ export default class SettingsViewSelector extends Vue {
             position: absolute;
             top: -15%;
             right: -10%;
+        }
+    }
+
+    .user-profile {
+        @include flex-row(center, center);
+
+        .avatar {
+            width: 7.5vh;
+            height: 7.5vh;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
+            @include animate-property(opacity, 0, 1, 0.6s, 0.2s);
+        }
+
+        .information {
+            @include flex-column();
+            margin-left: 1.5vh;
+            @include animate-property(opacity, 0, 1, 0.4s, 0.4s);
+
+            span:first-of-type {
+                margin-bottom: 0.5vh;
+                font-size: var(--font-sizes-500);
+            }
+
+            span:last-of-type {
+                color: var(--font-colors-3-00);
+                font-size: var(--font-sizes-300);
+            }
         }
     }
 
