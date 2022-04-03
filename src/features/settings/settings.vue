@@ -89,8 +89,8 @@ export default class Settings extends Vue {
         this.isSaved = false;
     }
 
-    public onSave(): void {
-        this.userStore.updateProfile(this.profile);
+    public async onSave(): Promise<void> {
+        this.isSaved = await this.userStore.updateProfile(this.profile);
     }
 }
 </script>

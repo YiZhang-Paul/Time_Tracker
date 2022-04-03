@@ -27,12 +27,12 @@ export class UserHttpService {
         return (await axios.post(endpoint, JSON.stringify(idToken), { headers })).data;
     }
 
-    public async updateProfile(profile: UserProfile): Promise<boolean> {
+    public async updateProfile(profile: UserProfile): Promise<UserProfile | null> {
         try {
             return (await axios.put(`${this._api}/profile`, profile)).data;
         }
         catch {
-            return false;
+            return null;
         }
     }
 }

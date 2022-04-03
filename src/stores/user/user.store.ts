@@ -78,13 +78,13 @@ export const useUserStore = defineStore('user', {
             return this.idToken ? await getAuthenticator().sendVerification(this.idToken) : false;
         },
         async updateProfile(profile: UserProfile): Promise<boolean> {
-            const isUpdated = await userHttpService.updateProfile(profile);
+            const updated = await userHttpService.updateProfile(profile);
 
-            if (isUpdated) {
-                this.signInResponse!.profile = profile;
+            if (updated) {
+                this.signInResponse!.profile = updated;
             }
 
-            return isUpdated;
+            return Boolean(updated);
         }
     }
 });
