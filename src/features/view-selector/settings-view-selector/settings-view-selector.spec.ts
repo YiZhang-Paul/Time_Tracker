@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 
 import SettingsViewSelector from './settings-view-selector.vue';
 
@@ -7,7 +8,7 @@ describe('settings view selector unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(SettingsViewSelector);
+        component = shallowMount(SettingsViewSelector, { global: { plugins: [createTestingPinia()] } });
     });
 
     afterEach(() => {

@@ -1,4 +1,5 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
 
 import Settings from './settings.vue';
 
@@ -7,7 +8,7 @@ describe('settings unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(Settings);
+        component = shallowMount(Settings, { global: { plugins: [createTestingPinia()] } });
     });
 
     afterEach(() => {
