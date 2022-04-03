@@ -2,6 +2,12 @@
     <router-view class="main-view"></router-view>
 
     <template v-if="isLoggedIn">
+        <user-widget class="user-widget"
+            :user="user"
+            @select:settings="openSettings()"
+            @select:logout="signOut()">
+        </user-widget>
+
         <time-display class="time-display"></time-display>
         <event-tracker class="event-tracker"></event-tracker>
 
@@ -20,12 +26,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { Apps } from 'mdue';
 import { mapStores } from 'pinia';
+import { Apps } from 'mdue';
 
 import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
+import { UserProfile } from './core/models/authentication/user-profile';
+import UserWidget from './features/user-widget/user-widget.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';
 import IconButton from './shared/buttons/icon-button/icon-button.vue';
@@ -34,6 +42,7 @@ import DialogsBase from './shared/dialogs/dialogs-base/dialogs-base.vue';
 @Options({
     components: {
         Apps,
+        UserWidget,
         TimeDisplay,
         EventTracker,
         IconButton,
@@ -74,6 +83,10 @@ export default class App extends Vue {
         return this.userStore.isLoggedIn && this.$route.name !== 'login';
     }
 
+    get user(): UserProfile | null {
+        return this.userStore.profile;
+    }
+
     get isWorking(): boolean {
         return this.eventStore.isWorking;
     }
@@ -94,6 +107,14 @@ export default class App extends Vue {
 
     public openViewsSelector(): void {
         this.$router.push('/views');
+    }
+
+    public openSettings(): void {
+        this.$router.push('/settings');
+    }
+
+    public signOut(): void {
+        this.userStore.signOut();
     }
 }
 </script>
@@ -140,6 +161,12 @@ html, body, #app {
     right: 20vw;
     height: 5vh;
     @include animate-property(opacity, 0, 1, 0.4s, 1.5s);
+}
+
+.user-widget {
+    position: absolute;
+    top: $border-gap;
+    left: $border-gap;
 }
 
 .time-display {
