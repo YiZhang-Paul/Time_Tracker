@@ -26,8 +26,8 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { Apps } from 'mdue';
 import { mapStores } from 'pinia';
+import { Apps } from 'mdue';
 
 import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
