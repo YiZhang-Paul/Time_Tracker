@@ -1,7 +1,7 @@
 <template>
     <div class="daily-goal-summary-container">
-        <emoticon-cool v-if="workingDuration >= targetHours" class="emoticon-icon" />
-        <emoticon-sad v-if="workingDuration < targetHours" class="emoticon-icon" />
+        <emoticon-cool v-if="workingDuration >= dailyTarget" class="emoticon-icon" />
+        <emoticon-sad v-if="workingDuration < dailyTarget" class="emoticon-icon" />
 
         <div class="summary">
             <span class="title">Work done today</span>
@@ -11,12 +11,12 @@
             </div>
 
             <div class="delta-wrapper">
-                <div v-if="workingDuration >= targetHours" class="delta completed">
+                <div v-if="workingDuration >= dailyTarget" class="delta completed">
                     <medal class="icon" />
                     <span>target completed!</span>
                 </div>
 
-                <div v-if="workingDuration < targetHours" class="delta">
+                <div v-if="workingDuration < dailyTarget" class="delta">
                     <menu-down class="icon" />
                     <span>{{ dailyTargetStatusText }}</span>
                 </div>
@@ -27,7 +27,11 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
 import { EmoticonCool, EmoticonSad, Medal, MenuDown } from 'mdue';
+
+import { useEventStore } from '../../../../stores/event/event.store';
+import { TimeUtility } from '../../../../core/utilities/time-utility/time-utility';
 
 class DailyGoalSummaryProp {
     public workingDuration = prop<number>({ default: 0 });
@@ -39,13 +43,16 @@ class DailyGoalSummaryProp {
         EmoticonSad,
         Medal,
         MenuDown
+    },
+    computed: {
+        ...mapStores(useEventStore)
     }
 })
 export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
-    public readonly targetHours = 8;
+    private eventStore!: ReturnType<typeof useEventStore>;
 
     get durationColor(): string {
-        const percentage = this.workingDuration / this.targetHours;
+        const percentage = this.workingDuration / this.dailyTarget;
 
         if (percentage < 0.25) {
             return 'var(--context-colors-warning-0-00)';
@@ -59,9 +66,13 @@ export default class DailyGoalSummary extends Vue.with(DailyGoalSummaryProp) {
     }
 
     get dailyTargetStatusText(): string {
-        const delta = this.targetHours - this.workingDuration;
+        const delta = this.dailyTarget - this.workingDuration;
 
         return `${Math.round(delta * 10) / 10} hour${delta > 1 ? 's' : ''} till goal`;
+    }
+
+    get dailyTarget(): number {
+        return TimeUtility.convertTime(this.eventStore.dailyWorkDuration, 'millisecond', 'hour');
     }
 }
 </script>
