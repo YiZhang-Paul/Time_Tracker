@@ -8,7 +8,7 @@
 
             <completion-indicator class="completion-indicator"
                 :description="targetTitle"
-                :percentage="targetMilliseconds ? totalDuration / targetMilliseconds : 0">
+                :percentage="dailyGoalCompletion">
             </completion-indicator>
         </div>
 
@@ -53,7 +53,9 @@
 
 <script lang="ts">
 import { Options, Vue, prop } from 'vue-class-component';
+import { mapStores } from 'pinia';
 
+import { useEventStore } from '../../../../stores/event/event.store';
 import { EventSummariesDto } from '../../../../core/dtos/event-summaries-dto';
 import { EventType } from '../../../../core/enums/event-type.enum';
 import { IconUtility } from '../../../../core/utilities/icon-utility/icon-utility';
@@ -69,14 +71,16 @@ class WorkingTimeSummaryProp {
     components: {
         CompletionIndicator,
         EventTypeSummaryCard
+    },
+    computed: {
+        ...mapStores(useEventStore)
     }
 })
 export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp) {
-    public readonly targetHours = 8;
-    public readonly targetMilliseconds = TimeUtility.convertTime(this.targetHours, 'hour', 'millisecond');
     public readonly workingTypeIcon = IconUtility.getWorkingTypeIcon();
     public readonly interruptionIcon = IconUtility.getInterruptionTypeIcon();
     public readonly taskIcon = IconUtility.getTaskTypeIcon();
+    private eventStore!: ReturnType<typeof useEventStore>;
 
     get totalDuration(): number {
         return this.getDuration([EventType.Interruption, EventType.Task]);
@@ -84,8 +88,15 @@ export default class WorkingTimeSummary extends Vue.with(WorkingTimeSummaryProp)
 
     get targetTitle(): string {
         const completed = TimeUtility.convertTime(this.totalDuration, 'millisecond', 'hour');
+        const target = TimeUtility.convertTime(this.eventStore.dailyWorkDuration, 'millisecond', 'hour');
 
-        return `Daily target - ${completed} out of ${this.targetHours} hrs`;
+        return `Daily target - ${completed} out of ${target} hrs`;
+    }
+
+    get dailyGoalCompletion(): number {
+        const target = this.eventStore.dailyWorkDuration;
+
+        return target ? this.totalDuration / target : 0;
     }
 
     get interruptionDuration(): number {

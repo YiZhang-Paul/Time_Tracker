@@ -16,6 +16,7 @@ export const setServices = (eventHttp: EventHttpService): void => {
 export const useEventStore = defineStore('event', {
     state: () => ({
         ongoingEventSummary: null as OngoingEventTimeSummaryDto | null,
+        dailyWorkDuration: TimeUtility.convertTime(8, 'hour', 'millisecond'),
         workSessionDuration: TimeUtility.convertTime(50, 'minute', 'millisecond'),
         breakDuration: TimeUtility.convertTime(10, 'minute', 'millisecond')
     }),
