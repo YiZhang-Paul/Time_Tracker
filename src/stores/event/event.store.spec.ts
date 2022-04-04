@@ -185,7 +185,7 @@ describe('event store unit test', () => {
         });
 
         test('should return false when scheduled break is not needed', async() => {
-            const limit = store.workDurationLimit;
+            const limit = store.workSessionDuration;
             summary.unconcludedSinceStart.eventType = EventType.Interruption;
             summary.concludedSinceLastBreakPrompt.working = limit / 2;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
@@ -201,7 +201,7 @@ describe('event store unit test', () => {
         });
 
         test('should return true when scheduled break is needed', async() => {
-            const limit = store.workDurationLimit;
+            const limit = store.workSessionDuration;
             summary.unconcludedSinceStart.eventType = EventType.Task;
             summary.concludedSinceLastBreakPrompt.working = limit;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();

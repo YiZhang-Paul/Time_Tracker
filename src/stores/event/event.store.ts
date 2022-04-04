@@ -16,7 +16,7 @@ export const setServices = (eventHttp: EventHttpService): void => {
 export const useEventStore = defineStore('event', {
     state: () => ({
         ongoingEventSummary: null as OngoingEventTimeSummaryDto | null,
-        workDurationLimit: TimeUtility.convertTime(50, 'minute', 'millisecond'),
+        workSessionDuration: TimeUtility.convertTime(50, 'minute', 'millisecond'),
         breakDuration: TimeUtility.convertTime(10, 'minute', 'millisecond')
     }),
     getters: {
@@ -49,7 +49,7 @@ export const useEventStore = defineStore('event', {
                 return false;
             }
 
-            const limit = this.workDurationLimit;
+            const limit = this.workSessionDuration;
             const { concludedSinceLastBreakPrompt, unconcludedSinceLastBreakPrompt } = this.ongoingEventSummary!;
             const unconcluded = Date.now() - new Date(unconcludedSinceLastBreakPrompt.timestamp).getTime();
 
