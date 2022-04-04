@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { Credentials } from '../../core/models/authentication/credentials';
-import { UserProfile } from '../../core/models/authentication/user-profile';
+import { UserProfile } from '../../core/models/user/user-profile';
 import { SignInResponse } from '../../core/models/authentication/sign-in-response';
 import { AuthenticationResult } from '../../core/enums/authentication-result.enum';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';

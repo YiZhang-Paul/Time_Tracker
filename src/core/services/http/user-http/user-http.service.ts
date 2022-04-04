@@ -2,7 +2,7 @@ import axios from 'axios';
 import { injectable } from 'inversify';
 
 import { Credentials } from '../../../models/authentication/credentials';
-import { UserProfile } from '../../../models/authentication/user-profile';
+import { UserProfile } from '../../../models/user/user-profile';
 import { SignInResponse } from '../../../models/authentication/sign-in-response';
 
 @injectable()

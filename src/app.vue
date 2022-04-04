@@ -32,7 +32,7 @@ import { Apps } from 'mdue';
 import { useUserStore } from './stores/user/user.store';
 import { useNotificationStore } from './stores/notification/notification.store';
 import { useEventStore } from './stores/event/event.store';
-import { UserProfile } from './core/models/authentication/user-profile';
+import { UserProfile } from './core/models/user/user-profile';
 import UserWidget from './features/user-widget/user-widget.vue';
 import TimeDisplay from './features/time-display/time-display.vue';
 import EventTracker from './features/event-tracking/event-tracker/event-tracker.vue';

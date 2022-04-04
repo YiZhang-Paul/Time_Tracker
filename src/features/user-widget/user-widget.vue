@@ -22,7 +22,7 @@
 import { Options, Vue, prop } from 'vue-class-component';
 import { Cog, LogoutVariant } from 'mdue';
 
-import { UserProfile } from '../../core/models/authentication/user-profile';
+import { UserProfile } from '../../core/models/user/user-profile';
 import IconButton from '../../shared/buttons/icon-button/icon-button.vue';
 
 class UserWidgetProp {

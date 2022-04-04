@@ -52,7 +52,7 @@ import { Account, At, CloudUpload, Cog } from 'mdue';
 
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
-import { UserProfile } from '../../core/models/authentication/user-profile';
+import { UserProfile } from '../../core/models/user/user-profile';
 import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
@@ -186,6 +186,10 @@ export default class Settings extends Vue {
         .entry {
             @include flex-row(center);
             margin-top: 1.5vh;
+
+            &:first-of-type {
+                margin-top: 3.5vh;
+            }
 
             .type {
                 margin-right: 2.5vw;

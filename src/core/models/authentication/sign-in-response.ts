@@ -1,5 +1,6 @@
+import { UserProfile } from '../user/user-profile';
+
 import { TokenResponse } from './token-response';
-import { UserProfile } from './user-profile';
 
 export class SignInResponse {
     public tokens!: TokenResponse;
