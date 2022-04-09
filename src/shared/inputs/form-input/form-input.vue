@@ -19,6 +19,7 @@
                 :maxlength="maxLength"
                 :readonly="isReadonly"
                 @blur="isTouched = true"
+                @input="isTouched = true"
                 @update:modelValue="$emit('update:modelValue', $event)" />
         </div>
     </div>
@@ -127,7 +128,7 @@ export default class FormInput extends Vue.with(FormInputProp) {
         }
 
         input {
-            padding: 1vh 0;
+            padding: 1vh 1.5vh;
             width: 100%;
             border: none;
             border-radius: $border-radius;
