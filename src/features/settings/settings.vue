@@ -19,7 +19,7 @@
 
         <div class="content">
             <div class="entry">
-                <span class="type">Email <span class="readonly">(readonly)</span></span>
+                <span class="type">Email <span class="label">(readonly)</span></span>
 
                 <form-input class="form-input"
                     :modelValue="profile.email"
@@ -32,12 +32,55 @@
                 <span class="type">Nick Name</span>
 
                 <form-input class="form-input"
+                    ref="nameInput"
                     :modelValue="profile.displayName"
                     :icon="nameIcon"
                     :maxLength="25"
-                    :placeholder="'type here...'"
+                    :placeholder="'choose a nick name...'"
                     :validator="_ => _?.trim() ? '' : 'name must not be empty'"
                     @update:modelValue="onNameChange($event)">
+                </form-input>
+            </div>
+
+            <div class="entry">
+                <span class="type">Daily Goal <span class="label">(hours)</span></span>
+
+                <form-input class="form-input"
+                    ref="dailyGoalInput"
+                    :modelValue="dailyWorkDuration"
+                    :icon="goalIcon"
+                    :type="'number'"
+                    :placeholder="'how many hours per day?'"
+                    :validator="_ => validateRange(_, 0, 24)"
+                    @update:modelValue="onDailyWorkDurationChange($event)">
+                </form-input>
+            </div>
+
+            <div class="entry">
+                <span class="type">Work Session <span class="label">(minutes)</span></span>
+
+                <form-input class="form-input"
+                    ref="workSessionDurationInput"
+                    :modelValue="workSessionDuration"
+                    :icon="workIcon"
+                    :type="'number'"
+                    :placeholder="'how long per session?'"
+                    :validator="_ => validateRange(_, 0, 24 * 60)"
+                    @update:modelValue="onWorkSessionDurationChange($event)">
+                </form-input>
+            </div>
+
+            <div class="entry">
+                <span class="type">Break Session <span class="label">(minutes)</span></span>
+
+                <form-input class="form-input"
+                    ref="breakSessionDurationInput"
+                    :modelValue="breakSessionDuration"
+                    :icon="breakIcon"
+                    :type="'number'"
+                    :placeholder="'how long per session?'"
+                    :validator="_ => validateRange(_, 0, 24 * 60)"
+                    @update:modelValue="onBreakSessionDurationChange($event)">
                 </form-input>
             </div>
         </div>
@@ -48,11 +91,13 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Account, At, CloudUpload, Cog } from 'mdue';
+import { Account, At, CloudUpload, Cog, FlagCheckered } from 'mdue';
 
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
 import { UserProfile } from '../../core/models/user/user-profile';
+import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
+import { IconUtility } from '../../core/utilities/icon-utility/icon-utility';
 import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
@@ -70,12 +115,30 @@ import FormInput from '../../shared/inputs/form-input/form-input.vue';
 export default class Settings extends Vue {
     public readonly nameIcon = new IconConfig(markRaw(Account), 'var(--font-colors-7-00)');
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
+    public readonly goalIcon = new IconConfig(markRaw(FlagCheckered), 'var(--font-colors-7-00)');
+    public readonly workIcon = IconUtility.getWorkingTypeIcon('var(--font-colors-7-00)');
+    public readonly breakIcon = IconUtility.getNotWorkingTypeIcon('var(--font-colors-7-00)');
     public profile!: UserProfile;
     public isSaved = true;
+    public canSave = false;
     private userStore!: ReturnType<typeof useUserStore>;
 
-    get canSave(): boolean {
-        return !this.isSaved && Boolean(this.profile.displayName.trim());
+    get dailyWorkDuration(): number {
+        const { dailyWorkDuration } = this.profile.timeSessionOptions;
+
+        return TimeUtility.convertTime(dailyWorkDuration, 'millisecond', 'hour');
+    }
+
+    get workSessionDuration(): number {
+        const { workSessionDuration } = this.profile.timeSessionOptions;
+
+        return TimeUtility.convertTime(workSessionDuration, 'millisecond', 'minute');
+    }
+
+    get breakSessionDuration(): number {
+        const { breakSessionDuration } = this.profile.timeSessionOptions;
+
+        return TimeUtility.convertTime(breakSessionDuration, 'millisecond', 'minute');
     }
 
     public created(): void {
@@ -84,13 +147,60 @@ export default class Settings extends Vue {
         }
     }
 
+    public validateRange(value: number, min: number, max: number): string {
+        if (!value.toString()) {
+            return 'value must be a number';
+        }
+
+        return value >= min && value <= max ? '' : `value must be between ${min} and ${max}`;
+    }
+
     public onNameChange(name: string): void {
         this.profile.displayName = name.trim();
         this.isSaved = false;
+        this.validateSettings();
+    }
+
+    public onDailyWorkDurationChange(hours: number): void {
+        const duration = TimeUtility.convertTime(hours, 'hour', 'millisecond');
+        this.profile.timeSessionOptions.dailyWorkDuration = duration;
+        this.isSaved = false;
+        this.validateSettings();
+    }
+
+    public onWorkSessionDurationChange(minutes: number): void {
+        const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
+        this.profile.timeSessionOptions.workSessionDuration = duration;
+        this.isSaved = false;
+        this.validateSettings();
+    }
+
+    public onBreakSessionDurationChange(minutes: number): void {
+        const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
+        this.profile.timeSessionOptions.breakSessionDuration = duration;
+        this.isSaved = false;
+        this.validateSettings();
     }
 
     public async onSave(): Promise<void> {
         this.isSaved = await this.userStore.updateProfile(this.profile);
+        this.canSave = !this.isSaved;
+    }
+
+    private validateSettings(): void {
+        const inputs = [
+            this.$refs.nameInput,
+            this.$refs.dailyGoalInput,
+            this.$refs.workSessionDurationInput,
+            this.$refs.breakSessionDurationInput
+        ] as FormInput[];
+
+        if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
+            this.canSave = false;
+        }
+        else {
+            this.canSave = Boolean(this.profile.displayName.trim());
+        }
     }
 }
 </script>
@@ -148,10 +258,6 @@ export default class Settings extends Vue {
                     }
                 }
 
-                &.disabled {
-                    background-color: transparent;
-                }
-
                 .icon, span {
                     @include animate-property(opacity, 0, 1, 0.3s);
                 }
@@ -194,11 +300,11 @@ export default class Settings extends Vue {
             .type {
                 margin-right: 2.5vw;
                 margin-bottom: 1vh;
-                width: 7.5vw;
+                min-width: 10vw;
                 align-self: flex-end;
                 text-align: right;
 
-                .readonly {
+                .label {
                     color: var(--font-colors-3-00);
                     font-size: var(--font-sizes-400);
                 }
