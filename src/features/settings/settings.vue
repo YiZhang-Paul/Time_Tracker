@@ -7,7 +7,7 @@
             </div>
 
             <div class="actions-wrapper">
-                <flat-button class="save-button" :isDisabled="!canSave" @click="onSave()">
+                <flat-button class="save-button" :isDisabled="!canSave()" @click="onSave()">
                     <cloud-upload v-if="!isSaved" class="icon" />
                     <span v-if="isSaved">Saved</span>
                     <span v-if="!isSaved">Save</span>
@@ -32,6 +32,7 @@
                 <span class="type">Nick Name</span>
 
                 <form-input class="form-input"
+                    ref="nameInput"
                     :modelValue="profile.displayName"
                     :icon="nameIcon"
                     :maxLength="25"
@@ -45,7 +46,9 @@
                 <span class="type">Daily Goal <span class="label">(hours)</span></span>
 
                 <form-input class="form-input"
+                    ref="dailyGoalInput"
                     :modelValue="dailyWorkDuration"
+                    :icon="goalIcon"
                     :type="'number'"
                     :placeholder="'how many hours per day?'"
                     :validator="validateHours"
@@ -60,7 +63,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Account, At, CloudUpload, Cog } from 'mdue';
+import { Account, At, CloudUpload, Cog, FlagCheckered } from 'mdue';
 
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
@@ -83,13 +86,10 @@ import FormInput from '../../shared/inputs/form-input/form-input.vue';
 export default class Settings extends Vue {
     public readonly nameIcon = new IconConfig(markRaw(Account), 'var(--font-colors-7-00)');
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
+    public readonly goalIcon = new IconConfig(markRaw(FlagCheckered), 'var(--font-colors-7-00)');
     public profile!: UserProfile;
     public isSaved = true;
     private userStore!: ReturnType<typeof useUserStore>;
-
-    get canSave(): boolean {
-        return !this.isSaved && Boolean(this.profile.displayName.trim());
-    }
 
     get dailyWorkDuration(): number {
         const { dailyWorkDuration } = this.profile.timeSessionOptions;
@@ -103,16 +103,24 @@ export default class Settings extends Vue {
         }
     }
 
-    public validateHours(hours: string): string {
-        const value = Number(hours);
+    public canSave(): boolean {
+        const inputs = [this.$refs.nameInput, this.$refs.dailyGoalInput] as FormInput[];
 
-        if (isNaN(value)) {
+        if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
+            return false;
+        }
+
+        return Boolean(this.profile.displayName.trim());
+    }
+
+    public validateHours(hours: number): string {
+        if (!hours.toString()) {
             return 'value must be a number';
         }
 
         const [min, max] = [0, 24];
 
-        return value >= min && value <= max ? '' : `value must be between ${min} and ${max}`;
+        return hours >= min && hours <= max ? '' : `value must be between ${min} and ${max}`;
     }
 
     public onNameChange(name: string): void {
@@ -183,10 +191,6 @@ export default class Settings extends Vue {
                         background-color: var(--context-colors-info-0-00);
                         box-shadow: 0 0 6px 2px var(--context-colors-info-0-03);
                     }
-                }
-
-                &.disabled {
-                    background-color: transparent;
                 }
 
                 .icon, span {
