@@ -51,7 +51,7 @@
                     :icon="goalIcon"
                     :type="'number'"
                     :placeholder="'how many hours per day?'"
-                    :validator="validateHours"
+                    :validator="_ => validateRange(_, 0, 24)"
                     @update:modelValue="onDailyWorkDurationChange($event)">
                 </form-input>
             </div>
@@ -65,7 +65,7 @@
                     :icon="workIcon"
                     :type="'number'"
                     :placeholder="'how long per session?'"
-                    :validator="validateMinutes"
+                    :validator="_ => validateRange(_, 0, 24 * 60)"
                     @update:modelValue="onWorkSessionDurationChange($event)">
                 </form-input>
             </div>
@@ -137,24 +137,12 @@ export default class Settings extends Vue {
         return Boolean(this.profile.displayName.trim());
     }
 
-    public validateHours(hours: number): string {
-        if (!hours.toString()) {
+    public validateRange(value: number, min: number, max: number): string {
+        if (!value.toString()) {
             return 'value must be a number';
         }
 
-        const [min, max] = [0, 24];
-
-        return hours >= min && hours <= max ? '' : `value must be between ${min} and ${max}`;
-    }
-
-    public validateMinutes(minutes: number): string {
-        if (!minutes.toString()) {
-            return 'value must be a number';
-        }
-
-        const [min, max] = [0, 24 * 60];
-
-        return minutes >= min && minutes <= max ? '' : `value must be between ${min} and ${max}`;
+        return value >= min && value <= max ? '' : `value must be between ${min} and ${max}`;
     }
 
     public onNameChange(name: string): void {
