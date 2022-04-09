@@ -55,6 +55,20 @@
                     @update:modelValue="onDailyWorkDurationChange($event)">
                 </form-input>
             </div>
+
+            <div class="entry">
+                <span class="type">Work Session <span class="label">(minutes)</span></span>
+
+                <form-input class="form-input"
+                    ref="workSessionDurationInput"
+                    :modelValue="workSessionDuration"
+                    :icon="workIcon"
+                    :type="'number'"
+                    :placeholder="'how long per session?'"
+                    :validator="validateMinutes"
+                    @update:modelValue="onWorkSessionDurationChange($event)">
+                </form-input>
+            </div>
         </div>
     </div>
 </template>
@@ -69,6 +83,7 @@ import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
 import { UserProfile } from '../../core/models/user/user-profile';
 import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
+import { IconUtility } from '../../core/utilities/icon-utility/icon-utility';
 import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
@@ -87,6 +102,7 @@ export default class Settings extends Vue {
     public readonly nameIcon = new IconConfig(markRaw(Account), 'var(--font-colors-7-00)');
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly goalIcon = new IconConfig(markRaw(FlagCheckered), 'var(--font-colors-7-00)');
+    public readonly workIcon = IconUtility.getWorkingTypeIcon();
     public profile!: UserProfile;
     public isSaved = true;
     private userStore!: ReturnType<typeof useUserStore>;
@@ -97,14 +113,22 @@ export default class Settings extends Vue {
         return TimeUtility.convertTime(dailyWorkDuration, 'millisecond', 'hour');
     }
 
+    get workSessionDuration(): number {
+        const { workSessionDuration } = this.profile.timeSessionOptions;
+
+        return TimeUtility.convertTime(workSessionDuration, 'millisecond', 'minute');
+    }
+
     public created(): void {
+        this.workIcon.color = 'var(--font-colors-7-00)';
+
         if (this.userStore.profile) {
             this.profile = JSON.parse(JSON.stringify(this.userStore.profile));
         }
     }
 
     public canSave(): boolean {
-        const inputs = [this.$refs.nameInput, this.$refs.dailyGoalInput] as FormInput[];
+        const inputs = [this.$refs.nameInput, this.$refs.dailyGoalInput, this.$refs.workSessionDurationInput] as FormInput[];
 
         if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
             return false;
@@ -123,14 +147,30 @@ export default class Settings extends Vue {
         return hours >= min && hours <= max ? '' : `value must be between ${min} and ${max}`;
     }
 
+    public validateMinutes(minutes: number): string {
+        if (!minutes.toString()) {
+            return 'value must be a number';
+        }
+
+        const [min, max] = [0, 24 * 60];
+
+        return minutes >= min && minutes <= max ? '' : `value must be between ${min} and ${max}`;
+    }
+
     public onNameChange(name: string): void {
         this.profile.displayName = name.trim();
         this.isSaved = false;
     }
 
-    public onDailyWorkDurationChange(hours: string): void {
-        const duration = TimeUtility.convertTime(Number(hours), 'hour', 'millisecond');
+    public onDailyWorkDurationChange(hours: number): void {
+        const duration = TimeUtility.convertTime(hours, 'hour', 'millisecond');
         this.profile.timeSessionOptions.dailyWorkDuration = duration;
+        this.isSaved = false;
+    }
+
+    public onWorkSessionDurationChange(minutes: number): void {
+        const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
+        this.profile.timeSessionOptions.workSessionDuration = duration;
         this.isSaved = false;
     }
 
@@ -235,7 +275,7 @@ export default class Settings extends Vue {
             .type {
                 margin-right: 2.5vw;
                 margin-bottom: 1vh;
-                min-width: 7.5vw;
+                min-width: 10vw;
                 align-self: flex-end;
                 text-align: right;
 
