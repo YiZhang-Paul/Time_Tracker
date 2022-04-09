@@ -3,8 +3,11 @@ import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { assert as sinonExpect, spy, stub } from 'sinon';
 
+import { useUserStore } from '../../../stores/user/user.store';
 import { useDialogStore } from '../../../stores/dialog/dialog.store';
 import { useEventStore } from '../../../stores/event/event.store';
+import { SignInResponse } from '../../../core/models/authentication/sign-in-response';
+import { UserProfile } from '../../../core/models/user/user-profile';
 
 import EventTracker from './event-tracker.vue';
 
@@ -16,6 +19,7 @@ describe('event tracker unit test', () => {
 
     beforeEach(() => {
         component = shallowMount(EventTracker, { global: { plugins: [createTestingPinia()] } });
+        useUserStore().signInResponse = { profile: new UserProfile() } as SignInResponse;
         dialogStore = useDialogStore();
         eventStore = useEventStore();
     });

@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { Credentials } from '../../core/models/authentication/credentials';
-import { UserProfile } from '../../core/models/authentication/user-profile';
+import { UserProfile } from '../../core/models/user/user-profile';
 import { SignInResponse } from '../../core/models/authentication/sign-in-response';
 import { AuthenticationResult } from '../../core/enums/authentication-result.enum';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';
@@ -42,8 +42,8 @@ export const useUserStore = defineStore('user', {
                 return AuthenticationResult.Failed;
             }
 
-            const id = window.localStorage.getItem('userId');
-            const { result, data } = await getAuthenticator().silentSignIn(Number(id));
+            const identifier = window.localStorage.getItem('identifier') ?? '';
+            const { result, data } = await getAuthenticator().silentSignIn(identifier);
             this.signInResponse = data;
 
             if (result === AuthenticationResult.Succeed) {
@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user', {
             this.signInResponse = data;
 
             if (result === AuthenticationResult.Succeed && window.localStorage) {
-                window.localStorage.setItem('userId', `${data!.profile.id}`);
+                window.localStorage.setItem('identifier', `${data!.profile.id}|${data!.verificationSequence}`);
             }
 
             if (result === AuthenticationResult.Succeed) {
@@ -71,7 +71,7 @@ export const useUserStore = defineStore('user', {
             this.$reset();
 
             if (window.localStorage) {
-                window.localStorage.removeItem('userId');
+                window.localStorage.removeItem('identifier');
             }
         },
         async sendVerification(): Promise<boolean> {

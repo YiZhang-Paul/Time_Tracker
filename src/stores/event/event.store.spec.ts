@@ -1,7 +1,11 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { assert as sinonExpect, createStubInstance, SinonStubbedInstance } from 'sinon';
 
+import { useUserStore } from '../user/user.store';
 import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
+import { SignInResponse } from '../../core/models/authentication/sign-in-response';
+import { TimeSessionOptions } from '../../core/models/user/time-session-options';
+import { UserProfile } from '../../core/models/user/user-profile';
 import { EventHistory } from '../../core/models/event/event-history';
 import { EventTimeSummary } from '../../core/models/event/event-time-summary';
 import { EventType } from '../../core/enums/event-type.enum';
@@ -163,6 +167,12 @@ describe('event store unit test', () => {
     });
 
     describe('hasScheduledBreak', () => {
+        beforeEach(() => {
+            const options = { workSessionDuration: 50 * 60 * 1000 } as TimeSessionOptions;
+            const profile = { timeSessionOptions: options } as UserProfile;
+            useUserStore().signInResponse = { profile } as SignInResponse;
+        });
+
         test('should return false when event summary is not available', () => {
             const result = store.hasScheduledBreak();
 
@@ -185,7 +195,7 @@ describe('event store unit test', () => {
         });
 
         test('should return false when scheduled break is not needed', async() => {
-            const limit = store.workDurationLimit;
+            const limit = store.workSessionDuration;
             summary.unconcludedSinceStart.eventType = EventType.Interruption;
             summary.concludedSinceLastBreakPrompt.working = limit / 2;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
@@ -201,7 +211,7 @@ describe('event store unit test', () => {
         });
 
         test('should return true when scheduled break is needed', async() => {
-            const limit = store.workDurationLimit;
+            const limit = store.workSessionDuration;
             summary.unconcludedSinceStart.eventType = EventType.Task;
             summary.concludedSinceLastBreakPrompt.working = limit;
             summary.unconcludedSinceLastBreakPrompt.timestamp = new Date().toISOString();
@@ -384,6 +394,12 @@ describe('event store unit test', () => {
     });
 
     describe('startBreak', () => {
+        beforeEach(() => {
+            const options = { breakSessionDuration: 10 * 60 * 1000 } as TimeSessionOptions;
+            const profile = { timeSessionOptions: options } as UserProfile;
+            useUserStore().signInResponse = { profile } as SignInResponse;
+        });
+
         test('should do nothing on failure', async() => {
             eventHttpStub.startBreak.resolves(false);
 
@@ -399,7 +415,7 @@ describe('event store unit test', () => {
 
             const result = await store.startBreak();
 
-            sinonExpect.calledOnceWithExactly(eventHttpStub.startBreak, store.breakDuration);
+            sinonExpect.calledOnceWithExactly(eventHttpStub.startBreak, store.breakSessionDuration);
             expect(store.ongoingEventSummary).toEqual(summary);
             expect(result).toEqual(true);
         });

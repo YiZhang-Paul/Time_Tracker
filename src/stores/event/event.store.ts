@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 
+import { useUserStore } from '../user/user.store';
 import { types } from '../../core/ioc/types';
 import { container } from '../../core/ioc/container';
 import { OngoingEventTimeSummaryDto } from '../../core/dtos/ongoing-event-time-summary-dto';
 import { EventType } from '../../core/enums/event-type.enum';
-import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import { EventHttpService } from '../../core/services/http/event-http/event-http.service';
 
 let eventHttpService = container.get<EventHttpService>(types.EventHttpService);
@@ -15,9 +15,7 @@ export const setServices = (eventHttp: EventHttpService): void => {
 
 export const useEventStore = defineStore('event', {
     state: () => ({
-        ongoingEventSummary: null as OngoingEventTimeSummaryDto | null,
-        workDurationLimit: TimeUtility.convertTime(50, 'minute', 'millisecond'),
-        breakDuration: TimeUtility.convertTime(10, 'minute', 'millisecond')
+        ongoingEventSummary: null as OngoingEventTimeSummaryDto | null
     }),
     getters: {
         isWorking(): boolean {
@@ -41,6 +39,15 @@ export const useEventStore = defineStore('event', {
 
                 return eventType === type && resourceId === id;
             };
+        },
+        dailyWorkDuration(): number {
+            return useUserStore().profile!.timeSessionOptions.dailyWorkDuration;
+        },
+        workSessionDuration(): number {
+            return useUserStore().profile!.timeSessionOptions.workSessionDuration;
+        },
+        breakSessionDuration(): number {
+            return useUserStore().profile!.timeSessionOptions.breakSessionDuration;
         }
     },
     actions: {
@@ -49,7 +56,7 @@ export const useEventStore = defineStore('event', {
                 return false;
             }
 
-            const limit = this.workDurationLimit;
+            const limit = this.workSessionDuration;
             const { concludedSinceLastBreakPrompt, unconcludedSinceLastBreakPrompt } = this.ongoingEventSummary!;
             const unconcluded = Date.now() - new Date(unconcludedSinceLastBreakPrompt.timestamp).getTime();
 
@@ -117,7 +124,7 @@ export const useEventStore = defineStore('event', {
             return isStarted;
         },
         async startBreak(): Promise<boolean> {
-            const isStarted = await eventHttpService.startBreak(this.breakDuration);
+            const isStarted = await eventHttpService.startBreak(this.breakSessionDuration);
 
             if (isStarted) {
                 await this.loadOngoingEventSummary();

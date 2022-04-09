@@ -45,8 +45,8 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AlarmSnooze, LightbulbOn } from 'mdue';
 import { mapStores } from 'pinia';
+import { AlarmSnooze, LightbulbOn } from 'mdue';
 
 import { useEventStore } from '../../../stores/event/event.store';
 import { useInterruptionStore } from '../../../stores/interruption/interruption.store';

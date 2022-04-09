@@ -1,4 +1,9 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
+
+import { useUserStore } from '../../../../stores/user/user.store';
+import { SignInResponse } from '../../../../core/models/authentication/sign-in-response';
+import { UserProfile } from '../../../../core/models/user/user-profile';
 
 import DailyGoalSummary from './daily-goal-summary.vue';
 
@@ -7,7 +12,9 @@ describe('daily goal summary unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(DailyGoalSummary);
+        const pinia = createTestingPinia();
+        useUserStore().signInResponse = { profile: new UserProfile() } as SignInResponse;
+        component = shallowMount(DailyGoalSummary, { global: { plugins: [pinia] } });
     });
 
     afterEach(() => {

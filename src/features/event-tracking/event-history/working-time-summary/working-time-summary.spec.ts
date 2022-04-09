@@ -1,4 +1,9 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
+
+import { useUserStore } from '../../../../stores/user/user.store';
+import { SignInResponse } from '../../../../core/models/authentication/sign-in-response';
+import { UserProfile } from '../../../../core/models/user/user-profile';
 
 import WorkingTimeSummary from './working-time-summary.vue';
 
@@ -7,7 +12,9 @@ describe('working time summary unit test', () => {
     let component: VueWrapper<any>;
 
     beforeEach(() => {
-        component = shallowMount(WorkingTimeSummary);
+        const pinia = createTestingPinia();
+        useUserStore().signInResponse = { profile: new UserProfile() } as SignInResponse;
+        component = shallowMount(WorkingTimeSummary, { global: { plugins: [pinia] } });
     });
 
     afterEach(() => {
