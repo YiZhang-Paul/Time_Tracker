@@ -19,7 +19,7 @@
 
         <div class="content">
             <div class="entry">
-                <span class="type">Email <span class="readonly">(readonly)</span></span>
+                <span class="type">Email <span class="label">(readonly)</span></span>
 
                 <form-input class="form-input"
                     :modelValue="profile.email"
@@ -35,9 +35,21 @@
                     :modelValue="profile.displayName"
                     :icon="nameIcon"
                     :maxLength="25"
-                    :placeholder="'type here...'"
+                    :placeholder="'choose a nick name...'"
                     :validator="_ => _?.trim() ? '' : 'name must not be empty'"
                     @update:modelValue="onNameChange($event)">
+                </form-input>
+            </div>
+
+            <div class="entry">
+                <span class="type">Daily Goal <span class="label">(hours)</span></span>
+
+                <form-input class="form-input"
+                    :modelValue="dailyWorkDuration"
+                    :type="'number'"
+                    :placeholder="'how many hours per day?'"
+                    :validator="validateHours"
+                    @update:modelValue="onDailyWorkDurationChange($event)">
                 </form-input>
             </div>
         </div>
@@ -53,6 +65,7 @@ import { Account, At, CloudUpload, Cog } from 'mdue';
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
 import { UserProfile } from '../../core/models/user/user-profile';
+import { TimeUtility } from '../../core/utilities/time-utility/time-utility';
 import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
@@ -78,14 +91,38 @@ export default class Settings extends Vue {
         return !this.isSaved && Boolean(this.profile.displayName.trim());
     }
 
+    get dailyWorkDuration(): number {
+        const { dailyWorkDuration } = this.profile.timeSessionOptions;
+
+        return TimeUtility.convertTime(dailyWorkDuration, 'millisecond', 'hour');
+    }
+
     public created(): void {
         if (this.userStore.profile) {
             this.profile = JSON.parse(JSON.stringify(this.userStore.profile));
         }
     }
 
+    public validateHours(hours: string): string {
+        const value = Number(hours);
+
+        if (isNaN(value)) {
+            return 'value must be a number';
+        }
+
+        const [min, max] = [0, 24];
+
+        return value >= min && value <= max ? '' : `value must be between ${min} and ${max}`;
+    }
+
     public onNameChange(name: string): void {
         this.profile.displayName = name.trim();
+        this.isSaved = false;
+    }
+
+    public onDailyWorkDurationChange(hours: string): void {
+        const duration = TimeUtility.convertTime(Number(hours), 'hour', 'millisecond');
+        this.profile.timeSessionOptions.dailyWorkDuration = duration;
         this.isSaved = false;
     }
 
@@ -194,11 +231,11 @@ export default class Settings extends Vue {
             .type {
                 margin-right: 2.5vw;
                 margin-bottom: 1vh;
-                width: 7.5vw;
+                min-width: 7.5vw;
                 align-self: flex-end;
                 text-align: right;
 
-                .readonly {
+                .label {
                     color: var(--font-colors-3-00);
                     font-size: var(--font-sizes-400);
                 }
