@@ -43,9 +43,9 @@ export class AuthenticationService {
         return await new Promise(resolve => this.authenticator.signup(option, _ => resolve(!_)));
     }
 
-    public async silentSignIn(userId: number): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
+    public async silentSignIn(identifier: string): Promise<{ result: AuthenticationResult; data: SignInResponse | null }> {
         try {
-            return { result: AuthenticationResult.Succeed, data: await this.userHttpService.silentSignIn(userId) };
+            return { result: AuthenticationResult.Succeed, data: await this.userHttpService.silentSignIn(identifier) };
         }
         catch {
             return { result: AuthenticationResult.Failed, data: null };
