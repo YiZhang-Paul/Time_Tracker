@@ -7,7 +7,7 @@
             </div>
 
             <div class="actions-wrapper">
-                <flat-button class="save-button" :isDisabled="!canSave()" @click="onSave()">
+                <flat-button class="save-button" :isDisabled="!canSave" @click="onSave()">
                     <cloud-upload v-if="!isSaved" class="icon" />
                     <span v-if="isSaved">Saved</span>
                     <span v-if="!isSaved">Save</span>
@@ -120,6 +120,7 @@ export default class Settings extends Vue {
     public readonly breakIcon = IconUtility.getNotWorkingTypeIcon('var(--font-colors-7-00)');
     public profile!: UserProfile;
     public isSaved = true;
+    public canSave = false;
     private userStore!: ReturnType<typeof useUserStore>;
 
     get dailyWorkDuration(): number {
@@ -146,21 +147,6 @@ export default class Settings extends Vue {
         }
     }
 
-    public canSave(): boolean {
-        const inputs = [
-            this.$refs.nameInput,
-            this.$refs.dailyGoalInput,
-            this.$refs.workSessionDurationInput,
-            this.$refs.breakSessionDurationInput
-        ] as FormInput[];
-
-        if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
-            return false;
-        }
-
-        return Boolean(this.profile.displayName.trim());
-    }
-
     public validateRange(value: number, min: number, max: number): string {
         if (!value.toString()) {
             return 'value must be a number';
@@ -172,28 +158,49 @@ export default class Settings extends Vue {
     public onNameChange(name: string): void {
         this.profile.displayName = name.trim();
         this.isSaved = false;
+        this.validateSettings();
     }
 
     public onDailyWorkDurationChange(hours: number): void {
         const duration = TimeUtility.convertTime(hours, 'hour', 'millisecond');
         this.profile.timeSessionOptions.dailyWorkDuration = duration;
         this.isSaved = false;
+        this.validateSettings();
     }
 
     public onWorkSessionDurationChange(minutes: number): void {
         const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
         this.profile.timeSessionOptions.workSessionDuration = duration;
         this.isSaved = false;
+        this.validateSettings();
     }
 
     public onBreakSessionDurationChange(minutes: number): void {
         const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
         this.profile.timeSessionOptions.breakSessionDuration = duration;
         this.isSaved = false;
+        this.validateSettings();
     }
 
     public async onSave(): Promise<void> {
         this.isSaved = await this.userStore.updateProfile(this.profile);
+        this.canSave = !this.isSaved;
+    }
+
+    private validateSettings(): void {
+        const inputs = [
+            this.$refs.nameInput,
+            this.$refs.dailyGoalInput,
+            this.$refs.workSessionDurationInput,
+            this.$refs.breakSessionDurationInput
+        ] as FormInput[];
+
+        if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
+            this.canSave = false;
+        }
+        else {
+            this.canSave = Boolean(this.profile.displayName.trim());
+        }
     }
 }
 </script>
