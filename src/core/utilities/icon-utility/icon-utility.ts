@@ -4,12 +4,12 @@ import { FlashAlert, Food, Lightbulb, MusicNote, ProgressQuestion, Target } from
 import { IconConfig } from '../../models/generic/icon-config';
 
 export class IconUtility {
-    public static getWorkingTypeIcon(): IconConfig {
-        return new IconConfig(markRaw(Lightbulb));
+    public static getWorkingTypeIcon(color = 'var(--font-colors-0-00)'): IconConfig {
+        return new IconConfig(markRaw(Lightbulb), color);
     }
 
-    public static getNotWorkingTypeIcon(): IconConfig {
-        return new IconConfig(markRaw(MusicNote));
+    public static getNotWorkingTypeIcon(color = 'var(--font-colors-0-00)'): IconConfig {
+        return new IconConfig(markRaw(MusicNote), color);
     }
 
     public static getIdlingTypeIcon(): IconConfig {

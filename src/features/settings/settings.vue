@@ -69,6 +69,20 @@
                     @update:modelValue="onWorkSessionDurationChange($event)">
                 </form-input>
             </div>
+
+            <div class="entry">
+                <span class="type">Break Session <span class="label">(minutes)</span></span>
+
+                <form-input class="form-input"
+                    ref="breakSessionDurationInput"
+                    :modelValue="breakSessionDuration"
+                    :icon="breakIcon"
+                    :type="'number'"
+                    :placeholder="'how long per session?'"
+                    :validator="_ => validateRange(_, 0, 24 * 60)"
+                    @update:modelValue="onBreakSessionDurationChange($event)">
+                </form-input>
+            </div>
         </div>
     </div>
 </template>
@@ -102,7 +116,8 @@ export default class Settings extends Vue {
     public readonly nameIcon = new IconConfig(markRaw(Account), 'var(--font-colors-7-00)');
     public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly goalIcon = new IconConfig(markRaw(FlagCheckered), 'var(--font-colors-7-00)');
-    public readonly workIcon = IconUtility.getWorkingTypeIcon();
+    public readonly workIcon = IconUtility.getWorkingTypeIcon('var(--font-colors-7-00)');
+    public readonly breakIcon = IconUtility.getNotWorkingTypeIcon('var(--font-colors-7-00)');
     public profile!: UserProfile;
     public isSaved = true;
     private userStore!: ReturnType<typeof useUserStore>;
@@ -119,16 +134,25 @@ export default class Settings extends Vue {
         return TimeUtility.convertTime(workSessionDuration, 'millisecond', 'minute');
     }
 
-    public created(): void {
-        this.workIcon.color = 'var(--font-colors-7-00)';
+    get breakSessionDuration(): number {
+        const { breakSessionDuration } = this.profile.timeSessionOptions;
 
+        return TimeUtility.convertTime(breakSessionDuration, 'millisecond', 'minute');
+    }
+
+    public created(): void {
         if (this.userStore.profile) {
             this.profile = JSON.parse(JSON.stringify(this.userStore.profile));
         }
     }
 
     public canSave(): boolean {
-        const inputs = [this.$refs.nameInput, this.$refs.dailyGoalInput, this.$refs.workSessionDurationInput] as FormInput[];
+        const inputs = [
+            this.$refs.nameInput,
+            this.$refs.dailyGoalInput,
+            this.$refs.workSessionDurationInput,
+            this.$refs.breakSessionDurationInput
+        ] as FormInput[];
 
         if (this.isSaved || inputs.some(_ => _ && _.isInvalid)) {
             return false;
@@ -159,6 +183,12 @@ export default class Settings extends Vue {
     public onWorkSessionDurationChange(minutes: number): void {
         const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
         this.profile.timeSessionOptions.workSessionDuration = duration;
+        this.isSaved = false;
+    }
+
+    public onBreakSessionDurationChange(minutes: number): void {
+        const duration = TimeUtility.convertTime(minutes, 'minute', 'millisecond');
+        this.profile.timeSessionOptions.breakSessionDuration = duration;
         this.isSaved = false;
     }
 
