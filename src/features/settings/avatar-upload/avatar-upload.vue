@@ -10,7 +10,7 @@
         </cropper>
 
         <div class="actions">
-            <span>Change Your Avatar</span>
+            <span>Change Profile Picture</span>
             <input type="file" @change="onAvatarSelect($event.target.files)" accept="image/*" />
         </div>
     </div>
@@ -18,24 +18,34 @@
 
 <script lang="ts">
 import { markRaw } from '@vue/reactivity';
-import { Options, Vue } from 'vue-class-component';
+import { Options, Vue, prop } from 'vue-class-component';
 import { CircleStencil, Cropper } from 'vue-advanced-cropper';
+
+class AvatarUploadProp {
+    public avatarUrl = prop<string>({ default: null });
+}
 
 @Options({
     components: {
         Cropper
     },
+    watch: {
+        avatarUrl(): void {
+            this.src = '';
+            this.mime = '';
+        }
+    },
     emits: [
         'change'
     ]
 })
-export default class AvatarUpload extends Vue {
+export default class AvatarUpload extends Vue.with(AvatarUploadProp) {
     public readonly circleStencil = markRaw(CircleStencil);
     public src = '';
     public mime = '';
 
     get placeholderUrl(): string {
-        return require('../../../assets/images/avatar_placeholder.png');
+        return this.avatarUrl ?? require('../../../assets/images/avatar_placeholder.png');
     }
 
     public unmounted(): void {
@@ -100,7 +110,7 @@ export default class AvatarUpload extends Vue {
         margin-left: 3.5vh;
 
         span {
-            margin-bottom: 1vh;
+            margin-bottom: 1.5vh;
         }
     }
 }
