@@ -189,6 +189,10 @@ export default class Settings extends Vue {
     public async onSave(): Promise<void> {
         this.isSaved = await this.userStore.updateProfile(this.profile, this.avatar);
         this.canSave = !this.isSaved;
+
+        if (this.isSaved) {
+            this.profile = JSON.parse(JSON.stringify(this.userStore.profile));
+        }
     }
 
     private validateSettings(): void {
