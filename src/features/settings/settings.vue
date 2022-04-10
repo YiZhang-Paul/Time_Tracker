@@ -18,7 +18,10 @@
         <div class="separator"></div>
 
         <div class="content">
-            <avatar-upload class="avatar-upload" @change="onAvatarChange($event)"></avatar-upload>
+            <avatar-upload class="avatar-upload"
+                :avatarUrl="profile.avatarUrl"
+                @change="onAvatarChange($event)">
+            </avatar-upload>
 
             <div class="entry">
                 <span class="type">Nick Name</span>
@@ -291,7 +294,7 @@ export default class Settings extends Vue {
         @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
 
         .avatar-upload {
-            margin-top: 5vh;
+            margin-top: 3.5vh;
             width: 30%;
             height: 20%;
         }
