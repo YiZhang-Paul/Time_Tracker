@@ -27,9 +27,16 @@ export class UserHttpService {
         return (await axios.post(endpoint, JSON.stringify(idToken), { headers })).data;
     }
 
-    public async updateProfile(profile: UserProfile): Promise<UserProfile | null> {
+    public async updateProfile(profile: UserProfile, avatar: Blob | null = null): Promise<UserProfile | null> {
         try {
-            return (await axios.put(`${this._api}/profile`, profile)).data;
+            const data = new FormData();
+            data.append('profile', JSON.stringify(profile));
+
+            if (avatar) {
+                data.append('avatar', avatar);
+            }
+
+            return (await axios.put(`${this._api}/profile`, data)).data;
         }
         catch {
             return null;

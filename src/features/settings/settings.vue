@@ -18,15 +18,7 @@
         <div class="separator"></div>
 
         <div class="content">
-            <div class="entry">
-                <span class="type">Email <span class="label">(readonly)</span></span>
-
-                <form-input class="form-input"
-                    :modelValue="profile.email"
-                    :icon="emailIcon"
-                    :isReadonly="true">
-                </form-input>
-            </div>
+            <avatar-upload class="avatar-upload" @change="onAvatarChange($event)"></avatar-upload>
 
             <div class="entry">
                 <span class="type">Nick Name</span>
@@ -91,7 +83,7 @@
 import { markRaw } from '@vue/reactivity';
 import { Options, Vue } from 'vue-class-component';
 import { mapStores } from 'pinia';
-import { Account, At, CloudUpload, Cog, FlagCheckered } from 'mdue';
+import { Account, CloudUpload, Cog, FlagCheckered } from 'mdue';
 
 import { useUserStore } from '../../stores/user/user.store';
 import { IconConfig } from '../../core/models/generic/icon-config';
@@ -101,12 +93,15 @@ import { IconUtility } from '../../core/utilities/icon-utility/icon-utility';
 import FlatButton from '../../shared/buttons/flat-button/flat-button.vue';
 import FormInput from '../../shared/inputs/form-input/form-input.vue';
 
+import AvatarUpload from './avatar-upload/avatar-upload.vue';
+
 @Options({
     components: {
         CloudUpload,
         Cog,
         FlatButton,
-        FormInput
+        FormInput,
+        AvatarUpload
     },
     computed: {
         ...mapStores(useUserStore)
@@ -114,13 +109,13 @@ import FormInput from '../../shared/inputs/form-input/form-input.vue';
 })
 export default class Settings extends Vue {
     public readonly nameIcon = new IconConfig(markRaw(Account), 'var(--font-colors-7-00)');
-    public readonly emailIcon = new IconConfig(markRaw(At), 'var(--font-colors-7-00)');
     public readonly goalIcon = new IconConfig(markRaw(FlagCheckered), 'var(--font-colors-7-00)');
     public readonly workIcon = IconUtility.getWorkingTypeIcon('var(--font-colors-7-00)');
     public readonly breakIcon = IconUtility.getNotWorkingTypeIcon('var(--font-colors-7-00)');
     public profile!: UserProfile;
     public isSaved = true;
     public canSave = false;
+    private avatar: Blob | null = null;
     private userStore!: ReturnType<typeof useUserStore>;
 
     get dailyWorkDuration(): number {
@@ -155,6 +150,12 @@ export default class Settings extends Vue {
         return value >= min && value <= max ? '' : `value must be between ${min} and ${max}`;
     }
 
+    public onAvatarChange(avatar: Blob): void {
+        this.avatar = avatar;
+        this.isSaved = false;
+        this.validateSettings();
+    }
+
     public onNameChange(name: string): void {
         this.profile.displayName = name.trim();
         this.isSaved = false;
@@ -183,7 +184,7 @@ export default class Settings extends Vue {
     }
 
     public async onSave(): Promise<void> {
-        this.isSaved = await this.userStore.updateProfile(this.profile);
+        this.isSaved = await this.userStore.updateProfile(this.profile, this.avatar);
         this.canSave = !this.isSaved;
     }
 
@@ -288,6 +289,12 @@ export default class Settings extends Vue {
         width: 100%;
         height: 85%;
         @include animate-property(opacity, 0, 1, 0.3s, 0.5s);
+
+        .avatar-upload {
+            margin-top: 5vh;
+            width: 30%;
+            height: 20%;
+        }
 
         .entry {
             @include flex-row(center);
