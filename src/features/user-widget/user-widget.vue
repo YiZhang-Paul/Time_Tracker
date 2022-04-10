@@ -66,6 +66,7 @@ export default class UserWidget extends Vue.with(UserWidgetProp) {
     .avatar {
         min-width: 6vh;
         min-height: 6vh;
+        border-radius: 50%;
         background-repeat: no-repeat;
         background-position: center center;
         background-size: contain;

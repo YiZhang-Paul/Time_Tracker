@@ -89,6 +89,7 @@ export default class AvatarUpload extends Vue {
     }
 
     .placeholder {
+        border-radius: 50%;
         background-repeat: no-repeat;
         background-position: center center;
         background-size: contain;
