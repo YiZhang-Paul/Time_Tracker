@@ -134,6 +134,7 @@ export default class SettingsViewSelector extends Vue {
         .avatar {
             width: 7.5vh;
             height: 7.5vh;
+            border-radius: 50%;
             background-repeat: no-repeat;
             background-position: center center;
             background-size: contain;

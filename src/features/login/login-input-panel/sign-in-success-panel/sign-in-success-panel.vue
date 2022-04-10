@@ -1,7 +1,7 @@
 <template>
     <div class="sign-in-success-panel-container">
         <div class="avatar">
-            <img src="../../../../assets/images/avatar_placeholder.png" />
+            <img :src="avatarUrl" />
         </div>
 
         <div class="fill"></div>
@@ -34,6 +34,10 @@ export default class SignInSuccessPanel extends Vue {
 
     get name(): string {
         return this.userStore.profile?.displayName ?? '';
+    }
+
+    get avatarUrl(): string {
+        return this.userStore.profile?.avatarUrl ?? require('../../../../assets/images/avatar_placeholder.png');
     }
 
     public mounted(): void {

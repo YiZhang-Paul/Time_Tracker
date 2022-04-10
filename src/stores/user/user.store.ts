@@ -77,8 +77,8 @@ export const useUserStore = defineStore('user', {
         async sendVerification(): Promise<boolean> {
             return this.idToken ? await getAuthenticator().sendVerification(this.idToken) : false;
         },
-        async updateProfile(profile: UserProfile): Promise<boolean> {
-            const updated = await userHttpService.updateProfile(profile);
+        async updateProfile(profile: UserProfile, avatar: Blob | null): Promise<boolean> {
+            const updated = await userHttpService.updateProfile(profile, avatar);
 
             if (updated) {
                 this.signInResponse!.profile = updated;
